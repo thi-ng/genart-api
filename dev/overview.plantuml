@@ -1,0 +1,70 @@
+@startuml
+title Art player initialization
+autonumber 1.1
+participant Browser
+participant ArtPiece
+participant API
+participant PlatformAdapter
+participant TimingProvider
+
+activate Browser
+	== Startup ==
+
+	Browser -> Browser : Load HTML w/ GenArt API script
+	Browser -> PlatformAdapter : Load platform adapter script
+	Browser -> ArtPiece : Load art piece script
+	activate API
+		API -> API : Initialize
+		PlatformAdapter -> PlatformAdapter : Initialize (optional)
+		TimingProvider -> TimingProvider : Initialize (optional)
+		loop
+		API -> API : Wait for adapter registration
+		end
+		PlatformAdapter -> API : Register adapter
+		API -> PlatformAdapter : Request random seed param
+		note left : using reserved param name
+		PlatformAdapter --> API : Seed value
+		API -> API : Init PRNG
+		note left : e.g. transaction hash / timestamp
+		API -> API : Set execution mode
+		note left : Play / Capture / Mint
+	deactivate API
+
+	activate ArtPiece
+		ArtPiece -> API : Declare & register param specs
+		note left
+			via function call or
+			exposing global var
+		end note
+		ArtPiece -> API : Request param values (async)
+		API -> PlatformAdapter : Request values (pass specs)
+
+		activate PlatformAdapter
+			PlatformAdapter -> PlatformAdapter : Load & parse params
+			PlatformAdapter --> API : Param values
+		deactivate PlatformAdapter
+		API --> ArtPiece : Param values
+
+		ArtPiece -> API : Request screen config
+		API --> ArtPiece : Config
+		ArtPiece -> ArtPiece : Initialize
+
+		== Animation loop ==
+		ArtPiece ->	API : Register update/draw function
+		API -> TimingProvider : Start (reset timestamp)
+	deactivate ArtPiece
+
+	activate API
+		loop Animation loop
+			API -> TimingProvider : Request timestamp
+			TimingProvider --> API : Timestamp
+			API -> ArtPiece : Call update w/ timestamp
+			ArtPiece -> ArtPiece : Generate next frame
+			ArtPiece --> API : Notify screen capture (once, after X seconds)
+			API --> API : Handle screen capture
+		end
+	deactivate API
+
+deactivate Browser
+
+@enduml
