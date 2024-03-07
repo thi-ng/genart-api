@@ -1,0 +1,20 @@
+{
+	"name": "@thi.ng/genart-api",
+	"version": "0.0.1",
+	"description": "TODO",
+	"repository": "https://github.com/thi-ng/genart-api",
+	"author": "Karsten Schmidt <k+npm@thi.ng>",
+	"license": "Apache-2.0",
+	"type": "module",
+	"scripts": {
+		"start": "vite --host --open",
+		"build": "tsc && vite build --base='./'",
+		"preview": "vite preview --host --open"
+	},
+	"devDependencies": {
+		"typescript": "5.4.2",
+		"vite": "5.1.5",
+		"vite-plugin-html": "3.2.2"
+	},
+	"sideEffects": false
+}
