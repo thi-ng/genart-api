@@ -9,6 +9,8 @@
 	"scripts": {
 		"start": "vite --host --open",
 		"build": "tsc && vite build --base='./'",
+		"build:lib": "bun build --outfile=lib.js --target browser --minify --bundle src/genart-api.ts",
+		"build:lib:min": "bun build --outfile=lib.min.js --target browser --minify --bundle src/genart-api.ts",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {

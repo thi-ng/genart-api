@@ -2,13 +2,18 @@ export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
 
 export type RandomFn = () => number;
+export type UpdateFn = (t: number, frame: number) => void;
+
+export type RunMode = "play" | "capture" | "mint";
 
 export interface GenArtAPI {
+	readonly mode: RunMode;
 	readonly screen: ScreenConfig;
 	readonly random: PRNG;
+	readonly isRunning: boolean;
 
 	setAdapter(adapter: PlatformAdapter): void;
-
+	setTime(time: TimeProvider): void;
 	setParams(specs: ParamSpecs): void;
 	getParams<T extends ParamSpecs>(t?: number): Promise<Maybe<ParamValues<T>>>;
 	getParam<T extends ParamSpec<T>>(
@@ -16,11 +21,26 @@ export interface GenArtAPI {
 		spec: T,
 		time?: number
 	): Promise<ParamValue<T>>;
+	setUpdate(fn: UpdateFn): void;
+
+	registerParamType<T>(type: string, param: ParamImpl<T>): void;
+
+	start(resume?: boolean): void;
+	stop(): void;
 
 	capture(): void;
+
+	utils: {
+		clamp: (x: number, min: number, max: number) => number;
+		round: (x: number, step: number) => number;
+		u8: (x: number) => string;
+		u16: (x: number) => string;
+		u24: (x: number) => string;
+	};
 }
 
 export interface PlatformAdapter {
+	readonly mode: RunMode;
 	readonly screen: ScreenConfig;
 	readonly prng: PRNG;
 
@@ -32,6 +52,12 @@ export interface PlatformAdapter {
 		time: number
 	): Maybe<NumOrString>;
 	capture(): void;
+}
+
+export interface TimeProvider {
+	start(fn: UpdateFn): void;
+	next(fn: () => void): void;
+	tick(): [number, number];
 }
 
 export interface ScreenConfig {

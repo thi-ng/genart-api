@@ -9,7 +9,7 @@ type BaseParam<T extends ParamSpec<any>, K extends string = ""> = Omit<
 
 export const flag = (spec: BaseParam<Flag>): Flag => ({
 	type: "flag",
-	tooltip: "toggle on/off",
+	tooltip: "on/off switch",
 	...spec,
 });
 
@@ -17,14 +17,14 @@ export const range = (
 	spec: BaseParam<Range, "step"> & { step?: number }
 ): Range => ({
 	type: "range",
-	tooltip: "range",
+	tooltip: "value from range",
 	step: 1,
 	...spec,
 });
 
 export const color = (spec: BaseParam<Color>): Color => ({
 	type: "color",
-	tooltip: "rgb",
+	tooltip: "hex color",
 	...spec,
 });
 
