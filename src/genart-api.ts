@@ -33,6 +33,7 @@ globalThis.$genartAPI = new (class {
 	protected _prng?: PRNG;
 	protected _update?: UpdateFn;
 	protected _running = false;
+
 	protected _paramTypes: Record<string, Pick<ParamImpl<any>, "randomize">> = {
 		flag: {
 			randomize(rnd) {
@@ -57,6 +58,24 @@ globalThis.$genartAPI = new (class {
 			},
 		},
 	};
+
+	constructor() {
+		window.addEventListener("message", (e) => {
+			if (e.data == null || typeof e.data !== "object" || e.data.__self)
+				return;
+			switch (e.data.id) {
+				case `${prefix}start`:
+					this.start();
+					break;
+				case `${prefix}resume`:
+					this.start(true);
+					break;
+				case `${prefix}stop`:
+					this.stop();
+					break;
+			}
+		});
+	}
 
 	get mode() {
 		return this._adapter?.mode || "play";
@@ -92,6 +111,11 @@ globalThis.$genartAPI = new (class {
 
 	setParams(specs: ParamSpecs) {
 		this._specs = specs;
+		parent.postMessage({
+			id: `${prefix}params`,
+			data: specs,
+			__self: true,
+		});
 	}
 
 	async getParams<T extends ParamSpecs>(time = 0) {
@@ -130,21 +154,27 @@ globalThis.$genartAPI = new (class {
 		if (this._running) return;
 		if (!this._update) throw new Error("missing update function");
 		this.ensureTimeProvider();
-		this._running = !0;
+		this._running = false;
 		const update = () => {
 			if (!this._running) return;
 			this._update!(...this._time!.tick());
 			this._time.next(update);
 		};
 		resume ? update() : this._time.start(update);
+		parent.postMessage({
+			id: `${prefix}${resume ? "resume" : "start"}`,
+			__self: true,
+		});
 	}
 
 	stop() {
 		this._running = false;
+		parent.postMessage({ id: `${prefix}stop`, __self: true });
 	}
 
 	capture() {
 		this._adapter?.capture();
+		parent.postMessage({ id: `${prefix}capture`, __self: true });
 	}
 
 	protected ensureAdapter() {
