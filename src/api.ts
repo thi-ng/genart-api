@@ -89,9 +89,9 @@ export interface Param<T> {
 	update?: "reload" | "event";
 }
 
-export interface ChoiceParam extends Param<string> {
+export interface ChoiceParam<T extends string> extends Param<T> {
 	type: "choice";
-	options: (string | [string, string])[];
+	options: (T | [T, string])[];
 }
 
 export interface ColorParam extends Param<string> {
@@ -126,9 +126,9 @@ export interface ToggleParam extends Param<boolean> {
 	type: "toggle";
 }
 
-export interface WeightedChoiceParam extends Param<string> {
+export interface WeightedChoiceParam<T extends string> extends Param<T> {
 	type: "weighted";
-	options: [number, string, string?][];
+	options: [number, T, string?][];
 	total: number;
 }
 

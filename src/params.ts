@@ -22,7 +22,9 @@ export const color = (spec: BaseParam<ColorParam>): ColorParam => ({
 	...spec,
 });
 
-export const choice = (spec: BaseParam<ChoiceParam>): ChoiceParam => ({
+export const choice = <T extends string>(
+	spec: BaseParam<ChoiceParam<T>>
+): ChoiceParam<T> => ({
 	type: "choice",
 	...spec,
 });
@@ -60,9 +62,9 @@ export const toggle = (spec: BaseParam<ToggleParam>): ToggleParam => ({
 	...spec,
 });
 
-export const weighted = (
-	spec: BaseParam<WeightedChoiceParam>
-): WeightedChoiceParam => ({
+export const weighted = <T extends string>(
+	spec: BaseParam<WeightedChoiceParam<T>>
+): WeightedChoiceParam<T> => ({
 	type: "weighted",
 	tooltip: "weighted choice",
 	...spec,

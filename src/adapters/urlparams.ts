@@ -50,7 +50,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		switch (spec.type) {
 			case "choice":
 				{
-					const $spec = <ChoiceParam>spec;
+					const $spec = <ChoiceParam<any>>spec;
 					const idx = parseNum(value, -1);
 					if (idx < 0 || idx >= $spec.options.length)
 						return illegalArg(id, value);
