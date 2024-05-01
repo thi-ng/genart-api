@@ -1,76 +1,116 @@
 import type {
-	Choice,
+	APIEvent,
+	EventType,
+	EventTypeMap,
+	GenArtAPI,
+	Param,
+	ParamChangeEvent,
 	ParamImpl,
-	ParamSpec,
 	ParamSpecs,
 	ParamValue,
-	ParamValues,
 	PlatformAdapter,
 	PRNG,
-	Range,
+	RampParam,
+	RangeParam,
+	RunState,
 	TimeProvider,
 	UpdateFn,
+	WeightedChoiceParam,
 } from "./api.js";
+import * as math from "./math.js";
+import * as params from "./params.js";
 import { timeProviderRAF } from "./time/time-raf.js";
 
-const prefix = "genart:";
-
-const round = (x: number, step: number) => Math.round(x / step) * step;
-
-const clamp = (x: number, min: number, max: number) =>
-	Math.min(Math.max(x, min), max);
-
-const u8 = (x: number) => ((x &= 0xff), (x < 16 ? "0" : "") + x.toString(16));
-
-const u16 = (x: number) => ((x &= 0xffff), u8(x >>> 16) + u8(x & 0xff));
-
-const u24 = (x: number) => ((x &= 0xffffff), u16(x >>> 8) + u8(x & 0xff));
-
-globalThis.$genartAPI = new (class {
-	protected _time = timeProviderRAF();
+class API implements GenArtAPI {
+	_id?: string;
 	protected _adapter?: PlatformAdapter;
-	protected _specs?: ParamSpecs;
+	protected _time: TimeProvider = timeProviderRAF();
 	protected _prng?: PRNG;
 	protected _update?: UpdateFn;
-	protected _running = false;
-
-	protected _paramTypes: Record<string, Pick<ParamImpl<any>, "randomize">> = {
-		flag: {
-			randomize(rnd) {
-				return rnd() < 0.5;
-			},
+	protected _state: RunState = "init";
+	protected _params: Record<string, Param<any>> = {};
+	protected _paramTypes: Record<string, ParamImpl> = {
+		range: (spec) => {
+			const $spec = <RangeParam>spec;
+			return math.clamp(
+				math.round($spec.value ?? $spec.default, $spec.step || 1),
+				$spec.min,
+				$spec.max
+			);
 		},
-		range: {
-			randomize(rnd, spec) {
-				const { min, max, step } = <Range>spec;
-				return clamp(round(min + rnd() * (max - min), step), min, max);
-			},
+		ramp: (spec, t) => {
+			const { stops, mode } = <RampParam>spec;
+			let n = stops.length;
+			let i = n;
+			for (; i-- > 0; ) {
+				if (t >= stops[i][0]) break;
+			}
+			n--;
+			return i < 0
+				? stops[0][1]
+				: i >= n
+				? stops[n][1]
+				: {
+						linear: (
+							stops: [number, number][],
+							i: number,
+							t: number
+						) => {
+							const a = stops[i];
+							const b = stops[i + 1];
+							return math.fit(t, a[0], b[0], a[1], b[1]);
+						},
+						smooth: (
+							stops: [number, number][],
+							i: number,
+							t: number
+						) => {
+							const a = stops[i];
+							const b = stops[i + 1];
+							return math.mix(
+								a[1],
+								b[1],
+								math.smoothStep01(math.norm(t, a[0], b[0]))
+							);
+						},
+				  }[mode || "linear"](stops, i, t);
 		},
-		color: {
-			randomize(rnd) {
-				return "#" + u24((rnd() * 0x1_0000_0000) | 0);
-			},
-		},
-		choice: {
-			randomize(rnd, spec) {
-				const { choices } = <Choice>spec;
-				return choices[(rnd() * choices.length) | 0];
-			},
+		weighted: (spec, _, rnd) => {
+			let {
+				options,
+				total,
+				default: fallback,
+			} = <WeightedChoiceParam>spec;
+			const r = rnd() * total;
+			for (let i = 0, n = options.length; i < n; i++) {
+				total -= options[i][0];
+				if (total <= r) return options[i][1];
+			}
+			return fallback;
 		},
 	};
 
+	readonly math = math;
+	readonly params = params;
+
 	constructor() {
 		window.addEventListener("message", (e) => {
-			if (e.data == null || typeof e.data !== "object" || e.data.__self)
+			console.log("genart msg", e.data);
+			if (
+				e.data == null ||
+				typeof e.data !== "object" ||
+				(this._id && e.data.id !== this._id) ||
+				e.data.__self
+			)
 				return;
-			switch (e.data.id) {
-				case `${prefix}start`:
+			switch (<EventType>e.data.type) {
+				case "genart:start":
 					this.start();
 					break;
-				case `${prefix}resume`:
+				case "genart:resume":
 					this.start(true);
 					break;
-				case `${prefix}stop`:
+				case "genart:stop":
 					this.stop();
 					break;
 			}
@@ -97,84 +137,122 @@ globalThis.$genartAPI = new (class {
 		return (this._prng = this._adapter!.prng);
 	}
 
-	get isRunning() {
-		return this._running;
+	get state() {
+		return this._state;
+	}
+
+	registerParamType(type: string, impl: ParamImpl) {
+		if (this._paramTypes[type])
+			console.warn("overriding impl for param type:", type);
+		this._paramTypes[type] = impl;
+	}
+
+	setParams<P extends ParamSpecs>(specs: P) {
+		this._params = specs;
+		if (this._adapter) this.updateParams();
+		return <K extends keyof P>(id: K, t?: number) =>
+			this.getParamValue<P, K>(id, t);
 	}
 
 	setAdapter(adapter: PlatformAdapter) {
 		this._adapter = adapter;
+		this.updateParams();
+		if (this._state === "init" && this._time) this._state = "ready";
 	}
 
-	setTime(time: TimeProvider) {
+	waitForAdapter() {
+		return this.waitFor("_adapter");
+	}
+
+	setTimeProvider(time: TimeProvider) {
 		this._time = time;
+		if (this._state === "init" && this._adapter) this._state = "ready";
 	}
 
-	setParams(specs: ParamSpecs) {
-		this._specs = specs;
-		parent.postMessage({
-			id: `${prefix}params`,
-			data: specs,
-			__self: true,
-		});
-	}
-
-	async getParams<T extends ParamSpecs>(time = 0) {
-		if (!this._specs) return;
-		this.ensureAdapter();
-		return Object.entries(this._specs).reduce((acc, [id, spec]) => {
-			let val = this._adapter!.paramValue(id, spec, time);
-			if (val === undefined) {
-				console.warn(`missing param type: ${spec.type} for ${id}`);
-				val = spec.default;
-			}
-			(<any>acc)[id] = val;
-			return acc;
-		}, <ParamValues<T>>{});
-	}
-
-	async getParam<T extends ParamSpec<any>>(id: string, spec: T, t = 0) {
-		this.ensureAdapter();
-		let val = this._adapter!.paramValue(id, spec, t);
-		if (val === undefined) {
-			console.warn(`missing param type: ${spec.type} for ${id}`);
-			val = spec.default;
-		}
-		return <ParamValue<T>>val;
-	}
-
-	registerParamType<T>(type: string, param: ParamImpl<T>): void {
-		this._paramTypes[type] = param;
+	waitForTimeProvider() {
+		return this.waitFor("_time");
 	}
 
 	setUpdate(fn: UpdateFn) {
 		this._update = fn;
 	}
 
+	updateParams(notify = false) {
+		if (!this._adapter) return;
+		for (let id in this._params) {
+			this.updateParam(id, this._params[id], notify);
+		}
+	}
+
+	updateParam(id: string, spec: Param<any>, notify = true) {
+		this._params[id] = spec;
+		const update = this._adapter?.updateParam(id, spec);
+		if (notify && update) {
+			if (spec.update === "reload") location.reload();
+			else
+				this.emit<ParamChangeEvent>({
+					type: "genart:paramchange",
+					paramID: id,
+					spec,
+					__self: true,
+				});
+		}
+	}
+
+	getParamValue<T extends ParamSpecs, K extends keyof T>(
+		id: K,
+		t = 0
+	): ParamValue<T[K]> {
+		const spec = this._params[<string>id];
+		if (!spec) throw new Error(`unknown param: ${<string>id}`);
+		const impl = this._paramTypes[spec.type];
+		return impl
+			? impl(spec, t, this.random.rnd)
+			: spec.value ?? spec.default;
+	}
+
+	on<T extends EventType>(type: T, listener: (e: EventTypeMap[T]) => void) {
+		window.addEventListener("message", (e) => {
+			// console.log("msg", e.data);
+			if (e.data?.type === type) listener(e.data);
+		});
+	}
+
+	emit<T extends APIEvent>(e: T, target: "self" | "parent" | "all" = "all") {
+		if (this._id) e.id = this._id;
+		if (target === "all" || target === "self") window.postMessage(e, "*");
+		if ((target === "all" && parent !== window) || target === "parent")
+			parent.postMessage(e, "*");
+	}
+
 	start(resume = false) {
-		if (this._running) return;
+		if (this._state == "play") return;
+		if (this._state !== "ready" && this._state !== "stop")
+			throw new Error(`can't start in state: ${this._state}`);
 		if (!this._update) throw new Error("missing update function");
 		this.ensureTimeProvider();
-		this._running = false;
+		this._state = "play";
 		const update = () => {
-			if (!this._running) return;
-			this._update!(...this._time!.tick());
-			this._time.next(update);
+			if (this._state != "play") return;
+			this._update!.call(null, ...this._time!.tick());
+			this._time!.next(update);
 		};
-		resume ? update() : this._time.start(update);
-		parent.postMessage({
-			id: `${prefix}${resume ? "resume" : "start"}`,
+		resume ? update() : this._time!.start(update);
+		this.emit({
+			type: `genart:${resume ? "resume" : "start"}`,
 			__self: true,
 		});
 	}
 
 	stop() {
-		this._running = false;
-		parent.postMessage({ id: `${prefix}stop`, __self: true });
+		if (this._state !== "play") return;
+		this._state = "stop";
+		this.emit({ type: `genart:stop`, __self: true });
 	}
 
 	capture() {
 		this._adapter?.capture();
-		parent.postMessage({ id: `${prefix}capture`, __self: true });
+		this.emit({ type: `genart:capture`, __self: true }, "parent");
 	}
 
 	protected ensureAdapter() {
@@ -185,11 +263,19 @@ globalThis.$genartAPI = new (class {
 		if (!this._time) throw new Error("missing time provider");
 	}
 
-	utils = {
-		round,
-		clamp,
-		u8,
-		u16,
-		u24,
-	};
-})();
+	protected waitFor(type: "_adapter" | "_time") {
+		return this[type]
+			? Promise.resolve()
+			: new Promise<void>((resolve) => {
+					const check = () => {
+						if (this[type]) resolve();
+						else {
+							setTimeout(check, 0);
+						}
+					};
+					check();
+			  });
+	}
+}
+
+globalThis.$genart = new API();

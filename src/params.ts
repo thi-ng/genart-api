@@ -1,35 +1,77 @@
-import type { Choice, Color, Flag, ParamSpec, Range } from "./api.js";
+import type {
+	ChoiceParam,
+	ColorParam,
+	Param,
+	RampParam,
+	RangeParam,
+	TextParam,
+	ToggleParam,
+	WeightedChoiceParam,
+	XYParam,
+} from "./api.js";
 
-type BaseParam<T extends ParamSpec<any>, K extends string = ""> = Omit<
+type BaseParam<T extends Param<any>, K extends string = ""> = Omit<
 	T,
 	"type" | "tooltip" | K
 > & {
 	tooltip?: string;
 };
 
-export const flag = (spec: BaseParam<Flag>): Flag => ({
-	type: "flag",
-	tooltip: "on/off switch",
+export const color = (spec: BaseParam<ColorParam>): ColorParam => ({
+	type: "color",
+	...spec,
+});
+
+export const choice = (spec: BaseParam<ChoiceParam>): ChoiceParam => ({
+	type: "choice",
+	...spec,
+});
+
+export const ramp = (
+	spec: BaseParam<RampParam, "stops" | "default"> &
+		Partial<Pick<RampParam, "stops" | "default">>
+): RampParam => ({
+	type: "ramp",
+	default: 0,
+	stops: [
+		[0, 0],
+		[1, 1],
+	],
 	...spec,
 });
 
 export const range = (
-	spec: BaseParam<Range, "step"> & { step?: number }
-): Range => ({
+	spec: BaseParam<RangeParam, "step"> & Pick<RangeParam, "step">
+): RangeParam => ({
 	type: "range",
-	tooltip: "value from range",
 	step: 1,
 	...spec,
 });
 
-export const color = (spec: BaseParam<Color>): Color => ({
-	type: "color",
-	tooltip: "hex color",
+export const text = (spec: BaseParam<TextParam>): TextParam => ({
+	type: "text",
+	tooltip: "text",
 	...spec,
 });
 
-export const choice = (spec: BaseParam<Choice>): Choice => ({
-	type: "choice",
-	tooltip: "choice",
+export const toggle = (spec: BaseParam<ToggleParam>): ToggleParam => ({
+	type: "toggle",
+	tooltip: "on/off switch",
+	...spec,
+});
+
+export const weighted = (
+	spec: BaseParam<WeightedChoiceParam>
+): WeightedChoiceParam => ({
+	type: "weighted",
+	tooltip: "weighted choice",
+	...spec,
+	options: spec.options.sort((a, b) => b[0] - a[0]),
+	total: spec.options.reduce((acc, x) => acc + x[0], 0),
+});
+
+export const xy = (spec: BaseParam<XYParam>): XYParam => ({
+	type: "xy",
+	tooltip: "xy pad",
 	...spec,
 });

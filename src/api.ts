@@ -1,58 +1,154 @@
+import type * as params from "./params.js";
+import type * as math from "./math.js";
+
 export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
 
 export type RandomFn = () => number;
+
 export type UpdateFn = (t: number, frame: number) => void;
 
 export type RunMode = "play" | "capture" | "mint";
 
+export type RunState = "init" | "ready" | "play" | "stop" | "error";
+
 export interface GenArtAPI {
+	id?: string;
 	readonly mode: RunMode;
 	readonly screen: ScreenConfig;
 	readonly random: PRNG;
-	readonly isRunning: boolean;
+	readonly state: RunState;
+
+	readonly params: typeof params;
+	readonly math: typeof math;
+
+	registerParamType(type: string, impl: ParamImpl): void;
+
+	setParams<P extends ParamSpecs>(
+		specs: P
+	): <K extends keyof P>(id: K, t?: number) => ParamValue<P[K]>;
 
 	setAdapter(adapter: PlatformAdapter): void;
-	setTime(time: TimeProvider): void;
-	setParams(specs: ParamSpecs): void;
-	getParams<T extends ParamSpecs>(t?: number): Promise<Maybe<ParamValues<T>>>;
-	getParam<T extends ParamSpec<T>>(
-		id: string,
-		spec: T,
-		time?: number
-	): Promise<ParamValue<T>>;
-	setUpdate(fn: UpdateFn): void;
+	waitForAdapter(): Promise<void>;
 
-	registerParamType<T>(type: string, param: ParamImpl<T>): void;
+	setTimeProvider(time: TimeProvider): void;
+	waitForTimeProvider(time: TimeProvider): Promise<void>;
+
+	updateParams(notify?: boolean): void;
+
+	updateParam(id: string, spec: Param<any>, notify?: boolean): void;
+
+	getParamValue<T extends ParamSpecs, K extends keyof T>(
+		id: K,
+		t?: number
+	): ParamValue<T[K]>;
+
+	on<T extends EventType>(
+		type: T,
+		listener: (e: EventTypeMap[T]) => void
+	): void;
+
+	emit<T extends APIEvent>(e: T, target?: "self" | "parent" | "all"): void;
+
+	setUpdate(fn: UpdateFn): void;
 
 	start(resume?: boolean): void;
 	stop(): void;
 
 	capture(): void;
-
-	utils: {
-		clamp: (x: number, min: number, max: number) => number;
-		round: (x: number, step: number) => number;
-		u8: (x: number) => string;
-		u16: (x: number) => string;
-		u24: (x: number) => string;
-	};
 }
 
-export interface PlatformAdapter {
-	readonly mode: RunMode;
-	readonly screen: ScreenConfig;
-	readonly prng: PRNG;
-
-	setParam<T extends ParamSpec<any>>(id: string, param: T): void;
-
-	paramValue(
-		id: string,
-		param: ParamSpec<any>,
-		time: number
-	): Maybe<NumOrString>;
-	capture(): void;
+export interface APIEvent {
+	type: EventType;
+	id?: string;
+	/** @internal */
+	__self?: true;
 }
+
+export interface ParamChangeEvent extends APIEvent {
+	paramID: string;
+	spec: any;
+}
+
+export interface EventTypeMap {
+	"genart:paramchange": ParamChangeEvent;
+	"genart:start": APIEvent;
+	"genart:resume": APIEvent;
+	"genart:stop": APIEvent;
+	"genart:capture": APIEvent;
+}
+
+export type EventType = keyof EventTypeMap;
+
+export interface Param<T> {
+	type: string;
+	doc: string;
+	tooltip?: string;
+	default: T;
+	value?: T;
+	update?: "reload" | "event";
+}
+
+export interface ChoiceParam extends Param<string> {
+	type: "choice";
+	options: (string | [string, string])[];
+}
+
+export interface ColorParam extends Param<string> {
+	type: "color";
+	options?: string[];
+}
+
+export interface RampParam extends Param<number> {
+	type: "ramp";
+	stops: [number, number][];
+	mode?: "linear" | "smooth";
+}
+
+export interface RangeParam extends Param<number> {
+	type: "range";
+	min: number;
+	max: number;
+	step?: number;
+	exp?: number;
+}
+
+export interface TextParam extends Param<string> {
+	type: "text";
+	min?: number;
+	max?: number;
+	multiline?: boolean;
+	/** String-encoded regexp pattern */
+	match?: string;
+}
+
+export interface ToggleParam extends Param<boolean> {
+	type: "toggle";
+}
+
+export interface WeightedChoiceParam extends Param<string> {
+	type: "weighted";
+	options: [number, string, string?][];
+	total: number;
+}
+
+export interface XYParam extends Param<[number, number]> {
+	type: "xy";
+}
+
+export type ParamSpecs = Record<string, Param<any>>;
+
+export type ParamValues<T extends ParamSpecs> = {
+	[id in keyof T]: ParamValue<T[id]>;
+};
+
+export type ParamValue<T extends Param<any>> = NonNullable<T["value"]>;
+
+export type ParamImpl<T = any> = (
+	spec: Param<T>,
+	t: number,
+	rnd: RandomFn
+) => T;
 
 export interface TimeProvider {
 	start(fn: UpdateFn): void;
@@ -60,10 +156,13 @@ export interface TimeProvider {
 	tick(): [number, number];
 }
 
-export interface ScreenConfig {
-	width: number;
-	height: number;
-	dpr: number;
+export interface PlatformAdapter {
+	readonly mode: RunMode;
+	readonly screen: ScreenConfig;
+	readonly prng: PRNG;
+
+	updateParam(id: string, spec: Param<any>): boolean;
+	capture(): void;
 }
 
 export interface PRNG {
@@ -71,63 +170,8 @@ export interface PRNG {
 	rnd: () => number;
 }
 
-export interface ParamSpec<T> {
-	type: string;
-	doc: string;
-	tooltip: string;
-	default: T;
+export interface ScreenConfig {
+	width: number;
+	height: number;
+	dpr: number;
 }
-
-export interface ParamImpl<T> {
-	eval(src: string, spec: ParamSpec<T>, t: number): T;
-	randomize(rnd: RandomFn, spec: ParamSpec<T>): T;
-	stringify(x: T, spec: ParamSpec<T>): string;
-}
-
-export interface Flag extends ParamSpec<boolean> {
-	type: "flag";
-}
-
-export interface Color extends ParamSpec<string> {
-	type: "color";
-}
-
-export interface Range extends ParamSpec<number> {
-	type: "range";
-	min: number;
-	max: number;
-	step: number;
-}
-
-export interface XY extends ParamSpec<[number, number]> {
-	type: "xy";
-}
-
-export interface Choice extends ParamSpec<string> {
-	type: "choice";
-	choices: string[];
-}
-
-export interface WeightedChoice extends ParamSpec<string> {
-	type: "weighted";
-	choices: [string, number][];
-}
-
-export interface Ramp extends ParamSpec<number> {
-	type: "ramp";
-	stops: [number, number][];
-}
-
-export type ParamSpecs = Record<string, ParamSpec<any>>;
-
-export type ParamValues<T extends ParamSpecs> = {
-	[id in keyof T]: ParamValue<T[id]>;
-};
-
-export type ParamValue<T extends ParamSpec<any>> = T extends Flag
-	? boolean
-	: T extends Range | Ramp
-	? number
-	: T extends Color | Choice | WeightedChoice
-	? string
-	: any;
