@@ -80,7 +80,7 @@ class API implements GenArtAPI {
 				options,
 				total,
 				default: fallback,
-			} = <WeightedChoiceParam>spec;
+			} = <WeightedChoiceParam<any>>spec;
 			const r = rnd() * total;
 			for (let i = 0, n = options.length; i < n; i++) {
 				total -= options[i][0];

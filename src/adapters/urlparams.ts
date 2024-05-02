@@ -30,9 +30,12 @@ class URLParamsAdapter implements PlatformAdapter {
 
 	get screen() {
 		return {
-			width: parseNum("__width", window.innerWidth),
-			height: parseNum("__height", window.innerHeight),
-			dpr: parseNum("__dpr", window.devicePixelRatio || 1),
+			width: parseNum(this.params.get("__width"), window.innerWidth),
+			height: parseNum(this.params.get("__height"), window.innerHeight),
+			dpr: parseNum(
+				this.params.get("__dpr"),
+				window.devicePixelRatio || 1
+			),
 		};
 	}
 

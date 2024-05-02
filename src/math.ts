@@ -1,5 +1,5 @@
-export const parseNum = (x: string, fallback = 0) => {
-	const y = parseFloat(x);
+export const parseNum = (x: string | null, fallback = 0) => {
+	const y = x ? parseFloat(x) : Number.NaN;
 	return isNaN(y) ? fallback : y;
 };
 
