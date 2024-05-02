@@ -20,7 +20,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		this.params = new URLSearchParams(location.hash.substring(1));
 		window.addEventListener("hashchange", () => {
 			this.params = new URLSearchParams(location.hash.substring(1));
-			$genart.updateParams(true);
+			$genart.updateParams();
 		});
 	}
 

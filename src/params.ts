@@ -35,6 +35,7 @@ export const ramp = (
 ): RampParam => ({
 	type: "ramp",
 	default: 0,
+	mode: "linear",
 	stops: [
 		[0, 0],
 		[1, 1],

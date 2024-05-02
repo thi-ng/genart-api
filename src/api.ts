@@ -10,7 +10,7 @@ export type UpdateFn = (t: number, frame: number) => void;
 
 export type RunMode = "play" | "capture" | "mint";
 
-export type RunState = "init" | "ready" | "play" | "stop" | "error";
+export type RunState = "init" | "ready" | "play" | "stop";
 
 export interface GenArtAPI {
 	id?: string;
@@ -24,8 +24,41 @@ export interface GenArtAPI {
 
 	registerParamType(type: string, impl: ParamImpl): void;
 
+	/**
+	 * Called during initialization of the art piece to declare all of its
+	 * available parameters, their configs and default values. If the platform
+	 * adapter is already set (via {@link GenArtAPI.setAdapter}), this function
+	 * also calls {@link GenArtAPI.updateParams} to apply any param
+	 * customizations/overrides sourced via the adapter. Then posts a
+	 * {@link SetParamsMsg} message to current & parent window, for other
+	 * software components to be notified (e.g. param editors)
+	 *
+	 * Returns a typesafe getter function (based on the declared param specs) to
+	 * obtain (possibly time-based) param values (wraps
+	 * {@link GenArtAPI.getParamValue}).
+	 *
+	 * @example
+	 * ```ts
+	 * const param = $genart.setParams({
+	 *   color: $genart.params.color({ doc: "brush color", default: "#ffff00" }),
+	 *   size: $genart.params.range({ doc: "brush size", default: 10, min: 5, max: 50 }),
+	 *   density: $genart.params.ramp({ doc: "density", stops: [[0, 0.5], [1, 1]] }),
+	 * });
+	 *
+	 * // get possibly customized param values (typesafe)
+	 * const color = param("color"); // inferred as string
+	 * const size = param("size"); // inferred as number
+	 *
+	 * // some param types (e.g. ramp) can produce time-based values
+	 * // (here `t` is in [0,1] range). the time arg defaults to 0 and
+	 * // is ignored by other param types...
+	 * const density = param("density", 0.5);
+	 * ```
+	 *
+	 * @param params
+	 */
 	setParams<P extends ParamSpecs>(
-		specs: P
+		params: P
 	): <K extends keyof P>(id: K, t?: number) => ParamValue<P[K]>;
 
 	setAdapter(adapter: PlatformAdapter): void;
@@ -34,8 +67,30 @@ export interface GenArtAPI {
 	setTimeProvider(time: TimeProvider): void;
 	waitForTimeProvider(time: TimeProvider): Promise<void>;
 
+	/**
+	 * Called from {@link GenArtAPI.setParams} or from {@link PlatformAdapter}
+	 * to apply any param customizations/overrides sourced via the adapter (via
+	 * {@link GenArtAPI.updateParam}).
+	 *
+	 * @remarks
+	 * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts
+	 * {@link ParamChangeMsg} messages to the current window for each param
+	 * whose value has been updated.
+	 */
 	updateParams(notify?: boolean): void;
 
+	/**
+	 * Called from {@link GenArtAPI.updateParams} to apply any param
+	 * customizations/overrides sourced via the adapter.
+	 *
+	 * @remarks
+	 * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts a
+	 * {@link ParamChangeMsg} message to current window if the param's value has
+	 * been updated.
+	 *
+	 * @param id
+	 * @param spec
+	 */
 	updateParam(id: string, spec: Param<any>, notify?: boolean): void;
 
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
@@ -43,12 +98,12 @@ export interface GenArtAPI {
 		t?: number
 	): ParamValue<T[K]>;
 
-	on<T extends EventType>(
+	on<T extends MessageType>(
 		type: T,
-		listener: (e: EventTypeMap[T]) => void
+		listener: (e: MessageTypeMap[T]) => void
 	): void;
 
-	emit<T extends APIEvent>(e: T, target?: "self" | "parent" | "all"): void;
+	emit<T extends APIMessage>(e: T, notify?: NotifyType): void;
 
 	setUpdate(fn: UpdateFn): void;
 
@@ -58,27 +113,35 @@ export interface GenArtAPI {
 	capture(): void;
 }
 
-export interface APIEvent {
-	type: EventType;
-	id?: string;
+export interface APIMessage {
+	type: MessageType;
+	apiID?: string;
 	/** @internal */
-	__self?: true;
+	__self?: boolean;
 }
 
-export interface ParamChangeEvent extends APIEvent {
+export interface ParamChangeMsg extends APIMessage {
 	paramID: string;
 	spec: any;
 }
 
-export interface EventTypeMap {
-	"genart:paramchange": ParamChangeEvent;
-	"genart:start": APIEvent;
-	"genart:resume": APIEvent;
-	"genart:stop": APIEvent;
-	"genart:capture": APIEvent;
+export interface SetParamsMsg extends APIMessage {
+	params: Record<string, Param<any>>;
 }
 
-export type EventType = keyof EventTypeMap;
+export interface MessageTypeMap {
+	"genart:setparams": SetParamsMsg;
+	"genart:paramchange": ParamChangeMsg;
+	"genart:start": APIMessage;
+	"genart:resume": APIMessage;
+	"genart:stop": APIMessage;
+	"genart:capture": APIMessage;
+}
+
+export type MessageType = keyof MessageTypeMap;
+export type MessageSource = "api" | "adapter" | "art";
+
+export type NotifyType = "self" | "parent" | "all";
 
 export interface Param<T> {
 	type: string;

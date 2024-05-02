@@ -1,10 +1,11 @@
 import type {
-	APIEvent,
-	EventType,
-	EventTypeMap,
+	APIMessage,
 	GenArtAPI,
+	MessageType,
+	MessageTypeMap,
+	NotifyType,
 	Param,
-	ParamChangeEvent,
+	ParamChangeMsg,
 	ParamImpl,
 	ParamSpecs,
 	ParamValue,
@@ -13,6 +14,7 @@ import type {
 	RampParam,
 	RangeParam,
 	RunState,
+	SetParamsMsg,
 	TimeProvider,
 	UpdateFn,
 	WeightedChoiceParam,
@@ -94,16 +96,16 @@ class API implements GenArtAPI {
 	readonly params = params;
 
 	constructor() {
-		window.addEventListener("message", (e) => {
-			console.log("genart msg", e.data);
+		window.addEventListener("message", ({ data }) => {
+			// console.log("genart msg", data);
 			if (
-				e.data == null ||
-				typeof e.data !== "object" ||
-				(this._id && e.data.id !== this._id) ||
-				e.data.__self
+				data == null ||
+				typeof data !== "object" ||
+				(this._id && data.id !== this._id) ||
+				data.__origin === "api"
 			)
 				return;
-			switch (<EventType>e.data.type) {
+			switch (<MessageType>data.type) {
 				case "genart:start":
 					this.start();
 					break;
@@ -112,6 +114,9 @@ class API implements GenArtAPI {
 					break;
 				case "genart:stop":
 					this.stop();
+					break;
+				case "genart:paramchange":
+					this.updateParam(data.paramID, data.spec);
 					break;
 			}
 		});
@@ -147,9 +152,14 @@ class API implements GenArtAPI {
 		this._paramTypes[type] = impl;
 	}
 
-	setParams<P extends ParamSpecs>(specs: P) {
-		this._params = specs;
+	setParams<P extends ParamSpecs>(params: P) {
+		this._params = params;
 		if (this._adapter) this.updateParams();
+		this.emit<SetParamsMsg>({
+			type: "genart:setparams",
+			__self: true,
+			params,
+		});
 		return <K extends keyof P>(id: K, t?: number) =>
 			this.getParamValue<P, K>(id, t);
 	}
@@ -157,6 +167,13 @@ class API implements GenArtAPI {
 	setAdapter(adapter: PlatformAdapter) {
 		this._adapter = adapter;
 		this.updateParams();
+		if (Object.keys(this._params).length) {
+			this.emit<SetParamsMsg>({
+				type: "genart:setparams",
+				__self: true,
+				params: this._params,
+			});
+		}
 		if (this._state === "init" && this._time) this._state = "ready";
 	}
 
@@ -190,7 +207,7 @@ class API implements GenArtAPI {
 		if (notify && update) {
 			if (spec.update === "reload") location.reload();
 			else
-				this.emit<ParamChangeEvent>({
+				this.emit<ParamChangeMsg>({
 					type: "genart:paramchange",
 					paramID: id,
 					spec,
@@ -211,17 +228,20 @@ class API implements GenArtAPI {
 			: spec.value ?? spec.default;
 	}
 
-	on<T extends EventType>(type: T, listener: (e: EventTypeMap[T]) => void) {
+	on<T extends MessageType>(
+		type: T,
+		listener: (e: MessageTypeMap[T]) => void
+	) {
 		window.addEventListener("message", (e) => {
 			// console.log("msg", e.data);
 			if (e.data?.type === type) listener(e.data);
 		});
 	}
 
-	emit<T extends APIEvent>(e: T, target: "self" | "parent" | "all" = "all") {
-		if (this._id) e.id = this._id;
-		if (target === "all" || target === "self") window.postMessage(e, "*");
-		if ((target === "all" && parent !== window) || target === "parent")
+	emit<T extends APIMessage>(e: T, notify: NotifyType = "all") {
+		if (this._id) e.apiID = this._id;
+		if (notify === "all" || notify === "self") window.postMessage(e, "*");
+		if ((notify === "all" && parent !== window) || notify === "parent")
 			parent.postMessage(e, "*");
 	}
 
