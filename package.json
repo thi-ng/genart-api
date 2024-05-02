@@ -9,8 +9,7 @@
 	"scripts": {
 		"start": "vite --host --open",
 		"build": "tsc && vite build --base='./'",
-		"build:lib": "yarn esbuild --bundle --platform=browser --target=es2022 --outfile=lib.js src/genart-api.ts",
-		"build:lib:min": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=lib.min.js src/genart-api.ts",
+		"build:lib": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=lib.min.js src/genart-api.ts",
 		"build:adapter": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=adapter.min.js src/adapters/urlparams.ts",
 		"preview": "vite preview --host --open"
 	},
