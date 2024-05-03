@@ -9,8 +9,6 @@ $genart.setAdapter({
 		seed: String(Date.now()),
 		rnd: Math.random,
 	},
-	updateParam() {
-		return false;
-	},
+	updateParam(): undefined {},
 	capture() {},
 });

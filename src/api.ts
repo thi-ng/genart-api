@@ -1,5 +1,6 @@
 import type * as params from "./params.js";
 import type * as math from "./math.js";
+import type * as utils from "./utils.js";
 
 export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
@@ -21,6 +22,7 @@ export interface GenArtAPI {
 
 	readonly params: typeof params;
 	readonly math: typeof math;
+	readonly utils: typeof utils;
 
 	registerParamType(type: string, impl: ParamImpl): void;
 
@@ -79,19 +81,7 @@ export interface GenArtAPI {
 	 */
 	updateParams(notify?: boolean): void;
 
-	/**
-	 * Called from {@link GenArtAPI.updateParams} to apply any param
-	 * customizations/overrides sourced via the adapter.
-	 *
-	 * @remarks
-	 * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts a
-	 * {@link ParamChangeMsg} message to current window if the param's value has
-	 * been updated.
-	 *
-	 * @param id
-	 * @param spec
-	 */
-	updateParam(id: string, spec: Param<any>, notify?: boolean): void;
+	setParamValue(id: string, value: any, notify?: boolean): void;
 
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
@@ -122,15 +112,21 @@ export interface APIMessage {
 
 export interface ParamChangeMsg extends APIMessage {
 	paramID: string;
-	spec: any;
+	spec: Param<any>;
 }
 
 export interface SetParamsMsg extends APIMessage {
 	params: Record<string, Param<any>>;
 }
 
+export interface SetParamValueMsg extends APIMessage {
+	paramID: string;
+	value: any;
+}
+
 export interface MessageTypeMap {
 	"genart:setparams": SetParamsMsg;
+	"genart:setparamvalue": SetParamValueMsg;
 	"genart:paramchange": ParamChangeMsg;
 	"genart:start": APIMessage;
 	"genart:resume": APIMessage;
@@ -139,7 +135,6 @@ export interface MessageTypeMap {
 }
 
 export type MessageType = keyof MessageTypeMap;
-export type MessageSource = "api" | "adapter" | "art";
 
 export type NotifyType = "self" | "parent" | "all";
 
@@ -181,8 +176,8 @@ export interface TextParam extends Param<string> {
 	min?: number;
 	max?: number;
 	multiline?: boolean;
-	/** String-encoded regexp pattern */
-	match?: string;
+	/** Regexp or string-encoded regexp pattern */
+	match?: RegExp | string;
 }
 
 export interface ToggleParam extends Param<boolean> {
@@ -207,11 +202,11 @@ export type ParamValues<T extends ParamSpecs> = {
 
 export type ParamValue<T extends Param<any>> = NonNullable<T["value"]>;
 
-export type ParamImpl<T = any> = (
-	spec: Param<T>,
-	t: number,
-	rnd: RandomFn
-) => T;
+export type ParamImpl<T = any> = {
+	valid: (value: T, spec: Param<T>) => boolean;
+	coerce?: (value: T, spec: Param<T>) => T;
+	read?: (spec: Param<T>, t: number, rnd: RandomFn) => T;
+};
 
 export interface TimeProvider {
 	start(fn: UpdateFn): void;
@@ -224,7 +219,14 @@ export interface PlatformAdapter {
 	readonly screen: ScreenConfig;
 	readonly prng: PRNG;
 
-	updateParam(id: string, spec: Param<any>): boolean;
+	updateParam(
+		id: string,
+		spec: Param<any>
+	): Maybe<{ value?: any; update?: boolean }>;
+	/**
+	 * Platform-specific handler to deal with capturing a thumbnail/preview of
+	 * the art piece. (e.g. by sending a message to the parent window).
+	 */
 	capture(): void;
 }
 

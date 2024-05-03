@@ -1,5 +1,6 @@
 import type {
 	APIMessage,
+	ChoiceParam,
 	GenArtAPI,
 	MessageType,
 	MessageTypeMap,
@@ -15,6 +16,7 @@ import type {
 	RangeParam,
 	RunState,
 	SetParamsMsg,
+	TextParam,
 	TimeProvider,
 	UpdateFn,
 	WeightedChoiceParam,
@@ -22,6 +24,8 @@ import type {
 import * as math from "./math.js";
 import * as params from "./params.js";
 import { timeProviderRAF } from "./time/time-raf.js";
+import * as utils from "./utils.js";
+import { isNumber, isString } from "./utils.js";
 
 class API implements GenArtAPI {
 	_id?: string;
@@ -32,76 +36,107 @@ class API implements GenArtAPI {
 	protected _state: RunState = "init";
 	protected _params: Record<string, Param<any>> = {};
 	protected _paramTypes: Record<string, ParamImpl> = {
-		range: (spec) => {
-			const $spec = <RangeParam>spec;
-			return math.clamp(
-				math.round($spec.value ?? $spec.default, $spec.step || 1),
-				$spec.min,
-				$spec.max
-			);
+		choice: {
+			valid(value, spec) {
+				return (<ChoiceParam<any>>spec).options.find(
+					(x) => (Array.isArray(x) ? x[0] : x) === value
+				);
+			},
 		},
-		ramp: (spec, t) => {
-			const { stops, mode } = <RampParam>spec;
-			let n = stops.length;
-			let i = n;
-			for (; i-- > 0; ) {
-				if (t >= stops[i][0]) break;
-			}
-			n--;
-			return i < 0
-				? stops[0][1]
-				: i >= n
-				? stops[n][1]
-				: {
-						linear: (
-							stops: [number, number][],
-							i: number,
-							t: number
-						) => {
-							const a = stops[i];
-							const b = stops[i + 1];
-							return math.fit(t, a[0], b[0], a[1], b[1]);
-						},
-						smooth: (
-							stops: [number, number][],
-							i: number,
-							t: number
-						) => {
-							const a = stops[i];
-							const b = stops[i + 1];
-							return math.mix(
-								a[1],
-								b[1],
-								math.smoothStep01(math.norm(t, a[0], b[0]))
-							);
-						},
-				  }[mode || "linear"](stops, i, t);
+		color: {
+			valid: (value) => /^#?[0-9a-f]{6}$/.test(value),
+			coerce: (value) => (value[0] !== "#" ? "#" + value : value),
 		},
-		weighted: (spec, _, rnd) => {
-			let {
-				options,
-				total,
-				default: fallback,
-			} = <WeightedChoiceParam<any>>spec;
-			const r = rnd() * total;
-			for (let i = 0, n = options.length; i < n; i++) {
-				total -= options[i][0];
-				if (total <= r) return options[i][1];
-			}
-			return fallback;
+		ramp: {
+			valid: (value) => utils.isNumber(value),
+			read: (spec, t) => {
+				const { stops, mode } = <RampParam>spec;
+				let n = stops.length;
+				let i = n;
+				for (; i-- > 0; ) {
+					if (t >= stops[i][0]) break;
+				}
+				n--;
+				const a = stops[i];
+				const b = stops[i + 1];
+				return i < 0
+					? stops[0][1]
+					: i >= n
+					? stops[n][1]
+					: {
+							linear: () => math.fit(t, a[0], b[0], a[1], b[1]),
+							smooth: () =>
+								math.mix(
+									a[1],
+									b[1],
+									math.smoothStep01(math.norm(t, a[0], b[0]))
+								),
+					  }[mode || "linear"]();
+			},
+		},
+		range: {
+			valid: (value, spec) => {
+				const { min, max } = <RangeParam>spec;
+				return !isNaN(value) && value >= min && value <= max;
+			},
+			coerce(value, spec) {
+				const $spec = <RangeParam>spec;
+				return math.clamp(
+					math.round(value ?? $spec.default, $spec.step || 1),
+					$spec.min,
+					$spec.max
+				);
+			},
+		},
+		text: {
+			valid: (value, spec) => {
+				const { min, max, match } = <TextParam>spec;
+				if (match) {
+					const regexp = isString(match) ? new RegExp(match) : match;
+					if (!regexp.test(value)) return false;
+				}
+				return (
+					(!min || value.length >= min) &&
+					(!max || value.length <= max)
+				);
+			},
+		},
+		weighted: {
+			valid: () => false,
+			read: (spec, _, rnd) => {
+				let {
+					options,
+					total,
+					default: fallback,
+				} = <WeightedChoiceParam<any>>spec;
+				const r = rnd() * total;
+				for (let i = 0, n = options.length; i < n; i++) {
+					total -= options[i][0];
+					if (total <= r) return options[i][1];
+				}
+				return fallback;
+			},
+		},
+		xy: {
+			valid: (value) =>
+				Array.isArray(value) &&
+				value.length == 2 &&
+				value.every(isNumber),
+			coerce: (value) => [math.clamp01(value[0]), math.clamp01(value[1])],
 		},
 	};
 
 	readonly math = math;
 	readonly params = params;
+	readonly utils = utils;
 
 	constructor() {
 		window.addEventListener("message", ({ data }) => {
-			// console.log("genart msg", data);
+			console.log("genart msg", data);
 			if (
 				data == null ||
 				typeof data !== "object" ||
-				(this._id && data.id !== this._id) ||
+				(this._id && data.apiID !== this._id) ||
 				data.__origin === "api"
 			)
 				return;
@@ -115,8 +150,8 @@ class API implements GenArtAPI {
 				case "genart:stop":
 					this.stop();
 					break;
-				case "genart:paramchange":
-					this.updateParam(data.paramID, data.spec);
+				case "genart:setparamvalue":
+					this.setParamValue(data.paramID, data.value, true);
 					break;
 			}
 		});
@@ -155,11 +190,7 @@ class API implements GenArtAPI {
 	setParams<P extends ParamSpecs>(params: P) {
 		this._params = params;
 		if (this._adapter) this.updateParams();
-		this.emit<SetParamsMsg>({
-			type: "genart:setparams",
-			__self: true,
-			params,
-		});
+		this.notifySetParams();
 		return <K extends keyof P>(id: K, t?: number) =>
 			this.getParamValue<P, K>(id, t);
 	}
@@ -167,13 +198,7 @@ class API implements GenArtAPI {
 	setAdapter(adapter: PlatformAdapter) {
 		this._adapter = adapter;
 		this.updateParams();
-		if (Object.keys(this._params).length) {
-			this.emit<SetParamsMsg>({
-				type: "genart:setparams",
-				__self: true,
-				params: this._params,
-			});
-		}
+		this.notifySetParams();
 		if (this._state === "init" && this._time) this._state = "ready";
 	}
 
@@ -197,22 +222,35 @@ class API implements GenArtAPI {
 	updateParams(notify = false) {
 		if (!this._adapter) return;
 		for (let id in this._params) {
-			this.updateParam(id, this._params[id], notify);
+			const spec = this._params[id];
+			const result = this._adapter?.updateParam(id, spec);
+			console.log("api update param", id, result, notify);
+			if (!result) continue;
+			const { value, update } = result;
+			this.setParamValue(id, value, notify && (value != null || update));
 		}
 	}
 
-	updateParam(id: string, spec: Param<any>, notify = true) {
-		this._params[id] = spec;
-		const update = this._adapter?.updateParam(id, spec);
-		if (notify && update) {
-			if (spec.update === "reload") location.reload();
-			else
-				this.emit<ParamChangeMsg>({
-					type: "genart:paramchange",
-					paramID: id,
-					spec,
-					__self: true,
-				});
+	setParamValue(id: string, value: any, notify = false) {
+		console.log("set param", id, value, notify);
+		const spec = this._params[id];
+		if (!spec) throw new Error(`unknown param: ${id}`);
+		const impl = this._paramTypes[spec.type];
+		if (!impl) throw new Error(`unknown param type: ${spec.type}`);
+		if (value != null) {
+			if (!impl.valid(value, spec)) {
+				utils.illegalParam(id);
+				return;
+			}
+			spec.value = impl.coerce ? impl.coerce(value, spec) : value;
+		}
+		if (notify) {
+			this.emit<ParamChangeMsg>({
+				type: "genart:paramchange",
+				paramID: id,
+				spec,
+				__self: true,
+			});
 		}
 	}
 
@@ -222,7 +260,7 @@ class API implements GenArtAPI {
 	): ParamValue<T[K]> {
 		const spec = this._params[<string>id];
 		if (!spec) throw new Error(`unknown param: ${<string>id}`);
-		const impl = this._paramTypes[spec.type];
+		const impl = this._paramTypes[spec.type].read;
 		return impl
 			? impl(spec, t, this.random.rnd)
 			: spec.value ?? spec.default;
@@ -233,7 +271,6 @@ class API implements GenArtAPI {
 		listener: (e: MessageTypeMap[T]) => void
 	) {
 		window.addEventListener("message", (e) => {
-			// console.log("msg", e.data);
 			if (e.data?.type === type) listener(e.data);
 		});
 	}
@@ -295,6 +332,16 @@ class API implements GenArtAPI {
 					};
 					check();
 			  });
+	}
+
+	protected notifySetParams() {
+		if (Object.keys(this._params).length) {
+			this.emit<SetParamsMsg>({
+				type: "genart:setparams",
+				__self: true,
+				params: this._params,
+			});
+		}
 	}
 }
 
