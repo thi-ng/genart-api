@@ -1,26 +1,31 @@
 import type {
 	ChoiceParam,
-	ColorParam,
 	Param,
+	ParamSpecs,
 	PlatformAdapter,
 	RampParam,
-	RangeParam,
 	RunMode,
-	TextParam,
-	XYParam,
 } from "../api.js";
 
-const { clamp, clamp01, parseNum } = $genart.math;
+const {
+	math: { clamp01, parseNum },
+	utils: { illegalParam },
+} = $genart;
 
 class URLParamsAdapter implements PlatformAdapter {
 	params: URLSearchParams;
 	cache: Record<string, string> = {};
 
 	constructor() {
-		this.params = new URLSearchParams(location.hash.substring(1));
-		window.addEventListener("hashchange", () => {
-			this.params = new URLSearchParams(location.hash.substring(1));
-			$genart.updateParams();
+		this.params = new URLSearchParams(location.search);
+		$genart.on("genart:paramchange", (e) => {
+			const value = this.serializeParam(e.spec);
+			console.log("adapter param change", e.spec.value, value);
+			this.params.set(e.paramID, value);
+			if (e.spec.update === "reload") {
+				console.log("reloading w/", this.params.toString());
+				location.search = this.params.toString();
+			}
 		});
 	}
 
@@ -48,93 +53,65 @@ class URLParamsAdapter implements PlatformAdapter {
 
 	updateParam(id: string, spec: Param<any>) {
 		let value = this.params.get(id);
-		if (!value || this.cache[id] === value) return false;
+		if (!value || this.cache[id] === value) return;
 		this.cache[id] = value;
 		switch (spec.type) {
-			case "choice":
-				{
-					const $spec = <ChoiceParam<any>>spec;
-					const idx = parseNum(value, -1);
-					if (idx < 0 || idx >= $spec.options.length)
-						return illegalArg(id, value);
-					const choice = $spec.options[idx];
-					$spec.value = Array.isArray(choice) ? choice[0] : choice;
-				}
-				break;
 			case "color":
-				if (!/^[a-z0-9]{6}$/.test(value)) return illegalArg(id, value);
-				(<ColorParam>spec).value = `#` + value;
-				break;
-			case "ramp":
-				{
-					const [mode, ...stops] = value.split(",");
-					if (!mode || stops.length < 4 || stops.length & 1)
-						return illegalArg(id, value);
-					const $spec = <RampParam>spec;
-					$spec.mode =
-						(<const>{ l: "linear", s: "smooth" })[mode] || "linear";
-					$spec.stops = [];
-					for (let i = 0; i < stops.length; i += 2) {
-						$spec.stops.push([
-							clamp01(parseNum(stops[i])),
-							clamp01(parseNum(stops[i + 1])),
-						]);
-					}
-					$spec.stops.sort((a, b) => a[0] - b[0]);
-				}
-				break;
-			case "range":
-				{
-					const $spec = <RangeParam>spec;
-					const $value = +value;
-					if (
-						isNaN($value) ||
-						$value < $spec.min ||
-						$value > $spec.max
-					)
-						return illegalArg(id, value);
-					$spec.value = clamp($value, $spec.min, $spec.max);
-				}
-				break;
+			case "choice":
 			case "text":
-				{
-					const $spec = <TextParam>spec;
-					if (
-						($spec.min && value.length < $spec.min) ||
-						($spec.max && value.length > $spec.max) ||
-						($spec.match && !new RegExp($spec.match).test(value))
-					)
-						return illegalArg(id, value);
-					$spec.value = value;
+				return { value };
+			case "range":
+				return { value: +value };
+			case "toggle":
+				return { value: value === "1" };
+			case "ramp": {
+				const [mode, ...stops] = value.split(",");
+				if (!mode || stops.length < 4 || stops.length & 1) {
+					illegalParam(id);
+					return;
 				}
-				break;
+				const $spec = <RampParam>spec;
+				$spec.mode =
+					(<const>{ l: "linear", s: "smooth" })[mode] || "linear";
+				$spec.stops = [];
+				for (let i = 0; i < stops.length; i += 2) {
+					$spec.stops.push([
+						clamp01(parseNum(stops[i])),
+						clamp01(parseNum(stops[i + 1])),
+					]);
+				}
+				$spec.stops.sort((a, b) => a[0] - b[0]);
+				return { update: true };
+			}
 			case "xy":
-				{
-					const coords = value.split(",").map((x) => +x);
-					if (
-						coords.length !== 2 ||
-						isNaN(coords[0]) ||
-						isNaN(coords[1])
-					)
-						return illegalArg(id, value);
-					(<XYParam>spec).value = [
-						clamp01(coords[0]),
-						clamp01(coords[1]),
-					];
-				}
-				break;
+				return { value: value.split(",").map((x) => +x) };
 		}
-		return true;
+	}
+
+	serializeParam(spec: Param<any>) {
+		switch (spec.type) {
+			case "color":
+				return spec.value.substring(1);
+			case "ramp": {
+				const $spec = <RampParam>spec;
+				return (
+					$spec.mode![0] +
+					"," +
+					$spec.stops.flatMap((x) => x).join(",")
+				);
+			}
+			case "toggle":
+				return spec.value ? 1 : 0;
+			case "xy":
+				return spec.value.join(",");
+			default:
+				return spec.value;
+		}
 	}
 
 	capture() {
 		console.log("TODO handle capture...");
 	}
 }
-
-const illegalArg = (id: string, value: string) => {
-	console.warn("illegal param value: ", id, value);
-	return false;
-};
 
 $genart.setAdapter(new URLParamsAdapter());
