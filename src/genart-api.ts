@@ -224,7 +224,6 @@ class API implements GenArtAPI {
 		for (let id in this._params) {
 			const spec = this._params[id];
 			const result = this._adapter?.updateParam(id, spec);
-			console.log("api update param", id, result, notify);
 			if (!result) continue;
 			const { value, update } = result;
 			this.setParamValue(id, value, notify && (value != null || update));
@@ -232,7 +231,6 @@ class API implements GenArtAPI {
 	}
 
 	setParamValue(id: string, value: any, notify = false) {
-		console.log("set param", id, value, notify);
 		const spec = this._params[id];
 		if (!spec) throw new Error(`unknown param: ${id}`);
 		const impl = this._paramTypes[spec.type];
@@ -307,8 +305,8 @@ class API implements GenArtAPI {
 		this.emit({ type: `genart:stop`, __self: true });
 	}
 
-	capture() {
-		this._adapter?.capture();
+	capture(el?: HTMLCanvasElement | SVGElement) {
+		this._adapter?.capture(el);
 		this.emit({ type: `genart:capture`, __self: true }, "parent");
 	}
 

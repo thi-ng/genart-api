@@ -109,8 +109,8 @@ class URLParamsAdapter implements PlatformAdapter {
 		}
 	}
 
-	capture() {
-		console.log("TODO handle capture...");
+	capture(el?: HTMLCanvasElement | SVGElement) {
+		console.log("TODO handle capture...", el);
 	}
 }
 

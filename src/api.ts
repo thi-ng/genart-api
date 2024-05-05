@@ -100,7 +100,7 @@ export interface GenArtAPI {
 	start(resume?: boolean): void;
 	stop(): void;
 
-	capture(): void;
+	capture(el?: HTMLCanvasElement | SVGElement): void;
 }
 
 export interface APIMessage {
@@ -227,7 +227,7 @@ export interface PlatformAdapter {
 	 * Platform-specific handler to deal with capturing a thumbnail/preview of
 	 * the art piece. (e.g. by sending a message to the parent window).
 	 */
-	capture(): void;
+	capture(el?: HTMLCanvasElement | SVGElement): void;
 }
 
 export interface PRNG {
