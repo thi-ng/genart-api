@@ -1,7 +1,6 @@
 import type {
-	ChoiceParam,
+	Features,
 	Param,
-	ParamSpecs,
 	PlatformAdapter,
 	RampParam,
 	RunMode,
@@ -20,8 +19,12 @@ class URLParamsAdapter implements PlatformAdapter {
 		this.params = new URLSearchParams(location.search);
 		$genart.on("genart:paramchange", (e) => {
 			const value = this.serializeParam(e.spec);
-			console.log("adapter param change", e.spec.value, value);
 			this.params.set(e.paramID, value);
+			// (optional) send updated params to parent GUI for param editing
+			parent.postMessage({
+				type: "paramadapter:update",
+				params: this.params.toString(),
+			});
 			if (e.spec.update === "reload") {
 				console.log("reloading w/", this.params.toString());
 				location.search = this.params.toString();
@@ -50,6 +53,8 @@ class URLParamsAdapter implements PlatformAdapter {
 			rnd: () => Math.random(),
 		};
 	}
+
+	setFeatures(features: Features) {}
 
 	updateParam(id: string, spec: Param<any>) {
 		let value = this.params.get(id);

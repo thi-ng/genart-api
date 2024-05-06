@@ -1,6 +1,16 @@
 import type * as params from "./params.js";
 import type * as math from "./math.js";
 import type * as utils from "./utils.js";
+import type { Param, ParamImpl, ParamSpecs, ParamValue } from "./api/params.js";
+import type {
+	APIMessage,
+	MessageType,
+	MessageTypeMap,
+	NotifyType,
+} from "./api/messages.js";
+
+export * from "./api/params.js";
+export * from "./api/messages.js";
 
 export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
@@ -12,6 +22,8 @@ export type UpdateFn = (t: number, frame: number) => void;
 export type RunMode = "play" | "capture" | "mint";
 
 export type RunState = "init" | "ready" | "play" | "stop";
+
+export type Features = Record<string, number | string | boolean>;
 
 export interface GenArtAPI {
 	id?: string;
@@ -88,12 +100,16 @@ export interface GenArtAPI {
 		t?: number
 	): ParamValue<T[K]>;
 
+	setFeatures(features: Features): void;
+
 	on<T extends MessageType>(
 		type: T,
 		listener: (e: MessageTypeMap[T]) => void
 	): void;
 
 	emit<T extends APIMessage>(e: T, notify?: NotifyType): void;
+
+	isRecipient(e: MessageEvent): boolean;
 
 	setUpdate(fn: UpdateFn): void;
 
@@ -102,111 +118,6 @@ export interface GenArtAPI {
 
 	capture(el?: HTMLCanvasElement | SVGElement): void;
 }
-
-export interface APIMessage {
-	type: MessageType;
-	apiID?: string;
-	/** @internal */
-	__self?: boolean;
-}
-
-export interface ParamChangeMsg extends APIMessage {
-	paramID: string;
-	spec: Param<any>;
-}
-
-export interface SetParamsMsg extends APIMessage {
-	params: Record<string, Param<any>>;
-}
-
-export interface SetParamValueMsg extends APIMessage {
-	paramID: string;
-	value: any;
-}
-
-export interface MessageTypeMap {
-	"genart:setparams": SetParamsMsg;
-	"genart:setparamvalue": SetParamValueMsg;
-	"genart:paramchange": ParamChangeMsg;
-	"genart:start": APIMessage;
-	"genart:resume": APIMessage;
-	"genart:stop": APIMessage;
-	"genart:capture": APIMessage;
-}
-
-export type MessageType = keyof MessageTypeMap;
-
-export type NotifyType = "self" | "parent" | "all";
-
-export interface Param<T> {
-	type: string;
-	doc: string;
-	tooltip?: string;
-	default: T;
-	value?: T;
-	update?: "reload" | "event";
-}
-
-export interface ChoiceParam<T extends string> extends Param<T> {
-	type: "choice";
-	options: (T | [T, string])[];
-}
-
-export interface ColorParam extends Param<string> {
-	type: "color";
-	options?: string[];
-}
-
-export interface RampParam extends Param<number> {
-	type: "ramp";
-	stops: [number, number][];
-	mode?: "linear" | "smooth";
-}
-
-export interface RangeParam extends Param<number> {
-	type: "range";
-	min: number;
-	max: number;
-	step?: number;
-	exp?: number;
-}
-
-export interface TextParam extends Param<string> {
-	type: "text";
-	min?: number;
-	max?: number;
-	multiline?: boolean;
-	/** Regexp or string-encoded regexp pattern */
-	match?: RegExp | string;
-}
-
-export interface ToggleParam extends Param<boolean> {
-	type: "toggle";
-}
-
-export interface WeightedChoiceParam<T extends string> extends Param<T> {
-	type: "weighted";
-	options: [number, T, string?][];
-	total: number;
-}
-
-export interface XYParam extends Param<[number, number]> {
-	type: "xy";
-}
-
-export type ParamSpecs = Record<string, Param<any>>;
-
-export type ParamValues<T extends ParamSpecs> = {
-	[id in keyof T]: ParamValue<T[id]>;
-};
-
-export type ParamValue<T extends Param<any>> = NonNullable<T["value"]>;
-
-export type ParamImpl<T = any> = {
-	valid: (value: T, spec: Param<T>) => boolean;
-	coerce?: (value: T, spec: Param<T>) => T;
-	read?: (spec: Param<T>, t: number, rnd: RandomFn) => T;
-};
 
 export interface TimeProvider {
 	start(fn: UpdateFn): void;
@@ -223,9 +134,15 @@ export interface PlatformAdapter {
 		id: string,
 		spec: Param<any>
 	): Maybe<{ value?: any; update?: boolean }>;
+
+	setFeatures(features: Features): void;
+
 	/**
 	 * Platform-specific handler to deal with capturing a thumbnail/preview of
-	 * the art piece. (e.g. by sending a message to the parent window).
+	 * the art piece. (e.g. by sending a message to the parent window). See
+	 * {@link GenArtAPI.capture}.
+	 *
+	 * @param el
 	 */
 	capture(el?: HTMLCanvasElement | SVGElement): void;
 }

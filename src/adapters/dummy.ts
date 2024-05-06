@@ -10,5 +10,6 @@ $genart.setAdapter({
 		rnd: Math.random,
 	},
 	updateParam(): undefined {},
+	setFeatures() {},
 	capture() {},
 });

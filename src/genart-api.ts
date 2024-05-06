@@ -1,11 +1,11 @@
 import type {
 	APIMessage,
 	ChoiceParam,
+	Features,
 	GenArtAPI,
 	MessageType,
 	MessageTypeMap,
 	NotifyType,
-	Param,
 	ParamChangeMsg,
 	ParamImpl,
 	ParamSpecs,
@@ -15,6 +15,7 @@ import type {
 	RampParam,
 	RangeParam,
 	RunState,
+	SetFeaturesMsg,
 	SetParamsMsg,
 	TextParam,
 	TimeProvider,
@@ -34,21 +35,22 @@ class API implements GenArtAPI {
 	protected _prng?: PRNG;
 	protected _update?: UpdateFn;
 	protected _state: RunState = "init";
-	protected _params: Record<string, Param<any>> = {};
+	protected _features?: Features;
+	protected _params: ParamSpecs = {};
 	protected _paramTypes: Record<string, ParamImpl> = {
 		choice: {
-			valid(value, spec) {
-				return (<ChoiceParam<any>>spec).options.find(
+			valid: (spec, value) =>
+				(<ChoiceParam<any>>spec).options.find(
 					(x) => (Array.isArray(x) ? x[0] : x) === value
-				);
+				),
 			},
 		},
 		color: {
-			valid: (value) => /^#?[0-9a-f]{6}$/.test(value),
-			coerce: (value) => (value[0] !== "#" ? "#" + value : value),
+			valid: (_, value) => /^#?[0-9a-f]{6}$/.test(value),
+			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
 		},
 		ramp: {
-			valid: (value) => utils.isNumber(value),
+			valid: (_, value) => utils.isNumber(value),
 			read: (spec, t) => {
 				const { stops, mode } = <RampParam>spec;
 				let n = stops.length;
@@ -75,11 +77,11 @@ class API implements GenArtAPI {
 			},
 		},
 		range: {
-			valid: (value, spec) => {
+			valid: (spec, value) => {
 				const { min, max } = <RangeParam>spec;
 				return !isNaN(value) && value >= min && value <= max;
 			},
-			coerce(value, spec) {
+			coerce: (spec, value) => {
 				const $spec = <RangeParam>spec;
 				return math.clamp(
 					math.round(value ?? $spec.default, $spec.step || 1),
@@ -89,7 +91,7 @@ class API implements GenArtAPI {
 			},
 		},
 		text: {
-			valid: (value, spec) => {
+			valid: (spec, value) => {
 				const { min, max, match } = <TextParam>spec;
 				if (match) {
 					const regexp = isString(match) ? new RegExp(match) : match;
@@ -118,11 +120,14 @@ class API implements GenArtAPI {
 			},
 		},
 		xy: {
-			valid: (value) =>
+			valid: (_, value) =>
 				Array.isArray(value) &&
 				value.length == 2 &&
 				value.every(isNumber),
-			coerce: (value) => [math.clamp01(value[0]), math.clamp01(value[1])],
+			coerce: (_, value) => [
+				math.clamp01(value[0]),
+				math.clamp01(value[1]),
+			],
 		},
 	};
 
@@ -131,15 +136,10 @@ class API implements GenArtAPI {
 	readonly utils = utils;
 
 	constructor() {
-		window.addEventListener("message", ({ data }) => {
+		window.addEventListener("message", (e) => {
+			const data = e.data;
 			console.log("genart msg", data);
-			if (
-				data == null ||
-				typeof data !== "object" ||
-				(this._id && data.apiID !== this._id) ||
-				data.__origin === "api"
-			)
-				return;
+			if (!this.isRecipient(e) || data?.__self) return;
 			switch (<MessageType>data.type) {
 				case "genart:start":
 					this.start();
@@ -151,7 +151,7 @@ class API implements GenArtAPI {
 					this.stop();
 					break;
 				case "genart:setparamvalue":
-					this.setParamValue(data.paramID, data.value, true);
+					this.setParamValue(data.paramID, data.value);
 					break;
 			}
 		});
@@ -195,6 +195,11 @@ class API implements GenArtAPI {
 			this.getParamValue<P, K>(id, t);
 	}
 
+	setFeatures(features: Features): void {
+		this._features = features;
+		this.emit<SetFeaturesMsg>({ type: "genart:setfeatures", features });
+	}
+
 	setAdapter(adapter: PlatformAdapter) {
 		this._adapter = adapter;
 		this.updateParams();
@@ -230,17 +235,14 @@ class API implements GenArtAPI {
 		}
 	}
 
-	setParamValue(id: string, value: any, notify = false) {
-		const spec = this._params[id];
-		if (!spec) throw new Error(`unknown param: ${id}`);
-		const impl = this._paramTypes[spec.type];
-		if (!impl) throw new Error(`unknown param type: ${spec.type}`);
+	setParamValue(id: string, value: any, notify = true) {
+		const { spec, impl } = this.ensureParam(id);
 		if (value != null) {
-			if (!impl.valid(value, spec)) {
+			if (!impl.valid(spec, value)) {
 				utils.illegalParam(id);
 				return;
 			}
-			spec.value = impl.coerce ? impl.coerce(value, spec) : value;
+			spec.value = impl.coerce ? impl.coerce(spec, value) : value;
 		}
 		if (notify) {
 			this.emit<ParamChangeMsg>({
@@ -269,15 +271,23 @@ class API implements GenArtAPI {
 		listener: (e: MessageTypeMap[T]) => void
 	) {
 		window.addEventListener("message", (e) => {
-			if (e.data?.type === type) listener(e.data);
+			if (this.isRecipient(e) && e.data?.type === type) listener(e.data);
 		});
 	}
 
 	emit<T extends APIMessage>(e: T, notify: NotifyType = "all") {
-		if (this._id) e.apiID = this._id;
+		if (this.id) e.apiID = this.id;
 		if (notify === "all" || notify === "self") window.postMessage(e, "*");
 		if ((notify === "all" && parent !== window) || notify === "parent")
 			parent.postMessage(e, "*");
+	}
+
+	isRecipient({ data }: MessageEvent): boolean {
+		return (
+			data != null &&
+			typeof data === "object" &&
+			(!this.id || this.id === data.apiID)
+		);
 	}
 
 	start(resume = false) {
@@ -316,6 +326,14 @@ class API implements GenArtAPI {
 
 	protected ensureTimeProvider() {
 		if (!this._time) throw new Error("missing time provider");
+	}
+
+	protected ensureParam(id: string) {
+		const spec = this._params[id];
+		if (!spec) throw new Error(`unknown param: ${id}`);
+		const impl = this._paramTypes[spec.type];
+		if (!impl) throw new Error(`unknown param type: ${spec.type}`);
+		return { spec, impl };
 	}
 
 	protected waitFor(type: "_adapter" | "_time") {
