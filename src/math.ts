@@ -23,3 +23,10 @@ export const smoothStep = (edge: number, edge2: number, x: number) =>
 	smoothStep01(clamp01(div(x - edge, edge2 - edge)));
 
 export const smoothStep01 = (x: number) => x * x * (3 - 2 * x);
+
+const __easeInOut = (k: number) => {
+	const k2 = 2 ** (k - 1);
+	return (t: number) => (t < 0.5 ? k2 * t ** k : 1 - (-2 * t + 2) ** k / 2);
+};
+
+export const easeInOut5 = __easeInOut(5);

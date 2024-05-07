@@ -72,6 +72,12 @@ class API implements GenArtAPI {
 					: i >= n
 					? stops[n][1]
 					: {
+							exp: () =>
+								math.mix(
+									a[1],
+									b[1],
+									math.easeInOut5(math.norm(t, a[0], b[0]))
+								),
 							linear: () => math.fit(t, a[0], b[0], a[1], b[1]),
 							smooth: () =>
 								math.mix(

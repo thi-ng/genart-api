@@ -77,7 +77,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				}
 				const $spec = <RampParam>spec;
 				$spec.mode =
-					(<const>{ l: "linear", s: "smooth" })[mode] || "linear";
+					(<const>{ l: "linear", s: "smooth", e: "exp" })[mode] ||
+					"linear";
 				$spec.stops = [];
 				for (let i = 0; i < stops.length; i += 2) {
 					$spec.stops.push([
