@@ -95,6 +95,8 @@ export interface GenArtAPI {
 
 	setParamValue(id: string, value: any, notify?: boolean): void;
 
+	randomizeParamValue(id: string, rnd?: RandomFn, notify?: boolean): void;
+
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
 		t?: number

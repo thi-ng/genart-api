@@ -13,6 +13,7 @@ import type {
 	PlatformAdapter,
 	PRNG,
 	RampParam,
+	RandomFn,
 	RangeParam,
 	RunState,
 	SetFeaturesMsg,
@@ -29,7 +30,7 @@ import * as utils from "./utils.js";
 import { isNumber, isString } from "./utils.js";
 
 class API implements GenArtAPI {
-	_id?: string;
+	id?: string;
 	protected _adapter?: PlatformAdapter;
 	protected _time: TimeProvider = timeProviderRAF();
 	protected _prng?: PRNG;
@@ -43,11 +44,16 @@ class API implements GenArtAPI {
 				(<ChoiceParam<any>>spec).options.find(
 					(x) => (Array.isArray(x) ? x[0] : x) === value
 				),
+			randomize: (spec, rnd) => {
+				const opts = (<ChoiceParam<any>>spec).options;
+				const value = opts[(rnd() * opts.length) | 0];
+				return Array.isArray(value) ? value[0] : value;
 			},
 		},
 		color: {
 			valid: (_, value) => /^#?[0-9a-f]{6}$/.test(value),
 			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
+			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_000000) | 0),
 		},
 		ramp: {
 			valid: (_, value) => utils.isNumber(value),
@@ -89,6 +95,14 @@ class API implements GenArtAPI {
 					$spec.max
 				);
 			},
+			randomize: (spec, rnd) => {
+				const { min, max, step } = <RangeParam>spec;
+				return math.clamp(
+					math.round(math.mix(min, max, rnd()), step || 1),
+					min,
+					max
+				);
+			},
 		},
 		text: {
 			valid: (spec, value) => {
@@ -128,6 +142,7 @@ class API implements GenArtAPI {
 				math.clamp01(value[0]),
 				math.clamp01(value[1]),
 			],
+			randomize: (_, rnd) => [rnd(), rnd()],
 		},
 	};
 
@@ -153,6 +168,8 @@ class API implements GenArtAPI {
 				case "genart:setparamvalue":
 					this.setParamValue(data.paramID, data.value);
 					break;
+				case "genart:randomizeparam":
+					this.randomizeParamValue(data.paramID);
 			}
 		});
 	}
@@ -251,6 +268,17 @@ class API implements GenArtAPI {
 				spec,
 				__self: true,
 			});
+		}
+	}
+
+	randomizeParamValue(
+		id: string,
+		rnd: RandomFn = Math.random,
+		notify = true
+	) {
+		const { spec, impl } = this.ensureParam(id);
+		if (impl.randomize) {
+			this.setParamValue(id, impl.randomize(spec, rnd), notify);
 		}
 	}
 
