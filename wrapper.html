@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>wrapper</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				margin: 1rem;
+				background-color: #ccc;
+			}
+			body {
+				display: grid;
+				grid-template-columns: 1fr 600px;
+				gap: 1rem;
+			}
+			.control {
+				display: grid;
+				grid-template-columns: 12rem 1fr;
+				margin-bottom: 1rem;
+			}
+			.control input,
+			.control button,
+			.control textarea,
+			.control select {
+				width: 16rem;
+			}
+			label {
+				font-weight: bold;
+				text-transform: capitalize;
+			}
+			.desc {
+				font-weight: normal;
+				font-size: small;
+				display: block;
+			}
+			input[type="range"] + span.value {
+				display: block;
+				/* margin-left: 1rem; */
+				/* vertical-align: top; */
+			}
+			fieldset {
+				margin-bottom: 1rem;
+				padding-top: 1rem;
+			}
+
+			legend {
+				font-size: small;
+				font-weight: bold;
+				padding: 0 1rem;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app"></div>
+		<iframe
+			id="art"
+			src="/index.html?ramp=s,0.1,0.5,0.4,0.2,0.8,0.9,0.9,0.5&fade=0.1&size=100&col=99ff00&curve=0.4,0.35&dot=cyan"
+			width="600"
+			height="600"
+			frameborder="0"
+		></iframe>
+		<script type="module" src="/src/examples/param-editor.ts"></script>
+	</body>
+</html>
