@@ -56,20 +56,20 @@ simplicity values are always strings, but optionally can also define labels
 ```ts
 // options
 $genart.params.choice({
-	doc: "Shape size preset",
-	options: ["s", "m", "l"],
-	default: "m",
+    doc: "Shape size preset",
+    options: ["s", "m", "l"],
+    default: "m",
 });
 
 // ...or using options with labels
 $genart.params.choice({
-	doc: "Shape size preset",
-	options: [
-		["s", "Small"],
-		["m", "Medium"],
-		["l", "Large"],
-	],
-	options: "m",
+    doc: "Shape size preset",
+    options: [
+        ["s", "Small"],
+        ["m", "Medium"],
+        ["l", "Large"],
+    ],
+    options: "m",
 });
 ```
 
@@ -83,8 +83,8 @@ widgets for editing these colors...
 
 ```ts
 $genart.params.color({
-	doc: "Background color",
-	default: "#aabbcc",
+    doc: "Background color",
+    default: "#aabbcc",
 });
 ```
 
@@ -108,13 +108,13 @@ editor](https://github.com/thi-ng/umbrella/tree/develop/examples/ramp-synth)
 
 ```ts
 $genart.params.ramp({
-	doc: "Brightness over time",
-	stops: [
-		[0, 0.1],
-		[0.9, 1],
-		[1, 0],
-	],
-	mode: "smooth",
+    doc: "Brightness over time",
+    stops: [
+        [0, 0.1],
+        [0.9, 1],
+        [1, 0],
+    ],
+    mode: "smooth",
 });
 ```
 
@@ -126,10 +126,10 @@ to [0, 100]). If `step` is given, the value will be rounded to multiples of
 
 ```ts
 $genart.params.range({
-	doc: "Pick a number between 0-100",
-	min: 0,
-	max: 100,
-	step: 5,
+    doc: "Pick a number between 0-100",
+    min: 0,
+    max: 100,
+    step: 5,
 });
 ```
 
@@ -139,7 +139,7 @@ Single or multi-line text, optionally with `min`/`max` length and/or regexp patt
 
 ```ts
 $genart.params.text({
-	doc: "Seed phrase",
+    doc: "Seed phrase",
     max: 256
     match: "^[a-z ]+$"
     multiline: true
@@ -156,13 +156,13 @@ by the relative weights given to each option.
 
 ```ts
 $genart.params.weighted({
-	doc: "Controlled randomness",
-	options: [
-		["black", 8],
-		["cyan", 4],
-		["magenta", 2],
-		["white", 1][("yellow", 1)],
-	],
+    doc: "Controlled randomness",
+    options: [
+        ["black", 8],
+        ["cyan", 4],
+        ["magenta", 2],
+        ["white", 1][("yellow", 1)],
+    ],
 });
 ```
 
@@ -173,8 +173,8 @@ to control two co-dependent parameters using an XY controller/touchpad...
 
 ```ts
 $genart.params.xy({
-	doc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
-	default: [0.5, 0.5],
+    doc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
+    default: [0.5, 0.5],
 });
 ```
 
