@@ -36,6 +36,20 @@ export interface GenArtAPI {
 	readonly math: typeof math;
 	readonly utils: typeof utils;
 
+	/**
+	 * Registers a new parameter type and its implementation. Supports
+	 * overriding default types, but prints a warning in the console when doing
+	 * so...
+	 *
+	 * @remarks
+	 * When a platform registers any own types, it should consider namespacing
+	 * the the `type` name, e.g. `platformname:customtype`.
+	 *
+	 * See {@link ParamImpl} for implementation details.
+	 *
+	 * @param type
+	 * @param impl
+	 */
 	registerParamType(type: string, impl: ParamImpl): void;
 
 	/**
@@ -43,13 +57,13 @@ export interface GenArtAPI {
 	 * available parameters, their configs and default values. If the platform
 	 * adapter is already set (via {@link GenArtAPI.setAdapter}), this function
 	 * also calls {@link GenArtAPI.updateParams} to apply any param
-	 * customizations/overrides sourced via the adapter. Then posts a
-	 * {@link SetParamsMsg} message to current & parent window, for other
-	 * software components to be notified (e.g. param editors)
+	 * customizations/overrides sourced via the adapter. Once done, it then
+	 * posts a {@link SetParamsMsg} message to the current & parent window for
+	 * other software components to be notified (e.g. param editors)
 	 *
-	 * Returns a typesafe getter function (based on the declared param specs) to
-	 * obtain (possibly time-based) param values (wraps
-	 * {@link GenArtAPI.getParamValue}).
+	 * Regardless of the above behavior, this function returns a typesafe getter
+	 * function (based on the declared param specs) to obtain (possibly
+	 * time-based) param values (wraps {@link GenArtAPI.getParamValue}).
 	 *
 	 * @example
 	 * ```ts
@@ -102,6 +116,32 @@ export interface GenArtAPI {
 		t?: number
 	): ParamValue<T[K]>;
 
+	/**
+	 * (Optionally) Called by the art work to declare a number of "features"
+	 * (aka generated metadata) which should be exposed to the
+	 * platform/users/collectors, e.g. to compute the rarity of a variation. The
+	 * keys in this object are feature names, their values can be arbitrary
+	 * strings, numbers or booleans.
+	 *
+	 * @remarks
+	 * Usually these features are derived from the random seed and currently
+	 * configured parameters. The API will forward this object to
+	 * {@link PlatformAdapter.setFeatures} for platform-specific processing, but
+	 * also emits a {@link SetFeaturesMsg} message to the current & parent
+	 * windows.
+	 *
+	 * @example
+	 * ```ts
+	 * $genart.setFeatures({
+	 *   mood: "bright",
+	 *   shapes: "triangles",
+	 *   density: 100,
+	 *   slowmotion: true
+	 * });
+	 * ```
+	 *
+	 * @param features
+	 */
 	setFeatures(features: Features): void;
 
 	on<T extends MessageType>(
@@ -118,6 +158,13 @@ export interface GenArtAPI {
 	start(resume?: boolean): void;
 	stop(): void;
 
+	/**
+	 * Callback to trigger capturing (aka preview/thumbnail generation) of the
+	 * art piece (optionally given canvas or SVG element). Usually called by the
+	 * art piece when ready to capture...
+	 *
+	 * @param el
+	 */
 	capture(el?: HTMLCanvasElement | SVGElement): void;
 }
 
@@ -132,6 +179,30 @@ export interface PlatformAdapter {
 	readonly screen: ScreenConfig;
 	readonly prng: PRNG;
 
+	/**
+	 * Called by {@link GenArtAPI.setParamValue} to possibly augment/update a
+	 * single param spec with any customizations sourced via platform-specific
+	 * ways (e.g. from URL querystring params).
+	 *
+	 * @remarks
+	 * The function can return one of the following:
+	 * - `undefined`: no customizations found/performed
+	 * - `{ value: any }`: param value override
+	 * - `{ update: true }`: param spec has been modified/customized (e.g. ramp
+	 *   stops)
+	 *
+	 * Any non-nullish value retured will be validated by the responsible
+	 * {@link ParamImpl} and if successful is then updated in the param spec via
+	 * {@link ParamImpl.coerce}.
+	 *
+	 * If this function returned a valid `value` and/or `update` flag,
+	 * {@link GenArtAPI.setParamValue} *might* emit a {@link ParamChangeMsg}
+	 * message with the updated param spec (only if requested). If this function
+	 * returns a nullish result, the param will NOT be processed further.
+	 *
+	 * @param id
+	 * @param spec
+	 */
 	updateParam(
 		id: string,
 		spec: Param<any>

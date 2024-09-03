@@ -2,12 +2,20 @@ import type { RandomFn } from "../api.js";
 
 export interface Param<T> {
 	type: string;
+	name?: string;
 	doc: string;
 	tooltip?: string;
 	default: T;
 	value?: T;
 	update?: "reload" | "event";
 }
+
+export type BaseParam<T extends Param<any>, K extends string = ""> = Omit<
+	T,
+	"type" | "tooltip" | K
+> & {
+	tooltip?: string;
+};
 
 export interface ChoiceParam<T extends string> extends Param<T> {
 	type: "choice";
