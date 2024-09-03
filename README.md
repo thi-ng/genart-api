@@ -161,7 +161,18 @@ $genart.params.weighted({
         ["black", 8],
         ["cyan", 4],
         ["magenta", 2],
-        ["white", 1][("yellow", 1)],
+        ["yellow", 1],
+    ],
+});
+
+// optionally, labels can be provided for each option
+$genart.params.weighted({
+    doc: "With labels",
+    options: [
+        ["#000", 8, "black"],
+        ["#0ff", 4, "cyan"],
+        ["#f0f", 2, "magenta"],
+        ["#ff0", 1, "yellow"],
     ],
 });
 ```
