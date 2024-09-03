@@ -1,30 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<link
-			rel="icon"
-			href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⛱️</text></svg>'
-		/>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-		<title>genart-api</title>
-		<!-- genart API -->
-		<script src="lib.min.js"></script>
-		<!-- platform adapter -->
-		<script src="adapter.min.js"></script>
+		<title>wrapper</title>
 		<style>
 			body {
-				margin: 0;
-				overflow: hidden;
+				font-family: sans-serif;
+				margin: 1rem;
+				background-color: #ccc;
+			}
+			h1 {
+				letter-spacing: -0.1rem;
+				margin-bottom: 0.5rem;
+			}
+			header {
+				margin-bottom: 1rem;
+			}
+			main {
+				display: grid;
+				grid-template-columns: 1fr 600px;
+				gap: 1rem;
+			}
+			.control {
+				display: grid;
+				grid-template-columns: 12rem 1fr;
+				margin-bottom: 1rem;
+			}
+			.control input,
+			.control button,
+			.control textarea,
+			.control select {
+				width: 16rem;
+			}
+			label {
+				font-weight: bold;
+				text-transform: capitalize;
+			}
+			.desc {
+				font-weight: normal;
+				font-size: small;
+				display: block;
+			}
+			input[type="range"] + span.value {
+				display: block;
+				/* margin-left: 1rem; */
+				/* vertical-align: top; */
+			}
+			fieldset {
+				margin-bottom: 1rem;
+				padding-top: 1rem;
+			}
+			legend {
+				font-size: small;
+				font-weight: bold;
+				padding: 0 1rem;
 			}
 		</style>
 	</head>
 	<body>
-		<script type="module">
-			// import { timeProviderOffline } from "/src/time/time-offline.ts";
-			// $genart.setTimeProvider(timeProviderOffline(100));
-		</script>
-		<script type="module" src="/src/examples/all-params.ts"></script>
+		<header>
+			<h1>@thi.ng/genart-api example</h1>
+			<a href="https://thi.ng/genart-api">Documentation</a>
+		</header>
+		<main>
+			<div id="app"></div>
+			<iframe
+				id="art"
+				src="./art.html?ramp=s,0.1,0.5,0.4,0.2,0.8,0.9,0.9,0.5&fade=0.1&size=100&col=99ff00&curve=0.4,0.35&dot=cyan"
+				width="600"
+				height="600"
+				frameborder="0"
+			></iframe>
+		</main>
+		<script type="module" src="/src/examples/param-editor.ts"></script>
 	</body>
 </html>
