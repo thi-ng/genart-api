@@ -25,7 +25,7 @@ const iframeParams = reactive(iframe.location.search, { closeOut: "never" });
 const paramCache: Record<string, any> = {};
 const paramValues: Record<string, Stream<any>> = {};
 
-const unsupportedRND = ["ramp", "weighted"];
+const unsupportedRND = ["text", "ramp", "weighted"];
 
 let apiID: string;
 let selfUpdate = false;
@@ -55,6 +55,12 @@ const createParamControls = (params: ParamSpecs) => {
 	for (let id in params) {
 		const param = params[id];
 		const value = reactive((paramCache[id] = param.value ?? param.default));
+		const base = {
+			label: param.name || id,
+			desc: param.doc,
+			labelAttribs: { title: param.tooltip },
+			attribs: { title: param.tooltip },
+		};
 		paramValues[id] = value;
 		switch (param.type) {
 			case "choice":
@@ -62,10 +68,7 @@ const createParamControls = (params: ParamSpecs) => {
 					const $param = <ChoiceParam<any>>param;
 					items.push(
 						selectStr({
-							label: id,
-							desc: param.doc,
-							labelAttribs: { title: param.tooltip },
-							attribs: { title: param.tooltip },
+							...base,
 							value,
 							items: $param.options.map((x) =>
 								Array.isArray(x)
@@ -77,31 +80,12 @@ const createParamControls = (params: ParamSpecs) => {
 				}
 				break;
 			case "color":
-				items.push(
-					color({
-						label: id,
-						desc: param.doc,
-						labelAttribs: { title: param.tooltip },
-						attribs: { title: param.tooltip },
-						value,
-					})
-				);
+				items.push(color({ ...base, value }));
 				break;
 			case "range":
 				{
 					const { min, max, step } = <RangeParam>param;
-					items.push(
-						range({
-							label: id,
-							desc: param.doc,
-							labelAttribs: { title: param.tooltip },
-							attribs: { title: param.tooltip },
-							min,
-							max,
-							step,
-							value,
-						})
-					);
+					items.push(range({ ...base, min, max, step, value }));
 				}
 				break;
 			case "text":
@@ -109,17 +93,9 @@ const createParamControls = (params: ParamSpecs) => {
 					const $param = <TextParam>param;
 					items.push(
 						$param.multiline
-							? text({
-									label: id,
-									desc: param.doc,
-									labelAttribs: { title: param.tooltip },
-									attribs: { title: param.tooltip },
-									value,
-									rows: 5,
-							  })
+							? text({ ...base, value, rows: 5 })
 							: str({
-									label: id,
-									desc: param.doc,
+									...base,
 									value,
 									min: $param.min,
 									max: $param.max,
@@ -128,15 +104,7 @@ const createParamControls = (params: ParamSpecs) => {
 				}
 				break;
 			case "toggle":
-				items.push(
-					toggle({
-						label: id,
-						desc: param.doc,
-						labelAttribs: { title: param.tooltip },
-						attribs: { title: param.tooltip },
-						value,
-					})
-				);
+				items.push(toggle({ ...base, value }));
 				break;
 			case "xy":
 				{
@@ -149,20 +117,16 @@ const createParamControls = (params: ParamSpecs) => {
 					});
 					items.push(
 						range({
-							label: id + " (x)",
-							desc: param.doc,
-							labelAttribs: { title: param.tooltip },
-							attribs: { title: param.tooltip },
+							...base,
+							label: base.label + " (x)",
 							min: 0,
 							max: 1,
 							step: 0.01,
 							value: x,
 						}),
 						range({
-							label: id + " (y)",
-							desc: param.doc,
-							labelAttribs: { title: param.tooltip },
-							attribs: { title: param.tooltip },
+							...base,
+							label: base.label + " (y)",
 							min: 0,
 							max: 1,
 							step: 0.01,
@@ -178,6 +142,7 @@ const createParamControls = (params: ParamSpecs) => {
 					label: "",
 					title: "randomize",
 					attribs: {
+						title: "Click to randomize this param",
 						onclick: () =>
 							iframe.postMessage({
 								type: "genart:randomizeparam",

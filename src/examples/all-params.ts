@@ -6,9 +6,9 @@ const art = (async () => {
 
 	const param = $genart.setParams({
 		dot: $genart.params.choice<CMYK>({
-			doc: "Dot color",
-			tooltip:
-				"The color used for drawing the dots forming the animated curve",
+			name: "Dot color",
+			doc: "Color used for drawing dots forming the curve",
+			tooltip: "Choose one of our exciting™ presets now!",
 			options: [
 				["cyan", "Cyanide"],
 				["magenta", "Magneto"],
@@ -17,14 +17,18 @@ const art = (async () => {
 			],
 			default: "black",
 		}),
+
 		col: $genart.params.color({
+			name: "Color",
 			doc: "Text color",
 			tooltip:
 				"Recommend setting this to a complementary color to the dot/curve color",
 			default: "#0000ff",
 			update: "reload", // trigger reload on value change
 		}),
+
 		fade: $genart.params.range({
+			name: "Fade",
 			doc: "Background fade opacity",
 			tooltip:
 				"Lower values will cause more of a trail, but also cause artefacts over time",
@@ -34,27 +38,36 @@ const art = (async () => {
 			step: 0.01,
 			update: "reload", // trigger reload on value change
 		}),
+
 		size: $genart.params.range({
+			name: "Size",
 			doc: "Font size",
-			min: 8,
-			max: 100,
+			min: 10,
+			max: 200,
 			default: 50,
 		}),
+
 		speed: $genart.params.range({
+			name: "Horizontal speed",
 			doc: "Curve following speed",
 			min: 1,
 			max: 5,
 			default: 2,
 		}),
+
 		txt: $genart.params.text({
+			name: "Title",
 			doc: "text to display",
 			default: "hello",
 			multiline: true,
 		}),
+
 		curve: $genart.params.xy({
-			doc: "Lissajous config",
+			name: "Lissajous",
+			doc: "Curve coefficients",
 			default: [0.5, 0.5],
 		}),
+
 		ramp: $genart.params.ramp({
 			doc: "Curve for text movement",
 			stops: [
