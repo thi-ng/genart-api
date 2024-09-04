@@ -7,6 +7,7 @@ import type {
 	MessageTypeMap,
 	NotifyType,
 	ParamChangeMsg,
+	ParamErrorMsg,
 	ParamImpl,
 	ParamSpecs,
 	ParamValue,
@@ -27,7 +28,6 @@ import * as math from "./math.js";
 import * as params from "./params.js";
 import { timeProviderRAF } from "./time/time-raf.js";
 import * as utils from "./utils.js";
-import { isNumber, isString } from "./utils.js";
 
 class API implements GenArtAPI {
 	id?: string;
@@ -51,12 +51,17 @@ class API implements GenArtAPI {
 			},
 		},
 		color: {
-			valid: (_, value) => /^#?[0-9a-f]{6}$/.test(value),
+			valid: (_, value) =>
+				utils.isString(value) && /^#?[0-9a-f]{6}$/.test(value),
 			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
 			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_000000) | 0),
 		},
 		ramp: {
-			valid: (_, value) => utils.isNumber(value),
+			valid: (_, stops) =>
+				Array.isArray(stops) && stops.every(utils.isNumericArray),
+			update: (spec, stops) => {
+				(<RampParam>spec).stops = stops;
+			},
 			read: (spec, t) => {
 				const { stops, mode } = <RampParam>spec;
 				let n = stops.length;
@@ -91,7 +96,7 @@ class API implements GenArtAPI {
 		range: {
 			valid: (spec, value) => {
 				const { min, max } = <RangeParam>spec;
-				return !isNaN(value) && value >= min && value <= max;
+				return utils.isNumber(value) && value >= min && value <= max;
 			},
 			coerce: (spec, value) => {
 				const $spec = <RangeParam>spec;
@@ -112,9 +117,12 @@ class API implements GenArtAPI {
 		},
 		text: {
 			valid: (spec, value) => {
+				if (!utils.isString(value)) return false;
 				const { min, max, match } = <TextParam>spec;
 				if (match) {
-					const regexp = isString(match) ? new RegExp(match) : match;
+					const regexp = utils.isString(match)
+						? new RegExp(match)
+						: match;
 					if (!regexp.test(value)) return false;
 				}
 				return (
@@ -124,7 +132,11 @@ class API implements GenArtAPI {
 			},
 		},
 		weighted: {
+			// TODO
 			valid: () => false,
+			update: (spec, options) => {
+				(<WeightedChoiceParam<any>>spec).options = options;
+			},
 			read: (spec, _, rnd) => {
 				let {
 					options,
@@ -141,9 +153,7 @@ class API implements GenArtAPI {
 		},
 		xy: {
 			valid: (_, value) =>
-				Array.isArray(value) &&
-				value.length == 2 &&
-				value.every(isNumber),
+				utils.isNumericArray(value) && value.length == 2,
 			coerce: (_, value) => [
 				math.clamp01(value[0]),
 				math.clamp01(value[1]),
@@ -204,6 +214,18 @@ class API implements GenArtAPI {
 		return this._state;
 	}
 
+	get paramSpecs() {
+		return this._params;
+	}
+
+	get adapter() {
+		return this._adapter;
+	}
+
+	get time() {
+		return this._time;
+	}
+
 	registerParamType(type: string, impl: ParamImpl) {
 		if (this._paramTypes[type])
 			console.warn("overriding impl for param type:", type);
@@ -243,8 +265,9 @@ class API implements GenArtAPI {
 		return this.waitFor("_time");
 	}
 
-	setUpdate(fn: UpdateFn) {
+	setUpdate(fn: UpdateFn, autoStart = true) {
 		this._update = fn;
+		if (autoStart) this.start();
 	}
 
 	updateParams(notify = false) {
@@ -262,10 +285,12 @@ class API implements GenArtAPI {
 		const { spec, impl } = this.ensureParam(id);
 		if (value != null) {
 			if (!impl.valid(spec, value)) {
-				utils.illegalParam(id);
+				this.paramError(id);
 				return;
 			}
-			spec.value = impl.coerce ? impl.coerce(spec, value) : value;
+			impl.update
+				? impl.update(spec, value)
+				: (spec.value = impl.coerce ? impl.coerce(spec, value) : value);
 		}
 		if (notify) {
 			this.emit<ParamChangeMsg>({
@@ -300,6 +325,10 @@ class API implements GenArtAPI {
 			: spec.value ?? spec.default;
 	}
 
+	paramError(paramID: string) {
+		this.emit<ParamErrorMsg>({ type: "genart:paramerror", paramID });
+	}
+
 	on<T extends MessageType>(
 		type: T,
 		listener: (e: MessageTypeMap[T]) => void
@@ -314,14 +343,6 @@ class API implements GenArtAPI {
 		if (notify === "all" || notify === "self") window.postMessage(e, "*");
 		if ((notify === "all" && parent !== window) || notify === "parent")
 			parent.postMessage(e, "*");
-	}
-
-	isRecipient({ data }: MessageEvent): boolean {
-		return (
-			data != null &&
-			typeof data === "object" &&
-			(!this.id || this.id === data.apiID)
-		);
 	}
 
 	start(resume = false) {
@@ -384,6 +405,10 @@ class API implements GenArtAPI {
 			  });
 	}
 
+	/**
+	 * Emits {@link SetParamsMsg} message (only iff the params specs aren't
+	 * empty).
+	 */
 	protected notifySetParams() {
 		if (Object.keys(this._params).length) {
 			this.emit<SetParamsMsg>({
@@ -392,6 +417,20 @@ class API implements GenArtAPI {
 				params: this._params,
 			});
 		}
+	}
+
+	/**
+	 * Returns true if this API instance is the likely recipient for a received
+	 * IPC message.
+	 *
+	 * @param event
+	 */
+	protected isRecipient({ data }: MessageEvent): boolean {
+		return (
+			data != null &&
+			typeof data === "object" &&
+			(!this.id || this.id === data.apiID)
+		);
 	}
 }
 

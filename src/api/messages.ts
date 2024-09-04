@@ -29,6 +29,10 @@ export interface ParamChangeMsg extends APIMessage {
 	paramID: string;
 	spec: Param<any>;
 }
+export interface ParamErrorMsg extends APIMessage {
+	paramID: string;
+	error?: string;
+}
 
 export interface MessageTypeMap {
 	"genart:setfeatures": SetFeaturesMsg;
@@ -36,6 +40,7 @@ export interface MessageTypeMap {
 	"genart:setparamvalue": SetParamValueMsg;
 	"genart:randomizeparam": RandomizeParamMsg;
 	"genart:paramchange": ParamChangeMsg;
+	"genart:paramerror": ParamErrorMsg;
 	"genart:start": APIMessage;
 	"genart:resume": APIMessage;
 	"genart:stop": APIMessage;

@@ -8,7 +8,6 @@ import type {
 
 const {
 	math: { clamp01, parseNum },
-	utils: { illegalParam },
 } = $genart;
 
 class URLParamsAdapter implements PlatformAdapter {
@@ -72,7 +71,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "ramp": {
 				const [mode, ...stops] = value.split(",");
 				if (!mode || stops.length < 4 || stops.length & 1) {
-					illegalParam(id);
+					$genart.paramError(id);
 					return;
 				}
 				const $spec = <RampParam>spec;

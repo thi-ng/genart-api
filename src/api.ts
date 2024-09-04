@@ -32,6 +32,10 @@ export interface GenArtAPI {
 	readonly random: PRNG;
 	readonly state: RunState;
 
+	readonly paramSpecs: ParamSpecs;
+	readonly adapter: Maybe<PlatformAdapter>;
+	readonly time: Maybe<TimeProvider>;
+
 	readonly params: typeof params;
 	readonly math: typeof math;
 	readonly utils: typeof utils;
@@ -117,6 +121,15 @@ export interface GenArtAPI {
 	): ParamValue<T[K]>;
 
 	/**
+	 * Emits a {@link ParamErrorMsg} message (called from
+	 * {@link GenArtAPI.setParamValue}, if needed, but can be triggered by
+	 * others too...)
+	 *
+	 * @param id
+	 */
+	paramError(id: string): void;
+
+	/**
 	 * (Optionally) Called by the art work to declare a number of "features"
 	 * (aka generated metadata) which should be exposed to the
 	 * platform/users/collectors, e.g. to compute the rarity of a variation. The
@@ -151,9 +164,7 @@ export interface GenArtAPI {
 
 	emit<T extends APIMessage>(e: T, notify?: NotifyType): void;
 
-	isRecipient(e: MessageEvent): boolean;
-
-	setUpdate(fn: UpdateFn): void;
+	setUpdate(fn: UpdateFn, autoStart?: boolean): void;
 
 	start(resume?: boolean): void;
 	stop(): void;
@@ -195,10 +206,12 @@ export interface PlatformAdapter {
 	 * {@link ParamImpl} and if successful is then updated in the param spec via
 	 * {@link ParamImpl.coerce}.
 	 *
-	 * If this function returned a valid `value` and/or `update` flag,
-	 * {@link GenArtAPI.setParamValue} *might* emit a {@link ParamChangeMsg}
-	 * message with the updated param spec (only if requested). If this function
-	 * returns a nullish result, the param will NOT be processed further.
+	 * If this function returned a valid `value` and/or `update` flag, and if
+	 * the retured value passes param type-specific validation (see
+	 * {@link ParamImpl.valid}), then by default {@link GenArtAPI.setParamValue}
+	 * emits a {@link ParamChangeMsg} message with the updated param spec. If
+	 * this function returns a nullish result, the param will NOT be processed
+	 * further.
 	 *
 	 * @param id
 	 * @param spec

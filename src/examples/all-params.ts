@@ -132,7 +132,8 @@ const art = (async () => {
 		// text on ramp
 		ctx.fillStyle = col;
 		ctx.font = `${param("size")}px sans-serif`;
-		const y = param("ramp", x / W);
+		const y = 1 - param("ramp", x / W);
+		ctx.textAlign = "center";
 		ctx.fillText(param("txt"), x, y * H);
 
 		x += param("speed");
@@ -142,8 +143,6 @@ const art = (async () => {
 			x -= W;
 		}
 	});
-
-	$genart.start();
 
 	$genart.on("genart:paramchange", (e) => {
 		console.log("art param change", e.paramID, e.spec);
