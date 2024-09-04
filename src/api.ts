@@ -111,7 +111,7 @@ export interface GenArtAPI {
 	 */
 	updateParams(notify?: boolean): void;
 
-	setParamValue(id: string, value: any, notify?: boolean): void;
+	setParamValue(id: string, value: any, key?: string, notify?: boolean): void;
 
 	randomizeParamValue(id: string, rnd?: RandomFn, notify?: boolean): void;
 

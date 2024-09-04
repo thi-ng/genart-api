@@ -1,4 +1,4 @@
-import type { RandomFn } from "../api.js";
+import type { Maybe, RandomFn } from "../api.js";
 
 export interface Param<T> {
 	type: string;
@@ -88,9 +88,14 @@ export type ParamImpl<T = any> = {
 	 * {@link ParamErrorMsg} message (by default).
 	 *
 	 * @param spec
+	 * @param key
 	 * @param value
 	 */
-	valid: (spec: Readonly<Param<T>>, value: any) => boolean;
+	valid: (
+		spec: Readonly<Param<T>>,
+		key: Maybe<string>,
+		value: any
+	) => boolean;
 	/**
 	 * Intended for param types which define their actual values indirectly
 	 * (e.g. a {@link RampParam}'s control points). Called from
@@ -107,9 +112,10 @@ export type ParamImpl<T = any> = {
 	 * {@link WeightedChoiceParam} make use of this type of update.
 	 *
 	 * @param spec
+	 * @param key
 	 * @param value
 	 */
-	update?: (spec: Param<T>, value: any) => void;
+	update?: (spec: Param<T>, key: Maybe<string>, value: any) => void;
 	/**
 	 * Called from {@link GenArtAPI.setParamValue}, this function is used to
 	 * coerce (or otherwise prepare) the given `value` in a type-specific,

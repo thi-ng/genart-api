@@ -18,6 +18,7 @@ export interface SetParamsMsg extends APIMessage {
 
 export interface SetParamValueMsg extends APIMessage {
 	paramID: string;
+	key?: string;
 	value: any;
 }
 
