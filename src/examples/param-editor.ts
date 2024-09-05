@@ -60,6 +60,7 @@ const createParamControls = (params: ParamSpecs) => {
 			desc: param.doc,
 			labelAttribs: { title: param.tooltip },
 			attribs: { title: param.tooltip },
+			value,
 		};
 		paramValues[id] = value;
 		switch (param.type) {
@@ -69,7 +70,6 @@ const createParamControls = (params: ParamSpecs) => {
 					items.push(
 						selectStr({
 							...base,
-							value,
 							items: $param.options.map((x) =>
 								Array.isArray(x)
 									? { value: x[0], label: x[1] }
@@ -80,12 +80,12 @@ const createParamControls = (params: ParamSpecs) => {
 				}
 				break;
 			case "color":
-				items.push(color({ ...base, value }));
+				items.push(color(base));
 				break;
 			case "range":
 				{
 					const { min, max, step } = <RangeParam>param;
-					items.push(range({ ...base, min, max, step, value }));
+					items.push(range({ ...base, min, max, step }));
 				}
 				break;
 			case "text":
@@ -93,10 +93,9 @@ const createParamControls = (params: ParamSpecs) => {
 					const $param = <TextParam>param;
 					items.push(
 						$param.multiline
-							? text({ ...base, value, rows: 5 })
+							? text({ ...base, rows: 5 })
 							: str({
 									...base,
-									value,
 									min: $param.min,
 									max: $param.max,
 							  })
@@ -104,7 +103,7 @@ const createParamControls = (params: ParamSpecs) => {
 				}
 				break;
 			case "toggle":
-				items.push(toggle({ ...base, value }));
+				items.push(toggle(base));
 				break;
 			case "xy":
 				{

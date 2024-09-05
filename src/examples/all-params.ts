@@ -33,7 +33,7 @@ const art = (async () => {
 			tooltip:
 				"Lower values will cause more of a trail, but also cause artefacts over time",
 			default: 0.05,
-			min: 0,
+			min: 0.01,
 			max: 0.3,
 			step: 0.01,
 			update: "reload", // trigger reload on value change
@@ -103,6 +103,8 @@ const art = (async () => {
 	document.body.appendChild(canvas);
 
 	const ctx = canvas.getContext("2d")!;
+	ctx.textAlign = "center";
+	ctx.textBaseline = "middle";
 	// these two params are only evaluated once at start up
 	// they're configured such that any changes will auto-trigger a reload
 	// (see param specs above...)
@@ -133,7 +135,6 @@ const art = (async () => {
 		ctx.fillStyle = col;
 		ctx.font = `${param("size")}px sans-serif`;
 		const y = 1 - param("ramp", x / W);
-		ctx.textAlign = "center";
 		ctx.fillText(param("txt"), x, y * H);
 
 		x += param("speed");
