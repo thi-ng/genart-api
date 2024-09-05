@@ -1,32 +1,22 @@
 import { adaptiveCanvas2d } from "@thi.ng/canvas";
-import { line, polygon, rect, triangle } from "@thi.ng/geom";
 import { draw } from "@thi.ng/hiccup-canvas";
 import {
 	buttonH,
 	DEFAULT_THEME,
 	defGUI,
 	dropdown,
-	IMGUI,
-	isHoverSlider,
 	Key,
-	slider2Val,
+	ramp as rampWidget,
 	sliderH,
 	sliderHGroup,
 	textField,
 	textLabel,
 	toggle,
-	tooltipRaw,
 	xyPad,
 } from "@thi.ng/imgui";
-import {
-	gridLayout,
-	isLayout,
-	type IGridLayout,
-	type LayoutBox,
-} from "@thi.ng/layout";
-import { HERMITE_N, LINEAR_N, Ramp, ramp, type RampImpl } from "@thi.ng/ramp";
+import { gridLayout } from "@thi.ng/layout";
+import { HERMITE_N, LINEAR_N, ramp, type RampImpl } from "@thi.ng/ramp";
 import { gestureStream } from "@thi.ng/rstream-gestures";
-import { fit2, hash, mix2, type Vec } from "@thi.ng/vectors";
 import type {
 	ChoiceParam,
 	Features,
@@ -227,14 +217,20 @@ const updateWidgets = (draw: boolean) => {
 					const $param = <RampParam>param;
 					const modes = ["linear", "smooth", "exp"];
 					let modeID = modes.indexOf($param.mode || "linear");
-					res = rampWidget(
+					const $res = rampWidget(
 						gui,
 						layout.next([COLS, 5]),
 						id,
-						$param.stops,
+						ramp(
+							[LINEAR_N, HERMITE_N, EXPONENTIAL_N][modeID],
+							$param.stops
+						),
 						modeID,
 						param.tooltip
 					);
+					if ($res) {
+						res = $res.stops;
+					}
 					const mode = dropdown(
 						gui,
 						layout.nest(1, [COLS, 1], 0),
@@ -276,7 +272,7 @@ const updateWidgets = (draw: boolean) => {
 				});
 			}
 		} else {
-			layout.next();
+			// layout.next();
 		}
 		if (!draw && res != null) {
 			changedID = id;
@@ -306,114 +302,5 @@ const emitChange = (id: string, value: any, key?: string) => {
 		});
 	} else {
 		console.log("no change...");
-	}
-};
-
-export const rampWidget = (
-	gui: IMGUI,
-	layout: IGridLayout<any> | LayoutBox,
-	id: string,
-	stops: [number, number][],
-	mode: number,
-	info?: string
-) => {
-	let { x, y, w, h } = isLayout(layout) ? layout.next() : layout;
-	const maxX = x + w;
-	const maxY = y + h;
-	const pos = [x, maxY];
-	const maxPos = [maxX, y];
-	const key = hash([x, y, w, h]);
-	gui.registerID(id, key);
-	const box = gui.resource(id, key, () => rect([x, y], [w, h]));
-	const col = gui.textColor(false);
-	const hover = isHoverSlider(gui, id, box, "move");
-	let selID = -1;
-	let sel: Maybe<Vec>;
-	let res: Maybe<typeof stops>;
-	const $ramp = ramp([LINEAR_N, HERMITE_N, EXPONENTIAL_N][mode], stops);
-	const focused = gui.requestFocus(id);
-	if (hover) {
-		sel = slider2Val(
-			fit2([], gui.mouse, pos, maxPos, [0, 0], [1, 1]),
-			[0, 0],
-			[1, 1],
-			1e-3
-		);
-		selID = $ramp.closestIndex(sel[0], 0.05);
-		if (gui.isMouseDown()) {
-			gui.activeID = id;
-			if (selID >= 0) {
-				$ramp.stops[selID] = <[number, number]>sel;
-			} else {
-				$ramp.setStopAt(sel[0], sel[1], 0.05);
-			}
-			res = stops;
-		}
-		if (focused && selID >= 0 && handleRampKeys(gui, $ramp, selID)) {
-			res = stops;
-		}
-		info && gui.draw && tooltipRaw(gui, info);
-	}
-	if (gui.draw) {
-		box.attribs = {
-			fill: gui.bgColor(hover || focused),
-			stroke: gui.focusColor(id),
-		};
-		gui.add(
-			box,
-			polygon(
-				[
-					[x, maxY],
-					mix2([], pos, maxPos, [0, stops[0][1]]),
-					...rampVertices($ramp, mode, pos, maxPos),
-					mix2([], pos, maxPos, [1, stops[stops.length - 1][1]]),
-					[maxX, maxY],
-				],
-				{ fill: col }
-			),
-			...stops.map(([t], i) => {
-				const xx = mix(x, maxX, t);
-				return triangle(
-					[
-						[xx - 5, maxY],
-						[xx + 5, maxY],
-						[xx, maxY - 5],
-					],
-					{ fill: gui.fgColor(selID === i) }
-				);
-			})
-		);
-		if (sel) {
-			const [cx, cy] = fit2([], sel, [0, 0], [1, 1], pos, maxPos);
-			gui.add(
-				line([x, cy], [maxX, cy], { stroke: gui.fgColor(true) }),
-				line([cx, y], [cx, maxY], { stroke: gui.fgColor(true) })
-			);
-		}
-	}
-	gui.lastID = id;
-	return res;
-};
-
-const rampVertices = (
-	ramp: Ramp<number>,
-	mode: number,
-	pos: Vec,
-	maxPos: Vec
-) => [...ramp.samples(100)].map((p) => mix2([], pos, maxPos, p));
-// ) => stops.map((p) => mix2([], pos, maxPos, p));
-
-const handleRampKeys = (gui: IMGUI, ramp: Ramp<number>, selID: number) => {
-	switch (gui.key) {
-		case Key.TAB:
-			gui.switchFocus();
-			break;
-		case "x":
-		case Key.DELETE:
-			ramp.removeStopAtIndex(selID);
-			return true;
-		// case Key.SPACE:
-		// return true;
-		default:
 	}
 };

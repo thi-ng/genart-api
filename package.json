@@ -16,21 +16,21 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.5.4",
-		"vite": "^5.4.2",
+		"vite": "^5.4.3",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"sideEffects": false,
 	"dependencies": {
 		"@thi.ng/canvas": "^0.5.2",
-		"@thi.ng/geom": "^8.1.6",
-		"@thi.ng/hiccup-canvas": "^3.1.15",
-		"@thi.ng/imgui": "^2.2.73",
+		"@thi.ng/geom": "^8.1.7",
+		"@thi.ng/hiccup-canvas": "^3.1.16",
+		"@thi.ng/imgui": "^2.3.0",
 		"@thi.ng/layout": "^3.1.1",
-		"@thi.ng/ramp": "^3.2.0",
-		"@thi.ng/rdom": "^1.7.0",
-		"@thi.ng/rdom-forms": "^0.3.28",
-		"@thi.ng/rstream": "^9.0.1",
-		"@thi.ng/rstream-gestures": "^5.0.89",
-		"@thi.ng/vectors": "^7.11.11"
+		"@thi.ng/ramp": "^3.3.0",
+		"@thi.ng/rdom": "^1.7.1",
+		"@thi.ng/rdom-forms": "^0.3.29",
+		"@thi.ng/rstream": "^9.0.2",
+		"@thi.ng/rstream-gestures": "^5.0.90",
+		"@thi.ng/vectors": "^7.12.0"
 	}
 }
