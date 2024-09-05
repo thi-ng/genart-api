@@ -15,7 +15,7 @@ import {
 	xyPad,
 } from "@thi.ng/imgui";
 import { gridLayout } from "@thi.ng/layout";
-import { HERMITE_N, LINEAR_N, ramp, type RampImpl } from "@thi.ng/ramp";
+import { EASING_N, HERMITE_N, LINEAR_N, ramp } from "@thi.ng/ramp";
 import { gestureStream } from "@thi.ng/rstream-gestures";
 import type {
 	ChoiceParam,
@@ -25,7 +25,6 @@ import type {
 	RampParam,
 	RangeParam,
 } from "../api.js";
-import { easeInOut5, mix, norm } from "../math.js";
 import { isString, u24 } from "../utils.js";
 
 const DPR = window.devicePixelRatio;
@@ -40,15 +39,7 @@ let params: ParamSpecs;
 let iframeParams: string;
 let selfUpdate = false;
 
-export const EXPONENTIAL_N: RampImpl<number> = {
-	min: (acc, x) => Math.min(acc ?? Infinity, x),
-	max: (acc, x) => Math.max(acc ?? -Infinity, x),
-	at: (stops, i, t) => {
-		const a = stops[i];
-		const b = stops[i + 1];
-		return mix(a[1], b[1], easeInOut5(norm(t, a[0], b[0])));
-	},
-};
+export const EXPONENTIAL_N = EASING_N();
 
 const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 	.contentWindow!;
@@ -257,7 +248,7 @@ const updateWidgets = (draw: boolean) => {
 					0,
 					true,
 					undefined,
-					([x, y]) => `${x.toFixed(3)}, ${x.toFixed(3)}`,
+					([x, y]) => `${x.toFixed(3)}, ${y.toFixed(3)}`,
 					param.tooltip
 				);
 				break;

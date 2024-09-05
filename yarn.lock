@@ -651,10 +651,10 @@
     "@thi.ng/errors" "^2.5.15"
     "@thi.ng/strings" "^3.8.4"
 
-"@thi.ng/imgui@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@thi.ng/imgui/-/imgui-2.3.0.tgz#a85889aa5bddeceb23bb815654dff2528583d149"
-  integrity sha512-9xUPL0+oSNrH70UOsygp1Yv2BF3rxm/zYziJKyBEjiNpHilWGEnFLWNju/bzUXD8wmU6cMqaPTtRH8AiF3qS3Q==
+"@thi.ng/imgui@^2.3.1":
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/@thi.ng/imgui/-/imgui-2.3.1.tgz#b816b8046a7402ef6093215d7690bad1e3b60e4d"
+  integrity sha512-U2ZeRooLVLZjj3FyvvhTEey5CUImsejQQrSOD6WZHNrfN1fmeNeA8AsUdgrHJrcHJS+76s8pNzEpO0A4Xg4Kkg==
   dependencies:
     "@thi.ng/api" "^8.11.9"
     "@thi.ng/checks" "^3.6.11"

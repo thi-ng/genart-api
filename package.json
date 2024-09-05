@@ -24,7 +24,7 @@
 		"@thi.ng/canvas": "^0.5.2",
 		"@thi.ng/geom": "^8.1.7",
 		"@thi.ng/hiccup-canvas": "^3.1.16",
-		"@thi.ng/imgui": "^2.3.0",
+		"@thi.ng/imgui": "^2.3.1",
 		"@thi.ng/layout": "^3.1.1",
 		"@thi.ng/ramp": "^3.3.0",
 		"@thi.ng/rdom": "^1.7.1",
