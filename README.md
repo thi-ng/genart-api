@@ -10,11 +10,13 @@
     -   [Static parameter types](#static-parameter-types)
         -   [Choice](#choice-parameter)
         -   [Color](#color-parameter)
+        -   [Date](#date-parameter)
+        -   [Datetime](#datetime-parameter)
+        -   [Time](#time-of-day-parameter)
         -   [Range](#range-parameter)
         -   [Text](#text-parameter)
         -   [XY](#xy-parameter)
     -   [Dynamic parameter types](#dynamic-parameter-types)
-        -   [Datetime](#datetime-parameter)
         -   [Ramp](#ramp-parameter)
         -   [Weighted choice](#weighted-choice-parameter)
 -   [Platform adapters](#platform-adapters)
@@ -121,8 +123,7 @@ involved when adopted.
 
 TODO
 
--   [`GenArtAPI` interface definition](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api.ts#L28-L180)
--   [Reference implementation](https://github.com/thi-ng/genart-api/blob/main/src/genart-api.ts)
+[Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
 
 ## Parameters
 
@@ -189,6 +190,47 @@ $genart.params.color({
 
 -   Color picker
 
+#### Date parameter
+
+JS `Date` value in precision of full days only (UTC midnight).
+
+```ts
+$genart.params.date({
+    doc: "Date",
+    default: new Date("2024-09-05"),
+});
+```
+
+##### Recommended GUI widget
+
+-   Date & time chooser
+-   Numeric range slider (UNIX epoch)
+
+#### Datetime parameter
+
+JS `Date` value (in UTC).
+
+```ts
+$genart.params.datetime({
+    doc: "Date and time (in UTC)",
+    default: new Date("2024-09-05T12:34:56+02:00"),
+});
+```
+
+##### Recommended GUI widget
+
+-   Date & time chooser
+-   Numeric range slider (UNIX epoch)
+
+#### Time parameter
+
+Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h format.
+
+##### Recommended GUI widget
+
+-   HMS time chooser
+-   HMS text input fields
+
 #### Range parameter
 
 Numeric value from a closed range/interval (defined by `min`/`max`, defaulting
@@ -246,24 +288,6 @@ is being evaluated by the art work (e.g. sensor inputs, time/date).
 
 Unlike [static param types](#static-parameter-types), these parameters have **no
 default value** and their actual value is always computed.
-
-#### Datetime parameter
-
-This parameter type always returns a UTC UNIX epoch timestamp (aka number of
-milliseconds since 1970-01-01).
-
-```ts
-$genart.params.datetime({
-    doc: "Date and time in UTC",
-});
-```
-
-##### Recommended GUI widget
-
-Depending on usage and purpose (e.g. static vs timebased works, display vs. testing):
-
--   Date & time chooser
--   Numeric range slider
 
 #### Ramp parameter
 
@@ -330,9 +354,10 @@ $genart.params.weighted({
 
 TODO
 
-Custom parameter types and their implementation can be registered via `$genart.registerParamType()`.
+Platform adapters can register custom parameter types and their implementation via `$genart.registerParamType()`. These can be useful to provide additional platform-specific parameters (e.g. values obtained from arbitrary hardware sensors to which an art work might respond dynamically).
 
 -   [`ParamImpl` interface definition](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api/params.ts#L78-L161)
+-   [`registerParamType()`](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api.ts#L44-L57)
 
 ## Platform adapters
 
@@ -341,6 +366,10 @@ TODO
 -   [`PlatformAdapter` interface definition](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api.ts#L188-L234)
 
 ### Parameter handling
+
+### PRNG provision
+
+### Screen configuration
 
 ### Thumbnail/preview generation
 

@@ -10,12 +10,14 @@
 		"start": "vite --host --open",
 		"build": "tsc && vite build --base='./' && cp *.min.js dist",
 		"build:api": "yarn build:lib && yarn build:adapter",
-		"build:lib": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=lib.min.js src/genart-api.ts",
+		"build:lib": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=lib.min.js src/index.ts",
 		"build:adapter": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=adapter.min.js src/adapters/urlparams.ts",
-		"preview": "vite preview --host --open"
+		"preview": "vite preview --host --open",
+		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
 	"devDependencies": {
 		"typescript": "^5.5.4",
+		"typedoc": "0.26.6",
 		"vite": "^5.4.3",
 		"vite-plugin-html": "^3.2.2"
 	},
