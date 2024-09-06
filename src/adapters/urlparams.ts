@@ -97,6 +97,12 @@ class URLParamsAdapter implements PlatformAdapter {
 		switch (spec.type) {
 			case "color":
 				return spec.value.substring(1);
+			case "date":
+				return spec.value.toISOString().substring(0, 10);
+			case "datetime":
+				return spec.value.toISOString();
+			case "time":
+				return spec.value.join(":");
 			case "ramp": {
 				const $spec = <RampParam>spec;
 				return (

@@ -27,6 +27,18 @@ export interface ColorParam extends Param<string> {
 	options?: string[];
 }
 
+export interface DateParam extends Param<Date> {
+	type: "date";
+}
+
+export interface DateTimeParam extends Param<Date> {
+	type: "datetime";
+}
+
+export interface TimeParam extends Param<[number, number, number]> {
+	type: "time";
+}
+
 export interface RampParam extends Param<number> {
 	type: "ramp";
 	stops: [number, number][];

@@ -1,6 +1,7 @@
 import type {
 	APIMessage,
 	ChoiceParam,
+	DateTimeParam,
 	Features,
 	GenArtAPI,
 	MessageType,
@@ -29,6 +30,9 @@ import * as params from "./params.js";
 import { timeProviderRAF } from "./time/time-raf.js";
 import * as utils from "./utils.js";
 
+const { isNumber, isString, isNumericArray } = utils;
+const { clamp, clamp01, mix, norm, round, parseNum } = math;
+
 class API implements GenArtAPI {
 	id?: string;
 	protected _adapter?: PlatformAdapter;
@@ -52,15 +56,50 @@ class API implements GenArtAPI {
 		},
 		color: {
 			valid: (_, __, value) =>
-				utils.isString(value) && /^#?[0-9a-f]{6}$/.test(value),
+				isString(value) && /^#?[0-9a-f]{6}$/.test(value),
 			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
 			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_000000) | 0),
+		},
+		date: {
+			valid: (_, __, value) =>
+				value instanceof Date ||
+				isNumber(value) ||
+				(isString(value) && /^\d{4}-\d{2}-\d{2}$/.test(value)),
+			coerce: (_, value) =>
+				isNumber(value)
+					? new Date(value)
+					: isString(value)
+					? new Date(Date.parse(value))
+					: value,
+		},
+		datetime: {
+			valid: (_, __, value) =>
+				value instanceof Date ||
+				isNumber(value) ||
+				(isString(value) &&
+					/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[-+]\d{2}:\d{2})$/.test(
+						value
+					)),
+			coerce: (_, value) =>
+				isNumber(value)
+					? new Date(value)
+					: isString(value)
+					? new Date(Date.parse(value))
+					: value,
+		},
+		time: {
+			valid: (_, __, value) =>
+				isNumericArray(value) ||
+				(isString(value) &&
+					/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value)),
+			coerce: (_, value) =>
+				isString(value) ? value.split(":").map(parseNum) : value,
 		},
 		ramp: {
 			valid: (_, key, value) =>
 				key === "mode"
 					? ["linear", "smooth", "exp"].includes(value)
-					: Array.isArray(value) && value.every(utils.isNumericArray),
+					: Array.isArray(value) && value.every(isNumericArray),
 			update: (spec, key, value) => {
 				if (key === "mode") {
 					(<RampParam>spec).mode = value;
@@ -84,17 +123,17 @@ class API implements GenArtAPI {
 					? stops[n][1]
 					: {
 							exp: () =>
-								math.mix(
+								mix(
 									a[1],
 									b[1],
-									math.easeInOut5(math.norm(t, a[0], b[0]))
+									math.easeInOut5(norm(t, a[0], b[0]))
 								),
 							linear: () => math.fit(t, a[0], b[0], a[1], b[1]),
 							smooth: () =>
-								math.mix(
+								mix(
 									a[1],
 									b[1],
-									math.smoothStep01(math.norm(t, a[0], b[0]))
+									math.smoothStep01(norm(t, a[0], b[0]))
 								),
 					  }[mode || "linear"]();
 			},
@@ -102,33 +141,27 @@ class API implements GenArtAPI {
 		range: {
 			valid: (spec, _, value) => {
 				const { min, max } = <RangeParam>spec;
-				return utils.isNumber(value) && value >= min && value <= max;
+				return isNumber(value) && value >= min && value <= max;
 			},
 			coerce: (spec, value) => {
 				const $spec = <RangeParam>spec;
-				return math.clamp(
-					math.round(value ?? $spec.default, $spec.step || 1),
+				return clamp(
+					round(value ?? $spec.default, $spec.step || 1),
 					$spec.min,
 					$spec.max
 				);
 			},
 			randomize: (spec, rnd) => {
 				const { min, max, step } = <RangeParam>spec;
-				return math.clamp(
-					math.round(math.mix(min, max, rnd()), step || 1),
-					min,
-					max
-				);
+				return clamp(round(mix(min, max, rnd()), step || 1), min, max);
 			},
 		},
 		text: {
 			valid: (spec, _, value) => {
-				if (!utils.isString(value)) return false;
+				if (!isString(value)) return false;
 				const { min, max, match } = <TextParam>spec;
 				if (match) {
-					const regexp = utils.isString(match)
-						? new RegExp(match)
-						: match;
+					const regexp = isString(match) ? new RegExp(match) : match;
 					if (!regexp.test(value)) return false;
 				}
 				return (
@@ -158,12 +191,8 @@ class API implements GenArtAPI {
 			},
 		},
 		xy: {
-			valid: (_, __, value) =>
-				utils.isNumericArray(value) && value.length == 2,
-			coerce: (_, value) => [
-				math.clamp01(value[0]),
-				math.clamp01(value[1]),
-			],
+			valid: (_, __, value) => isNumericArray(value) && value.length == 2,
+			coerce: (_, value) => [clamp01(value[0]), clamp01(value[1])],
 			randomize: (_, rnd) => [rnd(), rnd()],
 		},
 	};

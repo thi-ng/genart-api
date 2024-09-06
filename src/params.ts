@@ -2,9 +2,12 @@ import type {
 	BaseParam,
 	ChoiceParam,
 	ColorParam,
+	DateParam,
+	DateTimeParam,
 	RampParam,
 	RangeParam,
 	TextParam,
+	TimeParam,
 	ToggleParam,
 	WeightedChoiceParam,
 	XYParam,
@@ -36,6 +39,47 @@ export const choice = <T extends string>(
 	spec: BaseParam<ChoiceParam<T>>
 ): ChoiceParam<T> => ({
 	type: "choice",
+	...spec,
+});
+
+/**
+ * Defines a new date-time parameter providing UNIX epoch timestamps (in UTC).
+ *
+ * @remarks
+ * Also see {@link date} and {@link time}.
+ *
+ * @param spec
+ */
+export const datetime = (spec: BaseParam<DateTimeParam>): DateTimeParam => ({
+	type: "datetime",
+	...spec,
+});
+
+/**
+ * Defines a new date parameter providing `Date` values (in UTC) at the
+ * resolution of full days.
+ *
+ * @remarks
+ * Also see {@link datetime} and {@link time}.
+ *
+ * @param spec
+ */
+export const date = (spec: BaseParam<DateParam>): DateParam => ({
+	type: "date",
+	...spec,
+});
+
+/**
+ * Defines a new time parameter providing time-of-day values (in UTC) in the
+ * form of 3-tuples: `[hour,minute,second]`.
+ *
+ * @remarks
+ * Also see {@link datetime} and {@link date}.
+ *
+ * @param spec
+ */
+export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
+	type: "time",
 	...spec,
 });
 
