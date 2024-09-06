@@ -57,7 +57,11 @@ const gui = defGUI({
 	},
 });
 
-gestureStream(canvas, { scale: false }).subscribe({
+gestureStream(canvas, {
+	scale: false,
+	preventScrollOnZoom: false,
+	preventDefault: false,
+}).subscribe({
 	next(e) {
 		gui.setMouse(e.pos, e.buttons);
 		updateGUI();

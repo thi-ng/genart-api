@@ -8,7 +8,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "vite --host --open",
-		"build": "tsc && vite build --base='./'",
+		"build": "tsc && vite build --base='./' && cp *.min.js dist",
 		"build:api": "yarn build:lib && yarn build:adapter",
 		"build:lib": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=lib.min.js src/genart-api.ts",
 		"build:adapter": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=adapter.min.js src/adapters/urlparams.ts",
