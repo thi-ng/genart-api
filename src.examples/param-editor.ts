@@ -1,8 +1,11 @@
+import { ConsoleLogger, ROOT } from "@thi.ng/logger";
 import { $compile, $replace } from "@thi.ng/rdom";
 import {
 	color,
 	compileForm,
 	container,
+	date,
+	dateTime,
 	group,
 	range,
 	selectStr,
@@ -12,8 +15,21 @@ import {
 	trigger,
 	type FormItem,
 } from "@thi.ng/rdom-forms";
-import { reactive, stream, sync, syncRAF, type Stream } from "@thi.ng/rstream";
-import type { ChoiceParam, ParamSpecs, RangeParam, TextParam } from "../api.js";
+import {
+	reactive,
+	stream,
+	sync,
+	syncRAF,
+	type ISubscription,
+} from "@thi.ng/rstream";
+import type {
+	ChoiceParam,
+	ParamSpecs,
+	RangeParam,
+	TextParam,
+} from "../src/api.js";
+
+// ROOT.set(new ConsoleLogger());
 
 const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 	.contentWindow!;
@@ -23,9 +39,10 @@ const controls = stream<ParamSpecs>();
 const iframeParams = reactive(iframe.location.search, { closeOut: "never" });
 
 const paramCache: Record<string, any> = {};
-const paramValues: Record<string, Stream<any>> = {};
+const paramValues: Record<string, ISubscription<any, any>> = {};
 
-const unsupportedRND = ["text", "ramp", "weighted"];
+// TODO add method to obtain param feature descriptors
+const unsupportedRND = ["date", "datetime", "time", "text", "ramp", "weighted"];
 
 let apiID: string;
 let selfUpdate = false;
@@ -54,7 +71,9 @@ const createParamControls = (params: ParamSpecs) => {
 	let items: FormItem[] = [];
 	for (let id in params) {
 		const param = params[id];
-		const value = reactive((paramCache[id] = param.value ?? param.default));
+		let value: ISubscription<any, any> = reactive(
+			(paramCache[id] = param.value ?? param.default)
+		);
 		const base = {
 			label: param.name || id,
 			desc: param.doc,
@@ -81,6 +100,25 @@ const createParamControls = (params: ParamSpecs) => {
 				break;
 			case "color":
 				items.push(color(base));
+				break;
+			case "datetime":
+				{
+					value = value.map((x) => {
+						x = x instanceof Date ? x.toISOString() : x;
+						return x.replace(/(\.\d{3})?(Z|[-+]\d{2}:\d{2})$/, "");
+					});
+					items.push(dateTime({ ...base, value }));
+					value = value.map((x) => x + ":00Z");
+				}
+				break;
+			case "date":
+				{
+					value = value.map((x) => {
+						x = x instanceof Date ? x.toISOString() : x;
+						return x.substring(0, 10);
+					});
+					items.push(date({ ...base, value }));
+				}
 				break;
 			case "range":
 				{

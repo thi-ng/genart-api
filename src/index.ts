@@ -1,7 +1,6 @@
 import type {
 	APIMessage,
 	ChoiceParam,
-	DateTimeParam,
 	Features,
 	GenArtAPI,
 	MessageType,

@@ -24,14 +24,15 @@ import type {
 	ParamSpecs,
 	RampParam,
 	RangeParam,
-} from "../api.js";
-import { isString, u24 } from "../utils.js";
+} from "../src/api.js";
+import { isString, u24 } from "../src/utils.js";
 
 const DPR = window.devicePixelRatio;
 const W = 400; //window.innerWidth - 600 - 3 * 16;
 const H = window.innerHeight;
 
-const unsupportedRND = ["text", "ramp", "weighted"];
+// TODO add method to obtain param feature descriptors
+const unsupportedRND = ["date", "datetime", "time", "text", "ramp", "weighted"];
 
 let apiID: string;
 let features: Features;

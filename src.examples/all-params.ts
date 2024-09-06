@@ -36,7 +36,6 @@ const art = (async () => {
 			min: 0.01,
 			max: 0.3,
 			step: 0.01,
-			update: "reload", // trigger reload on value change
 		}),
 
 		size: $genart.params.range({
@@ -59,7 +58,7 @@ const art = (async () => {
 			name: "Title",
 			doc: "text to display",
 			default: "hello",
-			multiline: true,
+			// multiline: true,
 		}),
 
 		curve: $genart.params.xy({
@@ -75,6 +74,13 @@ const art = (async () => {
 				[1, 1],
 			],
 			default: 0,
+		}),
+
+		date: $genart.params.date({
+			name: "Date",
+			doc: "Date from which the background fades to black",
+			// default: new Date(Date.now() + 60 * 1000),
+			default: new Date("2024-09-07"),
 		}),
 	});
 
@@ -109,12 +115,15 @@ const art = (async () => {
 	// they're configured such that any changes will auto-trigger a reload
 	// (see param specs above...)
 	const col = param("col");
-	const bgColor = `rgb(255 255 255/${param("fade")})`;
 
 	let x = 0;
 	$genart.setUpdate((t) => {
 		ctx.strokeStyle = "none";
 		// fade bg
+		const bgColor =
+			Date.now() < param("date").getTime()
+				? `rgb(255 255 255/${param("fade")})`
+				: `rgb(0 0 0/${param("fade")})`;
 		ctx.fillStyle = bgColor;
 		ctx.fillRect(0, 0, W, H);
 		// lissajous curve
