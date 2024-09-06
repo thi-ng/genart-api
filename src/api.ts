@@ -101,8 +101,7 @@ export interface GenArtAPI {
 
 	/**
 	 * Called from {@link GenArtAPI.setParams} or from {@link PlatformAdapter}
-	 * to apply any param customizations/overrides sourced via the adapter (via
-	 * {@link GenArtAPI.updateParam}).
+	 * to apply any param customizations/overrides sourced via the adapter.
 	 *
 	 * @remarks
 	 * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts

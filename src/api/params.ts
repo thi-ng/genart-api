@@ -87,7 +87,7 @@ export type ParamValue<T extends Param<any>> = NonNullable<T["value"]>;
 /**
  * Set of functions used to implement a parameter type.
  */
-export type ParamImpl<T = any> = {
+export interface ParamImpl<T = any> {
 	/**
 	 * Called from {@link GenArtAPI.setParamValue} to pre-validate a given
 	 * value. Returns true only if the given value can be principally used for
@@ -170,4 +170,4 @@ export type ParamImpl<T = any> = {
 	 * @param rnd
 	 */
 	read?: (spec: Readonly<Param<T>>, t: number, rnd: RandomFn) => T;
-};
+}
