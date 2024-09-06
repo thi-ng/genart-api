@@ -132,7 +132,18 @@ large number of variations. Some of these parameters can be exposed to the
 outside world to allow people/agents more participation and direct control over
 the generative outcomes.
 
-### Static parameter types
+The API supports an extensible set of parameters types with a selection of
+commonly used types supplied as built-ins (described below).
+
+Each parameter declared by the art work is represented in the API as a simple
+vanilla JS object and any param value changes are being handled by the param
+type's [registered
+implementation](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
+(a set of functions dealing with validation, coercion, updating and reading
+param values).
+
+For convenience & type safety, the API provides factory functions for all
+built-in parameter types.
 
 The following parameter types are available, but other custom ones can be
 registered, making the whole system extensible. Each declared param is a simple
@@ -141,6 +152,15 @@ to fill in default options.
 
 **IMPORTANT**: All param declarations must provide a `doc` (documentation
 string) and most also `default` value (see exceptions below).
+
+### Static parameter types
+
+Generally speaking, parameters can be grouped into static & dynamic parameters
+with the former providing the same values each time they're read/evaluted and
+the latter being used for time-based, randomized value or obtained from
+otherwise dynamic sources (e.g. sensors).
+
+This section describes the set of _static_ param types:
 
 #### Choice parameter
 
@@ -356,14 +376,14 @@ TODO
 
 Platform adapters can register custom parameter types and their implementation via `$genart.registerParamType()`. These can be useful to provide additional platform-specific parameters (e.g. values obtained from arbitrary hardware sensors to which an art work might respond dynamically).
 
--   [`ParamImpl` interface definition](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api/params.ts#L78-L161)
--   [`registerParamType()`](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api.ts#L44-L57)
+-   [`ParamImpl` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
+-   [`registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType)
 
 ## Platform adapters
 
 TODO
 
--   [`PlatformAdapter` interface definition](https://github.com/thi-ng/genart-api/blob/8cfc327a545e5f8b79056c13a114ae9995e98715/src/api.ts#L188-L234)
+-   [`PlatformAdapter` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PlatformAdapter.html)
 
 ### Parameter handling
 
