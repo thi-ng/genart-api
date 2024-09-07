@@ -63,6 +63,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "color":
 			case "choice":
 			case "text":
+			case "time":
 				return { value };
 			case "range":
 				return { value: +value };
@@ -90,6 +91,9 @@ class URLParamsAdapter implements PlatformAdapter {
 			}
 			case "xy":
 				return { value: value.split(",").map((x) => +x) };
+			case "date":
+			case "datetime":
+				return { value: new Date(Date.parse(value)) };
 		}
 	}
 

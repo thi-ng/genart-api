@@ -52,6 +52,7 @@ export const choice = <T extends string>(
  */
 export const datetime = (spec: BaseParam<DateTimeParam>): DateTimeParam => ({
 	type: "datetime",
+	randomize: false,
 	...spec,
 });
 
@@ -66,6 +67,7 @@ export const datetime = (spec: BaseParam<DateTimeParam>): DateTimeParam => ({
  */
 export const date = (spec: BaseParam<DateParam>): DateParam => ({
 	type: "date",
+	randomize: false,
 	...spec,
 });
 
@@ -80,6 +82,7 @@ export const date = (spec: BaseParam<DateParam>): DateParam => ({
  */
 export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
 	type: "time",
+	randomize: false,
 	...spec,
 });
 
@@ -115,6 +118,7 @@ export const ramp = (
 		Partial<Pick<RampParam, "stops" | "default">>
 ): RampParam => ({
 	type: "ramp",
+	randomize: false,
 	default: 0,
 	mode: "linear",
 	stops: [
@@ -169,6 +173,7 @@ export const range = (
  */
 export const text = (spec: BaseParam<TextParam>): TextParam => ({
 	type: "text",
+	randomize: false,
 	...spec,
 });
 
@@ -222,6 +227,7 @@ export const weighted = <T extends string>(
 	spec: BaseParam<WeightedChoiceParam<T>>
 ): WeightedChoiceParam<T> => ({
 	type: "weighted",
+	randomize: false,
 	...spec,
 	options: spec.options.sort((a, b) => b[0] - a[0]),
 	total: spec.options.reduce((acc, x) => acc + x[0], 0),

@@ -8,6 +8,8 @@ export interface Param<T> {
 	default: T;
 	value?: T;
 	update?: "reload" | "event";
+	edit: "private" | "protected" | "public";
+	randomize?: boolean;
 }
 
 export type BaseParam<T extends Param<any>, K extends string = ""> = Omit<
