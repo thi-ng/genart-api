@@ -240,8 +240,7 @@ class API implements GenArtAPI {
 
 	get random() {
 		if (this._prng) return this._prng;
-		this.ensureAdapter();
-		return (this._prng = this._adapter!.prng);
+		return (this._prng = this.ensureAdapter().prng);
 	}
 
 	get state() {
@@ -267,6 +266,17 @@ class API implements GenArtAPI {
 	}
 
 	setParams<P extends ParamSpecs>(params: P) {
+		for (let id in params) {
+			const param = params[id];
+			if (param.default == null) {
+				const impl = this.ensureParamImpl(param.type);
+				if (impl.randomize) {
+					param.default = impl.randomize(param, this.random.rnd);
+				} else {
+					throw new Error(`missing default value for param: ${id}`);
+				}
+			}
+		}
 		this._params = params;
 		if (this._adapter) this.updateParams();
 		this.notifySetParams();
@@ -421,18 +431,25 @@ class API implements GenArtAPI {
 
 	protected ensureAdapter() {
 		if (!this._adapter) throw new Error("missing platform adapter");
+		return this._adapter;
 	}
 
 	protected ensureTimeProvider() {
 		if (!this._time) throw new Error("missing time provider");
+		return this._time;
 	}
 
 	protected ensureParam(id: string) {
 		const spec = this._params[id];
 		if (!spec) throw new Error(`unknown param: ${id}`);
-		const impl = this._paramTypes[spec.type];
-		if (!impl) throw new Error(`unknown param type: ${spec.type}`);
+		const impl = this.ensureParamImpl(spec.type);
 		return { spec, impl };
+	}
+
+	protected ensureParamImpl(type: string) {
+		const impl = this._paramTypes[type];
+		if (!impl) throw new Error(`unknown param type: ${type}`);
+		return impl;
 	}
 
 	protected waitFor(type: "_adapter" | "_time") {

@@ -1,22 +1,82 @@
 import type { Maybe, RandomFn } from "../api.js";
 
+/**
+ * Declarative data-only description of a single parameter declared by the art
+ * work and registered via {@link GenArtAPI.setParams}.
+ *
+ * @remarks
+ * These param objects are forming the basis for much of {@link GenArtAPI}'s
+ * core features and are designed to be sendable via {@link GenArtAPI.emit}
+ * messages (aka `window.postMessage()`) between different windows.
+ */
 export interface Param<T> {
 	type: string;
+	/**
+	 * Human readable name/label for this parameter for external GUIs or other
+	 * display purposes. If omitted, the parameter ID should be used by default.
+	 */
 	name?: string;
-	doc: string;
-	tooltip?: string;
-	default: T;
+	/**
+	 * Brief description/documentation for external GUIs or other display
+	 * purposes.
+	 */
+	desc: string;
+	/**
+	 * Optional, additional documentation/hints about this param, its role,
+	 * usage etc.
+	 */
+	doc?: string;
+	/**
+	 * Default value. If omitted, a randomized default value will be generated,
+	 * iff the param type DOES provide a {@link ParamImpl.randomize} function.
+	 * Otherwise, {@link GenArt.setParams} will throw an error if no default is
+	 * given and the param type ISN'T randomizable.
+	 *
+	 * @remarks
+	 * Randomization of default values will use the {@link GenArtAPI.random}
+	 * PRNG to ensure deterministic behavior.
+	 */
+	default?: T;
+	/**
+	 * Current param value, potentially randomized, or provided/customized via
+	 * external, platform specific means (e.g. param editors, stored variations).
+	 */
 	value?: T;
+	/**
+	 * Update mode/behavior when this param is being updated.
+	 *
+	 * - `reload`: the piece should be reloaded/relaunched with new param value
+	 *   (platform providers are responsible to honor & implement this)
+	 * - `event`: the API will trigger a {@link ParamChangeMsg} via
+	 *   {@link GenArtAPI.emit}
+	 *
+	 * @defaultValue "event"
+	 */
 	update?: "reload" | "event";
-	edit: "private" | "protected" | "public";
+	/**
+	 * Defines which party or agent should be able to edit this parameter.
+	 *
+	 * - `private`: artist-only
+	 * - `protected`: artists and trusted parties (curator/gallery)
+	 * - `public`: collectors/viewers
+	 *
+	 * @defaultValue "protected"
+	 */
+	edit?: "private" | "protected" | "public";
+	/**
+	 * If true (default), this param's value can be randomized (but also needs
+	 * to be supported by corresponding {@link ParamImpl})
+	 *
+	 * @defaultValue true
+	 */
 	randomize?: boolean;
 }
 
 export type BaseParam<T extends Param<any>, K extends string = ""> = Omit<
 	T,
-	"type" | "tooltip" | K
+	"type" | "doc" | K
 > & {
-	tooltip?: string;
+	doc?: string;
 };
 
 export interface ChoiceParam<T extends string> extends Param<T> {
