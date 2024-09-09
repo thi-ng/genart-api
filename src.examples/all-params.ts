@@ -7,31 +7,29 @@ const art = (async () => {
 	const param = $genart.setParams({
 		dot: $genart.params.choice<CMYK>({
 			name: "Dot color",
-			doc: "Color used for drawing dots forming the curve",
-			tooltip: "Choose one of our exciting™ presets now!",
+			desc: "Color used for drawing dots forming the curve",
+			doc: "Choose one of our exciting™ presets now!",
 			options: [
 				["cyan", "Cyanide"],
 				["magenta", "Magneto"],
 				["yellow", "Yolo"],
 				["black", "Gothic"],
 			],
-			default: "black",
+			// default: "black",
 		}),
 
 		col: $genart.params.color({
 			name: "Color",
-			doc: "Text color",
-			tooltip:
-				"Recommend setting this to a complementary color to the dot/curve color",
+			desc: "Text color",
+			doc: "Recommend setting this to a complementary color to the dot/curve color",
 			default: "#0000ff",
 			update: "reload", // trigger reload on value change
 		}),
 
 		fade: $genart.params.range({
 			name: "Fade",
-			doc: "Background fade opacity",
-			tooltip:
-				"Lower values will cause more of a trail, but also cause artefacts over time",
+			desc: "Background fade opacity",
+			doc: "Lower values will cause more of a trail, but also cause artefacts over time",
 			default: 0.05,
 			min: 0.01,
 			max: 0.3,
@@ -40,7 +38,7 @@ const art = (async () => {
 
 		size: $genart.params.range({
 			name: "Size",
-			doc: "Font size",
+			desc: "Font size",
 			min: 10,
 			max: 200,
 			default: 50,
@@ -48,7 +46,7 @@ const art = (async () => {
 
 		speed: $genart.params.range({
 			name: "Horizontal speed",
-			doc: "Curve following speed",
+			desc: "Curve following speed",
 			min: 1,
 			max: 5,
 			default: 2,
@@ -56,19 +54,19 @@ const art = (async () => {
 
 		txt: $genart.params.text({
 			name: "Title",
-			doc: "text to display",
+			desc: "text to display",
 			default: "hello",
 			// multiline: true,
 		}),
 
 		curve: $genart.params.xy({
 			name: "Lissajous",
-			doc: "Curve coefficients",
+			desc: "Curve coefficients",
 			default: [0.5, 0.5],
 		}),
 
 		ramp: $genart.params.ramp({
-			doc: "Curve for text movement",
+			desc: "Curve for text movement",
 			stops: [
 				[0, 0],
 				[1, 1],
@@ -78,9 +76,8 @@ const art = (async () => {
 
 		date: $genart.params.date({
 			name: "Date",
-			doc: "Date from which the background fades to black",
-			// default: new Date(Date.now() + 60 * 1000),
-			default: new Date("2024-09-07"),
+			desc: "Date from which the background fades to black",
+			default: new Date("2024-09-11"),
 		}),
 	});
 

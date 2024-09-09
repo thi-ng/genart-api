@@ -5,6 +5,7 @@ import {
 	DEFAULT_THEME,
 	defGUI,
 	dropdown,
+	IMGUI,
 	Key,
 	ramp as rampWidget,
 	sliderH,
@@ -17,8 +18,10 @@ import {
 import { gridLayout } from "@thi.ng/layout";
 import { EASING_N, HERMITE_N, LINEAR_N, ramp } from "@thi.ng/ramp";
 import { gestureStream } from "@thi.ng/rstream-gestures";
+import { range } from "@thi.ng/transducers";
 import type {
 	ChoiceParam,
+	DateParam,
 	Features,
 	Maybe,
 	ParamSpecs,
@@ -28,46 +31,22 @@ import type {
 import { isString, u24 } from "../src/utils.js";
 
 const DPR = window.devicePixelRatio;
-const W = 400; //window.innerWidth - 600 - 3 * 16;
-const H = window.innerHeight;
-
-// TODO add method to obtain param feature descriptors
-const unsupportedRND = ["date", "datetime", "time", "text", "ramp", "weighted"];
+const W = Math.min(window.innerWidth - 32, 400);
+const H = 1000;
 
 let apiID: string;
 let features: Features;
 let params: ParamSpecs;
 let iframeParams: string;
 let selfUpdate = false;
+let gui: Maybe<IMGUI>;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
 
-export const EXPONENTIAL_N = EASING_N();
+const EXPONENTIAL_N = EASING_N();
 
 const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 	.contentWindow!;
-
-const { canvas, ctx } = adaptiveCanvas2d(W, H, document.getElementById("app"));
-const gui = defGUI({
-	theme: {
-		...DEFAULT_THEME,
-		font: "12px monospace",
-		charWidth: 7,
-		baseLine: 4,
-		// focus: "#000",
-		cursorBlink: 0,
-		bgTooltip: "#ffff80cc",
-	},
-});
-
-gestureStream(canvas, {
-	scale: false,
-	preventScrollOnZoom: false,
-	preventDefault: false,
-}).subscribe({
-	next(e) {
-		gui.setMouse(e.pos, e.buttons);
-		updateGUI();
-	},
-});
 
 window.addEventListener("message", (e) => {
 	switch (e.data.type) {
@@ -77,12 +56,12 @@ window.addEventListener("message", (e) => {
 		case "genart:setparams":
 			apiID = e.data.apiID;
 			params = e.data.params;
-			updateGUI();
+			gui && updateGUI();
 			break;
 		case "genart:paramchange":
 			selfUpdate = true;
 			params[e.data.paramID] = e.data.spec;
-			updateGUI();
+			gui && updateGUI();
 			selfUpdate = false;
 			break;
 		case "paramadapter:update":
@@ -91,30 +70,10 @@ window.addEventListener("message", (e) => {
 	}
 });
 
-window.addEventListener("keydown", (e) => {
-	// if (e.target !== canvas) return;
-	if (
-		e.key === Key.TAB ||
-		e.key === Key.SPACE ||
-		e.key === Key.UP ||
-		e.key === Key.DOWN ||
-		e.key === Key.LEFT ||
-		e.key === Key.RIGHT
-	) {
-		e.preventDefault();
-	}
-	gui.setKey(e);
-	updateGUI();
-});
-
-window.addEventListener("keyup", (e) => {
-	gui.setKey(e);
-});
-
 const updateWidgets = (draw: boolean) => {
 	const COLS = 3;
 	const layout = gridLayout(1, 1, W - 2, COLS, 20, 4);
-	gui.begin(draw);
+	gui!.begin(draw);
 	let changedID: Maybe<string>;
 	let changedKey: Maybe<string>;
 	let changedValue: any;
@@ -123,13 +82,13 @@ const updateWidgets = (draw: boolean) => {
 		const label = param.name || id;
 		const value = param.value ?? param.default;
 		let res: any;
-		textLabel(gui, layout.next([COLS, 1]), param.doc);
+		textLabel(gui!, layout.next([COLS, 1]), param.desc);
 		switch (param.type) {
 			case "choice":
 				{
 					const $param = <ChoiceParam<any>>param;
 					const idx = dropdown(
-						gui,
+						gui!,
 						layout.nest(1, [COLS - 1, 1], 0),
 						id,
 						$param.options.findIndex(
@@ -137,7 +96,7 @@ const updateWidgets = (draw: boolean) => {
 						),
 						$param.options.map((x) => (isString(x) ? x : x[1])),
 						label,
-						param.tooltip
+						param.doc
 					);
 					if (idx != null) {
 						res = $param.options[idx];
@@ -150,7 +109,7 @@ const updateWidgets = (draw: boolean) => {
 					const num = parseInt(value.substring(1), 16);
 					const rgb = [num >> 16, (num >> 8) & 0xff, num & 0xff];
 					const edit = sliderHGroup(
-						gui,
+						gui!,
 						layout,
 						id,
 						0,
@@ -168,22 +127,90 @@ const updateWidgets = (draw: boolean) => {
 					}
 				}
 				break;
+			case "date":
+				{
+					const date = <Date>value;
+					let idx = dropdown(
+						gui!,
+						layout.nest(1, undefined, 0),
+						id + "year",
+						date.getFullYear() - 2024,
+						["2024", "2025", "2026", "2027", "2028", "2029"],
+						"Year",
+						param.doc
+					);
+					if (idx != null) {
+						res = new Date(
+							Date.UTC(
+								idx + 2024,
+								date.getMonth(),
+								date.getDate()
+							)
+						);
+					}
+					idx = dropdown(
+						gui!,
+						layout.nest(1, undefined, 0),
+						id + "month",
+						date.getMonth(),
+						[
+							"Jan",
+							"Feb",
+							"Mar",
+							"Apr",
+							"May",
+							"Jun",
+							"Jul",
+							"Aug",
+							"Sep",
+							"Oct",
+							"Nov",
+							"Dec",
+						],
+						"Month",
+						param.doc
+					);
+					if (idx != null) {
+						res = new Date(
+							Date.UTC(date.getFullYear(), idx, date.getDate())
+						);
+					}
+					idx = dropdown(
+						gui!,
+						layout.nest(1, undefined, 0),
+						id + "day",
+						date.getDate() - 1,
+						[...range(1, 32)].map(String),
+						"Day",
+						param.doc
+					);
+					if (idx != null) {
+						res = new Date(
+							Date.UTC(
+								date.getFullYear(),
+								date.getMonth(),
+								idx + 1
+							)
+						);
+					}
+				}
+				break;
 			case "toggle":
 				res = toggle(
-					gui,
+					gui!,
 					layout.next([COLS - 1, 1]),
 					id,
 					value,
 					false,
 					label,
-					param.tooltip
+					param.doc
 				);
 				break;
 			case "range":
 				{
 					const { min, max, step = 1 } = <RangeParam>param;
 					res = sliderH(
-						gui,
+						gui!,
 						layout.next([COLS - 1, 1]),
 						id,
 						min,
@@ -192,19 +219,19 @@ const updateWidgets = (draw: boolean) => {
 						value,
 						label,
 						undefined,
-						param.tooltip
+						param.doc
 					);
 				}
 				break;
 			case "text":
 				{
 					res = textField(
-						gui,
+						gui!,
 						layout.next([COLS, 1]),
 						id,
 						value,
 						undefined,
-						param.tooltip
+						param.doc
 					);
 				}
 				break;
@@ -214,7 +241,7 @@ const updateWidgets = (draw: boolean) => {
 					const modes = ["linear", "smooth", "exp"];
 					let modeID = modes.indexOf($param.mode || "linear");
 					const $res = rampWidget(
-						gui,
+						gui!,
 						layout.next([COLS, 5]),
 						id,
 						ramp(
@@ -222,13 +249,13 @@ const updateWidgets = (draw: boolean) => {
 							$param.stops
 						),
 						modeID,
-						param.tooltip
+						param.doc
 					);
 					if ($res) {
 						res = $res.stops;
 					}
 					const mode = dropdown(
-						gui,
+						gui!,
 						layout.nest(1, [COLS, 1], 0),
 						id + "-mode",
 						modeID,
@@ -243,7 +270,7 @@ const updateWidgets = (draw: boolean) => {
 				break;
 			case "xy":
 				res = xyPad(
-					gui,
+					gui!,
 					layout,
 					id,
 					[0, 0],
@@ -254,12 +281,12 @@ const updateWidgets = (draw: boolean) => {
 					true,
 					undefined,
 					([x, y]) => `${x.toFixed(3)}, ${y.toFixed(3)}`,
-					param.tooltip
+					param.doc
 				);
 				break;
 		}
-		if (!unsupportedRND.includes(param.type)) {
-			const rnd = buttonH(gui, layout, id + "-rnd", "Randomize");
+		if (param.randomize !== false) {
+			const rnd = buttonH(gui!, layout, id + "-rnd", "Randomize");
 			if (!draw && rnd) {
 				iframe.postMessage({
 					type: "genart:randomizeparam",
@@ -267,15 +294,13 @@ const updateWidgets = (draw: boolean) => {
 					paramID: id,
 				});
 			}
-		} else {
-			// layout.next();
 		}
 		if (!draw && res != null) {
 			changedID = id;
 			changedValue = res;
 		}
 	}
-	gui.end();
+	gui!.end();
 	if (changedID && !selfUpdate)
 		emitChange(changedID, changedValue, changedKey);
 };
@@ -283,7 +308,7 @@ const updateWidgets = (draw: boolean) => {
 const updateGUI = () => {
 	updateWidgets(false);
 	updateWidgets(true);
-	draw(ctx, ["g", { __clear: true, scale: DPR }, gui]);
+	draw(ctx!, ["g", { __clear: true, scale: DPR }, gui]);
 };
 
 const emitChange = (id: string, value: any, key?: string) => {
@@ -299,4 +324,52 @@ const emitChange = (id: string, value: any, key?: string) => {
 	} else {
 		console.log("no change...");
 	}
+};
+
+export const launchEditorImgui = () => {
+	({ canvas, ctx } = adaptiveCanvas2d(W, H, document.getElementById("app")));
+	gui = defGUI({
+		theme: {
+			...DEFAULT_THEME,
+			font: "12px monospace",
+			charWidth: 7,
+			baseLine: 4,
+			// focus: "#000",
+			cursorBlink: 0,
+			bgTooltip: "#ffff80cc",
+		},
+	});
+
+	gestureStream(canvas, {
+		scale: false,
+		preventScrollOnZoom: false,
+		preventDefault: true,
+	}).subscribe({
+		next(e) {
+			gui!.setMouse(e.pos, e.buttons);
+			updateGUI();
+		},
+	});
+
+	window.addEventListener("keydown", (e) => {
+		// if (e.target !== canvas) return;
+		if (
+			e.key === Key.TAB ||
+			e.key === Key.SPACE ||
+			e.key === Key.UP ||
+			e.key === Key.DOWN ||
+			e.key === Key.LEFT ||
+			e.key === Key.RIGHT
+		) {
+			e.preventDefault();
+		}
+		gui!.setKey(e);
+		updateGUI();
+	});
+
+	window.addEventListener("keyup", (e) => {
+		gui!.setKey(e);
+	});
+
+	updateGUI();
 };

@@ -41,9 +41,6 @@ const iframeParams = reactive(iframe.location.search, { closeOut: "never" });
 const paramCache: Record<string, any> = {};
 const paramValues: Record<string, ISubscription<any, any>> = {};
 
-// TODO add method to obtain param feature descriptors
-const unsupportedRND = ["date", "datetime", "time", "text", "ramp", "weighted"];
-
 let apiID: string;
 let selfUpdate = false;
 
@@ -76,9 +73,9 @@ const createParamControls = (params: ParamSpecs) => {
 		);
 		const base = {
 			label: param.name || id,
-			desc: param.doc,
-			labelAttribs: { title: param.tooltip },
-			attribs: { title: param.tooltip },
+			desc: param.desc,
+			labelAttribs: { title: param.doc },
+			attribs: { title: param.doc },
 			value,
 		};
 		paramValues[id] = value;
@@ -173,7 +170,7 @@ const createParamControls = (params: ParamSpecs) => {
 				}
 				break;
 		}
-		if (!unsupportedRND.includes(param.type)) {
+		if (param.randomize !== false) {
 			items.push(
 				trigger({
 					label: "",
@@ -233,6 +230,7 @@ const createParamControls = (params: ParamSpecs) => {
 	});
 };
 
-$compile($replace(syncRAF(controls).map(createParamControls))).mount(
-	document.getElementById("app")!
-);
+export const launchEditorForms = () =>
+	$compile($replace(syncRAF(controls).map(createParamControls))).mount(
+		document.getElementById("app")!
+	);
