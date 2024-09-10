@@ -115,9 +115,9 @@ involved when adopted.
 
 ## Architecture overview
 
-![Architecture overview](./diagrams/architecture.svg)
+![Overview](./diagrams/overview.svg)
 
-[Diagram source code](./diagrams/architecture.plantuml)
+[Diagram source code](./diagrams/overview.plantuml)
 
 ## Core API
 

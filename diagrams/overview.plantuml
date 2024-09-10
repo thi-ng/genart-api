@@ -11,43 +11,62 @@ activate Browser
 	== Startup ==
 
 	Browser -> Browser : Load HTML w/ GenArt API script
-	Browser -> PlatformAdapter : Load platform adapter script
+	Browser -> PlatformAdapter : Load platform adapter
+	Browser --> TimingProvider : Load custom timing provider
+	note right
+		optional, by default uses
+		`timingProviderRAF()`
+	end note
 	Browser -> ArtPiece : Load art piece script
 	activate API
 		API -> API : Initialize
+		activate PlatformAdapter
 		PlatformAdapter -> PlatformAdapter : Initialize (optional)
+		PlatformAdapter -> PlatformAdapter : Initialize PRNG
+		note left : Seeded/deterministic
+		PlatformAdapter -> PlatformAdapter : Set execution mode
+		note left : Play / Preview / Edit
 		TimingProvider -> TimingProvider : Initialize (optional)
-		loop
-		API -> API : Wait for adapter registration
-		end
+		
 		PlatformAdapter -> API : Register adapter
-		API -> PlatformAdapter : Request random seed param
-		note left : using reserved param name
-		PlatformAdapter --> API : Seed value
-		API -> API : Init PRNG
-		note left : e.g. transaction hash / timestamp
-		API -> API : Set execution mode
-		note left : Play / Capture / Mint
+		deactivate PlatformAdapter
 	deactivate API
 
 	activate ArtPiece
+		loop
+			ArtPiece -> ArtPiece : Wait for adapter registration
+		end
 		ArtPiece -> API : Declare & register param specs
 		note left
-			via function call or
-			exposing global var
+			`$genart.setParams({...})`
 		end note
-		ArtPiece -> API : Request param values (async)
-		API -> PlatformAdapter : Request values (pass specs)
+		API -> API : Validate params specs
+		note right : Ensure valid param types
+		API -> API : Add missing default values
+		API -> PlatformAdapter : Update/augment params
 
 		activate PlatformAdapter
 			PlatformAdapter -> PlatformAdapter : Load & parse params
+			note right
+				source param values via
+				platform-specific means
+			end note
 			PlatformAdapter --> API : Param values
 		deactivate PlatformAdapter
-		API --> ArtPiece : Param values
+		API -> API : Validate & apply param overrides
+		API --> ArtPiece : Typesafe param getter function
 
 		ArtPiece -> API : Request screen config
+		API -> PlatformAdapter : Request screen config
+		note right : optionally define resolution
+		PlatformAdapter --> API : Config
 		API --> ArtPiece : Config
 		ArtPiece -> ArtPiece : Initialize
+		ArtPiece -> API : Get param value
+		activate API
+			API -> API : Delegate to param impl
+			API --> ArtPiece : Param value
+		deactivate API
 
 		== Animation loop ==
 		ArtPiece ->	API : Register update/draw function
@@ -61,7 +80,7 @@ activate Browser
 			API -> ArtPiece : Call update w/ timestamp
 			ArtPiece -> ArtPiece : Generate next frame
 			ArtPiece --> API : Notify screen capture (once, after X seconds)
-			API --> API : Handle screen capture
+			API -> PlatformAdapter : Handle screen capture
 		end
 	deactivate API
 
