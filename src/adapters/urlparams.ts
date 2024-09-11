@@ -5,6 +5,7 @@ import type {
 	RampParam,
 	RunMode,
 } from "../api.js";
+import { sfc32 } from "../prng/sfc32.js";
 
 const {
 	math: { clamp01, parseNum },
@@ -47,9 +48,16 @@ class URLParamsAdapter implements PlatformAdapter {
 	}
 
 	get prng() {
+		const seedParam = this.params.get("__seed");
+		const seed = BigInt(seedParam ? "0x" + seedParam : Date.now());
 		return {
-			seed: this.params.get("__seed") || String(Date.now()),
-			rnd: () => Math.random(),
+			seed: seed.toString(16),
+			rnd: sfc32([
+				Number(seed >> 96n) >>> 0,
+				Number(seed >> 64n) >>> 0,
+				Number(seed >> 32n) >>> 0,
+				Number(seed) >>> 0,
+			]),
 		};
 	}
 
