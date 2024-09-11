@@ -19,7 +19,14 @@ export type RandomFn = () => number;
 
 export type UpdateFn = (t: number, frame: number) => void;
 
-export type RunMode = "play" | "capture" | "mint";
+/**
+ * Platform defined presentation mode for the art work:
+ *
+ * - `play`: default mode
+ * - `preview`: capturing, minting, thumbnail, etc.
+ * - `edit`: platform has param editor active
+ */
+export type RunMode = "play" | "preview" | "edit";
 
 export type RunState = "init" | "ready" | "play" | "stop";
 

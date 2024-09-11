@@ -57,7 +57,7 @@ class API implements GenArtAPI {
 			valid: (_, __, value) =>
 				isString(value) && /^#?[0-9a-f]{6}$/.test(value),
 			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
-			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_000000) | 0),
+			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_00_00_00) | 0),
 		},
 		date: {
 			valid: (_, __, value) =>

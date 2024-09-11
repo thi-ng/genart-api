@@ -29,7 +29,7 @@ export interface Param<T> {
 	/**
 	 * Default value. If omitted, a randomized default value will be generated,
 	 * iff the param type DOES provide a {@link ParamImpl.randomize} function.
-	 * Otherwise, {@link GenArt.setParams} will throw an error if no default is
+	 * Otherwise, {@link GenArtAPI.setParams} will throw an error if no default is
 	 * given and the param type ISN'T randomizable.
 	 *
 	 * @remarks
@@ -56,7 +56,11 @@ export interface Param<T> {
 	/**
 	 * Defines which party or agent should be able to edit this parameter.
 	 *
-	 * - `private`: artist-only
+	 * @remarks
+	 * The interpretation of this value is platform specific, but generally
+	 * should be honored by a platform and align with:
+	 *
+	 * - `private`: artist-only modifications
 	 * - `protected`: artists and trusted parties (curator/gallery)
 	 * - `public`: collectors/viewers
 	 *
