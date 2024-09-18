@@ -6,6 +6,8 @@
     -   [Non-goals](#non-goals)
 -   [Architecture overview](#architecture-overview)
 -   [Core API](#core-api)
+    -   [API documentation](#api-documentation)
+    -   [Use in your own projects](#use-in-your-own-projects)
 -   [Parameters](#parameters)
     -   [Static parameter types](#static-parameter-types)
         -   [Choice](#choice-parameter)
@@ -20,6 +22,12 @@
         -   [Ramp](#ramp-parameter)
         -   [Weighted choice](#weighted-choice-parameter)
 -   [Platform adapters](#platform-adapters)
+    -   [Parameter sourcing](#parameter-sourcing)
+    -   [Parameter updates](#parameter-updates)
+    -   [Determinism & PRNG provision](#determinism--prng-provision)
+    -   [Screen configuration](#screen-configuration)
+    -   [Thumbnail/preview generation](#thumbnailpreview-generation)
+    -   [Existing adapter implementations](#existing-adapter-implementations)
 -   [License](#license)
 
 ## Status
@@ -72,8 +80,9 @@ the approach and benefits.
 
 ### Goals
 
--   Art works can be authored without direct knowledge of which online platform(s)
-    they're being displayed or published at
+-   Decouple art works from presentation platform:
+    -   Art works can be authored without direct knowledge of which platform(s)
+        they're being displayed or published at
 -   Straightforward repurposing/integration of art works into diverse environments:
     -   Online art platforms
     -   Personal websites/portfolios
@@ -96,22 +105,25 @@ the approach and benefits.
     -   Provide choice of time provider plugins:
         -   Real-time (i.e. `requestAnimationFrame()`-based animation) and/or
         -   Offline (non-realtime, with configurable fixed time base)
--   (Optional) secondary tooling:
+-   Enable re-usable secondary tooling:
     -   Auto-generated GUIs for param controls/overrides
     -   Variation/snapshot/preset creation/selection
     -   Asset export (w/ param metadata)
 
 ### Non-goals
 
-This API aims to remain as minimal as possible and will not directly support
-every feature of every platform, which would cause unsustainable maintenance
-effort. Art works requiring/relying on advanced integrations with a specific
-platform are naturally highly dependent on those platform features, and so would
-not benefit from a more platform-indepent approach in any way. Therefore we
-consider these use cases as out-of-scope. However, the proposed system is
-designed to be extensible in several ways which enable a number of
-platform-specific extensions which can be highly beneficial to all parties
-involved when adopted.
+This API aims to **remain as minimal as possible** and will not directly support
+every feature of every platform, which would cause feature creep, bloat and
+unsustainable maintenance effort.
+
+Art works requiring/relying on advanced integrations with a specific platform
+are naturally highly dependent on those platform features, and so would not
+benefit from a more platform-independent approach in any way. Therefore we
+consider these use cases as out-of-scope.
+
+However, the proposed system is designed to be extensible in several ways which
+enable a number of platform-specific extensions which can be highly beneficial
+to all parties involved when adopted and can supported in an unintrusive way.
 
 ## Architecture overview
 
@@ -121,9 +133,34 @@ involved when adopted.
 
 ## Core API
 
-TODO
+### API documentation
+
+Full API docs are actively being worked on. For now, this readme, the source
+code and the example project are the best reference.
 
 [Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
+
+### Use in your own projects
+
+The reference implementation of the API provided here has no dependencies can be
+included by adding the following `<script>` tag to your HTML header:
+
+```html
+<script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/genart.min.js"></script>
+```
+
+[TypeScript source code](src/index.ts)
+
+This repo also provides a basic [platform adapter](#platform-adapters) for
+sourcing parameters via URL query string and can be useful during local
+development. This adapter can be added via inclusion of (also see [bundled
+example](art.html)):
+
+```html
+<script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/adapter-urlparams.min.js"></script>
+```
+
+[TypeScript source code](src/adapters/urlparams.ts)
 
 ## Parameters
 
@@ -268,7 +305,8 @@ $genart.params.range({
 
 #### Text parameter
 
-Single or multi-line text, optionally with `min`/`max` length and/or regexp pattern validation.
+Single or multi-line text, optionally with `min`/`max` length and/or regexp
+pattern validation.
 
 ```ts
 $genart.params.text({
@@ -374,55 +412,47 @@ $genart.params.weighted({
 
 TODO
 
-Platform adapters can register custom parameter types and their implementation via `$genart.registerParamType()`. These can be useful to provide additional platform-specific parameters (e.g. values obtained from arbitrary hardware sensors to which an art work might respond dynamically).
+[Platform adapters](#platform-adapters) can register custom parameter types and
+their implementation via
+[`$genart.registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType).
+These can be useful to provide additional platform-specific parameters (e.g.
+values obtained from arbitrary hardware sensors to which an art work might
+respond dynamically).
 
 -   [`ParamImpl` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
 -   [`registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType)
 
 ## Platform adapters
 
-TODO
+TODO This section will describe the role(s) of adapters responsible for
+providing (deployment) platform-specific functionality and interop features.
 
 -   [`PlatformAdapter` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PlatformAdapter.html)
 
-### Parameter handling
+### Parameter sourcing
 
-### PRNG provision
+TODO
+
+### Parameter updates
+
+TODO
+
+### Determinism & PRNG provision
+
+TODO
 
 ### Screen configuration
 
+TODO
+
 ### Thumbnail/preview generation
 
-<!--
-## Supported platforms/approaches
+TODO
 
-New adapters can be defined by implementing a super minimal API:
+### Existing adapter implementations
 
--   [`PlatformAdapter` interface](https://github.com/thi-ng/genart-api/blob/e67e4ced7d787816ac2a2b193ccc32345eda2ebd/src/api.ts#L217)
--   [URL query string adapter](src/adapters/urlparams.ts)
-
-## Lifecycle & workflow
-
-**TODO (this entire section is outdated)**
-
--   [Diagram](dev/overview.plantuml)
--   [Workflows](dev/workflow.md)
-
-### Art defines params
-
--   calls `$genapi.setParams()`
-    -   API augments spec via `adapter.updateParam()`
-    -   posts `genart:setparams` message with updated param specs & values to current & parent window
--   parent window receives message
-    -   (re)creates GUI widgets for editing values
-
-### User edits param value via GUI
-
--   GUI posts `setparamvalue` message to iframe (id, value)
--   api receives message validates value & updates param
-    -   posts `paramchange` message w/ updated spec
-        -   adapter's responsibility to respect param update behavior (e.g. force reload)
--->
+-   [/src/adapters/dummy.ts](/src/adapters/dummy.ts)
+-   [/src/adapters/urlparams.ts](/src/adapters/urlparams.ts)
 
 ## License
 
