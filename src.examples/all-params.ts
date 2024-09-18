@@ -15,7 +15,6 @@ const art = (async () => {
 				["yellow", "Yolo"],
 				["black", "Gothic"],
 			],
-			// default: "black",
 		}),
 
 		col: $genart.params.color({
@@ -80,6 +79,8 @@ const art = (async () => {
 			default: new Date("2024-09-11"),
 		}),
 	});
+
+	console.log(JSON.stringify($genart.paramSpecs, null, 4));
 
 	const setFeatures = () =>
 		$genart.setFeatures({
