@@ -29,7 +29,7 @@ import type {
 	TextParam,
 } from "../src/api.js";
 
-// ROOT.set(new ConsoleLogger());
+ROOT.set(new ConsoleLogger());
 
 const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 	.contentWindow!;
@@ -144,6 +144,12 @@ const createParamControls = (params: ParamSpecs) => {
 				{
 					const x = reactive(value.deref()![0]);
 					const y = reactive(value.deref()![1]);
+					value.subscribe({
+						next(xy) {
+							if (x.deref() !== xy[0]) x.next(xy[0]);
+							if (y.deref() !== xy[1]) y.next(xy[1]);
+						},
+					});
 					sync({ src: { x, y } }).subscribe({
 						next({ x, y }) {
 							value.next([x, y]);
