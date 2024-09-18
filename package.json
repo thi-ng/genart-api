@@ -8,14 +8,15 @@
 	"type": "module",
 	"scripts": {
 		"start": "vite --host --open",
-		"build": "tsc && vite build --base='./' && cp *.min.js dist",
-		"build:api": "yarn build:lib && yarn build:adapter",
-		"build:lib": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=lib.min.js src/index.ts",
-		"build:adapter": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=adapter.min.js src/adapters/urlparams.ts",
+		"build": "tsc && vite build --base='./' && cp *.min.js build",
+		"build:api": "yarn build:lib && yarn build:adapter && cp *.min.js dist",
+		"build:lib": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=genart.min.js src/index.ts",
+		"build:adapter": "yarn esbuild --bundle --platform=browser --minify --target=es2022 --outfile=adapter-urlparams.min.js src/adapters/urlparams.ts",
 		"preview": "vite preview --host --open",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
 	"devDependencies": {
+		"@types/node": "^22.5.5",
 		"typedoc": "0.26.7",
 		"typescript": "^5.6.2",
 		"vite": "^5.4.6",
