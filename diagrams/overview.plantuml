@@ -1,6 +1,8 @@
 @startuml
 title Art player initialization
 autonumber 1.1
+skinparam pageMargin 10
+
 participant Browser
 participant ArtPiece
 participant API
