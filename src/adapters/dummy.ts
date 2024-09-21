@@ -1,3 +1,5 @@
+import type { ParamSpecs } from "../api";
+
 $genart.setAdapter({
 	mode: "play",
 	screen: {
@@ -7,9 +9,15 @@ $genart.setAdapter({
 	},
 	prng: {
 		seed: String(Date.now()),
+		reset: () => Math.random,
 		rnd: Math.random,
 	},
-	updateParam(): undefined {},
+	async updateParam() {
+		return undefined;
+	},
+	async setParams(_: ParamSpecs) {
+		return true;
+	},
 	setFeatures() {},
 	capture() {},
 });

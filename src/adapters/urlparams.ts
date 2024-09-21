@@ -1,7 +1,9 @@
 import type {
 	Features,
 	Param,
+	ParamSpecs,
 	PlatformAdapter,
+	PRNG,
 	RampParam,
 	RunMode,
 } from "../api.js";
@@ -30,6 +32,10 @@ class URLParamsAdapter implements PlatformAdapter {
 				location.search = this.params.toString();
 			}
 		});
+		$genart.on("genart:statechange", ({ state }) => {
+			console.log("new state", state);
+			return state === "ready" && $genart.start();
+		});
 	}
 
 	get mode() {
@@ -50,20 +56,27 @@ class URLParamsAdapter implements PlatformAdapter {
 	get prng() {
 		const seedParam = this.params.get("__seed");
 		const seed = BigInt(seedParam ? "0x" + seedParam : Date.now());
-		return {
-			seed: seed.toString(16),
-			rnd: sfc32([
+		const reset = () => {
+			return (impl.rnd = sfc32([
 				Number(seed >> 96n) >>> 0,
 				Number(seed >> 64n) >>> 0,
 				Number(seed >> 32n) >>> 0,
 				Number(seed) >>> 0,
-			]),
+			]));
 		};
+		const impl = <PRNG>{
+			seed: seed.toString(16),
+			reset,
+		};
+		reset();
+		return impl;
 	}
 
-	setFeatures(features: Features) {}
+	async setParams(_: ParamSpecs) {
+		return true;
+	}
 
-	updateParam(id: string, spec: Param<any>) {
+	async updateParam(id: string, spec: Param<any>) {
 		let value = this.params.get(id);
 		if (!value || this.cache[id] === value) return;
 		this.cache[id] = value;

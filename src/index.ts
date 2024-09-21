@@ -1,8 +1,10 @@
 import type {
 	APIMessage,
+	APIState,
 	ChoiceParam,
 	Features,
 	GenArtAPI,
+	Maybe,
 	MessageType,
 	MessageTypeMap,
 	NotifyType,
@@ -16,9 +18,9 @@ import type {
 	RampParam,
 	RandomFn,
 	RangeParam,
-	RunState,
 	SetFeaturesMsg,
 	SetParamsMsg,
+	StateChangeMsg,
 	TextParam,
 	TimeProvider,
 	UpdateFn,
@@ -38,9 +40,9 @@ class API implements GenArtAPI {
 	protected _time: TimeProvider = timeProviderRAF();
 	protected _prng?: PRNG;
 	protected _update?: UpdateFn;
-	protected _state: RunState = "init";
+	protected _state: APIState = "init";
 	protected _features?: Features;
-	protected _params: ParamSpecs = {};
+	protected _params: Maybe<ParamSpecs>;
 	protected _paramTypes: Record<string, ParamImpl> = {
 		choice: {
 			valid: (spec, _, value) =>
@@ -203,7 +205,7 @@ class API implements GenArtAPI {
 	constructor() {
 		window.addEventListener("message", (e) => {
 			const data = e.data;
-			console.log("genart msg", data);
+			// console.log("genart msg", data);
 			if (!this.isRecipient(e) || data?.__self) return;
 			switch (<MessageType>data.type) {
 				case "genart:start":
@@ -265,7 +267,8 @@ class API implements GenArtAPI {
 		this._paramTypes[type] = impl;
 	}
 
-	setParams<P extends ParamSpecs>(params: P) {
+	async setParams<P extends ParamSpecs>(params: P) {
+		// validate param declarations
 		for (let id in params) {
 			const param = params[id];
 			if (param.default == null) {
@@ -278,7 +281,11 @@ class API implements GenArtAPI {
 			}
 		}
 		this._params = params;
-		if (this._adapter) this.updateParams();
+		// augment params with platform overrides
+		if (this._adapter) {
+			await this._adapter.setParams?.(params);
+			await this.updateParams();
+		}
 		this.notifySetParams();
 		return <K extends keyof P>(id: K, t?: number) =>
 			this.getParamValue<P, K>(id, t);
@@ -289,11 +296,15 @@ class API implements GenArtAPI {
 		this.emit<SetFeaturesMsg>({ type: "genart:setfeatures", features });
 	}
 
-	setAdapter(adapter: PlatformAdapter) {
+	async setAdapter(adapter: PlatformAdapter) {
+		console.log("set adapter", adapter);
 		this._adapter = adapter;
-		this.updateParams();
-		this.notifySetParams();
-		if (this._state === "init" && this._time) this._state = "ready";
+		if (this._params) {
+			await this._adapter.setParams?.(this._params);
+			await this.updateParams();
+			this.notifySetParams();
+		}
+		this.notifyReady();
 	}
 
 	waitForAdapter() {
@@ -302,35 +313,40 @@ class API implements GenArtAPI {
 
 	setTimeProvider(time: TimeProvider) {
 		this._time = time;
-		if (this._state === "init" && this._adapter) this._state = "ready";
+		this.notifyReady();
 	}
 
 	waitForTimeProvider() {
 		return this.waitFor("_time");
 	}
 
-	setUpdate(fn: UpdateFn, autoStart = true) {
+	setUpdate(fn: UpdateFn) {
 		this._update = fn;
-		if (autoStart) this.start();
+		this.notifyReady();
 	}
 
-	updateParams(notify = false) {
+	async updateParams(notify: NotifyType = "none") {
 		if (!this._adapter) return;
 		for (let id in this._params) {
 			const spec = this._params[id];
-			const result = this._adapter?.updateParam(id, spec);
+			const result = await this._adapter?.updateParam(id, spec);
 			if (!result) continue;
 			const { value, update } = result;
 			this.setParamValue(
 				id,
 				value,
 				undefined,
-				notify && (value != null || update)
+				value != null || update ? notify : "none"
 			);
 		}
 	}
 
-	setParamValue(id: string, value: any, key?: string, notify = true) {
+	setParamValue(
+		id: string,
+		value: any,
+		key?: string,
+		notify: NotifyType = "all"
+	) {
 		const { spec, impl } = this.ensureParam(id);
 		if (value != null) {
 			if (!impl.valid(spec, key, value)) {
@@ -341,20 +357,21 @@ class API implements GenArtAPI {
 				? impl.update(spec, key, value)
 				: (spec.value = impl.coerce ? impl.coerce(spec, value) : value);
 		}
-		if (notify) {
-			this.emit<ParamChangeMsg>({
+		this.emit<ParamChangeMsg>(
+			{
 				type: "genart:paramchange",
 				paramID: id,
 				spec,
 				__self: true,
-			});
-		}
+			},
+			notify
+		);
 	}
 
 	randomizeParamValue(
 		id: string,
 		rnd: RandomFn = Math.random,
-		notify = true
+		notify: NotifyType = "all"
 	) {
 		const { spec, impl } = this.ensureParam(id);
 		if (impl.randomize) {
@@ -371,11 +388,12 @@ class API implements GenArtAPI {
 		id: K,
 		t = 0
 	): ParamValue<T[K]> {
-		const spec = this._params[<string>id];
-		if (!spec) throw new Error(`unknown param: ${<string>id}`);
-		const impl = this._paramTypes[spec.type].read;
-		return impl
-			? impl(spec, t, this.random.rnd)
+		const {
+			spec,
+			impl: { read },
+		} = this.ensureParam(<string>id);
+		return read
+			? read(spec, t, this.random.rnd)
 			: spec.value ?? spec.default;
 	}
 
@@ -393,6 +411,7 @@ class API implements GenArtAPI {
 	}
 
 	emit<T extends APIMessage>(e: T, notify: NotifyType = "all") {
+		if (notify === "none") return;
 		if (this.id) e.apiID = this.id;
 		if (notify === "all" || notify === "self") window.postMessage(e, "*");
 		if ((notify === "all" && parent !== window) || notify === "parent")
@@ -405,7 +424,7 @@ class API implements GenArtAPI {
 			throw new Error(`can't start in state: ${this._state}`);
 		if (!this._update) throw new Error("missing update function");
 		this.ensureTimeProvider();
-		this._state = "play";
+		this.setState("play");
 		const update = () => {
 			if (this._state != "play") return;
 			this._update!.call(null, ...this._time!.tick());
@@ -420,13 +439,22 @@ class API implements GenArtAPI {
 
 	stop() {
 		if (this._state !== "play") return;
-		this._state = "stop";
+		this.setState("stop");
 		this.emit({ type: `genart:stop`, __self: true });
 	}
 
 	capture(el?: HTMLCanvasElement | SVGElement) {
 		this._adapter?.capture(el);
 		this.emit({ type: `genart:capture`, __self: true }, "parent");
+	}
+
+	protected setState(newState: APIState) {
+		this._state = newState;
+		this.emit<StateChangeMsg>({
+			type: "genart:statechange",
+			state: newState,
+			__self: true,
+		});
 	}
 
 	protected ensureAdapter() {
@@ -439,8 +467,13 @@ class API implements GenArtAPI {
 		return this._time;
 	}
 
+	protected ensureParams() {
+		if (!this._params) throw new Error("no params defined");
+		return this._params;
+	}
+
 	protected ensureParam(id: string) {
-		const spec = this._params[id];
+		const spec = this.ensureParams()[id];
 		if (!spec) throw new Error(`unknown param: ${id}`);
 		const impl = this.ensureParamImpl(spec.type);
 		return { spec, impl };
@@ -471,13 +504,18 @@ class API implements GenArtAPI {
 	 * empty).
 	 */
 	protected notifySetParams() {
-		if (Object.keys(this._params).length) {
+		if (this._params && Object.keys(this._params).length) {
 			this.emit<SetParamsMsg>({
 				type: "genart:setparams",
 				__self: true,
 				params: this._params,
 			});
 		}
+	}
+
+	protected notifyReady() {
+		if (this._state === "init" && this._time && this._update)
+			this.setState("ready");
 	}
 
 	/**

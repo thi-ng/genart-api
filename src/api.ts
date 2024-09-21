@@ -28,7 +28,7 @@ export type UpdateFn = (t: number, frame: number) => void;
  */
 export type RunMode = "play" | "preview" | "edit";
 
-export type RunState = "init" | "ready" | "play" | "stop";
+export type APIState = "init" | "ready" | "play" | "stop" | "error";
 
 export type Features = Record<string, number | string | boolean>;
 
@@ -37,9 +37,9 @@ export interface GenArtAPI {
 	readonly mode: RunMode;
 	readonly screen: ScreenConfig;
 	readonly random: PRNG;
-	readonly state: RunState;
+	readonly state: APIState;
 
-	readonly paramSpecs: ParamSpecs;
+	readonly paramSpecs: Maybe<ParamSpecs>;
 	readonly adapter: Maybe<PlatformAdapter>;
 	readonly time: Maybe<TimeProvider>;
 
@@ -65,16 +65,21 @@ export interface GenArtAPI {
 
 	/**
 	 * Called during initialization of the art piece to declare all of its
-	 * available parameters, their configs and default values. If the platform
-	 * adapter is already set (via {@link GenArtAPI.setAdapter}), this function
-	 * also calls {@link GenArtAPI.updateParams} to apply any param
+	 * available parameters, their configs and default values.
+	 *
+	 * @remarks
+	 * If the {@link PlatformAdapter} is already set (via
+	 * {@link GenArtAPI.setAdapter}), this function also calls
+	 * {@link GenArtAPI.updateParams} to apply any param
 	 * customizations/overrides sourced via the adapter. Once done, it then
 	 * posts a {@link SetParamsMsg} message to the current & parent window for
 	 * other software components to be notified (e.g. param editors)
 	 *
-	 * Regardless of the above behavior, this function returns a typesafe getter
-	 * function (based on the declared param specs) to obtain (possibly
-	 * time-based) param values (wraps {@link GenArtAPI.getParamValue}).
+	 * Regardless of the above behavior, this function returns a promise of a
+	 * typesafe getter function (based on the declared param specs) to obtain
+	 * param values (wraps {@link GenArtAPI.getParamValue}). For some param
+	 * types (e.g. {@link RampParam} or {@link WeightedChoiceParam}), these
+	 * values can be possibly time-based and/or randomized.
 	 *
 	 * @example
 	 * ```ts
@@ -98,7 +103,7 @@ export interface GenArtAPI {
 	 */
 	setParams<P extends ParamSpecs>(
 		params: P
-	): <K extends keyof P>(id: K, t?: number) => ParamValue<P[K]>;
+	): Promise<<K extends keyof P>(id: K, t?: number) => ParamValue<P[K]>>;
 
 	setAdapter(adapter: PlatformAdapter): void;
 	waitForAdapter(): Promise<void>;
@@ -114,12 +119,19 @@ export interface GenArtAPI {
 	 * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts
 	 * {@link ParamChangeMsg} messages to the current window for each param
 	 * whose value has been updated.
+	 *
+	 * @param notify
 	 */
-	updateParams(notify?: boolean): void;
+	updateParams(notify?: NotifyType): Promise<void>;
 
-	setParamValue(id: string, value: any, key?: string, notify?: boolean): void;
+	setParamValue(
+		id: string,
+		value: any,
+		key?: string,
+		notify?: NotifyType
+	): void;
 
-	randomizeParamValue(id: string, rnd?: RandomFn, notify?: boolean): void;
+	randomizeParamValue(id: string, rnd?: RandomFn, notify?: NotifyType): void;
 
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
@@ -170,8 +182,38 @@ export interface GenArtAPI {
 
 	emit<T extends APIMessage>(e: T, notify?: NotifyType): void;
 
-	setUpdate(fn: UpdateFn, autoStart?: boolean): void;
+	/**
+	 * Called from art work to register the frame loop/update function.
+	 *
+	 * @remarks
+	 * If both platform adapter and time provider are already known, this will
+	 * trigger the GenArtAPI to go into the `ready` state and emit a
+	 * {@link StateChangeMsg} message. In most cases, a platform adapter should
+	 * react to this message and call {@link GenArtAPI.start} to trigger
+	 * auto-playback of the art work when `ready` state is entered.
+	 *
+	 * @param fn
+	 */
+	setUpdate(fn: UpdateFn): void;
 
+	/**
+	 * Starts (or resumes) playback of the art work by triggering an animation
+	 * loop using the configured update function (also involving the configured
+	 * {@link TimeProvider}). Emits a `genart:start` or `genart:resume` message.
+	 *
+	 * @remarks
+	 * By default `resume` is false, meaning the time provider will be
+	 * (re)initialized (otherwise just continues).
+	 *
+	 * Triggers the API to go into `play` state (and emit a
+	 * {@link StateChangeMsg} message). Function is idempotent if API is already
+	 * in `play` state.
+	 *
+	 * An error will be thrown if either no {@link TimeProvider} or
+	 * {@link GenArtAPI.setUpdate} hasn't been configured.
+	 *
+	 * @param resume
+	 */
 	start(resume?: boolean): void;
 	stop(): void;
 
@@ -225,9 +267,22 @@ export interface PlatformAdapter {
 	updateParam(
 		id: string,
 		spec: Param<any>
-	): Maybe<{ value?: any; update?: boolean }>;
+	): Promise<Maybe<{ value?: any; update?: boolean }>>;
 
-	setFeatures(features: Features): void;
+	/**
+	 * Called by {@link GenArtAPI.setParams} to pass parameter specs provided by
+	 * the art work to the platform adapter to prepare itself for param
+	 * initialization. The actual param value parsing/overriding then happens
+	 * via {@link PlatformAdapter.updateParam}.
+	 *
+	 * This function is async MUST return true to indicate param
+	 * pre-initialization succeeded.
+	 *
+	 * @param params
+	 */
+	setParams?(params: ParamSpecs): Promise<boolean>;
+
+	setFeatures?(features: Features): void;
 
 	/**
 	 * Platform-specific handler to deal with capturing a thumbnail/preview of
@@ -239,8 +294,23 @@ export interface PlatformAdapter {
 	capture(el?: HTMLCanvasElement | SVGElement): void;
 }
 
+/**
+ * Pseudo-random number generator, obtained from & provided by the currently
+ * active {@link PlatformAdapter}.
+ */
 export interface PRNG {
-	seed: string;
+	/**
+	 * The currently configured seed value (as string) used by the PRNG. For
+	 * information purposes only.
+	 */
+	readonly seed: string;
+	/**
+	 * Re-initializes the PRNG to the configured seed state.
+	 */
+	reset: () => () => number;
+	/**
+	 * Returns a pseudo-random number in the [0,1) interval.
+	 */
 	rnd: () => number;
 }
 
