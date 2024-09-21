@@ -23,12 +23,15 @@
         -   [Ramp](#ramp-parameter)
         -   [Weighted choice](#weighted-choice-parameter)
 -   [Platform adapters](#platform-adapters)
+    -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
     -   [Parameter updates](#parameter-updates)
     -   [Determinism & PRNG provision](#determinism--prng-provision)
     -   [Screen configuration](#screen-configuration)
     -   [Thumbnail/preview generation](#thumbnailpreview-generation)
-    -   [Existing adapter implementations](#existing-adapter-implementations)
+-   [Getting started](#getting-started)
+    -   [Artist's Hello world](#artists)
+    -   [Creating a basic PlatformAdapter](#platforms)
 -   [License](#license)
 
 ## Status
@@ -435,6 +438,11 @@ providing (deployment) platform-specific functionality and interop features.
 
 -   [`PlatformAdapter` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PlatformAdapter.html)
 
+### Existing adapter implementations
+
+-   [/src/adapters/dummy.ts](/src/adapters/dummy.ts)
+-   [/src/adapters/urlparams.ts](/src/adapters/urlparams.ts)
+
 ### Parameter sourcing
 
 TODO
@@ -455,10 +463,104 @@ TODO
 
 TODO
 
-### Existing adapter implementations
+## Getting started
 
--   [/src/adapters/dummy.ts](/src/adapters/dummy.ts)
--   [/src/adapters/urlparams.ts](/src/adapters/urlparams.ts)
+### Artist's Hello world
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Hello GenArtAPI</title>
+        <script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/genart.min.js"></script>
+        <script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/adapter-urlparams.min.js"></script>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="module">
+            // optional: use custom time provider (e.g. for non-realtime rendering of image sequence)
+            // import { timeProviderOffline } from "https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/time-offline.ts";
+            // $genart.setTimeProvider(timeProviderOffline(100));
+        </script>
+        <!-- User artwork script -->
+        <script type="module" src="index.js"></script>
+    </body>
+</html>
+```
+
+index.js
+
+```ts
+(async () => {
+    // ensure platform adapter is ready
+    await $genart.waitForAdapter();
+
+    // declare parameters
+    const param = await $genart.setParams({
+
+        bgColor: $genart.params.color({
+            name: "Bg color",
+            desc: "Canvas background color",
+            doc: "Optional extended documentation or usage hints",
+            default: "#0000ff",
+            update: "reload", // trigger reload on value change
+        }),
+
+        maxR: $genart.params.range({
+            name: "Max radius",
+            desc: "Maximum brush size",
+            default: 50,
+            min: 10,
+            max: 100,
+            step: 5,
+        })
+    });
+
+    // obtain screen config
+    const { width, height, dpr } = $genart.screen;
+
+    // alias PRNG function (for convenience)
+    const random = $genart.random.rnd;
+
+    // create canvas
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d")!;
+
+    // use param (in TS param value types will be inferred automatically)
+    ctx.fillStyle = param("bgColor");
+    // clear canvas
+    ctx.fillRect(0, 0, width, height);
+
+    // main update/draw function
+    // time (in seconds) and frame number supplied by GenArtAPI & time provider
+    const update = (time, frame) => {
+        const radius = random() * param("maxR");
+        ctx.strokeStyle = "#000";
+        ctx.arc(random() * width, random() * height, radius, radius);
+
+        console.log(time, frame);
+    };
+
+    // register update function
+    // depending on platform adapter/specifics, in most cases
+    // this will also auto-start animation...
+    $genart.setUpdate(update);
+)();
+```
+
+### Creating a basic PlatformAdapter
+
+TODO
 
 ## License
 
