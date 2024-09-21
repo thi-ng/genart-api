@@ -28,7 +28,7 @@ import type {
 } from "./api.js";
 import * as math from "./math.js";
 import * as params from "./params.js";
-import { timeProviderRAF } from "./time/time-raf.js";
+import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
 
 const { isNumber, isString, isNumericArray } = utils;
@@ -386,15 +386,14 @@ class API implements GenArtAPI {
 
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
-		t = 0
+		t = 0,
+		rnd = this.random.rnd
 	): ParamValue<T[K]> {
 		const {
 			spec,
 			impl: { read },
 		} = this.ensureParam(<string>id);
-		return read
-			? read(spec, t, this.random.rnd)
-			: spec.value ?? spec.default;
+		return read ? read(spec, t, rnd) : spec.value ?? spec.default;
 	}
 
 	paramError(paramID: string) {

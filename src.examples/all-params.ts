@@ -1,4 +1,4 @@
-const art = (async () => {
+(async () => {
 	$genart.id = "test";
 	await $genart.waitForAdapter();
 

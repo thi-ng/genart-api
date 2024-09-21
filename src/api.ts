@@ -17,7 +17,10 @@ export type Maybe<T> = T | undefined;
 
 export type RandomFn = () => number;
 
-export type UpdateFn = (t: number, frame: number) => void;
+/**
+ * Animation update/draw function. See {@link GenArtAPI.setUpdate}.
+ */
+export type UpdateFn = (time: number, frame: number) => void;
 
 /**
  * Platform defined presentation mode for the art work:
@@ -135,7 +138,8 @@ export interface GenArtAPI {
 
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
-		t?: number
+		t?: number,
+		rnd?: PRNG["rnd"]
 	): ParamValue<T[K]>;
 
 	/**
