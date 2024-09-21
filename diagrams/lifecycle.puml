@@ -49,7 +49,7 @@ activate Browser
 			API -> API : Add missing default values
 			note right: Randomize missing defaults
 			API -> PlatformAdapter : Pass param specs
-			note right : adapter.setParams({...})
+			note right : `adapter.setParams({...})`
 			activate PlatformAdapter
 				PlatformAdapter -> PlatformAdapter : Load & parse params
 				PlatformAdapter --> API : return true if successful
