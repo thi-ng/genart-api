@@ -467,14 +467,18 @@ TODO
 
 ### Artist's Hello world
 
+HTML wrapper:
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Hello GenArtAPI</title>
-        <script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/genart.min.js"></script>
-        <script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/adapter-urlparams.min.js"></script>
+        <!-- main GenArtAPI script -->
+        <script src="genart.min.js"></script>
+        <!-- dummy platform adapter -->
+        <script src="adapter-urlparams.min.js"></script>
         <style>
             body {
                 margin: 0;
@@ -483,10 +487,13 @@ TODO
         </style>
     </head>
     <body>
+        <!--
+            optional: use custom time provider (e.g. for non-realtime rendering of image sequence)
+            configure API to use offline time (new frame every 250 ms)
+        -->
         <script type="module">
-            // optional: use custom time provider (e.g. for non-realtime rendering of image sequence)
-            // import { timeProviderOffline } from "https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/time-offline.ts";
-            // $genart.setTimeProvider(timeProviderOffline(100));
+            // import { timeProviderOffline } from "./time-offline.min.js";
+            // $genart.setTimeProvider(timeProviderOffline(250));
         </script>
         <!-- User artwork script -->
         <script type="module" src="index.js"></script>
@@ -494,16 +501,15 @@ TODO
 </html>
 ```
 
-index.js
+index.js (artwork script)
 
-```ts
+```js
 (async () => {
     // ensure platform adapter is ready
     await $genart.waitForAdapter();
 
     // declare parameters
     const param = await $genart.setParams({
-
         bgColor: $genart.params.color({
             name: "Bg color",
             desc: "Canvas background color",
@@ -519,7 +525,7 @@ index.js
             min: 10,
             max: 100,
             step: 5,
-        })
+        }),
     });
 
     // obtain screen config
@@ -534,7 +540,7 @@ index.js
     canvas.height = height;
     document.body.appendChild(canvas);
 
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d");
 
     // use param (in TS param value types will be inferred automatically)
     ctx.fillStyle = param("bgColor");
@@ -546,8 +552,9 @@ index.js
     const update = (time, frame) => {
         const radius = random() * param("maxR");
         ctx.strokeStyle = "#000";
-        ctx.arc(random() * width, random() * height, radius, radius);
-
+        ctx.beginPath();
+        ctx.arc(random() * width, random() * height, radius, 0, Math.PI * 2);
+        ctx.stroke();
         console.log(time, frame);
     };
 
@@ -555,7 +562,7 @@ index.js
     // depending on platform adapter/specifics, in most cases
     // this will also auto-start animation...
     $genart.setUpdate(update);
-)();
+})();
 ```
 
 ### Creating a basic PlatformAdapter
