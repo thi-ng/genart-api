@@ -7,14 +7,14 @@ participant Browser
 participant ArtPiece
 participant API
 participant PlatformAdapter
-participant TimingProvider
+participant TimeProvider
 
 activate Browser
 	== Startup ==
 
 	Browser -> Browser : Load HTML w/ GenArt API script
 	Browser -> PlatformAdapter : Load platform adapter
-	Browser --> TimingProvider : Load custom timing provider
+	Browser --> TimeProvider : Load custom timing provider
 	note right
 		optional, by default uses
 		`timingProviderRAF()`
@@ -28,7 +28,7 @@ activate Browser
 		note left : Seeded/deterministic
 		PlatformAdapter -> PlatformAdapter : Set execution mode
 		note left : Play / Preview / Edit
-		TimingProvider -> TimingProvider : Initialize (optional)
+		TimeProvider -> TimeProvider : Initialize (optional)
 		
 		PlatformAdapter -> API : Register adapter
 		note right : `$genart.setAdapter()`
@@ -80,20 +80,30 @@ activate Browser
 			API --> ArtPiece : Param value
 		deactivate API
 
-		== Animation loop ==
+		== Animation start ==
 		ArtPiece ->	API : Register update/draw function
-		API -> TimingProvider : Start (reset timestamp)
+		API -> API : Transition state to `ready`
+		API --> API : Emit `genart:statechange` message
+		activate PlatformAdapter
+			PlatformAdapter -> PlatformAdapter : Process `ready` state change
+			PlatformAdapter -> API : Start anim loop
+			note right : `$genart.start()`
+		deactivate PlatformAdapter
 	deactivate ArtPiece
 
 	activate API
+		API -> TimeProvider : Start (reset timestamp)
 		loop Animation loop
-			API -> TimingProvider : Request timestamp
-			TimingProvider --> API : Timestamp
+			API -> TimeProvider : Queue next frame update
+			note right : Default: `requestAnimationFrame()`
+			TimeProvider --> API : Trigger update with current time & frame
 			API -> ArtPiece : Call update w/ timestamp
 			ArtPiece -> ArtPiece : Generate next frame
 			ArtPiece -> API : Trigger screen capture (once, after X seconds)
 			note left: `$genart.capture(canvas)`
 			API -> PlatformAdapter : Handle screen capture
+			note right : Optional, platform specific
+			API --> API : Emit `genart:capture` message
 		end
 	deactivate API
 
