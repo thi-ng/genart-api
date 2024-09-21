@@ -5,6 +5,7 @@
     -   [Goals](#goals)
     -   [Non-goals](#non-goals)
 -   [Architecture overview](#architecture-overview)
+    -   [Lifecycle](#lifecycle)
 -   [Core API](#core-api)
     -   [API documentation](#api-documentation)
     -   [Use in your own projects](#use-in-your-own-projects)
@@ -58,7 +59,7 @@ and also different aspects of media production (for example how to deal with
 realtime/non-realtime rendering when recording image sequences for video
 production).
 
-![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/diagrams/overview.svg)
+![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/overview.svg)
 Schematic overview of the proposed architecture
 
 The primary purpose of this API is to decouple key aspects commonly used for
