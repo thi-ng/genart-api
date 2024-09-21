@@ -58,25 +58,28 @@ and also different aspects of media production (for example how to deal with
 realtime/non-realtime rendering when recording image sequences for video
 production).
 
+![Overview](./diagrams/overview.svg)
+Schematic overview of the proposed architecture
+
 The primary purpose of this API is to decouple key aspects commonly used for
 most generative/computational art works, to deduplicate feature implementations
-and generally reduce time & effort required for adapting art works for different
-uses/environments. These benefits are not _only_ in the interest of artists, but
-also simplify how online art platforms can use this API layer to reduce effort
-on their end, simplify providing customization features for such generative art
-works (and even re-use tooling).
+and generally reduce time & effort required for adapting browser-based art works
+for different uses/environments. These benefits are not _only_ in the interest
+of artists, but also simplify how online art platforms can use this API layer to
+reduce effort on their end, simplify providing customization features for such
+generative art works (and even re-use tooling).
 
-One side effect of adapting the system proposed herein is the emergence of
-secondary re-usable tooling with handling the management of parameters, for
-example: tooling to generate GUI controls for editing params,
-creating/storing/retrieving parameter presets/collections, assets
-downloaders/uploaders, transcoding tools. Even at this stage, some of these are
-already existing and being worked on...
+Another positive side effect of adapting the system proposed herein is the
+emergence of secondary re-usable tooling with handling the management of
+parameters and variations, for example: tooling to generate GUI controls for
+editing params, creating/storing/retrieving parameter presets/collections (aka
+variations), asset downloaders/uploaders, transcoding tools. Even at this stage,
+some of these are already existing and being worked on...
 
 In this document & repository we describe the approach, the proposed
-architecture and provide a reference implementation, including fully documented
-interfaces & types, and some example test cases to demonstrate (and validate!)
-the approach and benefits.
+architecture and provide a TypeScript-based reference implementation, including
+fully documented interfaces & types, and some example test cases to demonstrate
+(and validate!) the approach and benefits.
 
 ### Goals
 
@@ -127,9 +130,11 @@ to all parties involved when adopted and can supported in an unintrusive way.
 
 ## Architecture overview
 
-![Overview](./diagrams/overview.svg)
+### Lifecycle
 
-[Diagram source code](./diagrams/overview.plantuml)
+![Overview](./diagrams/lifecycle.svg)
+
+[Diagram source code](./diagrams/lifecycle.puml)
 
 ## Core API
 
