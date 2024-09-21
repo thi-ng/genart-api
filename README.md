@@ -58,7 +58,7 @@ and also different aspects of media production (for example how to deal with
 realtime/non-realtime rendering when recording image sequences for video
 production).
 
-![Overview](./diagrams/overview.svg)
+![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/diagrams/overview.svg)
 Schematic overview of the proposed architecture
 
 The primary purpose of this API is to decouple key aspects commonly used for
@@ -132,7 +132,7 @@ to all parties involved when adopted and can supported in an unintrusive way.
 
 ### Lifecycle
 
-![Overview](./diagrams/lifecycle.svg)
+![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg)
 
 [Diagram source code](./diagrams/lifecycle.puml)
 
