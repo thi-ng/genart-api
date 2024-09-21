@@ -72,6 +72,7 @@ const createParamControls = (params: ParamSpecs) => {
 			(paramCache[id] = param.value ?? param.default)
 		);
 		const base = {
+			id,
 			label: param.name || id,
 			desc: param.desc,
 			labelAttribs: { title: param.doc },

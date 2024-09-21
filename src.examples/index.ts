@@ -9,7 +9,9 @@ const loadGUI = (e: InputEvent) => {
 	$clear(app);
 	const id = +(<HTMLSelectElement>e.target).value;
 	if (!isNaN(id)) {
-		[launchEditorImgui, launchEditorForms][id]();
+		requestAnimationFrame(() =>
+			[launchEditorImgui, launchEditorForms][id]()
+		);
 	}
 };
 

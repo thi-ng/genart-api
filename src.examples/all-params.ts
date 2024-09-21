@@ -4,7 +4,7 @@ const art = (async () => {
 
 	type CMYK = "cyan" | "magenta" | "yellow" | "black";
 
-	const param = $genart.setParams({
+	const param = await $genart.setParams({
 		dot: $genart.params.choice<CMYK>({
 			name: "Dot color",
 			desc: "Color used for drawing dots forming the curve",

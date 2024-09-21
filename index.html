@@ -8,24 +8,37 @@
 		<style>
 			body {
 				font-family: sans-serif;
-				margin: 1rem;
-				background-color: #ccc;
+			}
+			#art {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+				border: none;
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+			}
+			#app {
+				position: absolute;
+				top: 0;
+				left: 0;
+				padding: 1rem;
+				z-index: 1;
+				overflow-y: scroll;
+				background: #eee8;
 			}
 			h1 {
 				letter-spacing: -0.1rem;
-				margin-bottom: 0.5rem;
+				margin: 0 0 0.5rem 0;
 			}
 			header {
 				margin-bottom: 1rem;
 			}
-			main {
-				display: grid;
-				grid-template-columns: 1fr 600px;
-				gap: 1rem;
-			}
 			.control {
 				display: grid;
-				grid-template-columns: 1fr 1fr;
+				grid-template-columns: 10rem 10rem;
 				gap: 1rem;
 				margin-bottom: 1rem;
 			}
@@ -33,7 +46,7 @@
 			.control button,
 			.control textarea,
 			.control select {
-				width: 16rem;
+				width: 10rem;
 			}
 			.control select {
 				height: 2rem;
@@ -61,20 +74,16 @@
 		</style>
 	</head>
 	<body>
-		<header>
-			<h1>@thi.ng/genart-api example</h1>
-			<a href="https://thi.ng/genart-api">Documentation</a>
-		</header>
-		<main>
-			<div id="app"></div>
-			<iframe
-				id="art"
-				src="./art.html?__seed=decafbadc0ffeeb4b9877&ramp=s,0.1,0.5,0.4,0.2,0.8,0.9,0.9,0.5&fade=0.1&size=100&col=ff9900&curve=0.4,0.35&date=2025-01-01"
-				width="600"
-				height="600"
-				frameborder="0"
-			></iframe>
-		</main>
+		<iframe
+			id="art"
+			src="./art.html?__seed=decafbadc0ffeeb4b9877&ramp=s,0.1,0.5,0.4,0.2,0.8,0.9,0.9,0.5&fade=0.1&size=100&col=ff9900&curve=0.4,0.35&date=2025-01-01"
+		></iframe>
+		<div id="app">
+			<header>
+				<h1>@thi.ng/genart-api example</h1>
+				<a href="https://thi.ng/genart-api">Documentation</a>
+			</header>
+		</div>
 		<script type="module" src="/src.examples/index.ts"></script>
 	</body>
 </html>
