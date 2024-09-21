@@ -12,7 +12,7 @@
 		"build:dist": "yarn build:lib && yarn build:adapter && yarn build:time && cp *.min.js dist",
 		"build:lib": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=genart.min.js src/index.ts",
 		"build:adapter": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=adapter-urlparams.min.js src/adapters/urlparams.ts",
-		"build:time": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=time-offline.min.js src/time/offline.ts",
+		"build:time": "yarn esbuild --minify --platform=browser --target=es2022 --outfile=time-offline.min.js src/time/offline.ts",
 		"preview": "vite preview --host --open",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
