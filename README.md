@@ -18,10 +18,10 @@
         -   [Time](#time-of-day-parameter)
         -   [Range](#range-parameter)
         -   [Text](#text-parameter)
+        -   [Weighted choice](#weighted-choice-parameter)
         -   [XY](#xy-parameter)
     -   [Dynamic parameter types](#dynamic-parameter-types)
         -   [Ramp](#ramp-parameter)
-        -   [Weighted choice](#weighted-choice-parameter)
 -   [Platform adapters](#platform-adapters)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
@@ -104,7 +104,9 @@ fully documented interfaces & types, and some example test cases to demonstrate
         -   Defining/forcing display size & densities
 -   Provide an extensible, platform-independent parameter system with a set of
     commonly used parameter types
-    -   Parameter type-specific validation/coercion
+    -   Parameter type-specific validation, coercion, randomization
+    -   Randomized parameter lookups (per individual read)
+    -   Timebased parameters (e.g. [ramps](#ramp-parameter))
     -   Built-in support for custom parameter types and their implementation
 -   Define a messaging/event system for notification of state & param changes
 -   For time-based works
@@ -295,6 +297,7 @@ Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h form
 ##### Recommended GUI widget
 
 -   HMS time chooser
+-   HMS dropdown menus
 -   HMS text input fields
 
 #### Range parameter
@@ -330,6 +333,56 @@ $genart.params.text({
 
 -   Single or multiline text input field
 
+#### Weighted choice parameter
+
+Similar to the [Choice parameter type](#choice), but here each option also
+having an associated weight/importance. When randomizing this parameter, a new
+value is chosen based on the probability distribution defined by the relative
+weights given to each option.
+
+Note: The options can be given in any order and their weights are always only
+treated relative to each other. The `$genart.params.weighted()` param factory
+function is automatically sorting these options by weight and pre-computes their
+total weight.
+
+If no default value is given it will be picked randomly (using the weights, as
+described above).
+
+```ts
+// define color options with these probabilities:
+// - black:   8/15th (53%)
+// - cyan:    4/15th (27%)
+// - magenta: 2/15th (13%)
+// - yellow:  1/15th (7%)
+$genart.params.weighted({
+    desc: "Controlled randomness",
+    options: [
+        // format: [weight, value]
+        [8, "black"],
+        [4, "cyan"],
+        [2, "magenta"],
+        [1, "yellow"],
+    ],
+});
+
+// optionally, labels can be provided for each option
+$genart.params.weighted({
+    desc: "With labels",
+    options: [
+        // format: [weight, value, label]
+        [8, "#000", "black"],
+        [4, "#0ff", "cyan"],
+        [2, "#f0f", "magenta"],
+        [1, "#ff0", "yellow"],
+    ],
+});
+```
+
+##### Recommended GUI widget
+
+-   Drop-down menu
+-   Radio buttons
+
 #### XY parameter
 
 A 2D dimensional tuple which produces values in the [0,0] .. [1,1] range. Useful
@@ -349,9 +402,9 @@ $genart.params.xy({
 
 ### Dynamic parameter types
 
-Dynamic parameters are either time-based (using a abstract notion of "time"),
-randomized or otherwise produce values which could change each time a parameter
-is being evaluated by the art work (e.g. sensor inputs, time/date).
+Dynamic parameters are either time-based (using a abstract notion of "time") or
+otherwise produce values which could change each time a parameter is being
+read/evaluated by the art work (e.g. sensor inputs).
 
 Unlike [static param types](#static-parameter-types), these parameters have **no
 default value** and their actual value is always computed.
@@ -383,37 +436,6 @@ $genart.params.ramp({
         [1, 0],
     ],
     mode: "smooth",
-});
-```
-
-#### Weighted choice parameter
-
-Similar to the [Choice param type](#choice), but here each option also has an
-associated weight. Along with [ramps](#ramp), this is the other non-static
-parameter type, intended for time-based works, here producing a new random value
-each time the parameter is read and yielding a probability distribution defined
-by the relative weights given to each option.
-
-```ts
-$genart.params.weighted({
-    doc: "Controlled randomness",
-    options: [
-        ["black", 8],
-        ["cyan", 4],
-        ["magenta", 2],
-        ["yellow", 1],
-    ],
-});
-
-// optionally, labels can be provided for each option
-$genart.params.weighted({
-    doc: "With labels",
-    options: [
-        ["#000", 8, "black"],
-        ["#0ff", 4, "cyan"],
-        ["#f0f", 2, "magenta"],
-        ["#ff0", 1, "yellow"],
-    ],
 });
 ```
 
