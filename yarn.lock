@@ -818,22 +818,22 @@
     "@thi.ng/api" "^8.11.10"
     "@thi.ng/errors" "^2.5.16"
 
-"@thi.ng/rdom-forms@^0.3.31":
-  version "0.3.31"
-  resolved "https://registry.yarnpkg.com/@thi.ng/rdom-forms/-/rdom-forms-0.3.31.tgz#e00f18ad05244e4cae8bfdc53ff2a360259bb0be"
-  integrity sha512-Hb69+fMIeTdBh4XFwRHCkxYJExYcZZuN9oAwUBIZ/M7ijg+8qPPqjbLmGm4Czx+QwrP4eMpfLnmTSlgM0xEAoA==
+"@thi.ng/rdom-forms@^0.3.32":
+  version "0.3.32"
+  resolved "https://registry.yarnpkg.com/@thi.ng/rdom-forms/-/rdom-forms-0.3.32.tgz#7d9e2037fb5ebd0f51a495787fb59dd104da6b3c"
+  integrity sha512-wIiyBxRRGB6N/aVDwtzyelF450MQqYq9BQKUWjP5B4QBwshkPTkcQKXaea32VfBTdcSTDe9mZKglSwVlM9bD4A==
   dependencies:
     "@thi.ng/api" "^8.11.10"
     "@thi.ng/checks" "^3.6.12"
     "@thi.ng/defmulti" "^3.0.48"
     "@thi.ng/hiccup-html" "^2.7.7"
-    "@thi.ng/rdom" "^1.7.3"
+    "@thi.ng/rdom" "^1.7.4"
     "@thi.ng/rstream" "^9.0.4"
 
-"@thi.ng/rdom@^1.7.3":
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/@thi.ng/rdom/-/rdom-1.7.3.tgz#11e5dbb0707613edcea3c72e2645f25da492a445"
-  integrity sha512-Ei07OUnJQre5tNlc1dOwBBiBYYJpgpCpjOYB1UzxE5ISkH8XDbf8IclO/+bXyzAZkYc5ruVF0bmVMBF84A/fjw==
+"@thi.ng/rdom@^1.7.4":
+  version "1.7.4"
+  resolved "https://registry.yarnpkg.com/@thi.ng/rdom/-/rdom-1.7.4.tgz#2ad7a2b0eed1be635e459b787938da7a6dbe1c71"
+  integrity sha512-sT1Ib0NCQs9IiX8+yLpwm37LpzZz/b1cw1o5iUXBWR3w/NBusTuhQwm6n8TsdzLYjjMvilOm79m1lkRtRF1m6Q==
   dependencies:
     "@thi.ng/api" "^8.11.10"
     "@thi.ng/checks" "^3.6.12"

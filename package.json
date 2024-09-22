@@ -31,8 +31,8 @@
 		"@thi.ng/imgui": "^2.3.3",
 		"@thi.ng/layout": "^3.1.2",
 		"@thi.ng/ramp": "^3.3.2",
-		"@thi.ng/rdom": "^1.7.3",
-		"@thi.ng/rdom-forms": "^0.3.31",
+		"@thi.ng/rdom": "^1.7.4",
+		"@thi.ng/rdom-forms": "^0.3.32",
 		"@thi.ng/rstream": "^9.0.4",
 		"@thi.ng/rstream-gestures": "^5.0.92",
 		"@thi.ng/vectors": "^7.12.2"
