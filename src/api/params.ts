@@ -76,12 +76,10 @@ export interface Param<T> {
 	randomize?: boolean;
 }
 
-export type BaseParam<T extends Param<any>, K extends string = ""> = Omit<
+export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<
 	T,
-	"type" | "doc" | K
-> & {
-	doc?: string;
-};
+	"type" | EXCLUDE
+>;
 
 export interface ChoiceParam<T extends string> extends Param<T> {
 	type: "choice";
@@ -113,16 +111,52 @@ export interface RampParam extends Param<number> {
 
 export interface RangeParam extends Param<number> {
 	type: "range";
+	/**
+	 * Minimum value (should be a multiple of {@link RangeParam.step}).
+	 *
+	 * @defaultValue 0
+	 */
 	min: number;
+	/**
+	 * Maximum value (should be a multiple of {@link RangeParam.step}).
+	 *
+	 * @defaultValue 0
+	 */
 	max: number;
+	/**
+	 * Step value, i.e. the final param value will be:
+	 * `value = clamp(round(value, step), min, max)`
+	 *
+	 * @defaultValue 1
+	 */
 	step?: number;
-	exp?: number;
+	/**
+	 * Optional exponent for defining exponential and hinting GUI param editors
+	 * to use an exponential slider/controller (if available) to adjust the
+	 * param value.
+	 *
+	 * @remarks
+	 * If used, a GUI controller should internally operate in the [0,1] range
+	 * and use the following formula to compute the actual param value:
+	 *
+	 * ```
+	 * paramValue = min + (max - min) * (sliderValue ** exponent)
+	 * ```
+	 *
+	 * Using this formula, exponents > 1 will cause an "ease-in"
+	 * behavior/mapping, whilst exponents in the (0,1) range will cause
+	 * "ease-out".
+	 */
+	exponent?: number;
 }
 
 export interface TextParam extends Param<string> {
 	type: "text";
+	/** Minimum length */
 	min?: number;
+	/** Maximum length */
 	max?: number;
+	/** Hint for param editors to provide multiline input */
 	multiline?: boolean;
 	/** Regexp or string-encoded regexp pattern */
 	match?: RegExp | string;
@@ -218,22 +252,18 @@ export interface ParamImpl<T = any> {
 	 */
 	randomize?: (spec: Readonly<Param<T>>, rnd: RandomFn) => T;
 	/**
-	 * Used for param types which only can provide values indirectly, derived
-	 * from their other config options (e.g. {@link RampParam}'s curve control
-	 * points). Also if a parameter can produce time-based and/or randomized
-	 * values, this function is called from {@link GenArtAPI.getParamValue} to
-	 * compute a value for given `t` and/or `rnd` random function.
+	 * Used for param types which produce time-based values and only can provide
+	 * values indirectly, derived from the param's other config options (e.g. a
+	 * {@link RampParam}'s curve control points). If given, this function will
+	 * be called from {@link GenArtAPI.getParamValue} to compute a value for
+	 * given time `t` (where `t` is usually in the [0,1] range).
 	 *
 	 * @remarks
 	 * If this function is not given, {@link GenArtAPI.getParamValue} will
 	 * simply return {@link Param.value} or fallback to {@link Param.default}.
 	 *
-	 * Of the built-in param types only {@link RangeParam} and
-	 * {@link WeightedChoiceParam} make use of this feature.
-	 *
 	 * @param spec
 	 * @param t
-	 * @param rnd
 	 */
-	read?: (spec: Readonly<Param<T>>, t: number, rnd: RandomFn) => T;
+	read?: (spec: Readonly<Param<T>>, t: number) => T;
 }

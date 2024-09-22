@@ -46,7 +46,7 @@ class API implements GenArtAPI {
 	protected _paramTypes: Record<string, ParamImpl> = {
 		choice: {
 			valid: (spec, _, value) =>
-				(<ChoiceParam<any>>spec).options.find(
+				!!(<ChoiceParam<any>>spec).options.find(
 					(x) => (Array.isArray(x) ? x[0] : x) === value
 				),
 			randomize: (spec, rnd) => {
@@ -172,12 +172,11 @@ class API implements GenArtAPI {
 			},
 		},
 		weighted: {
-			// TODO
-			valid: () => false,
-			update: (spec, _, options) => {
-				(<WeightedChoiceParam<any>>spec).options = options;
-			},
-			read: (spec, _, rnd) => {
+			valid: (spec, _, value) =>
+				!!(<WeightedChoiceParam<any>>spec).options.find(
+					(x) => x[1] === value
+				),
+			randomize: (spec, rnd) => {
 				let {
 					options,
 					total,
@@ -387,13 +386,17 @@ class API implements GenArtAPI {
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
 		t = 0,
-		rnd = this.random.rnd
+		rnd?: PRNG["rnd"]
 	): ParamValue<T[K]> {
 		const {
 			spec,
-			impl: { read },
+			impl: { randomize, read },
 		} = this.ensureParam(<string>id);
-		return read ? read(spec, t, rnd) : spec.value ?? spec.default;
+		return rnd && randomize
+			? randomize(spec, rnd)
+			: read
+			? read(spec, t)
+			: spec.value ?? spec.default;
 	}
 
 	paramError(paramID: string) {

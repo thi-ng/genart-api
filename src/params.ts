@@ -90,25 +90,27 @@ export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
  * Defines a new ramp parameter, a curve defined by stops/keyframes in the [0,1]
  * interval (each a `[pos,value]`-tuple). Unlike other param types the actual
  * value of this ramp will be sampled from the curve by providing a `time` arg
- * (also in [0,1] range) to {@link GenArtAPI.getParamValue} (or the param getter
- * returned by {@link GenArtAPI.setParams}).
+ * (also in [0,1] range) to getter function returned by
+ * {@link GenArtAPI.setParams}) (or when calling {@link GenArtAPI.getParamValue}
+ * directly).
  *
  * @example
  * ```ts
+ * // ramp parameter defining a triangular shape "/\"
  * const param = $genart.setParams({
  *     test: $genart.params.ramp({
- *         doc: "test",
- *         stops: [[0, 0], [0.5, 0.1], [1, 1]]
+ *         desc: "test",
+ *         stops: [[0, 0], [0.5, 1], [1, 0]]
  *     })
  * });
  *
  * // read param @ t=0.25
  * param("test", 0.25)
- * // 0.05
+ * // 0.5
  *
  * // read param @ t=0.25
- * param("test", 0.75)
- * // 0.55
+ * param("test", 0.6)
+ * // 0.8
  * ```
  *
  * @param spec
@@ -135,7 +137,7 @@ export const ramp = (
  * @example
  * ```ts
  * $genart.params.range({
- *     doc: "Pick a number between 0-100",
+ *     desc: "Pick a number between 0-100",
  *     min: 0,
  *     max: 100,
  *     step: 5,
@@ -145,9 +147,12 @@ export const ramp = (
  * @param spec
  */
 export const range = (
-	spec: BaseParam<RangeParam, "step"> & Pick<RangeParam, "step">
+	spec: BaseParam<RangeParam, "min" | "max"> &
+		Partial<Pick<RangeParam, "min" | "max">>
 ): RangeParam => ({
 	type: "range",
+	min: 0,
+	max: 100,
 	step: 1,
 	...spec,
 });
@@ -224,11 +229,10 @@ export const toggle = (spec: BaseParam<ToggleParam>): ToggleParam => ({
  * @param spec
  */
 export const weighted = <T extends string>(
-	spec: BaseParam<WeightedChoiceParam<T>>
+	spec: BaseParam<WeightedChoiceParam<T>, "total">
 ): WeightedChoiceParam<T> => ({
-	type: "weighted",
-	randomize: false,
 	...spec,
+	type: "weighted",
 	options: spec.options.sort((a, b) => b[0] - a[0]),
 	total: spec.options.reduce((acc, x) => acc + x[0], 0),
 });

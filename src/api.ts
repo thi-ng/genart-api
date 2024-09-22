@@ -136,6 +136,42 @@ export interface GenArtAPI {
 
 	randomizeParamValue(id: string, rnd?: RandomFn, notify?: NotifyType): void;
 
+	/**
+	 * Returns the value for previously registered parameter `id`, possibly
+	 * time-based (if the param type supports such) or randomized (if `rnd` is
+	 * given and iff the param type supports randomization). A type-safe wrapper
+	 * of this function (based on declared params) is returned by
+	 * {@link GenArtAPI.setParams}.
+	 *
+	 * @remarks
+	 * The following logic is used to produce a param's value:
+	 *
+	 * For non-randomized uses of `getParamValue()`, if a param type defines a
+	 * {@link ParamImpl.read} function, it will take precedent and is called
+	 * with given `t`. Otherwise, the param's currently defined
+	 * {@link Param.value} or {@link Param.default} will be returned.
+	 *
+	 * The `t` arg defaults to zero and is only used if the param type supports
+	 * time-based values, otherwise ignored. Of the built-in param types only
+	 * {@link RampParam} uses time-based values.
+	 *
+	 * The `rnd` arg is only used if the param type supports randomization. If
+	 * that's the case and `rnd` is given, `getParamValue()` will produce a
+	 * randomized value using {@link ParamImpl.randomize}, but this value is
+	 * ephemeral and will NOT modify the param spec's `.value` or trigger a
+	 * {@link RandomizeParamMsg} message being broadcast. If `rnd` is given but
+	 * the param type does NOT support randomization, the param's value is
+	 * produced normally (see above).
+	 *
+	 * **Important: It's the artist's responsibility to ensure deterministic
+	 * behavior of an artwork/variation and if the `rnd` arg is used, most
+	 * likely the currently configured {@link PRNG} function (aka
+	 * `$genart.random.rnd`) SHOULD be used!**
+	 *
+	 * @param id
+	 * @param t
+	 * @param rnd
+	 */
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
 		t?: number,
@@ -311,9 +347,9 @@ export interface PRNG {
 	/**
 	 * Re-initializes the PRNG to the configured seed state.
 	 */
-	reset: () => () => number;
+	reset: () => PRNG["rnd"];
 	/**
-	 * Returns a pseudo-random number in the [0,1) interval.
+	 * Returns a pseudo-random number in the semi-open [0,1) interval.
 	 */
 	rnd: () => number;
 }
