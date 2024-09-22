@@ -286,8 +286,8 @@ class API implements GenArtAPI {
 			await this.updateParams();
 		}
 		this.notifySetParams();
-		return <K extends keyof P>(id: K, t?: number) =>
-			this.getParamValue<P, K>(id, t);
+		return <K extends keyof P>(id: K, t?: number, rnd?: PRNG["rnd"]) =>
+			this.getParamValue<P, K>(id, t, rnd);
 	}
 
 	setFeatures(features: Features): void {

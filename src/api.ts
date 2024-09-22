@@ -68,25 +68,26 @@ export interface GenArtAPI {
 
 	/**
 	 * Called during initialization of the art piece to declare all of its
-	 * available parameters, their configs and default values.
+	 * available parameters, their configurations and (optional) default values.
 	 *
 	 * @remarks
 	 * If the {@link PlatformAdapter} is already set (via
-	 * {@link GenArtAPI.setAdapter}), this function also calls
-	 * {@link GenArtAPI.updateParams} to apply any param
-	 * customizations/overrides sourced via the adapter. Once done, it then
-	 * posts a {@link SetParamsMsg} message to the current & parent window for
-	 * other software components to be notified (e.g. param editors)
+	 * {@link GenArtAPI.setAdapter}), this function also calls & waits for
+	 * {@link PlatformAdapter.setParams} to pre-initialize platform-specific
+	 * param handling and then calls {@link GenArtAPI.updateParams} to apply any
+	 * param customizations/overrides sourced via the adapter. Once done, it
+	 * then sends a {@link SetParamsMsg} message to the current & parent window
+	 * for other software components to be notified (e.g. param editors)
 	 *
 	 * Regardless of the above behavior, this function returns a promise of a
 	 * typesafe getter function (based on the declared param specs) to obtain
 	 * param values (wraps {@link GenArtAPI.getParamValue}). For some param
-	 * types (e.g. {@link RampParam} or {@link WeightedChoiceParam}), these
-	 * values can be possibly time-based and/or randomized.
+	 * types (e.g. {@link RampParam}), these value lookups can be time-based or
+	 * randomized (for param types which support randomization).
 	 *
 	 * @example
 	 * ```ts
-	 * const param = $genart.setParams({
+	 * const param = await $genart.setParams({
 	 *   color: $genart.params.color({ doc: "brush color", default: "#ffff00" }),
 	 *   size: $genart.params.range({ doc: "brush size", default: 10, min: 5, max: 50 }),
 	 *   density: $genart.params.ramp({ doc: "density", stops: [[0, 0.5], [1, 1]] }),
@@ -95,6 +96,9 @@ export interface GenArtAPI {
 	 * // get possibly customized param values (typesafe)
 	 * const color = param("color"); // inferred as string
 	 * const size = param("size"); // inferred as number
+	 *
+	 * // get a randomized value (within defined constraints)
+	 * const randomSize = param("size", 0, $genart.random.rnd);
 	 *
 	 * // some param types (e.g. ramp) can produce time-based values
 	 * // (here `t` is in [0,1] range). the time arg defaults to 0 and
@@ -106,7 +110,13 @@ export interface GenArtAPI {
 	 */
 	setParams<P extends ParamSpecs>(
 		params: P
-	): Promise<<K extends keyof P>(id: K, t?: number) => ParamValue<P[K]>>;
+	): Promise<
+		<K extends keyof P>(
+			id: K,
+			t?: number,
+			rnd?: PRNG["rnd"]
+		) => ParamValue<P[K]>
+	>;
 
 	setAdapter(adapter: PlatformAdapter): void;
 	waitForAdapter(): Promise<void>;
