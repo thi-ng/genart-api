@@ -142,7 +142,7 @@ to all parties involved when adopted and can supported in an unintrusive way.
 
 ![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg)
 
-[Diagram source code](./diagrams/lifecycle.puml)
+[Diagram source code](https://github.com/thi-ng/genart-api/tree/main/diagrams/lifecycle.puml)
 
 ### API documentation
 
@@ -402,8 +402,9 @@ and by default the API supports the following interpolation modes:
 -   `exp`: exponential interpolation
 -   `smooth`: smoothstep
 
-**Recommended GUI widget:** [Curve
-editor](https://github.com/thi-ng/umbrella/tree/develop/examples/ramp-synth)
+**Recommended GUI widget:**
+
+-   [Curve editor](https://github.com/thi-ng/umbrella/tree/develop/examples/ramp-synth)
 
 ```ts
 $genart.params.ramp({
@@ -440,8 +441,8 @@ providing (deployment) platform-specific functionality and interop features.
 
 ### Existing adapter implementations
 
--   [/src/adapters/dummy.ts](/src/adapters/dummy.ts)
--   [/src/adapters/urlparams.ts](/src/adapters/urlparams.ts)
+-   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/tree/main/src/adapters/dummy.ts)
+-   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/tree/main/src/adapters/urlparams.ts)
 
 ### Parameter sourcing
 
@@ -469,13 +470,15 @@ TODO
 
 This repo contains several examples used for testing and evaluating the
 reference API implementation. These are all separate projects/packages located
-in the [/examples](./examples/) directory. Please ensure you read their README
-instructions, since a certain build order must be used:
+in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
+directory. Please ensure you read their README instructions, since a certain
+build order must be used:
 
--   [param-test](examples/param-test/): Minimal "art" example using various
-    parameter types
--   [param-editors](examples/param-editors/): GUI param editors to modify params
-    exposed by an art project running in an `<iframe>`.
+-   [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/):
+    Minimal "art" example using various parameter types
+-   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/):
+    GUI param editors to modify params exposed by an art project running in an
+    `<iframe>`.
 
 ### An artist's "Hello world"
 
@@ -483,16 +486,16 @@ This section describes the basic approach to create a `GenArtAPI` conformant art
 project.
 
 **The reference implementation of the API provided here has no dependencies**
-and can be included by downloading/copying the scripts in the [/dist](./dist)
-directory to your project and adding the following `<script>` tags to your HTML
-header:
+and can be included by downloading/copying the scripts in the
+[/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory to your
+project and adding the following `<script>` tags to your HTML header:
 
 ```html
 <script src="genart.min.js"></script>
 ```
 
--   [TypeScript source code](src/index.ts)
--   [Minified release build](dist/genart.min.js)
+-   [TypeScript source code](https://github.com/thi-ng/genart-api/tree/main/src/index.ts)
+-   [Minified release build](https://github.com/thi-ng/genart-api/tree/main/dist/genart.min.js)
 
 This repo also provides a basic [platform adapter](#platform-adapters) for
 sourcing parameters via URL query string (aka
@@ -504,8 +507,8 @@ use cases:
 <script src="adapter-urlparams.min.js"></script>
 ```
 
--   [TypeScript source code](src/adapters/urlparams.ts)
--   [Minified release build](dist/adapter-urlparams.min.js)
+-   [TypeScript source code](https://github.com/thi-ng/genart-api/tree/main/src/adapters/urlparams.ts)
+-   [Minified release build](https://github.com/thi-ng/genart-api/tree/main/dist/adapter-urlparams.min.js)
 
 #### Example files
 
