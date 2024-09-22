@@ -27,6 +27,7 @@ import type {
 	ParamSpecs,
 	RangeParam,
 	TextParam,
+	WeightedChoiceParam,
 } from "../src/api.js";
 
 ROOT.set(new ConsoleLogger());
@@ -140,6 +141,20 @@ const createParamControls = (params: ParamSpecs) => {
 				break;
 			case "toggle":
 				items.push(toggle(base));
+				break;
+			case "weighted":
+				{
+					const $param = <WeightedChoiceParam<any>>param;
+					items.push(
+						selectStr({
+							...base,
+							items: $param.options.map((x) => ({
+								value: x[1],
+								label: x[2] || `${x[1]} (${x[0]})`,
+							})),
+						})
+					);
+				}
 				break;
 			case "xy":
 				{

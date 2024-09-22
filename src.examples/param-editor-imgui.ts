@@ -27,6 +27,7 @@ import type {
 	ParamSpecs,
 	RampParam,
 	RangeParam,
+	WeightedChoiceParam,
 } from "../src/api.js";
 import { isString, u24 } from "../src/utils.js";
 
@@ -101,6 +102,23 @@ const updateWidgets = (draw: boolean) => {
 					if (idx != null) {
 						res = $param.options[idx];
 						if (!isString(res)) res = res[0];
+					}
+				}
+				break;
+			case "weighted":
+				{
+					const $param = <WeightedChoiceParam<any>>param;
+					const idx = dropdown(
+						gui!,
+						layout.nest(1, [COLS - 1, 1], 0),
+						id,
+						$param.options.findIndex((x) => x[1] === value),
+						$param.options.map((x) => x[2] || `${x[1]} (${x[0]})`),
+						label,
+						param.doc
+					);
+					if (idx != null) {
+						res = $param.options[idx][1];
 					}
 				}
 				break;
