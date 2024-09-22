@@ -151,28 +151,6 @@ code and the example project are the best reference.
 
 [Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
 
-### Use in your own projects
-
-The reference implementation of the API provided here has no dependencies can be
-included by adding the following `<script>` tag to your HTML header:
-
-```html
-<script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/genart.min.js"></script>
-```
-
-[TypeScript source code](src/index.ts)
-
-This repo also provides a basic [platform adapter](#platform-adapters) for
-sourcing parameters via URL query string and can be useful during local
-development. This adapter can be added via inclusion of (also see [bundled
-example](art.html)):
-
-```html
-<script src="https://raw.githubusercontent.com/thi-ng/genart-api/main/dist/adapter-urlparams.min.js"></script>
-```
-
-[TypeScript source code](src/adapters/urlparams.ts)
-
 ## Parameters
 
 Almost all generative art works use parameters and randomization to produce a
@@ -489,7 +467,30 @@ TODO
 
 ### Artist's Hello world
 
-HTML wrapper:
+The reference implementation of the API provided here has no dependencies can be
+included by download the scripts in the [/dist](./dist) directory to your project and adding the following `<script>` tags to your HTML header:
+
+```html
+<script src="genart.min.js"></script>
+```
+
+-   [TypeScript source code](src/index.ts)
+-   [Minified release build](dist/genart.min.js)
+
+This repo also provides a basic [platform adapter](#platform-adapters) for
+sourcing parameters via URL query string. This can be useful during local
+development and other use cases:
+
+```html
+<script src="adapter-urlparams.min.js"></script>
+```
+
+-   [TypeScript source code](src/adapters/urlparams.ts)
+-   [Minified release build](dist/adapter-urlparams.min.js)
+
+#### Example files
+
+<details><summary>HTML example wrapper</summary>
 
 ```html
 <!DOCTYPE html>
@@ -510,7 +511,7 @@ HTML wrapper:
     </head>
     <body>
         <!--
-            optional: use custom time provider (e.g. for non-realtime rendering of image sequence)
+            optional: use custom time provider (e.g. for non-realtime rendering of image sequences)
             configure API to use offline time (new frame every 250 ms)
         -->
         <script type="module">
@@ -523,9 +524,12 @@ HTML wrapper:
 </html>
 ```
 
-index.js (artwork script)
+</details>
+
+<details><summary>Minimal example artwork script</summary>
 
 ```js
+// index.js
 (async () => {
     // ensure platform adapter is ready
     await $genart.waitForAdapter();
@@ -587,9 +591,12 @@ index.js (artwork script)
 })();
 ```
 
+</details>
+
 ### Creating a basic PlatformAdapter
 
-TODO
+TODO for now see [existing adapter
+implementations](#existing-adapter-implementations)...
 
 ## License
 
