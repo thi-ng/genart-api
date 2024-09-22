@@ -32,10 +32,10 @@ class URLParamsAdapter implements PlatformAdapter {
 				location.search = this.params.toString();
 			}
 		});
-		$genart.on("genart:statechange", ({ state }) => {
-			console.log("new state", state);
-			return state === "ready" && $genart.start();
-		});
+		$genart.on(
+			"genart:statechange",
+			({ state }) => state === "ready" && $genart.start()
+		);
 	}
 
 	get mode() {
@@ -85,6 +85,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "choice":
 			case "text":
 			case "time":
+			case "weighted":
 				return { value };
 			case "range":
 				return { value: +value };
