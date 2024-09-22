@@ -1,5 +1,7 @@
 /build
 /doc
+/examples/*/dist
+/examples/*/public
 /node_modules
 /public
 

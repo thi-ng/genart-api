@@ -1,40 +1,22 @@
 {
 	"name": "@thi.ng/genart-api",
 	"version": "0.0.1",
-	"description": "TODO",
+	"description": "Platform-independent API for browser-based generative art",
 	"repository": "https://github.com/thi-ng/genart-api",
 	"author": "Karsten Schmidt <k+npm@thi.ng>",
 	"license": "Apache-2.0",
 	"type": "module",
 	"scripts": {
-		"start": "vite --host --open",
-		"build": "tsc && vite build --base='./' && cp *.min.js build",
-		"build:dist": "yarn build:lib && yarn build:adapter && yarn build:time && cp *.min.js dist",
-		"build:lib": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=genart.min.js src/index.ts",
-		"build:adapter": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=adapter-urlparams.min.js src/adapters/urlparams.ts",
-		"build:time": "yarn esbuild --minify --platform=browser --target=es2022 --outfile=time-offline.min.js src/time/offline.ts",
-		"preview": "vite preview --host --open",
+		"build": "yarn build:api && yarn build:adapter && yarn build:time",
+		"build:api": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=dist/genart.min.js src/index.ts",
+		"build:adapter": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=dist/adapter-urlparams.min.js src/adapters/urlparams.ts",
+		"build:time": "yarn esbuild --minify --platform=browser --target=es2022 --outfile=dist/time-offline.min.js src/time/offline.ts",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
 	"devDependencies": {
-		"@types/node": "^22.5.5",
 		"typedoc": "0.26.7",
-		"typescript": "^5.6.2",
-		"vite": "^5.4.7",
-		"vite-plugin-html": "^3.2.2"
+		"typescript": "^5.6.2"
 	},
 	"sideEffects": false,
-	"dependencies": {
-		"@thi.ng/canvas": "^0.5.3",
-		"@thi.ng/geom": "^8.1.9",
-		"@thi.ng/hiccup-canvas": "^3.1.18",
-		"@thi.ng/imgui": "^2.3.3",
-		"@thi.ng/layout": "^3.1.2",
-		"@thi.ng/ramp": "^3.3.2",
-		"@thi.ng/rdom": "^1.7.4",
-		"@thi.ng/rdom-forms": "^0.3.32",
-		"@thi.ng/rstream": "^9.0.4",
-		"@thi.ng/rstream-gestures": "^5.0.92",
-		"@thi.ng/vectors": "^7.12.2"
-	}
+	"dependencies": {}
 }

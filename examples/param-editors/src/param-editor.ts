@@ -28,7 +28,7 @@ import type {
 	RangeParam,
 	TextParam,
 	WeightedChoiceParam,
-} from "../src/api.js";
+} from "../../../src/api.js";
 
 ROOT.set(new ConsoleLogger());
 

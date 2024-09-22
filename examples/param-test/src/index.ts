@@ -1,3 +1,7 @@
+import type { GenArtAPI } from "../../../src/api.ts";
+
+declare var $genart: GenArtAPI;
+
 (async () => {
 	$genart.id = "test";
 	await $genart.waitForAdapter();

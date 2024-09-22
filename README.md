@@ -4,11 +4,10 @@
 -   [About](#about)
     -   [Goals](#goals)
     -   [Non-goals](#non-goals)
--   [Architecture overview](#architecture-overview)
-    -   [Lifecycle](#lifecycle)
 -   [Core API](#core-api)
+    -   [Architecture overview](#architecture-overview)
+        -   [Lifecycle](#lifecycle)
     -   [API documentation](#api-documentation)
-    -   [Use in your own projects](#use-in-your-own-projects)
 -   [Parameters](#parameters)
     -   [Static parameter types](#static-parameter-types)
         -   [Choice](#choice-parameter)
@@ -30,19 +29,20 @@
     -   [Screen configuration](#screen-configuration)
     -   [Thumbnail/preview generation](#thumbnailpreview-generation)
 -   [Getting started](#getting-started)
-    -   [Artist's Hello world](#artists)
+    -   [Bundled examples](#bundled-examples)
+    -   [Artist's Hello world](#an-artists-hello-world)
     -   [Creating a basic PlatformAdapter](#platforms)
 -   [License](#license)
 
 ## Status
 
-**ALPHA** — Work in progress... Welcoming feedback!
+**ALPHA** — Work in progress... **Welcoming feedback!** 🙏
 
 ## About
 
 Generative/computational art has long and rich history, but has seen its
-popularity soar only over the past ~5 years with the arrival of various online
-art platforms to publish these works. The number of these platforms keeps on
+popularity soar only over the past years with the arrival of various online art
+platforms to publish these works. The number of these platforms keeps on
 mushrooming, each one defining their own ad-hoc solutions how to deal with
 common aspects (e.g. handling of parameters to customize pieces/variations,
 generating previews etc.). Often, this means artists have to either already
@@ -134,15 +134,15 @@ However, the proposed system is designed to be extensible in several ways which
 enable a number of platform-specific extensions which can be highly beneficial
 to all parties involved when adopted and can supported in an unintrusive way.
 
-## Architecture overview
+## Core API
 
-### Lifecycle
+### Architecture overview
+
+#### Lifecycle
 
 ![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg)
 
 [Diagram source code](./diagrams/lifecycle.puml)
-
-## Core API
 
 ### API documentation
 
@@ -465,10 +465,27 @@ TODO
 
 ## Getting started
 
-### Artist's Hello world
+### Bundled examples
 
-The reference implementation of the API provided here has no dependencies can be
-included by download the scripts in the [/dist](./dist) directory to your project and adding the following `<script>` tags to your HTML header:
+This repo contains several examples used for testing and evaluating the
+reference API implementation. These are all separate projects/packages located
+in the [/examples](./examples/) directory. Please ensure you read their README
+instructions, since a certain build order must be used:
+
+-   [param-test](examples/param-test/): Minimal "art" example using various
+    parameter types
+-   [param-editors](examples/param-editors/): GUI param editors to modify params
+    exposed by an art project running in an `<iframe>`.
+
+### An artist's "Hello world"
+
+This section describes the basic approach to create a `GenArtAPI` conformant art
+project.
+
+**The reference implementation of the API provided here has no dependencies**
+and can be included by downloading/copying the scripts in the [/dist](./dist)
+directory to your project and adding the following `<script>` tags to your HTML
+header:
 
 ```html
 <script src="genart.min.js"></script>
@@ -478,8 +495,10 @@ included by download the scripts in the [/dist](./dist) directory to your projec
 -   [Minified release build](dist/genart.min.js)
 
 This repo also provides a basic [platform adapter](#platform-adapters) for
-sourcing parameters via URL query string. This can be useful during local
-development and other use cases:
+sourcing parameters via URL query string (aka
+[`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)).
+This adapter can be useful during local development and used as basis for other
+use cases:
 
 ```html
 <script src="adapter-urlparams.min.js"></script>

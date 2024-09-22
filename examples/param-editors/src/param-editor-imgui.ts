@@ -28,12 +28,12 @@ import type {
 	RampParam,
 	RangeParam,
 	WeightedChoiceParam,
-} from "../src/api.js";
-import { isString, u24 } from "../src/utils.js";
+} from "../../../src/api.js";
+import { isString, u24 } from "../../../src/utils.js";
 
 const DPR = window.devicePixelRatio;
 const W = Math.min(window.innerWidth - 32, 400);
-const H = 1000;
+const H = 1500;
 
 let apiID: string;
 let features: Features;
