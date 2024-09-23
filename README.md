@@ -41,6 +41,9 @@
 
 **ALPHA** — Work in progress... **Welcoming feedback!** 🙏
 
+Please also see RFCs and open questions in the [issue
+tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
+
 ## About
 
 Over the past years, generative/computational art has experienced a surge in
