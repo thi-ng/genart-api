@@ -40,50 +40,51 @@
 
 ## About
 
-Generative/computational art has long and rich history, but has seen its
-popularity soar only over the past years with the arrival of various online art
-platforms to publish these works. The number of these platforms keeps on
-mushrooming, each one defining their own ad-hoc solutions how to deal with
-common aspects (e.g. handling of parameters to customize pieces/variations,
-generating previews etc.). Often, this means artists have to either already
-decide on which platform to publish a new piece when they start working on it
-and/or spend a considerable amount of time reworking key aspects (like parameter
-handling) when repurposing a piece for a different use (e.g. creating hires
-print versions, video assets, or displaying the piece in a gallery with
-different configurations or requirements). Since most of these online
-platforms/startups only ever optimize for their own uses, they don't care about
-these issues of asset preparation & adaptation and so it's up to us
-artists/producers to address these issues ourselves.
+Over the past years, generative/computational art has experienced a surge in
+popularity because of the availability of online art platforms for publishing
+these works. The number of these platforms keeps on mushrooming, each one
+defining their own ad hoc solutions to deal with common aspects (e.g. handling
+of parameters to customize pieces/variations, generating previews, etc.). Often,
+this means artists have to either already decide on which platform to publish a
+new piece before they work on it and/or spend a considerable amount of time
+reworking key aspects (like parameter, resolution or time handling) when
+repurposing a piece for a different use (e.g. creating hires print versions,
+high-quality video assets, or displaying the piece in a gallery with different
+configurations or requirements). Since online platforms/startups usually only
+optimize for their own uses and neglecting the needs of artists regarding asset
+preparation, adaptation and re-use, we must take it upon ourselves to address
+these workflow issues more efficiently.
 
-This project defines an API layer addressing recurring issues artists encounter
-when publishing and repurposing browser-based generative art works for diverse
-online platforms, usage environments (incl. offline, galleries, installations),
-and also different aspects of media production (for example how to deal with
+To improve this situation, this project proposes an API layer and a message
+protocol addressing recurring issues artists encounter when publishing and
+repurposing browser-based generative art works — be it for diverse online
+platforms, environments (incl. offline, galleries, installations), but also
+aforementioned aspects of media production (for example helping to deal with
 realtime/non-realtime rendering when recording image sequences for video
-production).
+production, and do so in an unintrusive & externally controlled manner).
 
 ![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/overview.svg)
 Schematic overview of the proposed architecture
 
 The primary purpose of this API is to decouple key aspects commonly used for
 most generative/computational art works, to deduplicate feature implementations
-and generally reduce time & effort required for adapting browser-based art works
-for different uses/environments. These benefits are not _only_ in the interest
-of artists, but also simplify how online art platforms can use this API layer to
+and reduce the time & effort required for adapting browser-based art works for
+different uses/environments. These benefits are not _only_ in the interest of
+artists, but also simplify how online art platforms can use this API layer to
 reduce effort on their end, simplify providing customization features for such
 generative art works (and even re-use tooling).
 
-Another positive side effect of adapting the system proposed herein is the
-emergence of secondary re-usable tooling with handling the management of
-parameters and variations, for example: tooling to generate GUI controls for
-editing params, creating/storing/retrieving parameter presets/collections (aka
-variations), asset downloaders/uploaders, transcoding tools. Even at this stage,
-some of these are already existing and being worked on...
+Another positive side effect of adapting the system proposed here: The emergence
+of secondary re-usable tooling to manage parameters and variations, for example:
+tooling to generate GUI controls for editing params, creating/storing/retrieving
+parameter presets/collections (aka variations), asset downloaders, transcoding
+tools. Even at this stage, some of these are existing already and actively being
+worked on...
 
 In this document & repository we describe the approach, the proposed
 architecture and provide a TypeScript-based reference implementation, including
 fully documented interfaces & types, and some example test cases to demonstrate
-(and validate!) the approach and benefits.
+(and validate!) the approach and its benefits.
 
 ### Goals
 
@@ -125,14 +126,16 @@ This API aims to **remain as minimal as possible** and will not directly support
 every feature of every platform, which would cause feature creep, bloat and
 unsustainable maintenance effort.
 
-Art works requiring/relying on advanced integrations with a specific platform
+Artworks requiring or relying on advanced integrations with a specific platform
 are naturally highly dependent on those platform features, and so would not
-benefit from a more platform-independent approach in any way. Therefore we
+benefit from a more platform-independent approach in any way. Therefore, we
 consider these use cases as out-of-scope.
 
-However, the proposed system is designed to be extensible in several ways which
-enable a number of platform-specific extensions which can be highly beneficial
-to all parties involved when adopted and can supported in an unintrusive way.
+However, the proposed system is designed to enable platform-specific extensions
+in several ways, which can highly benefit all parties involved when adopted and
+can be supported unintrusively. For example, a platform/device can provide
+sensor input and expose it through a custom parameter type, allowing a mock
+implementation to be provided when running elsewhere.
 
 ## Core API
 
@@ -147,44 +150,44 @@ to all parties involved when adopted and can supported in an unintrusive way.
 ### API documentation
 
 Full API docs are actively being worked on. For now, this readme, the source
-code and the example project are the best reference.
+code and the [example projects](#bundled-examples) are the best reference.
 
 [Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
 
 ## Parameters
 
-Almost all generative art works use parameters and randomization to produce a
-large number of variations. Some of these parameters can be exposed to the
-outside world to allow people/agents more participation and direct control over
-the generative outcomes.
+Almost all generative art works use parameters and randomization to produce
+numerous variations. Exposing some of these parameters to the outside world can
+allow people/agents to have more participation and direct control over the
+generative outcomes.
 
 The API supports an extensible set of parameters types with a selection of
 commonly used types supplied as built-ins (described below).
 
-Each parameter declared by the art work is represented in the API as a simple
-vanilla JS object and any param value changes are being handled by the param
-type's [registered
+Each parameter declared by the artwork is a simple vanilla JS object and any
+param value changes are being handled by the API and the param type’s
+[registered
 implementation](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
 (a set of functions dealing with validation, coercion, updating and reading
-param values).
-
-For convenience & type safety, the API provides factory functions for all
-built-in parameter types.
+param values). For convenience & type safety, the API provides factory functions
+for all built-in parameter types.
 
 The following parameter types are available, but other custom ones can be
-registered, making the whole system extensible. Each declared param is a simple
-JS object and the API provides factory functions for all built-in types helping
-to fill in default options.
+registered, making the entire system extensible. Each declared param spec is a
+simple JS object, and the API provides factory functions for all built-in types,
+helping to fill in any default options.
 
-**IMPORTANT**: All param declarations must provide a `doc` (documentation
-string) and most also `default` value (see exceptions below).
+**IMPORTANT**: All param declarations must include a `desc` (brief description)
+and have the option to define `default` values for most parameter types. If no
+default value is provided, a randomized value will be chosen within the
+constraints of the param.
 
 ### Static parameter types
 
 Generally speaking, parameters can be grouped into static & dynamic parameters
-with the former providing the same values each time they're read/evaluted and
-the latter being used for time-based, randomized value or obtained from
-otherwise dynamic sources (e.g. sensors).
+with the former providing the same values each time they're read/evaluated and
+the latter being used for time-based values obtained from otherwise dynamic
+sources (e.g. sensors).
 
 This section describes the set of _static_ param types:
 
@@ -314,16 +317,16 @@ $genart.params.text({
 #### Weighted choice parameter
 
 Similar to the [Choice parameter type](#choice), but here each option also
-having an associated weight/importance. When randomizing this parameter, a new
+has an associated weight/importance. When randomizing this parameter, a new
 value is chosen based on the probability distribution defined by the relative
 weights given to each option.
 
 Note: The options can be given in any order and their weights are always only
-treated relative to each other. The `$genart.params.weighted()` param factory
-function is automatically sorting these options by weight and pre-computes their
-total weight.
+treated relative to each other. The `$genart.params.weighted()` factory function
+is automatically sorting these options by weight and pre-computes their total
+weight.
 
-If no default value is given it will be picked randomly (using the weights, as
+If no default value is given, it will be picked randomly (using the weights, as
 described above).
 
 ```ts
