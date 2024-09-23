@@ -7,6 +7,7 @@
 -   [Core API](#core-api)
     -   [Architecture overview](#architecture-overview)
         -   [Lifecycle](#lifecycle)
+        -   [State machine](#state-machine)
     -   [API documentation](#api-documentation)
 -   [Parameters](#parameters)
     -   [Static parameter types](#static-parameter-types)
@@ -28,6 +29,8 @@
     -   [Determinism & PRNG provision](#determinism--prng-provision)
     -   [Screen configuration](#screen-configuration)
     -   [Thumbnail/preview generation](#thumbnailpreview-generation)
+-   [Time providers](#time-providers)
+    -   [Existing time provider implementations](#existing-time-provider-implementations)
 -   [Getting started](#getting-started)
     -   [Bundled examples](#bundled-examples)
     -   [Artist's Hello world](#an-artists-hello-world)
@@ -145,7 +148,20 @@ implementation to be provided when running elsewhere.
 
 ![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg)
 
-[Diagram source code](https://github.com/thi-ng/genart-api/tree/main/diagrams/lifecycle.puml)
+[Diagram source code](https://github.com/thi-ng/genart-api/blob/main/diagrams/lifecycle.puml)
+
+#### State machine
+
+The API implements a finite state machine with the following possible states:
+
+-   `init`: Initial state until the [platform adapter](#platform-adapters), [time
+    provider](#time-providers) and the artwork's update function have been
+    registered or an error occurred during any init steps
+-   `ready`: All init steps have been completed and playback of the artwork can
+    commence
+-   `play`: API is currently running the animation loop, ruuning the artwork
+-   `stop`: Animation loop has been paused/stopped
+-   `error`: API is in an unrecoverable error state
 
 ### API documentation
 
@@ -444,8 +460,8 @@ providing (deployment) platform-specific functionality and interop features.
 
 ### Existing adapter implementations
 
--   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/tree/main/src/adapters/dummy.ts)
--   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/tree/main/src/adapters/urlparams.ts)
+-   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/dummy.ts)
+-   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts)
 
 ### Parameter sourcing
 
@@ -457,7 +473,24 @@ TODO
 
 ### Determinism & PRNG provision
 
-TODO
+Platform adapters are responsible to provide a seedable and resettable,
+deterministic pseudo-random number generator which the artwork can access via
+[`$genart.random`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#random).
+Usually, the adapter just has to return the PRNG provided by the respective
+platform.
+
+-   [PRNG interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PRNG.html)
+-   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/17cbe7df708601d40ee353e77605525822f27ab1/src/adapters/urlparams.ts#L56-L73)
+
+For cases where a platform does not provide its own PRNG, this repo contains
+two implementations which can be used by an adapter:
+
+-   [SFC32](https://github.com/thi-ng/genart-api/blob/main/src/prng/sfc32.ts)
+-   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/src/prng/xorshift128.ts)
+
+Related issues/RFCs:
+
+-   [#1: Provide single PRNG or allow platfom adapters to define implementation?](https://github.com/thi-ng/genart-api/issues/1)
 
 ### Screen configuration
 
@@ -466,6 +499,15 @@ TODO
 ### Thumbnail/preview generation
 
 TODO
+
+## Time providers
+
+TODO
+
+### Existing time provider implementations
+
+-   [/src/time/raf.ts](https://github.com/thi-ng/genart-api/blob/main/src/time/raf.ts): `requestAnimationFrame()`-based
+-   [/src/time/offline.ts](https://github.com/thi-ng/genart-api/blob/main/src/time/offline.ts): non-realtime, configurable
 
 ## Getting started
 
@@ -497,8 +539,8 @@ project and adding the following `<script>` tags to your HTML header:
 <script src="genart.min.js"></script>
 ```
 
--   [TypeScript source code](https://github.com/thi-ng/genart-api/tree/main/src/index.ts)
--   [Minified release build](https://github.com/thi-ng/genart-api/tree/main/dist/genart.min.js)
+-   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/index.ts)
+-   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.min.js)
 
 This repo also provides a basic [platform adapter](#platform-adapters) for
 sourcing parameters via URL query string (aka
@@ -510,8 +552,8 @@ use cases:
 <script src="adapter-urlparams.min.js"></script>
 ```
 
--   [TypeScript source code](https://github.com/thi-ng/genart-api/tree/main/src/adapters/urlparams.ts)
--   [Minified release build](https://github.com/thi-ng/genart-api/tree/main/dist/adapter-urlparams.min.js)
+-   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts)
+-   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/adapter-urlparams.min.js)
 
 #### Example files
 
