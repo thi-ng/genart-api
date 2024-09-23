@@ -38,8 +38,24 @@ export type Features = Record<string, number | string | boolean>;
 export interface GenArtAPI {
 	id?: string;
 	readonly mode: RunMode;
+	/**
+	 * Returns the platform's configured screen/canvas dimensions & pixel
+	 * density.
+	 *
+	 * TODO support & handle resizing, add message type
+	 */
 	readonly screen: ScreenConfig;
+	/**
+	 * Returns the platform's configured pseudo-random number generator, incl.
+	 * currently used seed value.
+	 */
 	readonly random: PRNG;
+	/**
+	 * The API's current state.
+	 *
+	 * @remarks
+	 * Also see {@link StateChangeMsg}.
+	 */
 	readonly state: APIState;
 
 	readonly paramSpecs: Maybe<ParamSpecs>;

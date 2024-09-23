@@ -134,7 +134,7 @@ class API implements GenArtAPI {
 								mix(
 									a[1],
 									b[1],
-									math.smoothStep01(norm(t, a[0], b[0]))
+									math.smoothstep01(norm(t, a[0], b[0]))
 								),
 					  }[mode || "linear"]();
 			},
