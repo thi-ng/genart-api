@@ -1,4 +1,6 @@
 import { adaptiveCanvas2d } from "@thi.ng/canvas";
+import { isString } from "@thi.ng/checks";
+import { U24 } from "@thi.ng/hex";
 import { draw } from "@thi.ng/hiccup-canvas";
 import {
 	buttonH,
@@ -21,7 +23,6 @@ import { gestureStream } from "@thi.ng/rstream-gestures";
 import { range } from "@thi.ng/transducers";
 import type {
 	ChoiceParam,
-	DateParam,
 	Features,
 	Maybe,
 	ParamSpecs,
@@ -29,7 +30,6 @@ import type {
 	RangeParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
-import { isString, u24 } from "../../../src/utils.js";
 
 const DPR = window.devicePixelRatio;
 const W = Math.min(window.innerWidth - 32, 400);
@@ -141,7 +141,7 @@ const updateWidgets = (draw: boolean) => {
 					layout.next([COLS - 1, 1]);
 					if (edit) {
 						rgb[edit[0]] = edit[1];
-						res = u24((rgb[0] << 16) | (rgb[1] << 8) | rgb[2]);
+						res = U24((rgb[0] << 16) | (rgb[1] << 8) | rgb[2]);
 					}
 				}
 				break;

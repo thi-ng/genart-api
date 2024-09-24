@@ -154,6 +154,7 @@ declare var $genart: GenArtAPI;
 			$genart.capture(canvas);
 			x -= W;
 		}
+		return true;
 	});
 
 	$genart.on("genart:paramchange", (e) => {
