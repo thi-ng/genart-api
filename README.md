@@ -63,7 +63,7 @@ these workflow issues more efficiently.
 
 To improve this situation, this project proposes an API layer and a message
 protocol addressing recurring issues artists encounter when publishing and
-repurposing browser-based generative art works — be it for diverse online
+repurposing browser-based generative artworks — be it for diverse online
 platforms, environments (incl. offline, galleries, installations), but also
 aforementioned aspects of media production (for example helping to deal with
 realtime/non-realtime rendering when recording image sequences for video
@@ -73,12 +73,12 @@ production, and do so in an unintrusive & externally controlled manner).
 Schematic overview of the proposed architecture
 
 The primary purpose of this API is to decouple key aspects commonly used for
-most generative/computational art works, to deduplicate feature implementations
-and reduce the time & effort required for adapting browser-based art works for
+most generative/computational artworks, to deduplicate feature implementations
+and reduce the time & effort required for adapting browser-based artworks for
 different uses/environments. These benefits are not _only_ in the interest of
 artists, but also simplify how online art platforms can use this API layer to
 reduce effort on their end, simplify providing customization features for such
-generative art works (and even re-use tooling).
+generative artworks (and even re-use tooling).
 
 Another positive side effect of adapting the system proposed here: The emergence
 of secondary re-usable tooling to manage parameters and variations, for example:
@@ -94,18 +94,18 @@ fully documented interfaces & types, and some example test cases to demonstrate
 
 ### Goals
 
--   Decouple art works from presentation platform:
-    -   Art works can be authored without direct knowledge of which platform(s)
+-   Decouple artworks from presentation platform:
+    -   artworks can be authored without direct knowledge of which platform(s)
         they're being displayed or published at
--   Straightforward repurposing/integration of art works into diverse environments:
+-   Straightforward repurposing/integration of artworks into diverse environments:
     -   Online art platforms
     -   Personal websites/portfolios
     -   Offline, museums, galleries...
     -   Non-realtime use cases (high-res video/frame recording)
 -   Any platform-specifics can be injected via small plugin adapters which can
-    be added to an art work's HTML wrapper without any code changes required
+    be added to an artwork's HTML wrapper without any code changes required
     -   Examples of platform-specifics:
-        -   Handling parameter and/or feature declarations exposed by the art work
+        -   Handling parameter and/or feature declarations exposed by the artwork
         -   Handling parameter value overrides, param value decoding/encoding
         -   Handling thumbnail/preview generation
         -   Defining/forcing display size & densities
@@ -175,7 +175,7 @@ code and the [example projects](#bundled-examples) are the best reference.
 
 ## Parameters
 
-Almost all generative art works use parameters and randomization to produce
+Almost all generative artworks use parameters and randomization to produce
 numerous variations. Exposing some of these parameters to the outside world can
 allow people/agents to have more participation and direct control over the
 generative outcomes.
@@ -404,7 +404,7 @@ $genart.params.xy({
 
 Dynamic parameters are either time-based (using a abstract notion of "time") or
 otherwise produce values which could change each time a parameter is being
-read/evaluated by the art work (e.g. sensor inputs).
+read/evaluated by the artwork (e.g. sensor inputs).
 
 Unlike [static param types](#static-parameter-types), these parameters have **no
 default value** and their actual value is always computed.
@@ -448,7 +448,7 @@ TODO
 their implementation via
 [`$genart.registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType).
 These can be useful to provide additional platform-specific parameters (e.g.
-values obtained from arbitrary hardware sensors to which an art work might
+values obtained from arbitrary hardware sensors to which an artwork might
 respond dynamically).
 
 -   [`ParamImpl` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
@@ -644,7 +644,7 @@ use cases:
     ctx.fillRect(0, 0, width, height);
 
     // main update/draw function
-    // time (in seconds) and frame number supplied by GenArtAPI & time provider
+    // time (in milliseconds) and frame number supplied by GenArtAPI & time provider
     const update = (time, frame) => {
         const radius = random() * param("maxR");
         ctx.strokeStyle = "#000";
@@ -652,6 +652,9 @@ use cases:
         ctx.arc(random() * width, random() * height, radius, 0, Math.PI * 2);
         ctx.stroke();
         console.log(time, frame);
+
+        // function must return true for animation to continue
+        return true;
     };
 
     // register update function
