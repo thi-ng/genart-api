@@ -424,15 +424,24 @@ class API implements GenArtAPI {
 		if (this._state == "play") return;
 		if (this._state !== "ready" && this._state !== "stop")
 			throw new Error(`can't start in state: ${this._state}`);
-		if (!this._update) throw new Error("missing update function");
-		this.ensureTimeProvider();
 		this.setState("play");
+		let isFirst = !resume;
 		const update = () => {
 			if (this._state != "play") return;
-			this._update!.call(null, ...this._time!.tick());
-			this._time!.next(update);
+			if (
+				this._update!.call(
+					null,
+					...this._time![isFirst ? "now" : "tick"]()
+				)
+			) {
+				this._time!.next(update);
+			} else {
+				this.stop();
+			}
+			isFirst = false;
 		};
-		resume ? update() : this._time!.start(update);
+		if (!resume) this._time!.start();
+		update();
 		this.emit({
 			type: `genart:${resume ? "resume" : "start"}`,
 			__self: true,
@@ -516,7 +525,12 @@ class API implements GenArtAPI {
 	}
 
 	protected notifyReady() {
-		if (this._state === "init" && this._time && this._update)
+		if (
+			this._state === "init" &&
+			this._adapter &&
+			this._time &&
+			this._update
+		)
 			this.setState("ready");
 	}
 

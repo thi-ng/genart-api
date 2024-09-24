@@ -33,9 +33,12 @@ export type Maybe<T> = T | undefined;
 export type RandomFn = () => number;
 
 /**
- * Animation update/draw function. See {@link GenArtAPI.setUpdate}.
+ * Animation update/draw function. See {@link GenArtAPI.setUpdate}. If the
+ * function returns false, the animation loop will be stopped (via
+ * {@link GenArtAPI.stop}), otherwise the loop continues until stopped
+ * explicitly.
  */
-export type UpdateFn = (time: number, frame: number) => void;
+export type UpdateFn = (time: number, frame: number) => boolean;
 
 /**
  * Platform defined presentation mode for the artwork:
@@ -319,8 +322,25 @@ export interface GenArtAPI {
 }
 
 export interface TimeProvider {
-	start(fn: UpdateFn): void;
+	/**
+	 * (Re)initializes the time provider's internal state.
+	 */
+	start(): void;
+	/**
+	 * Schedules given no-arg function to be executed in the future.
+	 *
+	 * @param fn
+	 */
 	next(fn: () => void): void;
+	/**
+	 * Returns tuple of current `[time, frame]` (where `time` is in
+	 * milliseconds and `frame` the current frame number)
+	 */
+	now(): [number, number];
+	/**
+	 * Progresses time & frame count and returns both as tuple (same format as
+	 * {@link TimeProvider.now}).
+	 */
 	tick(): [number, number];
 }
 

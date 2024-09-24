@@ -8,12 +8,14 @@ export const timeProviderOffline = (
 	let frame = frameOffset;
 	const frameTime = 1000 / referenceFPS;
 	return {
-		start(fn) {
+		start() {
 			frame = frameOffset;
-			fn(frame, frameOffset);
 		},
 		next(fn) {
 			setTimeout(fn, frameDelay);
+		},
+		now() {
+			return [frame * frameTime, frame];
 		},
 		tick() {
 			return [++frame * frameTime, frame];
