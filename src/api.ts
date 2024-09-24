@@ -14,8 +14,10 @@ import type {
 } from "./api/params.js";
 import type { Utils } from "./api/utils.js";
 
+export * from "./api/math.js";
 export * from "./api/messages.js";
 export * from "./api/params.js";
+export * from "./api/utils.js";
 
 export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
