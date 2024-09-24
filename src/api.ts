@@ -1,20 +1,35 @@
-import type * as params from "./params.js";
-import type * as math from "./math.js";
-import type * as utils from "./utils.js";
-import type { Param, ParamImpl, ParamSpecs, ParamValue } from "./api/params.js";
+import type { MathOps } from "./api/math.js";
 import type {
 	APIMessage,
 	MessageType,
 	MessageTypeMap,
 	NotifyType,
 } from "./api/messages.js";
+import type {
+	Param,
+	ParamFactories,
+	ParamImpl,
+	ParamSpecs,
+	ParamValue,
+} from "./api/params.js";
+import type { Utils } from "./api/utils.js";
 
-export * from "./api/params.js";
 export * from "./api/messages.js";
+export * from "./api/params.js";
 
 export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
 
+/**
+ * No-arg function which returns a pseudo-random number in the semi-open [0,1)
+ * interval (like `Math.random()`).
+ *
+ * @remarks
+ * See compatible PRNG implementations:
+ *
+ * - https://github.com/thi-ng/genart-api/blob/main/src/prng/sfc32.ts
+ * - https://github.com/thi-ng/genart-api/blob/main/src/prng/xorshift128.ts
+ */
 export type RandomFn = () => number;
 
 /**
@@ -23,7 +38,7 @@ export type RandomFn = () => number;
 export type UpdateFn = (time: number, frame: number) => void;
 
 /**
- * Platform defined presentation mode for the art work:
+ * Platform defined presentation mode for the artwork:
  *
  * - `play`: default mode
  * - `preview`: capturing, minting, thumbnail, etc.
@@ -37,6 +52,9 @@ export type Features = Record<string, number | string | boolean>;
 
 export interface GenArtAPI {
 	id?: string;
+	/**
+	 * Current deploy/run mode, defined by {@link PlatformAdapter.mode}.
+	 */
 	readonly mode: RunMode;
 	/**
 	 * Returns the platform's configured screen/canvas dimensions & pixel
@@ -48,6 +66,9 @@ export interface GenArtAPI {
 	/**
 	 * Returns the platform's configured pseudo-random number generator, incl.
 	 * currently used seed value.
+	 *
+	 * @remarks
+	 * Please see related issue: https://github.com/thi-ng/genart-api/issues/1
 	 */
 	readonly random: PRNG;
 	/**
@@ -58,13 +79,13 @@ export interface GenArtAPI {
 	 */
 	readonly state: APIState;
 
-	readonly paramSpecs: Maybe<ParamSpecs>;
+	readonly paramSpecs: Maybe<Readonly<ParamSpecs>>;
 	readonly adapter: Maybe<PlatformAdapter>;
 	readonly time: Maybe<TimeProvider>;
 
-	readonly params: typeof params;
-	readonly math: typeof math;
-	readonly utils: typeof utils;
+	readonly math: MathOps;
+	readonly params: ParamFactories;
+	readonly utils: Utils;
 
 	/**
 	 * Registers a new parameter type and its implementation. Supports
@@ -72,7 +93,7 @@ export interface GenArtAPI {
 	 * so...
 	 *
 	 * @remarks
-	 * When a platform registers any own types, it should consider namespacing
+	 * When a platform registers any own types, it SHOULD consider namespacing
 	 * the the `type` name, e.g. `platformname:customtype`.
 	 *
 	 * See {@link ParamImpl} for implementation details.
@@ -214,7 +235,7 @@ export interface GenArtAPI {
 	paramError(id: string): void;
 
 	/**
-	 * (Optionally) Called by the art work to declare a number of "features"
+	 * (Optionally) Called by the artwork to declare a number of "features"
 	 * (aka generated metadata) which should be exposed to the
 	 * platform/users/collectors, e.g. to compute the rarity of a variation. The
 	 * keys in this object are feature names, their values can be arbitrary
@@ -249,21 +270,21 @@ export interface GenArtAPI {
 	emit<T extends APIMessage>(e: T, notify?: NotifyType): void;
 
 	/**
-	 * Called from art work to register the frame loop/update function.
+	 * Called from artwork to register the frame loop/update function.
 	 *
 	 * @remarks
 	 * If both platform adapter and time provider are already known, this will
 	 * trigger the GenArtAPI to go into the `ready` state and emit a
 	 * {@link StateChangeMsg} message. In most cases, a platform adapter should
 	 * react to this message and call {@link GenArtAPI.start} to trigger
-	 * auto-playback of the art work when `ready` state is entered.
+	 * auto-playback of the artwork when `ready` state is entered.
 	 *
 	 * @param fn
 	 */
 	setUpdate(fn: UpdateFn): void;
 
 	/**
-	 * Starts (or resumes) playback of the art work by triggering an animation
+	 * Starts (or resumes) playback of the artwork by triggering an animation
 	 * loop using the configured update function (also involving the configured
 	 * {@link TimeProvider}). Emits a `genart:start` or `genart:resume` message.
 	 *
@@ -271,16 +292,20 @@ export interface GenArtAPI {
 	 * By default `resume` is false, meaning the time provider will be
 	 * (re)initialized (otherwise just continues).
 	 *
-	 * Triggers the API to go into `play` state (and emit a
-	 * {@link StateChangeMsg} message). Function is idempotent if API is already
-	 * in `play` state.
+	 * Triggers the API to go into `play` state and emits a
+	 * {@link StateChangeMsg}, as well as `genart:start` or `genart:resume`
+	 * messages. Function is idempotent if API is already in `play` state.
 	 *
-	 * An error will be thrown if either no {@link TimeProvider} or
-	 * {@link GenArtAPI.setUpdate} hasn't been configured.
+	 * An error will be thrown if API is not in `ready` or `stop` state, i.e.
+	 * the API must have a {@link PlatformAdapter}, a {@link TimeProvider} and a
+	 * {@link UpdateFn} must have been configured.
 	 *
 	 * @param resume
 	 */
 	start(resume?: boolean): void;
+	/**
+	 * Stops the artwork animation loop
+	 */
 	stop(): void;
 
 	/**
@@ -337,7 +362,7 @@ export interface PlatformAdapter {
 
 	/**
 	 * Called by {@link GenArtAPI.setParams} to pass parameter specs provided by
-	 * the art work to the platform adapter to prepare itself for param
+	 * the artwork to the platform adapter to prepare itself for param
 	 * initialization. The actual param value parsing/overriding then happens
 	 * via {@link PlatformAdapter.updateParam}.
 	 *
