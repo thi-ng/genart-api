@@ -14,9 +14,9 @@
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
 	"devDependencies": {
-		"typedoc": "0.26.7",
+		"typedoc": "^0.26.7",
 		"typescript": "^5.6.2",
-		"esbuild": "0.24.0"
+		"esbuild": "^0.24.0"
 	},
 	"sideEffects": false,
 	"dependencies": {}

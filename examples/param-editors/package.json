@@ -7,18 +7,18 @@
 	"license": "Apache-2.0",
 	"type": "module",
 	"scripts": {
+		"clean": "rm -rf public/*",
 		"build:prepare": "cp -R ../param-test/dist/* public && mv public/index.html public/art.html",
 		"start": "yarn build:prepare && vite --host --open",
 		"build": "yarn build:prepare && tsc && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"@types/node": "22.5.5",
+		"@types/node": "^22.5.5",
 		"typescript": "^5.6.2",
 		"vite": "^5.4.7",
 		"vite-plugin-html": "^3.2.2"
 	},
-	"sideEffects": false,
 	"dependencies": {
 		"@thi.ng/canvas": "^0.5.3",
 		"@thi.ng/hiccup-canvas": "^3.1.18",
@@ -32,5 +32,6 @@
 		"@thi.ng/rstream": "^9.0.4",
 		"@thi.ng/rstream-gestures": "^5.0.92",
 		"@thi.ng/transducers": "^9.2.4"
-	}
+	},
+	"sideEffects": false
 }
