@@ -56,7 +56,21 @@ export type APIState = "init" | "ready" | "play" | "stop" | "error";
 export type Features = Record<string, number | string | boolean>;
 
 export interface GenArtAPI {
-	id?: string;
+	/**
+	 * Unique ID for this GenArtAPI instance, intended for use cases where
+	 * multiple `<iframe>` elements with genart pieces exist within a parent
+	 * document and to allow sending messages to specific instances only.
+	 *
+	 * @remarks
+	 * The ID will be part of any {@link APIMessage} sent and will also be
+	 * checked by any `genart:...` message received. A message will only be
+	 * processed if its {@link APIMessage.apiID} matches this value.
+	 *
+	 * The initial value is auto-generated, but can be overridden by if needed.
+	 * The ID purely serves to filter out IPC messages received by this
+	 * GenArtAPI instance.
+	 */
+	id: string;
 	/**
 	 * Current deploy/run mode, defined by {@link PlatformAdapter.mode}.
 	 */

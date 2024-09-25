@@ -35,7 +35,8 @@ const { isNumber, isString, isNumericArray } = utils;
 const { clamp, clamp01, mix, norm, round, parseNum } = math;
 
 class API implements GenArtAPI {
-	id?: string;
+	// auto-generated instance ID
+	id = Math.floor(Math.random() * 1e12).toString(36);
 	protected _adapter?: PlatformAdapter;
 	protected _time: TimeProvider = timeProviderRAF();
 	protected _prng?: PRNG;
@@ -170,6 +171,19 @@ class API implements GenArtAPI {
 					(!max || value.length <= max)
 				);
 			},
+		},
+		toggle: {
+			valid: (_, __, value) =>
+				isString(value)
+					? /^(true|false|0|1)$/.test(value)
+					: isNumber(value) || typeof value === "boolean",
+			coerce: (_, value) =>
+				value === "true" || value === "1"
+					? true
+					: value === "false" || value === "0"
+					? false
+					: !!value,
+			randomize: (_, rnd) => rnd() < 0.5,
 		},
 		weighted: {
 			valid: (spec, _, value) =>
