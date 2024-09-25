@@ -291,29 +291,31 @@ export interface ParamFactories {
 
 	/**
 	 * Defines a new date parameter providing `Date` values (in UTC) at the
-	 * resolution of full days.
+	 * resolution of full days. Not randomizable.
 	 *
 	 * @remarks
 	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.time}.
 	 *
 	 * @param spec
 	 */
-	date(spec: BaseParam<DateParam>): DateParam;
+	date(spec: BaseParam<DateParam> & { default: string }): DateParam;
 
 	/**
 	 * Defines a new date-time parameter providing UNIX epoch timestamps (in
-	 * UTC).
+	 * UTC). Not randomizable.
 	 *
 	 * @remarks
 	 * Also see {@link ParamFactories.date} and {@link ParamFactories.time}.
 	 *
 	 * @param spec
 	 */
-	datetime(spec: BaseParam<DateTimeParam>): DateTimeParam;
+	datetime(
+		spec: BaseParam<DateTimeParam> & { default: string }
+	): DateTimeParam;
 
 	/**
 	 * Defines a new time parameter providing time-of-day values (in UTC) in the
-	 * form of 3-tuples: `[hour,minute,second]`.
+	 * form of 3-tuples: `[hour,minute,second]`. Randomizable.
 	 *
 	 * @remarks
 	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.date}.
@@ -328,7 +330,7 @@ export interface ParamFactories {
 	 * value of this ramp will be sampled from the curve by providing a `time` arg
 	 * (also in [0,1] range) to getter function returned by
 	 * {@link GenArtAPI.setParams}) (or when calling {@link GenArtAPI.getParamValue}
-	 * directly).
+	 * directly). Not randomizable.
 	 *
 	 * @example
 	 * ```ts
@@ -379,7 +381,7 @@ export interface ParamFactories {
 
 	/**
 	 * Defines a text/string param with optional `min`/`max` length and/or regexp
-	 * validation pattern.
+	 * validation pattern. Not randomizable.
 	 *
 	 * @remarks
 	 * The `multiline` option is only used as hint for 3rd party tooling.
@@ -407,7 +409,7 @@ export interface ParamFactories {
 
 	/**
 	 * Similar to the {@link ChoiceParam} param type, but here each option also
-	 * has an associated weight.
+	 * has an associated weight. Randomizable.
 	 *
 	 * @remarks
 	 * Along with {@link RampParam}, this is another non-static parameter type,
@@ -448,7 +450,7 @@ export interface ParamFactories {
 	/**
 	 * Defines a 2D dimensional tuple param which with values in the [0,0] .. [1,1]
 	 * range. Useful to control two co-dependent parameters using an XY
-	 * controller/touchpad...
+	 * controller/touchpad. Randomizable.
 	 *
 	 * ```ts
 	 * $genart.params.xy({

@@ -25,13 +25,17 @@ export const color = (spec: BaseParam<ColorParam>): ColorParam => ({
 	...spec,
 });
 
-export const datetime = (spec: BaseParam<DateTimeParam>): DateTimeParam => ({
+export const datetime = (
+	spec: BaseParam<DateTimeParam> & { default: string }
+): DateTimeParam => ({
 	type: "datetime",
 	randomize: false,
 	...spec,
 });
 
-export const date = (spec: BaseParam<DateParam>): DateParam => ({
+export const date = (
+	spec: BaseParam<DateParam> & { default: string }
+): DateParam => ({
 	type: "date",
 	randomize: false,
 	...spec,
