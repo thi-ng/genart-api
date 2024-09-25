@@ -56,12 +56,13 @@ class URLParamsAdapter implements PlatformAdapter {
 	get prng() {
 		const seedParam = this.params.get("__seed");
 		const seed = BigInt(seedParam ? "0x" + seedParam : Date.now());
+		const M = 0xffffffffn;
 		const reset = () => {
 			return (impl.rnd = sfc32([
-				Number(seed >> 96n) >>> 0,
-				Number(seed >> 64n) >>> 0,
-				Number(seed >> 32n) >>> 0,
-				Number(seed) >>> 0,
+				Number((seed >> 96n) & M) >>> 0,
+				Number((seed >> 64n) & M) >>> 0,
+				Number((seed >> 32n) & M) >>> 0,
+				Number(seed & M) >>> 0,
 			]));
 		};
 		const impl = <PRNG>{
