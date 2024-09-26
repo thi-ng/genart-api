@@ -1,16 +1,17 @@
 {
 	"name": "@thi.ng/genart-api",
 	"version": "0.0.1",
-	"description": "Platform-independent API for browser-based generative art",
+	"description": "Platform-independent extensible API for browser-based generative art",
 	"repository": "https://github.com/thi-ng/genart-api",
 	"author": "Karsten Schmidt <k+npm@thi.ng>",
 	"license": "Apache-2.0",
 	"type": "module",
 	"scripts": {
-		"build": "yarn build:api && yarn build:adapter && yarn build:time",
+		"build": "yarn build:api && yarn build:adapter && yarn build:time && tsc -",
 		"build:api": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=dist/genart.min.js src/index.ts",
 		"build:adapter": "yarn esbuild --bundle --minify --platform=browser --target=es2022 --outfile=dist/adapter-urlparams.min.js src/adapters/urlparams.ts",
 		"build:time": "yarn esbuild --minify --platform=browser --target=es2022 --outfile=dist/time-offline.min.js src/time/offline.ts",
+		"build:types": "tsc -d --emitDeclarationOnly -t esnext -m esnext -outDir dist src/api.ts",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
 	"devDependencies": {
