@@ -15,7 +15,7 @@ export interface Param<T> {
 	 * Human readable name/label for this parameter for external GUIs or other
 	 * display purposes. If omitted, the parameter ID should be used by default.
 	 */
-	name?: string;
+	name: string;
 	/**
 	 * Brief description/documentation for external GUIs or other display
 	 * purposes.
@@ -23,7 +23,8 @@ export interface Param<T> {
 	desc: string;
 	/**
 	 * Optional, additional documentation/hints about this param, its role,
-	 * usage etc.
+	 * intended usage etc. How this information is used is left to external
+	 * tooling.
 	 */
 	doc?: string;
 	/**
@@ -101,6 +102,14 @@ export interface DateTimeParam extends Param<Date> {
 
 export interface TimeParam extends Param<[number, number, number]> {
 	type: "time";
+}
+
+export interface ImageParam
+	extends Param<number[] | Uint8Array | Uint8ClampedArray | Uint32Array> {
+	type: "img";
+	width: number;
+	height: number;
+	format: "gray" | "rgb" | "rgba";
 }
 
 export interface RampParam extends Param<number> {
@@ -294,17 +303,23 @@ export interface ParamFactories {
 	 * resolution of full days. Not randomizable.
 	 *
 	 * @remarks
+	 * Intended for long running artworks to configure an important date for
+	 * state or behavior changes etc.
+	 *
 	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.time}.
 	 *
 	 * @param spec
 	 */
-	date(spec: BaseParam<DateParam> & { default: string }): DateParam;
+	date(spec: BaseParam<DateParam> & { default: Date }): DateParam;
 
 	/**
 	 * Defines a new date-time parameter providing UNIX epoch timestamps (in
 	 * UTC). Not randomizable.
 	 *
 	 * @remarks
+	 * Intended for long running artworks to configure an important moments for
+	 * state or behavior changes etc.
+	 *
 	 * Also see {@link ParamFactories.date} and {@link ParamFactories.time}.
 	 *
 	 * @param spec
@@ -318,11 +333,23 @@ export interface ParamFactories {
 	 * form of 3-tuples: `[hour,minute,second]`. Randomizable.
 	 *
 	 * @remarks
+	 * Intended for long running artworks to configure an important times in the
+	 * day for state or behavior changes etc. (e.g. triggering sleep mode)
+	 *
 	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.date}.
 	 *
 	 * @param spec
 	 */
 	time(spec: BaseParam<TimeParam>): TimeParam;
+
+	/**
+	 * Defines a new image parameter, i.e. an integer based pixel buffer (in
+	 * different formats), intended for obtaining spatially varied parameters
+	 * (e.g. gradient maps).
+	 *
+	 * @param spec
+	 */
+	image(spec: BaseParam<ImageParam>): ImageParam;
 
 	/**
 	 * Defines a new ramp parameter, a curve defined by stops/keyframes in the [0,1]

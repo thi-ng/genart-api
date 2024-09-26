@@ -4,6 +4,7 @@ import type {
 	ChoiceParam,
 	Features,
 	GenArtAPI,
+	ImageParam,
 	Maybe,
 	MessageType,
 	MessageTypeMap,
@@ -89,13 +90,11 @@ class API implements GenArtAPI {
 					? new Date(Date.parse(value))
 					: value,
 		},
-		time: {
-			valid: (_, __, value) =>
-				isNumericArray(value) ||
-				(isString(value) &&
-					/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value)),
-			coerce: (_, value) =>
-				isString(value) ? value.split(":").map(parseNum) : value,
+		img: {
+			valid: (spec, _, value) => {
+				const { width, height } = <ImageParam>spec;
+				return isNumericArray(value) && value.length == width * height;
+			},
 		},
 		ramp: {
 			valid: (_, key, value) =>
@@ -171,6 +170,14 @@ class API implements GenArtAPI {
 					(!max || value.length <= max)
 				);
 			},
+		},
+		time: {
+			valid: (_, __, value) =>
+				isNumericArray(value) ||
+				(isString(value) &&
+					/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value)),
+			coerce: (_, value) =>
+				isString(value) ? value.split(":").map(parseNum) : value,
 		},
 		toggle: {
 			valid: (_, __, value) =>
@@ -342,7 +349,7 @@ class API implements GenArtAPI {
 		if (!this._adapter) return;
 		for (let id in this._params) {
 			const spec = this._params[id];
-			const result = await this._adapter?.updateParam(id, spec);
+			const result = await this._adapter.updateParam(id, spec);
 			if (!result) continue;
 			const { value, update } = result;
 			this.setParamValue(

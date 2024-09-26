@@ -12,9 +12,7 @@ $genart.setAdapter({
 		reset: () => Math.random,
 		rnd: Math.random,
 	},
-	async updateParam() {
-		return undefined;
-	},
+	async updateParam() {},
 	async setParams(_: ParamSpecs) {
 		return true;
 	},

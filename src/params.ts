@@ -4,6 +4,7 @@ import type {
 	ColorParam,
 	DateParam,
 	DateTimeParam,
+	ImageParam,
 	RampParam,
 	RangeParam,
 	TextParam,
@@ -44,6 +45,13 @@ export const date = (
 export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
 	type: "time",
 	randomize: false,
+	...spec,
+});
+
+export const image = (spec: BaseParam<ImageParam>): ImageParam => ({
+	type: "img",
+	randomize: false,
+	default: spec.default || new Uint8Array(spec.width * spec.height),
 	...spec,
 });
 

@@ -372,14 +372,14 @@ export interface PlatformAdapter {
 	 *
 	 * @remarks
 	 * The function can return one of the following:
-	 * - `undefined`: no customizations found/performed
+	 * - void: no customizations found/performed
 	 * - `{ value: any }`: param value override
 	 * - `{ update: true }`: param spec has been modified/customized (e.g. ramp
 	 *   stops)
 	 *
 	 * Any non-nullish value retured will be validated by the responsible
 	 * {@link ParamImpl} and if successful is then updated in the param spec via
-	 * {@link ParamImpl.coerce}.
+	 * {@link ParamImpl.coerce} or {@link ParamImpl.update}.
 	 *
 	 * If this function returned a valid `value` and/or `update` flag, and if
 	 * the retured value passes param type-specific validation (see
@@ -394,7 +394,7 @@ export interface PlatformAdapter {
 	updateParam(
 		id: string,
 		spec: Param<any>
-	): Promise<Maybe<{ value?: any; update?: boolean }>>;
+	): Promise<{ value?: any; update?: boolean } | void>;
 
 	/**
 	 * Called by {@link GenArtAPI.setParams} to pass parameter specs provided by
