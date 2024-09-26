@@ -8,6 +8,7 @@
     -   [Architecture overview](#architecture-overview)
         -   [Lifecycle](#lifecycle)
         -   [State machine](#state-machine)
+        -   [Message types](#message-types)
     -   [API documentation](#api-documentation)
 -   [Parameters](#parameters)
     -   [Static parameter types](#static-parameter-types)
@@ -15,13 +16,16 @@
         -   [Color](#color-parameter)
         -   [Date](#date-parameter)
         -   [Datetime](#datetime-parameter)
-        -   [Time](#time-of-day-parameter)
+        -   [Image](#image-parameter)
         -   [Range](#range-parameter)
         -   [Text](#text-parameter)
+        -   [Time](#time-of-day-parameter)
+        -   [Toggle](#toggle-parameter)
         -   [Weighted choice](#weighted-choice-parameter)
         -   [XY](#xy-parameter)
     -   [Dynamic parameter types](#dynamic-parameter-types)
         -   [Ramp](#ramp-parameter)
+    -   [Custom parameter types](#custom-parameter-types)
 -   [Platform adapters](#platform-adapters)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
@@ -166,6 +170,22 @@ The API implements a finite state machine with the following possible states:
 -   `stop`: Animation loop has been paused/stopped
 -   `error`: API is in an unrecoverable error state
 
+#### Message types
+
+TODO
+
+-   `genart:setfeatures`
+-   `genart:setparams`
+-   `genart:setparamvalue`
+-   `genart:randomizeparam`
+-   `genart:paramchange`
+-   `genart:paramerror`
+-   `genart:statechange`
+-   `genart:start`
+-   `genart:resume`
+-   `genart:stop`
+-   `genart:capture`
+
 ### API documentation
 
 Full API docs are actively being worked on. For now, this readme, the source
@@ -290,15 +310,31 @@ $genart.params.datetime({
 -   Date & time chooser
 -   Numeric range slider (UNIX epoch)
 
-#### Time parameter
+#### Image parameter
 
-Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h format.
+Image parameters are used to provide spatially varied param values (e.g.
+gradient maps, masks etc.) by allowing the artwork to read pixel values from
+different points in the image.
 
-##### Recommended GUI widget
+An image param has a pixel array as `value`, alongside `width`, `height` and
+`format`, which can be:
 
--   HMS time chooser
--   HMS dropdown menus
--   HMS text input fields
+-   `gray` (8 bits)
+-   `rgb` (packed int, 24 bits, channels in MSB order: R,G,B)
+-   `argb` (packed int, 32 bits, channels in MSB order: A,R,G,B)
+
+The `format` is only used as hint for platform adapters and external tooling
+(e.g. GUI param editors) to optimize their handling of the image data. I.e. an
+image with mode `gray` can be encoded as byte sequence vs. `argb` requiring 4
+bytes per pixel. Likewise a param editor allowing image uploads/customizations
+is responsible to resize an image to the expected dimensions and provide its
+data in the expected format.
+
+> [!IMPORTANT]
+> Note to artists: Ensure to keep your image size requirements as low as
+> possible! Storing image data in URL parameters (as done by most platforms) has
+> hard browser-defined limits and this param type is not (yet?) supported by any
+> of the major online art platforms.
 
 #### Range parameter
 
@@ -314,6 +350,11 @@ $genart.params.range({
     step: 5,
 });
 ```
+
+##### Recommended GUI widget
+
+-   number dial/slider with value label
+-   number input field
 
 #### Text parameter
 
@@ -332,6 +373,24 @@ $genart.params.text({
 ##### Recommended GUI widget
 
 -   Single or multiline text input field
+
+#### Time parameter
+
+Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h format.
+
+##### Recommended GUI widget
+
+-   HMS time chooser
+-   HMS dropdown menus
+-   HMS text input fields
+
+#### Toggle parameter
+
+On/off switch (boolean) parameter.
+
+##### Recommended GUI widget
+
+-   checkbox
 
 #### Weighted choice parameter
 
@@ -442,17 +501,60 @@ $genart.params.ramp({
 
 ### Custom parameter types
 
-TODO
-
-[Platform adapters](#platform-adapters) can register custom parameter types and
-their implementation via
+The system supports registering custom parameter types and their implementation
+via
 [`$genart.registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType).
-These can be useful to provide additional platform-specific parameters (e.g.
-values obtained from arbitrary hardware sensors to which an artwork might
-respond dynamically).
+These can be useful to provide additional app-specific or platform-specific
+parameters (e.g. values obtained from arbitrary hardware sensors to which an
+artwork might respond dynamically).
 
 -   [`ParamImpl` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
 -   [`registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType)
+
+The `registerParamType()` allows overriding of existing param type
+implementations, but doing so will print a warning. When an artwork or platform
+registers its own types, it SHOULD consider namespacing the type name, e.g.
+`platformname:customtype`.
+
+#### Example: Oscillator parameter type
+
+The following example shows how to implement, register and then use a sinewave
+oscillator parameter type, providing time-based values:
+
+```ts
+// define a new param type with given name and implementation.
+// this implementation does not allow any customizations or value randomization
+// (the latter is common to all dynamic params, since the value is ALWAYS computed)
+$genart.registerParamType("user:sinosc", {
+    // for brevity we decide this param cannot be customized (once defined)
+    valid: (spec, key, value) => false,
+    // the read function is called each time this param is evaluated,
+    // here to provide a time-based value
+    read: ({ freq, phase, amp, offset }, t) =>
+        Math.sin((t * freq + phase) * Math.PI * 2) * amp + offset,
+});
+
+// register parameter
+const param = $genart.setParams({
+    sine: {
+        type: "user:sinosc", // param type (should be unique)
+        freq: 0.25, // frequency in Hz
+        phase: 0, // phase shift
+        amp: 5, // amplitude
+        offset: 5, // center offset
+        default: 0, // ignored
+    },
+});
+
+$genart.setUpdate((t) => {
+    // current time in seconds
+    t *= 0.001;
+    // evaluate param
+    console.log(t, param("sine", t));
+    // keep on animating
+    return true;
+});
+```
 
 ## Platform adapters
 
