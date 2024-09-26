@@ -1,11 +1,23 @@
 import { ConsoleLogger, ROOT } from "@thi.ng/logger";
-import { $compile, $replace } from "@thi.ng/rdom";
+import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
+import {
+	canvasFromPixelBuffer,
+	intBufferFromImage,
+	imageFromFile,
+	intBuffer,
+	GRAY8,
+	RGB888,
+	ARGB8888,
+} from "@thi.ng/pixel";
+import { $compile, $refresh, $replace, $wrapEl } from "@thi.ng/rdom";
 import {
 	color,
 	compileForm,
 	container,
+	custom,
 	date,
 	dateTime,
+	file,
 	group,
 	range,
 	selectStr,
@@ -16,6 +28,8 @@ import {
 	type FormItem,
 } from "@thi.ng/rdom-forms";
 import {
+	fromPromise,
+	merge,
 	reactive,
 	stream,
 	sync,
@@ -24,13 +38,14 @@ import {
 } from "@thi.ng/rstream";
 import type {
 	ChoiceParam,
+	ImageParam,
 	ParamSpecs,
 	RangeParam,
 	TextParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
 
-ROOT.set(new ConsoleLogger());
+// ROOT.set(new ConsoleLogger());
 
 const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 	.contentWindow!;
@@ -119,6 +134,58 @@ const createParamControls = (params: ParamSpecs) => {
 					items.push(date({ ...base, value }));
 				}
 				break;
+			case "img": {
+				const $param = <ImageParam>param;
+				const fmt = {
+					gray: GRAY8,
+					rgb: RGB888,
+					rgba: ARGB8888,
+				}[$param.format];
+				const fileSel = stream<File>();
+				items.push(
+					file({
+						...base,
+						accept: MIME_IMAGE_COMMON,
+						value: fileSel,
+					}),
+					custom(
+						$refresh(
+							merge({
+								src: [
+									fileSel.map(async (f) =>
+										intBufferFromImage(
+											await imageFromFile(f)
+										)
+									),
+									reactive(
+										Promise.resolve(
+											intBuffer(
+												$param.width,
+												$param.height,
+												fmt,
+												<any>$param.value
+											)
+										),
+										{ closeIn: "first" }
+									),
+								],
+							}),
+							async (img) => {
+								img = (await img)
+									.as(fmt)
+									.resize(
+										$param.width,
+										$param.height,
+										"cubic"
+									);
+								value.next(img.data.slice());
+								return $wrapEl(canvasFromPixelBuffer(img));
+							}
+						)
+					)
+				);
+				break;
+			}
 			case "range":
 				{
 					const { min, max, step } = <RangeParam>param;
@@ -177,16 +244,18 @@ const createParamControls = (params: ParamSpecs) => {
 							label: base.label + " (x)",
 							min: 0,
 							max: 1,
-							step: 0.01,
+							step: 0.001,
 							value: x,
+							vlabel: 3,
 						}),
 						range({
 							...base,
 							label: base.label + " (y)",
 							min: 0,
 							max: 1,
-							step: 0.01,
+							step: 0.001,
 							value: y,
+							vlabel: 3,
 						})
 					);
 				}

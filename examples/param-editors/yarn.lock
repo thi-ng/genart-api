@@ -704,6 +704,11 @@
   dependencies:
     "@thi.ng/api" "^8.11.10"
 
+"@thi.ng/mime@^2.6.16":
+  version "2.6.16"
+  resolved "https://registry.yarnpkg.com/@thi.ng/mime/-/mime-2.6.16.tgz#286c499e6174c4b8dd9c84246233eef3108dfe7a"
+  integrity sha512-uKEFoKjSeM8syR570ZsVb+q/s0jqSpdLuD8HV4HfibVi6Ifpn6st9Ch/TqDGWIDozDPAxxqbWzGFRbQZAWzHOw==
+
 "@thi.ng/morton@^3.1.97":
   version "3.1.97"
   resolved "https://registry.yarnpkg.com/@thi.ng/morton/-/morton-3.1.97.tgz#b7a4bc8072dfdbd50e82098cb33f9892cf7b6e3f"
