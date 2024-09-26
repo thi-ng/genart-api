@@ -1,5 +1,5 @@
 import type {
-	Features,
+	ImageParam,
 	Param,
 	ParamSpecs,
 	PlatformAdapter,
@@ -8,6 +8,7 @@ import type {
 	RunMode,
 } from "../api.js";
 import { sfc32 } from "../prng/sfc32.js";
+import { base64Decode, base64Encode } from "./base64.js";
 
 const {
 	math: { clamp01, parseNum },
@@ -88,10 +89,15 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "time":
 			case "weighted":
 				return { value };
+
+			// special handling...
+			case "date":
+			case "datetime":
+				return { value: new Date(Date.parse(value)) };
+			case "img":
+				return { value: base64Decode(value) };
 			case "range":
 				return { value: +value };
-			case "toggle":
-				return { value: value === "1" };
 			case "ramp": {
 				const [mode, ...stops] = value.split(",");
 				if (!mode || stops.length < 4 || stops.length & 1) {
@@ -112,11 +118,10 @@ class URLParamsAdapter implements PlatformAdapter {
 				$spec.stops.sort((a, b) => a[0] - b[0]);
 				return { update: true };
 			}
+			case "toggle":
+				return { value: value === "1" };
 			case "xy":
 				return { value: value.split(",").map((x) => +x) };
-			case "date":
-			case "datetime":
-				return { value: new Date(Date.parse(value)) };
 		}
 	}
 
@@ -128,8 +133,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				return spec.value.toISOString().substring(0, 10);
 			case "datetime":
 				return spec.value.toISOString();
-			case "time":
-				return spec.value.join(":");
+			case "img":
+				return base64Encode((<ImageParam>spec).value!);
 			case "ramp": {
 				const $spec = <RampParam>spec;
 				return (
@@ -138,6 +143,8 @@ class URLParamsAdapter implements PlatformAdapter {
 					$spec.stops.flatMap((x) => x).join(",")
 				);
 			}
+			case "time":
+				return spec.value.join(":");
 			case "toggle":
 				return spec.value ? 1 : 0;
 			case "xy":
