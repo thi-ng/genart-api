@@ -26,6 +26,7 @@
     -   [Dynamic parameter types](#dynamic-parameter-types)
         -   [Ramp](#ramp-parameter)
     -   [Custom parameter types](#custom-parameter-types)
+        -   [Example: Oscillator parameter type](#example-oscillator-parameter-type)
 -   [Platform adapters](#platform-adapters)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
@@ -523,6 +524,14 @@ oscillator parameter type, providing time-based values:
 
 ```ts
 // define a new param type with given name and implementation.
+interface OscParam extends Param<number> {
+    type: "user:sinosc";
+    freq: number;
+    phase: number;
+    amp: number;
+    offset: number;
+}
+
 // this implementation does not allow any customizations or value randomization
 // (the latter is common to all dynamic params, since the value is ALWAYS computed)
 $genart.registerParamType("user:sinosc", {
@@ -530,8 +539,10 @@ $genart.registerParamType("user:sinosc", {
     valid: (spec, key, value) => false,
     // the read function is called each time this param is evaluated,
     // here to provide a time-based value
-    read: ({ freq, phase, amp, offset }, t) =>
-        Math.sin((t * freq + phase) * Math.PI * 2) * amp + offset,
+    read: (spec, t) => {
+        const { freq, phase, amp, offset } = <OscParam>spec;
+        return Math.sin((t * freq + phase) * Math.PI * 2) * amp + offset;
+    },
 });
 
 // register parameter
@@ -570,11 +581,11 @@ providing (deployment) platform-specific functionality and interop features.
 
 ### Parameter sourcing
 
-TODO
+TODO write docs
 
 ### Parameter updates
 
-TODO
+TODO write docs
 
 ### Determinism & PRNG provision
 
