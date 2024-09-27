@@ -284,6 +284,18 @@
   resolved "https://registry.yarnpkg.com/@thi.ng/api/-/api-8.11.10.tgz#7fd7089c6a57b0447a8a859867e4c565be1a3cc7"
   integrity sha512-X2Dc3uArqR5IpGPs12do6w6SZI+h3HQM/sWAE3URXFZMuKuWrUtK4ollHv5Ubx96rSJvhzxk2TjJW0ek+c8cSg==
 
+"@thi.ng/args@^2.3.43":
+  version "2.3.43"
+  resolved "https://registry.yarnpkg.com/@thi.ng/args/-/args-2.3.43.tgz#34705fe6f2d4b9e93e7bb3464d4b1a04a9551a1f"
+  integrity sha512-7pwi/EVhBCr6Qj0/1iLmKDNljx+IR3X8iZBYsb1+dsI3AIq/HDU+MaXSy20cvmIPjdBx0rZFXmUvdGbrcurjCQ==
+  dependencies:
+    "@thi.ng/api" "^8.11.10"
+    "@thi.ng/checks" "^3.6.12"
+    "@thi.ng/errors" "^2.5.16"
+    "@thi.ng/logger" "^3.0.20"
+    "@thi.ng/strings" "^3.8.5"
+    "@thi.ng/text-format" "^2.2.13"
+
 "@thi.ng/arrays@^2.10.1":
   version "2.10.1"
   resolved "https://registry.yarnpkg.com/@thi.ng/arrays/-/arrays-2.10.1.tgz#9697590b21735a25eba0031af0540e12d56e474c"
@@ -433,6 +445,17 @@
   version "2.5.16"
   resolved "https://registry.yarnpkg.com/@thi.ng/errors/-/errors-2.5.16.tgz#e0def10e5326bcb349527fd2daf05cec9d06fd2c"
   integrity sha512-xFFJg7mGTqitbvc5Ta/CwJ7lX09g916DYJYGaR7bG7IKKqcVuC3iHhymxqWS0iC8R4mwljU+ztonBJtp+62ZaQ==
+
+"@thi.ng/file-io@^2.1.12":
+  version "2.1.12"
+  resolved "https://registry.yarnpkg.com/@thi.ng/file-io/-/file-io-2.1.12.tgz#13f594708a9884232c915c2c1d4c49f005bcf847"
+  integrity sha512-a20/Sp9b0ccpkO28eCC+PKvHA1Vm1mDQ1GJSaC9jdrEVFVsCi2weGGvO8h5r7FaV6LTicMjlCj2VjfNwnxf+1w==
+  dependencies:
+    "@thi.ng/api" "^8.11.10"
+    "@thi.ng/checks" "^3.6.12"
+    "@thi.ng/hex" "^2.3.54"
+    "@thi.ng/logger" "^3.0.20"
+    "@thi.ng/random" "^4.0.4"
 
 "@thi.ng/geom-accel@^4.1.7":
   version "4.1.7"
@@ -624,6 +647,16 @@
     "@thi.ng/pixel" "^7.3.4"
     "@thi.ng/vectors" "^7.12.2"
 
+"@thi.ng/hiccup-css@^2.7.24":
+  version "2.7.24"
+  resolved "https://registry.yarnpkg.com/@thi.ng/hiccup-css/-/hiccup-css-2.7.24.tgz#15ba9107e983a9d9e47485c90e1ba4094c83fdf6"
+  integrity sha512-w+HcdijoI6zdCTCHBgSxfnkeZ0s+/ia8ackR8xDmCzvU+SV6DrOQvK87pReGkl2/z98TNK8BZObO75M85fgJxw==
+  dependencies:
+    "@thi.ng/api" "^8.11.10"
+    "@thi.ng/checks" "^3.6.12"
+    "@thi.ng/errors" "^2.5.16"
+    "@thi.ng/transducers" "^9.2.4"
+
 "@thi.ng/hiccup-html@^2.7.7":
   version "2.7.7"
   resolved "https://registry.yarnpkg.com/@thi.ng/hiccup-html/-/hiccup-html-2.7.7.tgz#bafbc1bbe6823f4e55359c1846f02e9d561a42cd"
@@ -703,6 +736,26 @@
   integrity sha512-B+BFzzEaxNJU6l5TNg3QbcFqq9uCjuGoYnSCYQT86Q8J9WddC4xOAI3NE9uMNnj5cfGhJuAniseU20XBDxRgRg==
   dependencies:
     "@thi.ng/api" "^8.11.10"
+
+"@thi.ng/meta-css@^0.15.3":
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/@thi.ng/meta-css/-/meta-css-0.15.3.tgz#4872d450888400ffcac072d7fd05055f98f82b07"
+  integrity sha512-+Z7PsOxNRUdT/Q+5RCHW+Q8v0JGj/X7tjbbDna9E0WBLS0pbzUFXGZ2JiQXU5oYBTYdTy4hYtnWHu2myuftvSg==
+  dependencies:
+    "@thi.ng/api" "^8.11.10"
+    "@thi.ng/args" "^2.3.43"
+    "@thi.ng/arrays" "^2.10.1"
+    "@thi.ng/checks" "^3.6.12"
+    "@thi.ng/compare" "^2.4.2"
+    "@thi.ng/errors" "^2.5.16"
+    "@thi.ng/file-io" "^2.1.12"
+    "@thi.ng/hiccup-css" "^2.7.24"
+    "@thi.ng/logger" "^3.0.20"
+    "@thi.ng/memoize" "^3.3.12"
+    "@thi.ng/rstream" "^9.0.4"
+    "@thi.ng/strings" "^3.8.5"
+    "@thi.ng/text-format" "^2.2.13"
+    "@thi.ng/transducers" "^9.2.4"
 
 "@thi.ng/mime@^2.6.16":
   version "2.6.16"
@@ -807,17 +860,6 @@
     "@thi.ng/rstream" "^9.0.4"
     "@thi.ng/strings" "^3.8.5"
 
-"@thi.ng/rstream-gestures@^5.0.92":
-  version "5.0.92"
-  resolved "https://registry.yarnpkg.com/@thi.ng/rstream-gestures/-/rstream-gestures-5.0.92.tgz#245904b28557cd7309ee82c583dd1b713762eee3"
-  integrity sha512-EkQ1MsS8JBQJjepD+yurTbQoj/4MwIFpci8NuJtpL6AAZ3G/48tbnf0URMso2fK0CnGipMrvsH0iMo38lQk9lg==
-  dependencies:
-    "@thi.ng/api" "^8.11.10"
-    "@thi.ng/checks" "^3.6.12"
-    "@thi.ng/math" "^5.11.10"
-    "@thi.ng/rstream" "^9.0.4"
-    "@thi.ng/transducers" "^9.2.4"
-
 "@thi.ng/rstream@^9.0.4":
   version "9.0.4"
   resolved "https://registry.yarnpkg.com/@thi.ng/rstream/-/rstream-9.0.4.tgz#93b24dc5220b460e87b8b1bce9769ea950f90a58"
@@ -848,6 +890,15 @@
   dependencies:
     "@thi.ng/api" "^8.11.10"
     "@thi.ng/errors" "^2.5.16"
+    "@thi.ng/hex" "^2.3.54"
+    "@thi.ng/memoize" "^3.3.12"
+
+"@thi.ng/text-format@^2.2.13":
+  version "2.2.13"
+  resolved "https://registry.yarnpkg.com/@thi.ng/text-format/-/text-format-2.2.13.tgz#c4a5b8875258efd9b5fc936c755c2c2040c16402"
+  integrity sha512-wwFjxCAlUpvoeSzIwSTI62anCmgvKaSYHNZOsiy52OZVOIXC0nX88Q+/5DsmbIu1sxzhe0pOAPjL6ucGHvYDaQ==
+  dependencies:
+    "@thi.ng/api" "^8.11.10"
     "@thi.ng/hex" "^2.3.54"
     "@thi.ng/memoize" "^3.3.12"
 

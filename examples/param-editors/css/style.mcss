@@ -1,0 +1,60 @@
+:root {
+	bg-color=#eeec
+	text-color=#000
+	border-color=#999
+	dark:bg-color=#000c
+	dark:text-color=#fff
+	dark:border-color=#000
+}
+
+body {
+	system-sans-serif color(text-color)
+}
+
+a:link, a:visited { color-hot-pink }
+
+header { mb3 }
+
+h1 { ls--1 mb2 }
+
+label { db b mb2 l:mb0 }
+
+fieldset { ma0 mb3 pa3 bw-1px border-color(border-color) }
+
+legend { f6 b pv0 ph3 color-gray }
+
+.control {
+	bg-color=#fff
+	dark:bg-color=#000
+	l:grid l:grid-cols-2 gap3 mb3
+	{
+		input, button, textarea, select {
+			w-100 pa2
+			bw-1px border-color(border-color)
+			bg-color(bg-color) color(text-color)
+		}
+		input:disabled, textarea:disabled { color-gray }
+		input[type=color] { h2 pa0 }
+		.desc { db fw400 f6 o-60 }
+		.rangevalue { db f6 }
+	}
+}
+
+#art {
+	fixed top-0 left-0 vw-100 vh-100 bw0 ma0 pa0 overflow-hidden
+}
+
+#app {
+	absolute top-0 left-0 z-1 pa3 overflow-y-scroll
+	w-100 m:w-40
+	bg-color(bg-color)
+}
+
+#intro {
+	mb3
+	{
+		input, select { db w-100 pa2 mb3 }
+		.control { db }
+		label { db mb2 }
+	}
+}

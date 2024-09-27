@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 export default defineConfig({
 	build: {
 		target: "esnext",
-		sourcemap: true,
+		// sourcemap: true,
 	},
 	// currently disabled: causing issues with loading iframe
 	// plugins: [createHtmlPlugin({ minify: true })],

@@ -5,82 +5,16 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<title>genart-api param editor</title>
-		<style>
-			body {
-				font-family: sans-serif;
-			}
-			#art {
-				position: fixed;
-				top: 0;
-				left: 0;
-				width: 100vw;
-				height: 100vh;
-				border: none;
-				margin: 0;
-				padding: 0;
-				overflow: hidden;
-			}
-			#app {
-				position: absolute;
-				top: 0;
-				left: 0;
-				padding: 1rem;
-				z-index: 1;
-				overflow-y: scroll;
-				background: #eee8;
-			}
-			h1 {
-				letter-spacing: -0.1rem;
-				margin: 0 0 0.5rem 0;
-			}
-			header {
-				margin-bottom: 1rem;
-			}
-			.control {
-				display: grid;
-				grid-template-columns: 10rem 10rem;
-				gap: 1rem;
-				margin-bottom: 1rem;
-			}
-			.control input,
-			.control button,
-			.control textarea,
-			.control select {
-				width: 10rem;
-			}
-			.control select {
-				height: 2rem;
-			}
-			label {
-				font-weight: bold;
-			}
-			.desc {
-				font-weight: normal;
-				font-size: small;
-				display: block;
-			}
-			input[type="range"] + span.value {
-				display: block;
-			}
-			fieldset {
-				margin-bottom: 1rem;
-				padding-top: 1rem;
-			}
-			legend {
-				font-size: small;
-				font-weight: bold;
-				padding: 0 1rem;
-			}
-		</style>
+		<link href="/css/style.css" rel="stylesheet" />
 	</head>
 	<body>
 		<iframe
 			id="art"
-			src="/art.html?__seed=decafbadc0ffeeb4b9877&ramp=s,0.1,0.5,0.4,0.2,0.8,0.9,0.9,0.5&fade=0.1&size=100&col=ff9900&curve=0.4,0.35&date=2025-01-01"
+			src="/art.html?__seed=decafbadc0ffeeb4b9877&ramp=s,0.1,0.5,0.4,0.2,0.8,0.9,0.9,0.5&fade=0.1&size=100&col=ff9900&curve=0.4,0.35&date=2025-01-01&dot=cyan"
 		></iframe>
 		<div id="app">
 			<header>
-				<h1>@thi.ng/genart-api example</h1>
+				<h1>@thi.ng/genart-api</h1>
 				<a href="https://thi.ng/genart-api">Documentation</a>
 			</header>
 		</div>

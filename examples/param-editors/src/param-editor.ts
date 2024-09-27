@@ -1,24 +1,21 @@
-import { ConsoleLogger, ROOT } from "@thi.ng/logger";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
 import {
+	ARGB8888,
 	canvasFromPixelBuffer,
-	intBufferFromImage,
+	GRAY8,
 	imageFromFile,
 	intBuffer,
-	GRAY8,
+	intBufferFromImage,
 	RGB888,
-	ARGB8888,
 } from "@thi.ng/pixel";
 import { $compile, $refresh, $replace, $wrapEl } from "@thi.ng/rdom";
 import {
-	color,
 	compileForm,
 	container,
 	custom,
 	date,
 	dateTime,
 	file,
-	group,
 	range,
 	selectStr,
 	str,
@@ -28,7 +25,6 @@ import {
 	type FormItem,
 } from "@thi.ng/rdom-forms";
 import {
-	fromPromise,
 	merge,
 	reactive,
 	stream,
@@ -44,15 +40,18 @@ import type {
 	TextParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
+import { canvasColorPicker } from "./color-picker.js";
 
 // ROOT.set(new ConsoleLogger());
 
-const iframe = (<HTMLIFrameElement>document.getElementById("art"))
-	.contentWindow!;
+const iframe = <HTMLIFrameElement>document.getElementById("art");
+const iframeWindow = iframe.contentWindow!;
 
 const features = reactive({});
 const controls = stream<ParamSpecs>();
-const iframeParams = reactive(iframe.location.search, { closeOut: "never" });
+const iframeParams = reactive(iframe.src.substring(iframe.src.indexOf("?")), {
+	closeOut: "never",
+});
 
 const paramCache: Record<string, any> = {};
 const paramValues: Record<string, ISubscription<any, any>> = {};
@@ -79,6 +78,12 @@ window.addEventListener("message", (e) => {
 			break;
 	}
 });
+
+const valuePrec = (x: number) => {
+	const y = x.toString();
+	const i = y.indexOf(".");
+	return i > 0 ? y.length - i - 1 : 0;
+};
 
 const createParamControls = (params: ParamSpecs) => {
 	let items: FormItem[] = [];
@@ -112,9 +117,22 @@ const createParamControls = (params: ParamSpecs) => {
 					);
 				}
 				break;
-			case "color":
-				items.push(color(base));
+			case "color": {
+				let width = window.innerWidth;
+				width =
+					width >= 1024 ? (width * 0.4 - 3 * 16) >> 1 : width - 32;
+				items.push(
+					canvasColorPicker({
+						...base,
+						attribs: {
+							width,
+							height: Math.min(width, 256),
+							title: param.doc,
+						},
+					})
+				);
 				break;
+			}
 			case "datetime":
 				{
 					value = value.map((x) => {
@@ -189,7 +207,15 @@ const createParamControls = (params: ParamSpecs) => {
 			case "range":
 				{
 					const { min, max, step } = <RangeParam>param;
-					items.push(range({ ...base, min, max, step }));
+					items.push(
+						range({
+							...base,
+							min,
+							max,
+							step,
+							vlabel: valuePrec(step ?? 1),
+						})
+					);
 				}
 				break;
 			case "text":
@@ -269,11 +295,14 @@ const createParamControls = (params: ParamSpecs) => {
 					attribs: {
 						title: "Click to randomize this param",
 						onclick: () =>
-							iframe.postMessage({
-								type: "genart:randomizeparam",
-								apiID,
-								paramID: id,
-							}),
+							iframeWindow.postMessage(
+								{
+									type: "genart:randomizeparam",
+									apiID,
+									paramID: id,
+								},
+								"*"
+							),
 					},
 					readonly: true,
 				})
@@ -283,40 +312,38 @@ const createParamControls = (params: ParamSpecs) => {
 			next(value) {
 				if (!selfUpdate && paramCache[id] !== value) {
 					paramCache[id] = value;
-					iframe.postMessage({
-						type: "genart:setparamvalue",
-						apiID,
-						paramID: id,
-						value,
-					});
+					iframeWindow.postMessage(
+						{
+							type: "genart:setparamvalue",
+							apiID,
+							paramID: id,
+							value,
+						},
+						"*"
+					);
 				}
 			},
 		});
 	}
 
-	items = [group({ label: "Exposed parameters" }, ...items)];
-
 	items.push(
-		group(
-			{ label: "Info" },
-			str({
-				label: "URL params",
-				attribs: { disabled: true },
-				value: iframeParams,
-			}),
-			text({
-				label: "Features",
-				attribs: { disabled: true, rows: 10 },
-				value: features.map((x) => JSON.stringify(x, null, 2)),
-			})
-		)
+		str({
+			label: "URL params",
+			attribs: { disabled: true },
+			value: iframeParams,
+		}),
+		text({
+			label: "Features",
+			attribs: { disabled: true, rows: 10 },
+			value: features.map((x) => JSON.stringify(x, null, 2)),
+		})
 	);
 
 	return compileForm(container({}, ...items), {
 		wrapperAttribs: { class: "control" },
 		descAttribs: { class: "desc" },
 		typeAttribs: {
-			rangeLabel: { class: "value" },
+			rangeLabel: { class: "rangevalue" },
 		},
 	});
 };

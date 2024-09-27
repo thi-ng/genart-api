@@ -8,12 +8,17 @@
 	"type": "module",
 	"scripts": {
 		"clean": "rm -rf public/*",
+		"css:watch": "node_modules/.bin/metacss develop --bundle --watch --pretty --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
+		"css:build": "node_modules/.bin/metacss develop --bundle --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
+		"start": "yarn build:prepare && yarn css:build && yarn start:only",
+		"start:only": "vite --host --port 8080 --open",
+		"dev": "yarn build:prepare && mprocs 'yarn css:watch' 'yarn start:only'",
 		"build:prepare": "cp -R ../param-test/dist/* public && mv public/index.html public/art.html",
-		"start": "yarn build:prepare && vite --host --open",
-		"build": "yarn build:prepare && tsc && vite build --base='./'",
+		"build": "yarn build:prepare && yarn css:build && tsc && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
+		"@thi.ng/meta-css": "^0.15.3",
 		"@types/node": "^22.5.5",
 		"typescript": "^5.6.2",
 		"vite": "^5.4.7",
@@ -22,19 +27,19 @@
 	"dependencies": {
 		"@thi.ng/canvas": "^0.5.3",
 		"@thi.ng/checks": "^3.6.12",
+		"@thi.ng/color": "^5.7.5",
 		"@thi.ng/hex": "^2.3.54",
 		"@thi.ng/hiccup-canvas": "^3.1.18",
 		"@thi.ng/hiccup-html": "^2.7.7",
 		"@thi.ng/imgui": "^2.3.3",
 		"@thi.ng/layout": "^3.1.2",
-		"@thi.ng/logger": "^3.0.20",
+		"@thi.ng/math": "^5.11.10",
 		"@thi.ng/mime": "^2.6.16",
 		"@thi.ng/pixel": "^7.3.4",
 		"@thi.ng/ramp": "^3.3.2",
 		"@thi.ng/rdom": "^1.7.4",
 		"@thi.ng/rdom-forms": "^0.3.32",
 		"@thi.ng/rstream": "^9.0.4",
-		"@thi.ng/rstream-gestures": "^5.0.92",
 		"@thi.ng/transducers": "^9.2.4"
 	},
 	"sideEffects": false

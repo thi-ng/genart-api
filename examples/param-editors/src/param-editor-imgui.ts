@@ -19,7 +19,6 @@ import {
 } from "@thi.ng/imgui";
 import { gridLayout } from "@thi.ng/layout";
 import { EASING_N, HERMITE_N, LINEAR_N, ramp } from "@thi.ng/ramp";
-import { gestureStream } from "@thi.ng/rstream-gestures";
 import { range } from "@thi.ng/transducers";
 import type {
 	ChoiceParam,
@@ -32,7 +31,8 @@ import type {
 } from "../../../src/api.js";
 
 const DPR = window.devicePixelRatio;
-const W = Math.min(window.innerWidth - 32, 400);
+const APP = document.getElementById("app")!;
+const W = APP.getBoundingClientRect().width - 32;
 const H = 1500;
 
 let apiID: string;
@@ -83,7 +83,7 @@ const updateWidgets = (draw: boolean) => {
 		const label = param.name || id;
 		const value = param.value ?? param.default;
 		let res: any;
-		textLabel(gui!, layout.next([COLS, 1]), param.desc);
+		textLabel(gui!, layout.next([COLS, 1]), param.desc ?? "");
 		switch (param.type) {
 			case "choice":
 				{
@@ -306,11 +306,14 @@ const updateWidgets = (draw: boolean) => {
 		if (param.randomize !== false) {
 			const rnd = buttonH(gui!, layout, id + "-rnd", "Randomize");
 			if (!draw && rnd) {
-				iframe.postMessage({
-					type: "genart:randomizeparam",
-					apiID,
-					paramID: id,
-				});
+				iframe.postMessage(
+					{
+						type: "genart:randomizeparam",
+						apiID,
+						paramID: id,
+					},
+					"*"
+				);
 			}
 		}
 		if (!draw && res != null) {
@@ -325,20 +328,25 @@ const updateWidgets = (draw: boolean) => {
 
 const updateGUI = () => {
 	updateWidgets(false);
+	let activeID = gui!.hotID;
 	updateWidgets(true);
 	draw(ctx!, ["g", { __clear: true, scale: DPR }, gui]);
+	return activeID;
 };
 
 const emitChange = (id: string, value: any, key?: string) => {
 	console.log("emit", id, value);
 	if (params[id].value !== value) {
-		iframe.postMessage({
-			type: "genart:setparamvalue",
-			apiID,
-			paramID: id,
-			value,
-			key,
-		});
+		iframe.postMessage(
+			{
+				type: "genart:setparamvalue",
+				apiID,
+				paramID: id,
+				value,
+				key,
+			},
+			"*"
+		);
 	} else {
 		console.log("no change...");
 	}
@@ -358,16 +366,35 @@ export const launchEditorImgui = () => {
 		},
 	});
 
-	gestureStream(canvas, {
-		scale: false,
-		preventScrollOnZoom: false,
-		preventDefault: true,
-	}).subscribe({
-		next(e) {
-			gui!.setMouse(e.pos, e.buttons);
-			updateGUI();
-		},
-	});
+	let buttons = 0;
+	let pos = [0, 0];
+
+	const updatePos = (e: MouseEvent | TouchEvent) => {
+		const { left, top } = canvas.getBoundingClientRect();
+		const isTouch = e.type.startsWith("touch");
+		const isUp = isTouch && e.type === "touchend";
+		if (isTouch) {
+			const $e = <TouchEvent>e;
+			if (!isUp)
+				pos = [
+					$e.touches[0].clientX - left,
+					$e.touches[0].clientY - top,
+				];
+			gui!.setMouse(pos, isUp ? 0 : 1);
+		} else {
+			const $e = <MouseEvent>e;
+			gui!.setMouse([$e.clientX - left, $e.clientY - top], $e.buttons);
+		}
+		const id = updateGUI();
+		if (id && !isUp) e.preventDefault();
+	};
+
+	canvas.addEventListener("mousedown", updatePos);
+	canvas.addEventListener("mousemove", updatePos);
+	canvas.addEventListener("mouseup", updatePos);
+	canvas.addEventListener("touchstart", updatePos);
+	canvas.addEventListener("touchmove", updatePos);
+	canvas.addEventListener("touchend", updatePos);
 
 	window.addEventListener("keydown", (e) => {
 		// if (e.target !== canvas) return;

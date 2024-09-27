@@ -1,25 +1,68 @@
-import { select, option } from "@thi.ng/hiccup-html";
+import { select, option, div, label, inputText } from "@thi.ng/hiccup-html";
 import { $clear, $compile } from "@thi.ng/rdom";
 import { launchEditorForms } from "./param-editor.js";
 import { launchEditorImgui } from "./param-editor-imgui.js";
+import {
+	compileForm,
+	container,
+	selectNum,
+	selectStr,
+	str,
+	text,
+} from "@thi.ng/rdom-forms";
+import { reactive, stream } from "@thi.ng/rstream";
 
 const app = document.getElementById("app")!;
+const iframe = <HTMLIFrameElement>document.getElementById("art");
+const iframeURL = reactive(iframe.src);
+const editorID = reactive(-1);
 
-const loadGUI = (e: InputEvent) => {
-	$clear(app);
-	const id = +(<HTMLSelectElement>e.target).value;
-	if (!isNaN(id)) {
-		requestAnimationFrame(() =>
-			[launchEditorImgui, launchEditorForms][id]()
-		);
-	}
-};
+editorID.subscribe({
+	async next(id) {
+		if (id >= 0) {
+			await root.unmount();
+			requestAnimationFrame(() =>
+				[launchEditorForms, launchEditorImgui][id]()
+			);
+		}
+	},
+});
 
-$compile(
-	select(
-		{ onchange: loadGUI },
-		option({}, "Choose GUI editor..."),
-		option({ value: 0 }, "@thi.ng/imgui"),
-		option({ value: 1 }, "@thi.ng/rdom-forms")
+const root = $compile(
+	div(
+		{},
+		div(
+			"#intro",
+			{},
+			compileForm(
+				container(
+					{},
+					str({
+						id: "url",
+						label: "Art URL",
+						value: iframeURL,
+						attribs: {
+							onchange: (e) => {
+								iframe.src = (<HTMLInputElement>e.target).value;
+							},
+						},
+					}),
+					selectNum({
+						label: "Editor",
+						items: [
+							{ value: -1, label: "Choose GUI..." },
+							{ value: 0, label: "@thi.ng/rdom-forms" },
+							{ value: 1, label: "@thi.ng/imgui" },
+						],
+						value: editorID,
+					})
+				),
+				{
+					wrapperAttribs: { class: "control" },
+				}
+			)
+		)
 	)
-).mount(app);
+);
+
+root.mount(app);
