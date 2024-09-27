@@ -26,10 +26,10 @@ export const base64Encode = (
 
 export const base64Decode = (src: string) => {
 	const match = /=*$/.exec(src);
-	const n = src.length - (match ? match[0].length : 0);
-	const result = new Uint8Array((n / 4) * 3);
+	const num = src.length - (match?.[0].length ?? 0);
+	const result = new Uint8Array((num / 4) * 3);
 	let value = 0;
-	for (let i = 0, j = 0; i < n; ) {
+	for (let i = 0, j = 0; i < num; ) {
 		const x = B64.indexOf(src[i]);
 		value = i & 3 ? (value << 6) + x : x;
 		if (i++ & 3) result[j++] = 255 & (value >> ((-2 * i) & 6));

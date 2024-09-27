@@ -24,10 +24,13 @@ class URLParamsAdapter implements PlatformAdapter {
 			const value = this.serializeParam(e.spec);
 			this.params.set(e.paramID, value);
 			// (optional) send updated params to parent GUI for param editing
-			parent.postMessage({
-				type: "paramadapter:update",
-				params: this.params.toString(),
-			});
+			parent.postMessage(
+				{
+					type: "paramadapter:update",
+					params: this.params.toString(),
+				},
+				"*"
+			);
 			if (e.spec.update === "reload") {
 				console.log("reloading w/", this.params.toString());
 				location.search = this.params.toString();
