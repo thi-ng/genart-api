@@ -5,11 +5,16 @@ import { reactive } from "@thi.ng/rstream";
 import { launchEditorImgui } from "./param-editor-imgui.js";
 import { launchEditorForms } from "./param-editor.js";
 
+const urlParams = new URLSearchParams(location.search);
+const initialURL = urlParams.get("url");
+
 const app = document.getElementById("editor")!;
 const iframe = <HTMLIFrameElement>document.getElementById("art");
-const iframeURL = reactive(iframe.src);
+const iframeURL = reactive(initialURL ?? iframe.src);
 const editorID = reactive(-1);
 const collapse = reactive(false);
+
+if (initialURL) iframe.src = initialURL;
 
 editorID.subscribe({
 	async next(id) {
@@ -87,7 +92,7 @@ $compile(
 window.addEventListener("keydown", (e) => {
 	switch (e.key) {
 		case "Escape":
-			collapse.next(true);
+			collapse.next(!collapse.deref());
 			break;
 	}
 });

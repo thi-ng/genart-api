@@ -16,6 +16,12 @@ const TAU = 2 * Math.PI;
 			width: RES,
 			height: RES,
 			format: "gray",
+			default: new Uint8Array(
+				(function* () {
+					for (let i = 0, n = RES * RES - 1; i <= n; i++)
+						yield (i / n) * 255;
+				})()
+			),
 		}),
 
 		bg: $genart.params.color({

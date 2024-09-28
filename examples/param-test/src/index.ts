@@ -19,13 +19,14 @@ declare var $genart: GenArtAPI;
 				["yellow", "Yolo"],
 				["black", "Gothic"],
 			],
+			default: "cyan",
 		}),
 
 		col: $genart.params.color({
 			name: "Color",
 			desc: "Text color",
 			doc: "Recommend setting this to a complementary color to the dot/curve color",
-			default: "#0000ff",
+			default: "#ff6600",
 			update: "reload", // trigger reload on value change
 		}),
 
@@ -44,7 +45,7 @@ declare var $genart: GenArtAPI;
 			desc: "Font size",
 			min: 10,
 			max: 200,
-			default: 50,
+			default: 200,
 		}),
 
 		speed: $genart.params.range({
@@ -71,9 +72,12 @@ declare var $genart: GenArtAPI;
 		ramp: $genart.params.ramp({
 			name: "Curve",
 			desc: "Curve for text movement",
+			mode: "smooth",
 			stops: [
-				[0, 0],
-				[1, 1],
+				[0, 0.5],
+				[0.25, 1],
+				[0.75, 0],
+				[1, 0.5],
 			],
 			default: 0,
 		}),
@@ -81,7 +85,7 @@ declare var $genart: GenArtAPI;
 		date: $genart.params.date({
 			name: "Date",
 			desc: "Date from which the background fades to black",
-			default: new Date("2024-09-11"),
+			default: new Date("2025-01-01"),
 		}),
 	});
 
