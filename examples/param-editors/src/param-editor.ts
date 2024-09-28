@@ -1,9 +1,11 @@
+import { div } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
 import {
 	ARGB8888,
 	canvasFromPixelBuffer,
 	GRAY8,
 	imageFromFile,
+	IntBuffer,
 	intBuffer,
 	intBufferFromImage,
 	RGB888,
@@ -36,7 +38,9 @@ import type {
 	ChoiceParam,
 	ImageParam,
 	ParamSpecs,
+	RandomizeParamMsg,
 	RangeParam,
+	SetParamValueMsg,
 	TextParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
@@ -66,6 +70,7 @@ window.addEventListener("message", (e) => {
 			features.next(e.data.features);
 			break;
 		case "genart:setparams":
+			apiID = e.data.apiID;
 			if (Object.keys(e.data.params).length) controls.next(e.data.params);
 			break;
 		case "genart:paramchange":
@@ -120,7 +125,11 @@ const createParamControls = (params: ParamSpecs) => {
 			case "color": {
 				let width = window.innerWidth;
 				width =
-					width >= 1024 ? (width * 0.4 - 3 * 16) >> 1 : width - 32;
+					width >= 1024
+						? (width * 0.4 - 48) >> 1
+						: width >= 768
+						? width * 0.4 - 32
+						: width - 32;
 				items.push(
 					canvasColorPicker({
 						...base,
@@ -167,38 +176,43 @@ const createParamControls = (params: ParamSpecs) => {
 						value: fileSel,
 					}),
 					custom(
-						$refresh(
-							merge({
-								src: [
-									fileSel.map(async (f) =>
-										intBufferFromImage(
-											await imageFromFile(f)
-										)
-									),
-									reactive(
-										Promise.resolve(
-											intBuffer(
-												$param.width,
-												$param.height,
-												fmt,
-												<any>$param.value
+						div(
+							".imgpreview",
+							{},
+							div(),
+							$refresh(
+								merge<Promise<IntBuffer>, Promise<IntBuffer>>({
+									src: [
+										fileSel.map(async (f) =>
+											intBufferFromImage(
+												await imageFromFile(f)
 											)
 										),
-										{ closeIn: "first" }
-									),
-								],
-							}),
-							async (img) => {
-								img = (await img)
-									.as(fmt)
-									.resize(
-										$param.width,
-										$param.height,
-										"cubic"
-									);
-								value.next(img.data.slice());
-								return $wrapEl(canvasFromPixelBuffer(img));
-							}
+										reactive(
+											Promise.resolve(
+												intBuffer(
+													$param.width,
+													$param.height,
+													fmt,
+													<any>$param.value
+												)
+											),
+											{ closeIn: "first" }
+										),
+									],
+								}),
+								async ($img) => {
+									const img = (await $img)
+										.as(fmt)
+										.resize(
+											$param.width,
+											$param.height,
+											"cubic"
+										);
+									value.next(img.data.slice());
+									return $wrapEl(canvasFromPixelBuffer(img));
+								}
+							)
 						)
 					)
 				);
@@ -296,7 +310,7 @@ const createParamControls = (params: ParamSpecs) => {
 						title: "Click to randomize this param",
 						onclick: () =>
 							iframeWindow.postMessage(
-								{
+								<RandomizeParamMsg>{
 									type: "genart:randomizeparam",
 									apiID,
 									paramID: id,
@@ -313,7 +327,7 @@ const createParamControls = (params: ParamSpecs) => {
 				if (!selfUpdate && paramCache[id] !== value) {
 					paramCache[id] = value;
 					iframeWindow.postMessage(
-						{
+						<SetParamValueMsg>{
 							type: "genart:setparamvalue",
 							apiID,
 							paramID: id,
@@ -350,5 +364,5 @@ const createParamControls = (params: ParamSpecs) => {
 
 export const launchEditorForms = () =>
 	$compile($replace(syncRAF(controls).map(createParamControls))).mount(
-		document.getElementById("app")!
+		document.getElementById("editor")!
 	);

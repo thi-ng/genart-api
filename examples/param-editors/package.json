@@ -10,11 +10,10 @@
 		"clean": "rm -rf public/*",
 		"css:watch": "node_modules/.bin/metacss develop --bundle --watch --pretty --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
 		"css:build": "node_modules/.bin/metacss develop --bundle --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
-		"start": "yarn build:prepare && yarn css:build && yarn start:only",
+		"start": "yarn css:build && yarn start:only",
 		"start:only": "vite --host --port 8080 --open",
-		"dev": "yarn build:prepare && mprocs 'yarn css:watch' 'yarn start:only'",
-		"build:prepare": "cp -R ../param-test/dist/* public && mv public/index.html public/art.html",
-		"build": "yarn build:prepare && yarn css:build && tsc && vite build --base='./'",
+		"dev": "mprocs 'yarn css:watch' 'yarn start:only'",
+		"build": "yarn css:build && tsc && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
@@ -25,6 +24,7 @@
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
+		"@thi.ng/api": "^8.11.10",
 		"@thi.ng/canvas": "^0.5.3",
 		"@thi.ng/checks": "^3.6.12",
 		"@thi.ng/color": "^5.7.5",

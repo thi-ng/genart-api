@@ -1,7 +1,7 @@
 :root {
 	bg-color=#eeec
 	text-color=#000
-	border-color=#999
+	border-color=#fff
 	dark:bg-color=#000c
 	dark:text-color=#fff
 	dark:border-color=#000
@@ -11,7 +11,7 @@ body {
 	system-sans-serif color(text-color)
 }
 
-a:link, a:visited { color-hot-pink }
+a:link, a:visited { color(text-color) b }
 
 header { mb3 }
 
@@ -33,12 +33,19 @@ legend { f6 b pv0 ph3 color-gray }
 			bw-1px border-color(border-color)
 			bg-color(bg-color) color(text-color)
 		}
+		input[type=checkbox] { w2 h2 }
 		input:disabled, textarea:disabled { color-gray }
-		input[type=color] { h2 pa0 }
 		.desc { db fw400 f6 o-60 }
 		.rangevalue { db f6 }
 	}
 }
+
+.imgpreview {
+	l:grid l:grid-cols-2 gap3 mb3
+	{
+		canvas { w-100 }
+	}
+ }
 
 #art {
 	fixed top-0 left-0 vw-100 vh-100 bw0 ma0 pa0 overflow-hidden

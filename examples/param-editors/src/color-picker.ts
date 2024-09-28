@@ -10,7 +10,7 @@ import {
 	type Value,
 } from "@thi.ng/rdom-forms";
 import { __nextID, type ISubscription } from "@thi.ng/rstream";
-import { range2d } from "@thi.ng/transducers";
+import { normRange, range2d } from "@thi.ng/transducers";
 
 export interface CustomColor extends Value {
 	type: "customColor";
@@ -35,11 +35,15 @@ const colorPickerFormItem: Fn2<FormItem, Partial<FormOpts>, ComponentLike> = (
 ) => {
 	const val = <CustomColor>$val;
 	return new (class extends Component {
-		ctx!: CanvasRenderingContext2D;
 		canvas!: HTMLCanvasElement;
+		ctx!: CanvasRenderingContext2D;
+		grad!: CanvasGradient;
 
 		async mount(parent: Element, idx?: number) {
-			const $update = (e: MouseEvent | TouchEvent) => {
+			const $update = (
+				e: MouseEvent | TouchEvent,
+				isHueOnly?: boolean
+			) => {
 				const { left, top, width, height } =
 					this.canvas!.getBoundingClientRect();
 				let { clientX, clientY } = e.type.startsWith("touch")
@@ -47,15 +51,17 @@ const colorPickerFormItem: Fn2<FormItem, Partial<FormOpts>, ComponentLike> = (
 					: <MouseEvent>e;
 				clientX = clamp01((clientX - left) / width);
 				clientY -= top;
+				if (isHueOnly === undefined) isHueOnly = clientY >= height - 16;
 				const $hsv = hsv(val.value?.deref() ?? "#fff");
-				if (clientY < height - 16) {
+				if (isHueOnly) {
+					val.value?.next(css(srgb(hsv(clientX, $hsv[1], $hsv[2]))));
+				} else {
 					const s = clientX;
 					const v = clamp01(clientY / (height - 16));
 					val.value?.next(css(srgb(hsv($hsv[0], s, v))));
-				} else {
-					val.value?.next(css(srgb(hsv(clientX, $hsv[1], $hsv[2]))));
 				}
 				e.preventDefault();
+				return isHueOnly;
 			};
 
 			this.el = await this.$tree(
@@ -78,14 +84,24 @@ const colorPickerFormItem: Fn2<FormItem, Partial<FormOpts>, ComponentLike> = (
 			);
 			this.canvas = this.el!.getElementsByTagName("canvas")[0];
 			this.ctx = this.canvas.getContext("2d")!;
+			this.grad = this.ctx.createLinearGradient(
+				0,
+				0,
+				this.canvas.width,
+				0
+			);
+			for (let h of normRange(6)) {
+				this.grad.addColorStop(h, css(hsv(h, 1, 1)));
+			}
 			if (val.value) {
 				val.value.subscribe({ next: this.update.bind(this) });
 				let isDown = false;
+				let isHueOnly = false;
 				const start = (e: MouseEvent) => {
 					isDown = true;
-					$update(e);
+					isHueOnly = $update(e);
 				};
-				const move = (e: MouseEvent) => isDown && $update(e);
+				const move = (e: MouseEvent) => isDown && $update(e, isHueOnly);
 				const end = () => (isDown = false);
 				this.$attribs(
 					{
@@ -121,15 +137,7 @@ const colorPickerFormItem: Fn2<FormItem, Partial<FormOpts>, ComponentLike> = (
 				ctx.fillStyle = css(hsv(h, x / 15, y / 15));
 				ctx.fillRect(~~(x * sx), ~~(y * sy), cw, ch);
 			}
-			const grad = ctx.createLinearGradient(0, 0, width, 0);
-			grad.addColorStop(0, "#f00");
-			grad.addColorStop(1 / 6, "#ff0");
-			grad.addColorStop(1 / 3, "#0f0");
-			grad.addColorStop(1 / 2, "#0ff");
-			grad.addColorStop(2 / 3, "#00f");
-			grad.addColorStop(5 / 6, "#f0f");
-			grad.addColorStop(1, "#f00");
-			ctx.fillStyle = grad;
+			ctx.fillStyle = this.grad;
 			ctx.fillRect(0, height - 16, width, 16);
 			ctx.fillStyle = css(hsv(h, 1, 1));
 			ctx.strokeStyle = "#000";

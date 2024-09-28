@@ -26,13 +26,15 @@ import type {
 	Maybe,
 	ParamSpecs,
 	RampParam,
+	RandomizeParamMsg,
 	RangeParam,
+	SetParamValueMsg,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
 
 const DPR = window.devicePixelRatio;
-const APP = document.getElementById("app")!;
-const W = APP.getBoundingClientRect().width - 32;
+const APP = document.getElementById("editor")!;
+const W = APP.getBoundingClientRect().width;
 const H = 1500;
 
 let apiID: string;
@@ -52,6 +54,7 @@ const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 window.addEventListener("message", (e) => {
 	switch (e.data.type) {
 		case "genart:setfeatures":
+			apiID = e.data.apiID;
 			features = e.data.features;
 			break;
 		case "genart:setparams":
@@ -302,12 +305,18 @@ const updateWidgets = (draw: boolean) => {
 					param.doc
 				);
 				break;
+			default:
+				textLabel(
+					gui!,
+					layout.next([COLS, 1]),
+					"(param type not yet supported, try other GUI)"
+				);
 		}
 		if (param.randomize !== false) {
 			const rnd = buttonH(gui!, layout, id + "-rnd", "Randomize");
 			if (!draw && rnd) {
 				iframe.postMessage(
-					{
+					<RandomizeParamMsg>{
 						type: "genart:randomizeparam",
 						apiID,
 						paramID: id,
@@ -338,7 +347,7 @@ const emitChange = (id: string, value: any, key?: string) => {
 	console.log("emit", id, value);
 	if (params[id].value !== value) {
 		iframe.postMessage(
-			{
+			<SetParamValueMsg>{
 				type: "genart:setparamvalue",
 				apiID,
 				paramID: id,
@@ -353,7 +362,7 @@ const emitChange = (id: string, value: any, key?: string) => {
 };
 
 export const launchEditorImgui = () => {
-	({ canvas, ctx } = adaptiveCanvas2d(W, H, document.getElementById("app")));
+	({ canvas, ctx } = adaptiveCanvas2d(W, H, APP));
 	gui = defGUI({
 		theme: {
 			...DEFAULT_THEME,
