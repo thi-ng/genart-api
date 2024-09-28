@@ -100,7 +100,9 @@ const createParamControls = (params: ParamSpecs) => {
 		const base = {
 			id,
 			label: param.name || id,
-			desc: param.desc,
+			desc:
+				param.desc +
+				(param.update === "reload" ? " (change forces reload)" : ""),
 			labelAttribs: { title: param.doc },
 			attribs: { title: param.doc },
 			value,
