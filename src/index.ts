@@ -438,9 +438,12 @@ class API implements GenArtAPI {
 		});
 	}
 
-	emit<T extends APIMessage>(e: T, notify: NotifyType = "all") {
+	emit<T extends APIMessage>(
+		e: Omit<T, "apiID">,
+		notify: NotifyType = "all"
+	) {
 		if (notify === "none") return;
-		if (this.id) e.apiID = this.id;
+		(<T>e).apiID = this.id;
 		if (notify === "all" || notify === "self") window.postMessage(e, "*");
 		if ((notify === "all" && parent !== window) || notify === "parent")
 			parent.postMessage(e, "*");
@@ -544,8 +547,8 @@ class API implements GenArtAPI {
 		if (this._params && Object.keys(this._params).length) {
 			this.emit<SetParamsMsg>({
 				type: "genart:setparams",
-				__self: true,
 				params: this._params,
+				__self: true,
 			});
 		}
 	}

@@ -286,7 +286,21 @@ export interface GenArtAPI {
 		listener: (e: MessageTypeMap[T]) => void
 	): void;
 
-	emit<T extends APIMessage>(e: T, notify?: NotifyType): void;
+	/**
+	 * Sends an {@link APIMessage} using (optionally) specified `notify` type
+	 * (default: "all").
+	 *
+	 * @remarks
+	 * Auto-injects {@link GenArtAPI.id} as {@link APIMessage.apiID} to support
+	 * differentiation of multiple `GenArtAPI` instances running concurrently
+	 * (in different windows/iframes).
+	 *
+	 * If `notify` is `none`, no message will be emitted.
+	 *
+	 * @param e
+	 * @param notify
+	 */
+	emit<T extends APIMessage>(e: Omit<T, "apiID">, notify?: NotifyType): void;
 
 	/**
 	 * Called from artwork to register the frame loop/update function.
