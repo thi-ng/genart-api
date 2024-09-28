@@ -1,0 +1,22 @@
+{
+	"name": "@example/param-image",
+	"version": "0.0.1",
+	"description": "GenArtAPI image param test example",
+	"repository": "https://github.com/thi-ng/genart-api",
+	"author": "Karsten Schmidt <k+npm@thi.ng>",
+	"license": "Apache-2.0",
+	"type": "module",
+	"scripts": {
+		"build:prepare": "cp ../../dist/*.min.js lib",
+		"start": "yarn build:prepare && vite --host --open",
+		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
+		"preview": "vite preview --host --open"
+	},
+	"devDependencies": {
+		"typescript": "^5.6.2",
+		"vite": "^5.4.7",
+		"vite-plugin-html": "^3.2.2"
+	},
+	"dependencies": {},
+	"sideEffects": false
+}
