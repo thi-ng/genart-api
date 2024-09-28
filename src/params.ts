@@ -44,7 +44,6 @@ export const date = (
 
 export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
 	type: "time",
-	randomize: false,
 	...spec,
 });
 

@@ -178,6 +178,11 @@ class API implements GenArtAPI {
 					/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value)),
 			coerce: (_, value) =>
 				isString(value) ? value.split(":").map(parseNum) : value,
+			randomize: (_, rnd) => [
+				(rnd() * 24) | 0,
+				(rnd() * 60) | 0,
+				(rnd() * 24) | 0,
+			],
 		},
 		toggle: {
 			valid: (_, __, value) =>
