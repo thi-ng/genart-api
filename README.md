@@ -331,6 +331,8 @@ bytes per pixel. Likewise a param editor allowing image uploads/customizations
 is responsible to resize an image to the expected dimensions and provide its
 data in the expected format.
 
+[Related example](https://github.com/thi-ng/genart-api/tree/main/examples/param-image)
+
 > [!IMPORTANT]
 > Note to artists: Ensure to keep your image size requirements as low as
 > possible! Storing image data in URL parameters (as done by most platforms) has

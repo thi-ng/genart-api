@@ -1,5 +1,7 @@
 # genart-api param test
 
+[Live demo with editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-test/)
+
 This basic example gives an overview of the supported built-in param types and
 the overall proposed GenArt API workflow/setup.
 
@@ -31,10 +33,10 @@ yarn build
 
 ### Use with param editor
 
-To use this example with a param editor, you can either use the online param
-editor at https://demo.thi.ng/umbrella/genart-api/ or you'll need to run both
-locally at the same time. The easiest way to do so is to launch them from two
-separate terminals, like so:
+To use this example with a param editor, you can either use the [online param
+editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-test/)
+or you'll need to run both locally at the same time. The easiest way to do so is
+to launch them from two separate terminals, like so:
 
 ```bash
 # from the genart-api repo root

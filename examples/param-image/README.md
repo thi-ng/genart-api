@@ -1,5 +1,7 @@
 # genart-api image param example
 
+[Live demo with editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)
+
 This example uses the built-in image param type and should be used in
 combination with the [parameter editor
 example](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors)
@@ -33,10 +35,10 @@ yarn build
 
 ### Use with param editor
 
-To use this example with a param editor, you can either use the online param
-editor at https://demo.thi.ng/umbrella/genart-api/ or you'll need to run both
-locally at the same time. The easiest way to do so is to launch them from two
-separate terminals, like so:
+To use this example with a param editor, you can either use the [online param
+editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)
+or you'll need to run both locally at the same time. The easiest way to do so is
+to launch them from two separate terminals, like so:
 
 ```bash
 # from the genart-api repo root

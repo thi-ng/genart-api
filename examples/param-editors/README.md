@@ -1,6 +1,6 @@
 # genart-api param editors
 
-[Live demo](https://demo.thi.ng/umbrella/genart-api/)
+[Online version](https://demo.thi.ng/genart-api/param-editors/)
 
 This example provides a couple of GUI editors (WIP) to customize parameter
 values exposed by an artwork running in an `<iframe>` and using the GenArt API
