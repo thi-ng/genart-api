@@ -1,4 +1,4 @@
-import type { GenArtAPI } from "../../../src/api.ts";
+import type { GenArtAPI } from "../../../src/api.js";
 
 declare var $genart: GenArtAPI;
 
@@ -69,6 +69,7 @@ declare var $genart: GenArtAPI;
 		}),
 
 		ramp: $genart.params.ramp({
+			name: "Curve",
 			desc: "Curve for text movement",
 			stops: [
 				[0, 0],
@@ -145,8 +146,8 @@ declare var $genart: GenArtAPI;
 		// text on ramp
 		ctx.fillStyle = col;
 		ctx.font = `${param("size")}px sans-serif`;
-		const y = 1 - param("ramp", x / W);
-		ctx.fillText(param("txt"), x, y * H);
+		const y = $genart.math.fit(param("ramp", x / W), 1, 0, 0.2, 0.8) * H;
+		ctx.fillText(param("txt"), x, y);
 
 		x += param("speed");
 		if (x >= W) {

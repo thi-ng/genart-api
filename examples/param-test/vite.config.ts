@@ -4,7 +4,7 @@ import { createHtmlPlugin } from "vite-plugin-html";
 export default defineConfig({
 	build: {
 		target: "esnext",
-		sourcemap: true,
+		// sourcemap: true,
 	},
 	plugins: [createHtmlPlugin({ minify: true })],
 });
