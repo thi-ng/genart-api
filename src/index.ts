@@ -96,6 +96,9 @@ class API implements GenArtAPI {
 				return isNumericArray(value) && value.length == width * height;
 			},
 		},
+		list: {
+			valid: (_, __, value) => Array.isArray(value),
+		},
 		ramp: {
 			valid: (_, key, value) =>
 				key === "mode"

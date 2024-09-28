@@ -100,16 +100,16 @@ export interface DateTimeParam extends Param<Date> {
 	type: "datetime";
 }
 
-export interface TimeParam extends Param<[number, number, number]> {
-	type: "time";
-}
-
 export interface ImageParam
 	extends Param<number[] | Uint8Array | Uint8ClampedArray | Uint32Array> {
 	type: "img";
 	width: number;
 	height: number;
 	format: "gray" | "rgb" | "rgba";
+}
+
+export interface ListParam<T> extends Param<T[]> {
+	type: "list";
 }
 
 export interface RampParam extends Param<number> {
@@ -129,7 +129,7 @@ export interface RangeParam extends Param<number> {
 	/**
 	 * Maximum value (should be a multiple of {@link RangeParam.step}).
 	 *
-	 * @defaultValue 0
+	 * @defaultValue 100
 	 */
 	max: number;
 	/**
@@ -138,11 +138,10 @@ export interface RangeParam extends Param<number> {
 	 *
 	 * @defaultValue 1
 	 */
-	step?: number;
+	step: number;
 	/**
-	 * Optional exponent for defining exponential and hinting GUI param editors
-	 * to use an exponential slider/controller (if available) to adjust the
-	 * param value.
+	 * Optional exponent for hinting GUI param editors to use an exponential
+	 * slider/controller (if available) to adjust the param value.
 	 *
 	 * @remarks
 	 * If used, a GUI controller should internally operate in the [0,1] range
@@ -154,7 +153,10 @@ export interface RangeParam extends Param<number> {
 	 *
 	 * Using this formula, exponents > 1 will cause an "ease-in"
 	 * behavior/mapping, whilst exponents in the (0,1) range will cause
-	 * "ease-out".
+	 * "ease-out" curvature. If not given, a default exponent of 1 is assumed,
+	 * resulting in linear mapping.
+	 *
+	 * @defaultValue 1
 	 */
 	exponent?: number;
 }
@@ -169,6 +171,10 @@ export interface TextParam extends Param<string> {
 	multiline?: boolean;
 	/** Regexp or string-encoded regexp pattern */
 	match?: RegExp | string;
+}
+
+export interface TimeParam extends Param<[number, number, number]> {
+	type: "time";
 }
 
 export interface ToggleParam extends Param<boolean> {
@@ -198,10 +204,10 @@ export type ParamValue<T extends Param<any>> = NonNullable<T["value"]>;
  */
 export interface ParamImpl<T = any> {
 	/**
-	 * Called from {@link GenArtAPI.setParamValue} to pre-validate a given
-	 * value. Returns true only if the given value can be principally used for
-	 * updating this param spec using {@link ParamImpl.update} or
-	 * {@link ParamImpl.coerce}.
+	 * Called from {@link GenArtAPI.setParamValue} to pre-validate a given value
+	 * before updating a param spec. Returns true only if the given value can be
+	 * principally used for updating this param spec using
+	 * {@link ParamImpl.update} or {@link ParamImpl.coerce}.
 	 *
 	 * @remarks
 	 * If this validator returns false, the param update will be terminated
@@ -221,7 +227,8 @@ export interface ParamImpl<T = any> {
 	 * Intended for param types which define their actual values indirectly
 	 * (e.g. a {@link RampParam}'s control points). Called from
 	 * {@link GenArtAPI.setParamValue}, this function is used to update the
-	 * param spec with given `value` in a type-specific, undisclosed manner.
+	 * param spec (optionally using a specific `key` aka property) with
+	 * given `value` in a type-specific, undisclosed manner.
 	 *
 	 * @remarks
 	 * The `value` given will already have passed the {@link ParamImpl.valid}
@@ -275,6 +282,17 @@ export interface ParamImpl<T = any> {
 	 * @param t
 	 */
 	read?: (spec: Readonly<Param<T>>, t: number) => T;
+	/**
+	 * Optional parameter specs for composite or nested params. E.g.
+	 * Conceptually, a {@link RampParam} is a composite of
+	 * {@link RampParam.stops} (a {@link ListParam}) and {@link RampParam.mode}
+	 * (a {@link ChoiceParam}).
+	 *
+	 * @remarks
+	 * These param specs can be used to delegate {@link ParamImpl} tasks to the
+	 * implementations of those embedded params.
+	 */
+	params?: ParamSpecs;
 }
 
 export interface ParamFactories {
@@ -329,20 +347,6 @@ export interface ParamFactories {
 	): DateTimeParam;
 
 	/**
-	 * Defines a new time parameter providing time-of-day values (in UTC) in the
-	 * form of 3-tuples: `[hour,minute,second]`. Randomizable.
-	 *
-	 * @remarks
-	 * Intended for long running artworks to configure an important times in the
-	 * day for state or behavior changes etc. (e.g. triggering sleep mode)
-	 *
-	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.date}.
-	 *
-	 * @param spec
-	 */
-	time(spec: BaseParam<TimeParam>): TimeParam;
-
-	/**
 	 * Defines a new image parameter, i.e. an integer based pixel buffer (in
 	 * different formats), intended for obtaining spatially varied parameters
 	 * (e.g. gradient maps).
@@ -350,6 +354,13 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	image(spec: BaseParam<ImageParam>): ImageParam;
+
+	/**
+	 * Defines a new list parameter with value type `T`. Not randomizable.
+	 *
+	 * @param spec
+	 */
+	list<T>(spec: BaseParam<ListParam<T>>): ListParam<T>;
 
 	/**
 	 * Defines a new ramp parameter, a curve defined by stops/keyframes in the [0,1]
@@ -381,8 +392,7 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	ramp(
-		spec: BaseParam<RampParam, "stops" | "default"> &
-			Partial<Pick<RampParam, "stops" | "default">>
+		spec: BaseParam<RampParam, "stops"> & Partial<Pick<RampParam, "stops">>
 	): RampParam;
 
 	/**
@@ -402,8 +412,8 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	range(
-		spec: BaseParam<RangeParam, "min" | "max"> &
-			Partial<Pick<RangeParam, "min" | "max">>
+		spec: BaseParam<RangeParam, "min" | "max" | "step"> &
+			Partial<Pick<RangeParam, "min" | "max" | "step">>
 	): RangeParam;
 
 	/**
@@ -426,6 +436,20 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	text(spec: BaseParam<TextParam>): TextParam;
+
+	/**
+	 * Defines a new time parameter providing time-of-day values (in UTC) in the
+	 * form of 3-tuples: `[hour,minute,second]`. Randomizable.
+	 *
+	 * @remarks
+	 * Intended for long running artworks to configure an important times in the
+	 * day for state or behavior changes etc. (e.g. triggering sleep mode)
+	 *
+	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.date}.
+	 *
+	 * @param spec
+	 */
+	time(spec: BaseParam<TimeParam>): TimeParam;
 
 	/**
 	 * Defines a on/off switch (boolean) param. Randomizable.

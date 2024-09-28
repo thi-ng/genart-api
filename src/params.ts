@@ -5,6 +5,7 @@ import type {
 	DateParam,
 	DateTimeParam,
 	ImageParam,
+	ListParam,
 	RampParam,
 	RangeParam,
 	TextParam,
@@ -42,11 +43,6 @@ export const date = (
 	...spec,
 });
 
-export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
-	type: "time",
-	...spec,
-});
-
 export const image = (spec: BaseParam<ImageParam>): ImageParam => ({
 	type: "img",
 	randomize: false,
@@ -54,9 +50,16 @@ export const image = (spec: BaseParam<ImageParam>): ImageParam => ({
 	...spec,
 });
 
+export const list = <T>(
+	spec: BaseParam<ListParam<T>> & { default: T[] }
+): ListParam<T> => ({
+	type: "list",
+	randomize: false,
+	...spec,
+});
+
 export const ramp = (
-	spec: BaseParam<RampParam, "stops" | "default"> &
-		Partial<Pick<RampParam, "stops" | "default">>
+	spec: BaseParam<RampParam, "stops"> & Partial<Pick<RampParam, "stops">>
 ): RampParam => ({
 	type: "ramp",
 	randomize: false,
@@ -70,8 +73,8 @@ export const ramp = (
 });
 
 export const range = (
-	spec: BaseParam<RangeParam, "min" | "max"> &
-		Partial<Pick<RangeParam, "min" | "max">>
+	spec: BaseParam<RangeParam, "min" | "max" | "step"> &
+		Partial<Pick<RangeParam, "min" | "max" | "step">>
 ): RangeParam => ({
 	type: "range",
 	min: 0,
@@ -83,6 +86,11 @@ export const range = (
 export const text = (spec: BaseParam<TextParam>): TextParam => ({
 	type: "text",
 	randomize: false,
+	...spec,
+});
+
+export const time = (spec: BaseParam<TimeParam>): TimeParam => ({
+	type: "time",
 	...spec,
 });
 
