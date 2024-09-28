@@ -637,9 +637,11 @@ build order must be used:
 
 -   [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/):
     Minimal "art" example using various parameter types
+-   [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/):
+    Example using an image map parameter
 -   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/):
-    GUI param editors to modify params exposed by an art project running in an
-    `<iframe>`.
+    GUI param editors to modify param values exposed by an artwork running in an
+    embedded `<iframe>`.
 
 ### An artist's "Hello world"
 
