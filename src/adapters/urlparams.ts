@@ -151,7 +151,9 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "toggle":
 				return spec.value ? 1 : 0;
 			case "xy":
-				return spec.value.join(",");
+				return (<number[]>spec.value)
+					.map((x) => x.toFixed(3))
+					.join(",");
 			default:
 				return spec.value;
 		}
