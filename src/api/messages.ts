@@ -3,7 +3,11 @@ import type { Param, ParamSpecs } from "./params.js";
 
 export interface APIMessage {
 	type: MessageType;
-	apiID?: string;
+	/**
+	 * ID of the {@link GenArtAPI} instance this message is intended for. Also
+	 * see {@link GenArtAPI.id}.
+	 */
+	apiID: string;
 	/** @internal */
 	__self?: boolean;
 }
