@@ -1,4 +1,4 @@
-const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 export const base64Encode = (
 	src: number[] | Uint8Array | Uint8ClampedArray | Uint32Array
