@@ -5,10 +5,12 @@ import type {
 	Features,
 	GenArtAPI,
 	ImageParam,
+	ListParam,
 	Maybe,
 	MessageType,
 	MessageTypeMap,
 	NotifyType,
+	Param,
 	ParamChangeMsg,
 	ParamErrorMsg,
 	ParamImpl,
@@ -47,7 +49,7 @@ class API implements GenArtAPI {
 	protected _params: Maybe<ParamSpecs>;
 	protected _paramTypes: Record<string, ParamImpl> = {
 		choice: {
-			valid: (spec, _, value) =>
+			validate: (spec, value) =>
 				!!(<ChoiceParam<any>>spec).options.find(
 					(x) => (Array.isArray(x) ? x[0] : x) === value
 				),
@@ -58,13 +60,13 @@ class API implements GenArtAPI {
 			},
 		},
 		color: {
-			valid: (_, __, value) =>
+			validate: (_, value) =>
 				isString(value) && /^#?[0-9a-f]{6}$/.test(value),
 			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
 			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_00_00_00) | 0),
 		},
 		date: {
-			valid: (_, __, value) =>
+			validate: (_, value) =>
 				value instanceof Date ||
 				isNumber(value) ||
 				(isString(value) && /^\d{4}-\d{2}-\d{2}$/.test(value)),
@@ -76,7 +78,7 @@ class API implements GenArtAPI {
 					: value,
 		},
 		datetime: {
-			valid: (_, __, value) =>
+			validate: (_, value) =>
 				value instanceof Date ||
 				isNumber(value) ||
 				(isString(value) &&
@@ -91,26 +93,18 @@ class API implements GenArtAPI {
 					: value,
 		},
 		img: {
-			valid: (spec, _, value) => {
+			validate: (spec, value) => {
 				const { width, height } = <ImageParam>spec;
 				return isNumericArray(value) && value.length == width * height;
 			},
 		},
 		list: {
-			valid: (_, __, value) => Array.isArray(value),
+			validate: (spec, value) =>
+				Array.isArray(value) &&
+				value.every((<ListParam<any>>spec).validate),
 		},
 		ramp: {
-			valid: (_, key, value) =>
-				key === "mode"
-					? ["linear", "smooth", "exp"].includes(value)
-					: Array.isArray(value) && value.every(isNumericArray),
-			update: (spec, key, value) => {
-				if (key === "mode") {
-					(<RampParam>spec).mode = value;
-				} else {
-					(<RampParam>spec).stops = value;
-				}
-			},
+			validate: () => false,
 			read: (spec, t) => {
 				const { stops, mode } = <RampParam>spec;
 				let n = stops.length;
@@ -141,9 +135,22 @@ class API implements GenArtAPI {
 								),
 					  }[mode || "linear"]();
 			},
+			params: {
+				stops: params.list<RampParam["stops"][0]>({
+					name: "Ramp stops",
+					desc: "Control points",
+					default: [],
+					validate: isNumericArray,
+				}),
+				mode: params.choice<Exclude<RampParam["mode"], undefined>>({
+					name: "Ramp mode",
+					desc: "Interpolation method",
+					options: ["linear", "smooth", "exp"],
+				}),
+			},
 		},
 		range: {
-			valid: (spec, _, value) => {
+			validate: (spec, value) => {
 				const { min, max } = <RangeParam>spec;
 				return isNumber(value) && value >= min && value <= max;
 			},
@@ -161,7 +168,7 @@ class API implements GenArtAPI {
 			},
 		},
 		text: {
-			valid: (spec, _, value) => {
+			validate: (spec, value) => {
 				if (!isString(value)) return false;
 				const { min, max, match } = <TextParam>spec;
 				if (match) {
@@ -175,7 +182,7 @@ class API implements GenArtAPI {
 			},
 		},
 		time: {
-			valid: (_, __, value) =>
+			validate: (_, value) =>
 				isNumericArray(value) ||
 				(isString(value) &&
 					/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value)),
@@ -188,7 +195,7 @@ class API implements GenArtAPI {
 			],
 		},
 		toggle: {
-			valid: (_, __, value) =>
+			validate: (_, value) =>
 				isString(value)
 					? /^(true|false|0|1)$/.test(value)
 					: isNumber(value) || typeof value === "boolean",
@@ -201,7 +208,7 @@ class API implements GenArtAPI {
 			randomize: (_, rnd) => rnd() < 0.5,
 		},
 		weighted: {
-			valid: (spec, _, value) =>
+			validate: (spec, value) =>
 				!!(<WeightedChoiceParam<any>>spec).options.find(
 					(x) => x[1] === value
 				),
@@ -220,7 +227,7 @@ class API implements GenArtAPI {
 			},
 		},
 		xy: {
-			valid: (_, __, value) => isNumericArray(value) && value.length == 2,
+			validate: (_, value) => isNumericArray(value) && value.length == 2,
 			coerce: (_, value) => [clamp01(value[0]), clamp01(value[1])],
 			randomize: (_, rnd) => [rnd(), rnd()],
 		},
@@ -295,6 +302,10 @@ class API implements GenArtAPI {
 		this._paramTypes[type] = impl;
 	}
 
+	paramType(type: string): Maybe<ParamImpl> {
+		return this._paramTypes[type];
+	}
+
 	async setParams<P extends ParamSpecs>(params: P) {
 		// validate param declarations
 		for (let id in params) {
@@ -360,6 +371,11 @@ class API implements GenArtAPI {
 			const result = await this._adapter.updateParam(id, spec);
 			if (!result) continue;
 			const { value, update } = result;
+			if (update) {
+				for (let key in update) {
+					this.setParamValue(id, update[key], key, "none");
+				}
+			}
 			this.setParamValue(
 				id,
 				value,
@@ -375,25 +391,21 @@ class API implements GenArtAPI {
 		key?: string,
 		notify: NotifyType = "all"
 	) {
-		const { spec, impl } = this.ensureParam(id);
+		let { spec, impl } = this.ensureParam(id);
 		if (value != null) {
-			if (!impl.valid(spec, key, value)) {
+			const keyParamSpec = key ? impl.params?.[key] : spec;
+			if (key) {
+				impl = this.ensureParamImpl(keyParamSpec?.type || "");
+			}
+			if (!impl.validate(keyParamSpec!, value)) {
 				this.paramError(id);
 				return;
 			}
-			impl.update
-				? impl.update(spec, key, value)
-				: (spec.value = impl.coerce ? impl.coerce(spec, value) : value);
+			(<any>spec)[key || "value"] = impl.coerce
+				? impl.coerce(spec, value)
+				: value;
 		}
-		this.emit<ParamChangeMsg>(
-			{
-				type: "genart:paramchange",
-				paramID: id,
-				spec,
-				__self: true,
-			},
-			notify
-		);
+		this.notifyParamChange(id, spec, notify);
 	}
 
 	randomizeParamValue(
@@ -401,14 +413,33 @@ class API implements GenArtAPI {
 		rnd: RandomFn = Math.random,
 		notify: NotifyType = "all"
 	) {
-		const { spec, impl } = this.ensureParam(id);
-		if (impl.randomize) {
-			this.setParamValue(
-				id,
-				impl.randomize(spec, rnd),
-				undefined,
-				notify
-			);
+		const {
+			spec,
+			impl: { params, randomize },
+		} = this.ensureParam(id);
+		const canRandomizeValue = randomize && spec.randomize !== false;
+		if (params) {
+			let update = false;
+			for (let pid in params) {
+				const param = params[pid];
+				const pimpl = this.ensureParamImpl(param.type);
+				if (pimpl.randomize && param.randomize !== false) {
+					this.setParamValue(
+						id,
+						pimpl.randomize(param, rnd),
+						pid,
+						"none"
+					);
+					update = true;
+				}
+			}
+			if (update && !canRandomizeValue) {
+				this.notifyParamChange(id, spec, notify);
+				return;
+			}
+		}
+		if (canRandomizeValue) {
+			this.setParamValue(id, randomize(spec, rnd), undefined, notify);
 		}
 	}
 
@@ -554,6 +585,22 @@ class API implements GenArtAPI {
 				__self: true,
 			});
 		}
+	}
+
+	protected notifyParamChange(
+		id: string,
+		spec: Param<any>,
+		notify: NotifyType
+	) {
+		this.emit<ParamChangeMsg>(
+			{
+				type: "genart:paramchange",
+				paramID: id,
+				spec,
+				__self: true,
+			},
+			notify
+		);
 	}
 
 	protected notifyReady() {

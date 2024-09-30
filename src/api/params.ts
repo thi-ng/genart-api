@@ -110,6 +110,7 @@ export interface ImageParam
 
 export interface ListParam<T> extends Param<T[]> {
 	type: "list";
+	validate: (x: any) => boolean;
 }
 
 export interface RampParam extends Param<number> {
@@ -205,9 +206,8 @@ export type ParamValue<T extends Param<any>> = NonNullable<T["value"]>;
 export interface ParamImpl<T = any> {
 	/**
 	 * Called from {@link GenArtAPI.setParamValue} to pre-validate a given value
-	 * before updating a param spec. Returns true only if the given value can be
-	 * principally used for updating this param spec using
-	 * {@link ParamImpl.update} or {@link ParamImpl.coerce}.
+	 * before updating a param spec. Returns true if the given value can be used
+	 * for updating a param spec directly or via {@link ParamImpl.coerce}.
 	 *
 	 * @remarks
 	 * If this validator returns false, the param update will be terminated
@@ -215,35 +215,9 @@ export interface ParamImpl<T = any> {
 	 * {@link ParamErrorMsg} message (by default).
 	 *
 	 * @param spec
-	 * @param key
 	 * @param value
 	 */
-	valid: (
-		spec: Readonly<Param<T>>,
-		key: Maybe<string>,
-		value: any
-	) => boolean;
-	/**
-	 * Intended for param types which define their actual values indirectly
-	 * (e.g. a {@link RampParam}'s control points). Called from
-	 * {@link GenArtAPI.setParamValue}, this function is used to update the
-	 * param spec (optionally using a specific `key` aka property) with
-	 * given `value` in a type-specific, undisclosed manner.
-	 *
-	 * @remarks
-	 * The `value` given will already have passed the {@link ParamImpl.valid}
-	 * check.
-	 *
-	 * If given, this function takes priority over {@link ParamImpl.coerce}.
-	 *
-	 * Of the built-in param types only {@link RangeParam} and
-	 * {@link WeightedChoiceParam} make use of this type of update.
-	 *
-	 * @param spec
-	 * @param key
-	 * @param value
-	 */
-	update?: (spec: Param<T>, key: Maybe<string>, value: any) => void;
+	validate: (spec: Readonly<Param<T>>, value: any) => boolean;
 	/**
 	 * Called from {@link GenArtAPI.setParamValue}, this function is used to
 	 * coerce (or otherwise prepare) the given `value` in a type-specific,
@@ -251,7 +225,7 @@ export interface ParamImpl<T = any> {
 	 * spec.
 	 *
 	 * @remarks
-	 * The `value` given will already have passed the {@link ParamImpl.valid}
+	 * The `value` given will already have passed the {@link ParamImpl.validate}
 	 * check.
 	 *
 	 * @param spec

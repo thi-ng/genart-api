@@ -115,12 +115,23 @@ export interface GenArtAPI {
 	 * When a platform registers any own types, it SHOULD consider namespacing
 	 * the the `type` name, e.g. `platformname:customtype`.
 	 *
-	 * See {@link ParamImpl} for implementation details.
+	 * See {@link ParamImpl} for implementation details. See
+	 * {@link ParamFactories} for built-in parameter types.
 	 *
 	 * @param type
 	 * @param impl
 	 */
 	registerParamType(type: string, impl: ParamImpl): void;
+
+	/**
+	 * Returns the registered {@link ParamImpl} for given parameter type.
+	 *
+	 * @remarks
+	 * See {@link GenArtAPI.registerParamType}.
+	 *
+	 * @param type
+	 */
+	paramType(type: string): Maybe<ParamImpl>;
 
 	/**
 	 * Called during initialization of the art piece to declare all of its
@@ -380,35 +391,40 @@ export interface PlatformAdapter {
 	readonly prng: PRNG;
 
 	/**
-	 * Called by {@link GenArtAPI.setParamValue} to possibly augment/update a
+	 * Called by {@link GenArtAPI.updateParams} to possibly augment/update a
 	 * single param spec with any customizations sourced via platform-specific
-	 * ways (e.g. from URL querystring params).
+	 * means (e.g. from URL query-string params).
 	 *
 	 * @remarks
 	 * The function can return one of the following:
-	 * - void: no customizations found/performed
-	 * - `{ value: any }`: param value override
-	 * - `{ update: true }`: param spec has been modified/customized (e.g. ramp
-	 *   stops)
 	 *
-	 * Any non-nullish value retured will be validated by the responsible
-	 * {@link ParamImpl} and if successful is then updated in the param spec via
-	 * {@link ParamImpl.coerce} or {@link ParamImpl.update}.
+	 * 1. If the function returns `void`, no customizations found/performed and
+	 *    no notifications will be triggered.
+	 * 3. If the function returns `{ update: { key1: any, key2: any, ...} }`,
+	 *    the given keys in the param spec will be modified/customized with
+	 *    their new values via calling {@link GenArtAPI.setParamValue} for each
+	 *    key-value pair. The keys to be updated MUST correspond to nested param
+	 *    specs defined by the main param type's {@link ParamImpl.params},
+	 *    otherwise an error will be thrown (see [Composite
+	 *    parameters](https://github.com/thi-ng/genart-api/blob/main/README.md#composite-parameters)
+	 *    for reference).
+	 * 3. If the function returns `{ value: any }` and if that `value` is
+	 *    non-nullish, the param spec will be updated via
+	 *    {@link GenArtAPI.setParamValue}.
 	 *
-	 * If this function returned a valid `value` and/or `update` flag, and if
-	 * the retured value passes param type-specific validation (see
-	 * {@link ParamImpl.valid}), then by default {@link GenArtAPI.setParamValue}
-	 * emits a {@link ParamChangeMsg} message with the updated param spec. If
-	 * this function returns a nullish result, the param will NOT be processed
-	 * further.
+	 * If this function returned a `value` and/or `update`, and if the retured
+	 * value(s) passed param type-specific validation (see
+	 * {@link ParamImpl.validate}), then by default
+	 * {@link GenArtAPI.setParamValue} emits a {@link ParamChangeMsg} message
+	 * with the updated param spec.
 	 *
 	 * @param id
 	 * @param spec
 	 */
 	updateParam(
 		id: string,
-		spec: Param<any>
-	): Promise<{ value?: any; update?: boolean } | void>;
+		spec: Readonly<Param<any>>
+	): Promise<{ value?: any; update?: Record<string, any> } | void>;
 
 	/**
 	 * Called by {@link GenArtAPI.setParams} to pass parameter specs provided by
@@ -416,8 +432,8 @@ export interface PlatformAdapter {
 	 * initialization. The actual param value parsing/overriding then happens
 	 * via {@link PlatformAdapter.updateParam}.
 	 *
-	 * This function is async MUST return true to indicate param
-	 * pre-initialization succeeded.
+	 * This function is async and MUST return true to indicate param
+	 * pre-initialization succeeded on the adapter's side.
 	 *
 	 * @param params
 	 */
