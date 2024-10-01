@@ -102,24 +102,23 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "range":
 				return { value: +value };
 			case "ramp": {
-				const [mode, ...stops] = value.split(",");
-				if (!mode || stops.length < 4 || stops.length & 1) {
+				const [$mode, ...$stops] = value.split(",");
+				if (!$mode || $stops.length < 4 || $stops.length & 1) {
 					$genart.paramError(id);
 					return;
 				}
-				const $spec = <RampParam>spec;
-				$spec.mode =
-					(<const>{ l: "linear", s: "smooth", e: "exp" })[mode] ||
+				const mode =
+					(<const>{ l: "linear", s: "smooth", e: "exp" })[$mode] ||
 					"linear";
-				$spec.stops = [];
-				for (let i = 0; i < stops.length; i += 2) {
-					$spec.stops.push([
-						clamp01(parseNum(stops[i])),
-						clamp01(parseNum(stops[i + 1])),
+				const stops: RampParam["stops"] = [];
+				for (let i = 0; i < $stops.length; i += 2) {
+					stops.push([
+						clamp01(parseNum($stops[i])),
+						clamp01(parseNum($stops[i + 1])),
 					]);
 				}
-				$spec.stops.sort((a, b) => a[0] - b[0]);
-				return { update: true };
+				stops.sort((a, b) => a[0] - b[0]);
+				return { update: { mode, stops } };
 			}
 			case "toggle":
 				return { value: value === "1" };
