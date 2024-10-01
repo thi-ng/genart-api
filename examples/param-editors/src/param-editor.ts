@@ -18,6 +18,7 @@ import {
 	date,
 	dateTime,
 	file,
+	group,
 	range,
 	selectStr,
 	str,
@@ -37,10 +38,13 @@ import {
 import type {
 	ChoiceParam,
 	ImageParam,
+	ParamChangeMsg,
 	ParamSpecs,
 	RandomizeParamMsg,
 	RangeParam,
+	SetParamsMsg,
 	SetParamValueMsg,
+	SetTraitsMsg,
 	TextParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
@@ -51,7 +55,7 @@ import { canvasColorPicker } from "./color-picker.js";
 const iframe = <HTMLIFrameElement>document.getElementById("art");
 const iframeWindow = iframe.contentWindow!;
 
-const features = reactive({});
+const traits = reactive({});
 const controls = stream<ParamSpecs>();
 const iframeParams = reactive(iframe.src.substring(iframe.src.indexOf("?")), {
 	closeOut: "never",
@@ -65,19 +69,25 @@ let selfUpdate = false;
 
 window.addEventListener("message", (e) => {
 	switch (e.data.type) {
-		case "genart:setfeatures":
-			apiID = e.data.apiID;
-			features.next(e.data.features);
+		case "genart:settraits": {
+			const $msg = <SetTraitsMsg>e.data;
+			apiID = $msg.apiID;
+			traits.next($msg.traits);
 			break;
-		case "genart:setparams":
-			apiID = e.data.apiID;
-			if (Object.keys(e.data.params).length) controls.next(e.data.params);
+		}
+		case "genart:setparams": {
+			const $msg = <SetParamsMsg>e.data;
+			apiID = $msg.apiID;
+			if (Object.keys($msg.params).length) controls.next($msg.params);
 			break;
-		case "genart:paramchange":
+		}
+		case "genart:paramchange": {
+			const $msg = <ParamChangeMsg>e.data;
 			selfUpdate = true;
-			paramValues[e.data.paramID]?.next(e.data.spec.value);
+			paramValues[$msg.paramID]?.next($msg.spec.value);
 			selfUpdate = false;
 			break;
+		}
 		case "paramadapter:update":
 			iframeParams.next(e.data.params);
 			break;
@@ -343,16 +353,21 @@ const createParamControls = (params: ParamSpecs) => {
 	}
 
 	items.push(
-		str({
-			label: "URL params",
-			attribs: { disabled: true },
-			value: iframeParams,
-		}),
-		text({
-			label: "Features",
-			attribs: { disabled: true, rows: 10 },
-			value: features.map((x) => JSON.stringify(x, null, 2)),
-		})
+		group(
+			{ label: "Info" },
+			str({
+				label: "URL params",
+				desc: "The customized parameters encoded as URL search params...",
+				attribs: { disabled: true },
+				value: iframeParams,
+			}),
+			text({
+				label: "Artwork traits",
+				desc: "Optional. Not all artworks define traits...",
+				attribs: { disabled: true, rows: 10 },
+				value: traits.map((x) => JSON.stringify(x, null, 2)),
+			})
+		)
 	);
 
 	return compileForm(container({}, ...items), {

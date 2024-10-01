@@ -22,13 +22,16 @@ import { EASING_N, HERMITE_N, LINEAR_N, ramp } from "@thi.ng/ramp";
 import { range } from "@thi.ng/transducers";
 import type {
 	ChoiceParam,
-	Features,
 	Maybe,
+	ParamChangeMsg,
 	ParamSpecs,
 	RampParam,
 	RandomizeParamMsg,
 	RangeParam,
+	SetParamsMsg,
 	SetParamValueMsg,
+	SetTraitsMsg,
+	Traits,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
 
@@ -38,7 +41,7 @@ const W = APP.getBoundingClientRect().width;
 const H = 1500;
 
 let apiID: string;
-let features: Features;
+let traits: Traits;
 let params: ParamSpecs;
 let iframeParams: string;
 let selfUpdate = false;
@@ -53,21 +56,27 @@ const iframe = (<HTMLIFrameElement>document.getElementById("art"))
 
 window.addEventListener("message", (e) => {
 	switch (e.data.type) {
-		case "genart:setfeatures":
-			apiID = e.data.apiID;
-			features = e.data.features;
+		case "genart:settraits": {
+			const $msg = <SetTraitsMsg>e.data;
+			apiID = $msg.apiID;
+			traits = $msg.traits;
 			break;
-		case "genart:setparams":
-			apiID = e.data.apiID;
-			params = e.data.params;
+		}
+		case "genart:setparams": {
+			const $msg = <SetParamsMsg>e.data;
+			apiID = $msg.apiID;
+			params = $msg.params;
 			gui && updateGUI();
 			break;
-		case "genart:paramchange":
+		}
+		case "genart:paramchange": {
+			const $msg = <ParamChangeMsg>e.data;
+			params[$msg.paramID] = $msg.spec;
 			selfUpdate = true;
-			params[e.data.paramID] = e.data.spec;
 			gui && updateGUI();
 			selfUpdate = false;
 			break;
+		}
 		case "paramadapter:update":
 			iframeParams = e.data.params;
 			break;
@@ -274,6 +283,7 @@ const updateWidgets = (draw: boolean) => {
 					);
 					if ($res) {
 						res = $res.stops;
+						changedKey = "stops";
 					}
 					const mode = dropdown(
 						gui!,
