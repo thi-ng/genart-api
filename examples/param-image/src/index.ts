@@ -27,13 +27,13 @@ const TAU = 2 * Math.PI;
 		bg: $genart.params.color({
 			name: "Bg color",
 			desc: "Background",
-			default: "#000000",
+			default: "#000066",
 		}),
 
 		dot: $genart.params.color({
 			name: "Dot color",
 			desc: "Color used for drawing the grid of dots",
-			default: "#ff0066",
+			default: "#ff9900",
 		}),
 
 		size: $genart.params.range({

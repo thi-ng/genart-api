@@ -91,8 +91,8 @@ declare var $genart: GenArtAPI;
 
 	console.log(JSON.stringify($genart.paramSpecs, null, 4));
 
-	const setFeatures = () =>
-		$genart.setFeatures({
+	const setTraits = () =>
+		$genart.setTraits({
 			fade:
 				param("fade") < 0.1
 					? "weak"
@@ -107,7 +107,7 @@ declare var $genart: GenArtAPI;
 			}[param("dot")],
 		});
 
-	setFeatures();
+	setTraits();
 
 	const { width: W, height: H } = $genart.screen;
 	const canvas = document.createElement("canvas");
@@ -156,7 +156,7 @@ declare var $genart: GenArtAPI;
 		x += param("speed");
 		if (x >= W) {
 			// trigger capture
-			$genart.capture(canvas);
+			// $genart.capture(canvas);
 			x -= W;
 		}
 		return true;
@@ -164,6 +164,6 @@ declare var $genart: GenArtAPI;
 
 	$genart.on("genart:paramchange", (e) => {
 		console.log("art param change", e.paramID, e.spec);
-		setFeatures();
+		setTraits();
 	});
 })();
