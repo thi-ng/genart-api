@@ -16,6 +16,6 @@ $genart.setAdapter({
 	async setParams(_: ParamSpecs) {
 		return true;
 	},
-	setFeatures() {},
+	setTraits() {},
 	capture() {},
 });

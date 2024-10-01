@@ -1,4 +1,4 @@
-import type { APIState, Features } from "../api.js";
+import type { APIState, Traits } from "../api.js";
 import type { Param, ParamSpecs } from "./params.js";
 
 export interface APIMessage {
@@ -12,9 +12,9 @@ export interface APIMessage {
 	__self?: boolean;
 }
 
-export interface SetFeaturesMsg extends APIMessage {
-	type: "genart:setfeatures";
-	features: Features;
+export interface SetTraitsMsg extends APIMessage {
+	type: "genart:settraits";
+	traits: Traits;
 }
 
 export interface SetParamsMsg extends APIMessage {
@@ -52,9 +52,9 @@ export interface StateChangeMsg extends APIMessage {
 }
 
 export interface MessageTypeMap {
-	"genart:setfeatures": SetFeaturesMsg;
 	"genart:setparams": SetParamsMsg;
 	"genart:setparamvalue": SetParamValueMsg;
+	"genart:settraits": SetTraitsMsg;
 	"genart:randomizeparam": RandomizeParamMsg;
 	"genart:paramchange": ParamChangeMsg;
 	"genart:paramerror": ParamErrorMsg;

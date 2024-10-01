@@ -175,9 +175,9 @@ The API implements a finite state machine with the following possible states:
 
 TODO
 
--   `genart:setfeatures`
 -   `genart:setparams`
 -   `genart:setparamvalue`
+-   `genart:settraits`
 -   `genart:randomizeparam`
 -   `genart:paramchange`
 -   `genart:paramerror`

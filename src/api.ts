@@ -53,7 +53,7 @@ export type RunMode = "play" | "preview" | "edit";
 
 export type APIState = "init" | "ready" | "play" | "stop" | "error";
 
-export type Features = Record<string, number | string | boolean>;
+export type Traits = Record<string, number | string | boolean>;
 
 export interface GenArtAPI {
 	/**
@@ -265,22 +265,22 @@ export interface GenArtAPI {
 	paramError(id: string): void;
 
 	/**
-	 * (Optionally) Called by the artwork to declare a number of "features"
-	 * (aka generated metadata) which should be exposed to the
-	 * platform/users/collectors, e.g. to compute the rarity of a variation. The
-	 * keys in this object are feature names, their values can be arbitrary
+	 * (Optionally) Called by the artwork to declare an object of "traits" (aka
+	 * generated metadata) which should be exposed to the platform or
+	 * viewers/collectors, e.g. to compute the rarity of a variation. The keys
+	 * in this object are trait/feature names, their values can be arbitrary
 	 * strings, numbers or booleans.
 	 *
 	 * @remarks
-	 * Usually these features are derived from the random seed and currently
+	 * Usually these traits are derived from the random seed and currently
 	 * configured parameters. The API will forward this object to
-	 * {@link PlatformAdapter.setFeatures} for platform-specific processing, but
-	 * also emits a {@link SetFeaturesMsg} message to the current & parent
+	 * {@link PlatformAdapter.setTraits} for platform-specific processing, but
+	 * also emits a {@link SetTraitsMsg} message to the current & parent
 	 * windows.
 	 *
 	 * @example
 	 * ```ts
-	 * $genart.setFeatures({
+	 * $genart.setTraits({
 	 *   mood: "bright",
 	 *   shapes: "triangles",
 	 *   density: 100,
@@ -288,9 +288,9 @@ export interface GenArtAPI {
 	 * });
 	 * ```
 	 *
-	 * @param features
+	 * @param traits
 	 */
-	setFeatures(features: Features): void;
+	setTraits(traits: Traits): void;
 
 	on<T extends MessageType>(
 		type: T,
@@ -439,7 +439,12 @@ export interface PlatformAdapter {
 	 */
 	setParams?(params: ParamSpecs): Promise<boolean>;
 
-	setFeatures?(features: Features): void;
+	/**
+	 * See {@link GenArtAPI.setTraits}.
+	 *
+	 * @param traits
+	 */
+	setTraits?(traits: Traits): void;
 
 	/**
 	 * Platform-specific handler to deal with capturing a thumbnail/preview of

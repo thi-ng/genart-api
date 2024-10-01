@@ -2,7 +2,6 @@ import type {
 	APIMessage,
 	APIState,
 	ChoiceParam,
-	Features,
 	GenArtAPI,
 	ImageParam,
 	ListParam,
@@ -21,11 +20,12 @@ import type {
 	RampParam,
 	RandomFn,
 	RangeParam,
-	SetFeaturesMsg,
 	SetParamsMsg,
+	SetTraitsMsg,
 	StateChangeMsg,
 	TextParam,
 	TimeProvider,
+	Traits,
 	UpdateFn,
 	WeightedChoiceParam,
 } from "./api.js";
@@ -45,7 +45,7 @@ class API implements GenArtAPI {
 	protected _prng?: PRNG;
 	protected _update?: UpdateFn;
 	protected _state: APIState = "init";
-	protected _features?: Features;
+	protected _traits?: Traits;
 	protected _params: Maybe<ParamSpecs>;
 	protected _paramTypes: Record<string, ParamImpl> = {
 		choice: {
@@ -330,9 +330,9 @@ class API implements GenArtAPI {
 			this.getParamValue<P, K>(id, t, rnd);
 	}
 
-	setFeatures(features: Features): void {
-		this._features = features;
-		this.emit<SetFeaturesMsg>({ type: "genart:setfeatures", features });
+	setTraits(traits: Traits): void {
+		this._traits = traits;
+		this.emit<SetTraitsMsg>({ type: "genart:settraits", traits });
 	}
 
 	async setAdapter(adapter: PlatformAdapter) {
