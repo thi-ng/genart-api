@@ -660,6 +660,7 @@ project and adding the following `<script>` tags to your HTML header:
 ```
 
 -   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/index.ts)
+-   [Release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.js)
 -   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.min.js)
 
 This repo also provides a basic [platform adapter](#platform-adapters) for
@@ -673,6 +674,7 @@ use cases:
 ```
 
 -   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts)
+-   [Release build](https://github.com/thi-ng/genart-api/blob/main/dist/adapter-urlparams.js)
 -   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/adapter-urlparams.min.js)
 
 #### Example files
