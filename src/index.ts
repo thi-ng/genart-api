@@ -7,6 +7,7 @@ import type {
 	Maybe,
 	MessageType,
 	MessageTypeMap,
+	NestedParamSpecs,
 	NotifyType,
 	Param,
 	ParamChangeMsg,
@@ -575,7 +576,7 @@ class API implements GenArtAPI {
 		if (this._params && Object.keys(this._params).length) {
 			this.emit<SetParamsMsg>({
 				type: "genart:setparams",
-				params: this._params,
+				params: this.asNestedParams({}, this._params),
 				__self: true,
 			});
 		}
@@ -590,7 +591,7 @@ class API implements GenArtAPI {
 			{
 				type: "genart:paramchange",
 				paramID: id,
-				spec,
+				spec: this.asNestedParam(spec),
 				__self: true,
 			},
 			notify
@@ -619,6 +620,22 @@ class API implements GenArtAPI {
 			typeof data === "object" &&
 			(!this.id || this.id === data.apiID)
 		);
+	}
+
+	protected asNestedParams(dest: NestedParamSpecs, src: ParamSpecs) {
+		for (let id in src) {
+			dest[id] = this.asNestedParam(src[id]);
+		}
+		return dest;
+	}
+
+	protected asNestedParam(param: Param<any>) {
+		const dest: NestedParamSpecs["a"] = { ...param };
+		const impl = this._paramTypes[param.type];
+		if (impl.params) {
+			dest.__params = this.asNestedParams({}, impl.params);
+		}
+		return dest;
 	}
 }
 

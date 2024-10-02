@@ -1,5 +1,5 @@
 import type { APIState, Traits } from "../api.js";
-import type { Param, ParamSpecs } from "./params.js";
+import type { NestedParamSpecs, Param } from "./params.js";
 
 export interface APIMessage {
 	type: MessageType;
@@ -19,7 +19,7 @@ export interface SetTraitsMsg extends APIMessage {
 
 export interface SetParamsMsg extends APIMessage {
 	type: "genart:setparams";
-	params: ParamSpecs;
+	params: NestedParamSpecs;
 }
 
 export interface SetParamValueMsg extends APIMessage {

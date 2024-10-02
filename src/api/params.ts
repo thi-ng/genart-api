@@ -197,6 +197,10 @@ export interface XYParam extends Param<[number, number]> {
 
 export type ParamSpecs = Record<string, Param<any>>;
 
+export type NestedParamSpecs = Record<string, NestedParam>;
+
+export type NestedParam = Param<any> & { __params?: NestedParamSpecs };
+
 export type ParamValues<T extends ParamSpecs> = {
 	[id in keyof T]: ParamValue<T[id]>;
 };
