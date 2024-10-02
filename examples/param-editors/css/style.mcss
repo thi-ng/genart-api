@@ -19,9 +19,9 @@ h1 { ls--1 mb2 }
 
 label { db b mb2 l:mb0 }
 
-fieldset { ma0 mb3 pa3 bw-1px border-color(border-color) }
+fieldset { ma0 mb3 pa0 bw0 }
 
-legend { f6 b pv0 ph3 color-gray }
+legend { pa0 mb3 color-gray b }
 
 .control {
 	bg-color=#fff

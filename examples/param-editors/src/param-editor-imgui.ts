@@ -18,8 +18,8 @@ import {
 	xyPad,
 } from "@thi.ng/imgui";
 import { gridLayout } from "@thi.ng/layout";
-import { EASING_N, HERMITE_N, LINEAR_N, ramp } from "@thi.ng/ramp";
-import { range } from "@thi.ng/transducers";
+import { EASING_N, HERMITE_N, LINEAR_N, ramp, type Frame } from "@thi.ng/ramp";
+import { partition, range } from "@thi.ng/transducers";
 import type {
 	ChoiceParam,
 	Maybe,
@@ -148,7 +148,13 @@ const updateWidgets = (draw: boolean) => {
 						true,
 						rgb,
 						["R", "G", "B"],
-						undefined
+						undefined,
+						["", "", ""].fill(
+							param.desc +
+								(param.update === "reload"
+									? " (change forces reload) "
+									: "")
+						)
 					);
 					layout.next([COLS - 1, 1]);
 					if (edit) {
@@ -274,15 +280,14 @@ const updateWidgets = (draw: boolean) => {
 						gui!,
 						layout.next([COLS, 5]),
 						id,
-						ramp(
-							[LINEAR_N, HERMITE_N, EXPONENTIAL_N][modeID],
-							$param.stops
-						),
+						ramp([LINEAR_N, HERMITE_N, EXPONENTIAL_N][modeID], <
+							[number, number][]
+						>[...partition(2, $param.stops)]),
 						modeID,
 						param.doc
 					);
 					if ($res) {
-						res = $res.stops;
+						res = $res.stops.flat();
 						changedKey = "stops";
 					}
 					const mode = dropdown(
