@@ -1,5 +1,6 @@
 import type {
 	ImageParam,
+	NumListParam,
 	Param,
 	ParamSpecs,
 	PlatformAdapter,
@@ -99,6 +100,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				return { value: new Date(Date.parse(value)) };
 			case "img":
 				return { value: base64Decode(value) };
+			case "numlist":
+				return { value: value.split(",").map((x) => parseNum(x)) };
 			case "range":
 				return { value: +value };
 			case "ramp": {
@@ -110,7 +113,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				const mode =
 					(<const>{ l: "linear", s: "smooth", e: "exp" })[$mode] ||
 					"linear";
-				const stops: RampParam["stops"] = [];
+				const stops: [number, number][] = [];
 				for (let i = 0; i < $stops.length; i += 2) {
 					stops.push([
 						clamp01(parseNum($stops[i])),
@@ -118,8 +121,10 @@ class URLParamsAdapter implements PlatformAdapter {
 					]);
 				}
 				stops.sort((a, b) => a[0] - b[0]);
-				return { update: { mode, stops } };
+				return { update: { mode, stops: stops.flat() } };
 			}
+			case "strlist":
+				return { value: value.split(",") };
 			case "toggle":
 				return { value: value === "1" };
 			case "xy":
@@ -137,6 +142,9 @@ class URLParamsAdapter implements PlatformAdapter {
 				return spec.value.toISOString();
 			case "img":
 				return base64Encode((<ImageParam>spec).value!);
+			case "numlist":
+			case "strlist":
+				return (<NumListParam>spec).value!.join(",");
 			case "ramp": {
 				const $spec = <RampParam>spec;
 				return (

@@ -108,14 +108,17 @@ export interface ImageParam
 	format: "gray" | "rgb" | "rgba";
 }
 
-export interface ListParam<T> extends Param<T[]> {
-	type: "list";
-	validate: (x: any) => boolean;
+export interface StringListParam<T extends string> extends Param<T[]> {
+	type: "strlist";
+}
+
+export interface NumListParam extends Param<number[]> {
+	type: "numlist";
 }
 
 export interface RampParam extends Param<number> {
 	type: "ramp";
-	stops: [number, number][];
+	stops: number[];
 	mode?: "linear" | "smooth" | "exp";
 }
 
@@ -257,10 +260,14 @@ export interface ParamImpl<T = any> {
 	 */
 	read?: (spec: Readonly<Param<T>>, t: number) => T;
 	/**
-	 * Optional parameter specs for composite or nested params. E.g.
-	 * Conceptually, a {@link RampParam} is a composite of
-	 * {@link RampParam.stops} (a {@link ListParam}) and {@link RampParam.mode}
-	 * (a {@link ChoiceParam}).
+	 * Optional parameter specs for composite or nested params. These nested
+	 * params can be used to define constraints and possible controls for
+	 * aspects of the main parameter.
+	 *
+	 * @remarks
+	 * For example, conceptually, a {@link RampParam} is a composite of
+	 * {@link RampParam.stops} (a {@link StringListParam}) and
+	 * {@link RampParam.mode} (a {@link ChoiceParam}).
 	 *
 	 * @remarks
 	 * These param specs can be used to delegate {@link ParamImpl} tasks to the
@@ -330,11 +337,20 @@ export interface ParamFactories {
 	image(spec: BaseParam<ImageParam>): ImageParam;
 
 	/**
-	 * Defines a new list parameter with value type `T`. Not randomizable.
+	 * Defines a new number list parameter. Not randomizable.
 	 *
 	 * @param spec
 	 */
-	list<T>(spec: BaseParam<ListParam<T>>): ListParam<T>;
+	numlist(spec: BaseParam<NumListParam>): NumListParam;
+
+	/**
+	 * Defines a new string list parameter. Not randomizable.
+	 *
+	 * @param spec
+	 */
+	strlist<T extends string>(
+		spec: BaseParam<StringListParam<T>>
+	): StringListParam<T>;
 
 	/**
 	 * Defines a new ramp parameter, a curve defined by stops/keyframes in the [0,1]
@@ -366,7 +382,7 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	ramp(
-		spec: BaseParam<RampParam, "stops"> & Partial<Pick<RampParam, "stops">>
+		spec: BaseParam<RampParam, "stops"> & { stops?: [number, number][] }
 	): RampParam;
 
 	/**

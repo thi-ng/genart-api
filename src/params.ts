@@ -5,9 +5,10 @@ import type {
 	DateParam,
 	DateTimeParam,
 	ImageParam,
-	ListParam,
+	NumListParam,
 	RampParam,
 	RangeParam,
+	StringListParam,
 	TextParam,
 	TimeParam,
 	ToggleParam,
@@ -50,26 +51,24 @@ export const image = (spec: BaseParam<ImageParam>): ImageParam => ({
 	...spec,
 });
 
-export const list = <T>(
-	spec: BaseParam<ListParam<T>> & { default: T[] }
-): ListParam<T> => ({
-	type: "list",
+export const numlist = (spec: BaseParam<NumListParam>): NumListParam => ({
+	type: "numlist",
 	randomize: false,
+	default: [],
 	...spec,
 });
 
 export const ramp = (
-	spec: BaseParam<RampParam, "stops"> & Partial<Pick<RampParam, "stops">>
+	spec: BaseParam<RampParam, "stops"> & { stops?: [number, number][] }
 ): RampParam => ({
 	type: "ramp",
+	name: spec.name,
+	desc: spec.desc,
+	doc: spec.doc,
+	stops: spec.stops ? spec.stops.flat() : [0, 0, 1, 1],
+	mode: spec.mode || "linear",
 	randomize: false,
 	default: 0,
-	mode: "linear",
-	stops: [
-		[0, 0],
-		[1, 1],
-	],
-	...spec,
 });
 
 export const range = (
@@ -80,6 +79,15 @@ export const range = (
 	min: 0,
 	max: 100,
 	step: 1,
+	...spec,
+});
+
+export const strlist = <T extends string>(
+	spec: BaseParam<StringListParam<T>>
+): StringListParam<T> => ({
+	type: "strlist",
+	randomize: false,
+	default: [],
 	...spec,
 });
 

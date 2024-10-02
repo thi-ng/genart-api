@@ -391,9 +391,10 @@ export interface PlatformAdapter {
 	readonly prng: PRNG;
 
 	/**
-	 * Called by {@link GenArtAPI.updateParams} to possibly augment/update a
-	 * single param spec with any customizations sourced via platform-specific
-	 * means (e.g. from URL query-string params).
+	 * Called by {@link GenArtAPI.updateParams} (and indirectly by
+	 * {@link GenArtAPI.setParams}) to possibly augment/update a single param
+	 * spec with any customizations sourced via platform-specific means (e.g.
+	 * from URL query-string params).
 	 *
 	 * @remarks
 	 * The function can return one of the following:
@@ -429,8 +430,10 @@ export interface PlatformAdapter {
 	/**
 	 * Called by {@link GenArtAPI.setParams} to pass parameter specs provided by
 	 * the artwork to the platform adapter to prepare itself for param
-	 * initialization. The actual param value parsing/overriding then happens
-	 * via {@link PlatformAdapter.updateParam}.
+	 * initialization (e.g. initiating a network request for loading
+	 * parameters). The actual value parsing of individual parameters then
+	 * happens via {@link PlatformAdapter.updateParam} (which is also indirectly
+	 * called by {@link GenArtAPI.setParams}).
 	 *
 	 * This function is async and MUST return true to indicate param
 	 * pre-initialization succeeded on the adapter's side.

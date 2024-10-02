@@ -4,7 +4,6 @@ import type {
 	ChoiceParam,
 	GenArtAPI,
 	ImageParam,
-	ListParam,
 	Maybe,
 	MessageType,
 	MessageTypeMap,
@@ -98,10 +97,8 @@ class API implements GenArtAPI {
 				return isNumericArray(value) && value.length == width * height;
 			},
 		},
-		list: {
-			validate: (spec, value) =>
-				Array.isArray(value) &&
-				value.every((<ListParam<any>>spec).validate),
+		numlist: {
+			validate: (_, value) => isNumericArray(value),
 		},
 		ramp: {
 			validate: () => false,
@@ -109,38 +106,31 @@ class API implements GenArtAPI {
 				const { stops, mode } = <RampParam>spec;
 				let n = stops.length;
 				let i = n;
-				for (; i-- > 0; ) {
-					if (t >= stops[i][0]) break;
+				for (; (i -= 2) >= 0; ) {
+					if (t >= stops[i]) break;
 				}
-				n--;
-				const a = stops[i];
-				const b = stops[i + 1];
+				n -= 2;
+				const at = stops[i];
+				const av = stops[i + 1];
+				const bt = stops[i + 2];
+				const bv = stops[i + 3];
 				return i < 0
-					? stops[0][1]
+					? stops[1]
 					: i >= n
-					? stops[n][1]
+					? stops[n + 1]
 					: {
 							exp: () =>
-								mix(
-									a[1],
-									b[1],
-									math.easeInOut5(norm(t, a[0], b[0]))
-								),
-							linear: () => math.fit(t, a[0], b[0], a[1], b[1]),
+								mix(av, bv, math.easeInOut5(norm(t, at, bt))),
+							linear: () => math.fit(t, at, bt, av, bv),
 							smooth: () =>
-								mix(
-									a[1],
-									b[1],
-									math.smoothstep01(norm(t, a[0], b[0]))
-								),
+								mix(av, bv, math.smoothstep01(norm(t, at, bt))),
 					  }[mode || "linear"]();
 			},
 			params: {
-				stops: params.list<RampParam["stops"][0]>({
+				stops: params.numlist({
 					name: "Ramp stops",
 					desc: "Control points",
 					default: [],
-					validate: isNumericArray,
 				}),
 				mode: params.choice<Exclude<RampParam["mode"], undefined>>({
 					name: "Ramp mode",
@@ -166,6 +156,10 @@ class API implements GenArtAPI {
 				const { min, max, step } = <RangeParam>spec;
 				return clamp(round(mix(min, max, rnd()), step || 1), min, max);
 			},
+		},
+		strlist: {
+			validate: (_, value) =>
+				Array.isArray(value) && value.every(isString),
 		},
 		text: {
 			validate: (spec, value) => {
