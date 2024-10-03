@@ -350,7 +350,7 @@
             this.setParamValue(data.paramID, data.value, data.key);
             break;
           case "genart:randomizeparam":
-            this.randomizeParamValue(data.paramID);
+            this.randomizeParamValue(data.paramID, data.key);
         }
       });
     }
@@ -459,42 +459,36 @@
     setParamValue(id, value, key, notify = "all") {
       let { spec, impl } = this.ensureParam(id);
       if (value != null) {
-        const keyParamSpec = key ? impl.params?.[key] : spec;
+        let updateSpec = spec;
         if (key) {
-          impl = this.ensureParamImpl(keyParamSpec?.type || "");
+          const { spec: nested, impl: nestedImpl } = this.ensureNestedParam(spec, key);
+          updateSpec = nested;
+          impl = nestedImpl;
         }
-        if (!impl.validate(keyParamSpec, value)) {
+        if (!impl.validate(updateSpec, value)) {
           this.paramError(id);
           return;
         }
-        spec[key || "value"] = impl.coerce ? impl.coerce(spec, value) : value;
+        spec[key || "value"] = impl.coerce ? impl.coerce(updateSpec, value) : value;
       }
       this.notifyParamChange(id, spec, notify);
     }
-    randomizeParamValue(id, rnd = Math.random, notify = "all") {
+    randomizeParamValue(id, key, rnd = Math.random, notify = "all") {
       const {
         spec,
-        impl: { params, randomize }
+        impl: { randomize }
       } = this.ensureParam(id);
       const canRandomizeValue = randomize && spec.randomize !== false;
-      if (params) {
-        let update = false;
-        for (let pid in params) {
-          const param = params[pid];
-          const pimpl = this.ensureParamImpl(param.type);
-          if (pimpl.randomize && param.randomize !== false) {
-            this.setParamValue(
-              id,
-              pimpl.randomize(param, rnd),
-              pid,
-              "none"
-            );
-            update = true;
-          }
-        }
-        if (update && !canRandomizeValue) {
-          this.notifyParamChange(id, spec, notify);
-          return;
+      if (key) {
+        const { spec: nested, impl } = this.ensureNestedParam(spec, key);
+        const canRandomizeKey = impl.randomize && nested.randomize !== false;
+        if (canRandomizeKey) {
+          this.setParamValue(
+            id,
+            impl.randomize(nested, rnd),
+            key,
+            canRandomizeKey || !canRandomizeValue ? notify : "none"
+          );
         }
       }
       if (canRandomizeValue) {
@@ -588,6 +582,13 @@
       if (!impl) throw new Error(`unknown param type: ${type}`);
       return impl;
     }
+    ensureNestedParam(param, key) {
+      const impl = this.ensureParamImpl(param.type);
+      const spec = impl.params?.[key];
+      if (!spec)
+        throw new Error(`param type '${param.type}' has no nested: ${key}`);
+      return { spec, impl: this.ensureParamImpl(spec.type) };
+    }
     waitFor(type) {
       return this[type] ? Promise.resolve() : new Promise((resolve) => {
         const check = () => {
@@ -607,7 +608,7 @@
       if (this._params && Object.keys(this._params).length) {
         this.emit({
           type: "genart:setparams",
-          params: this._params,
+          params: this.asNestedParams({}, this._params),
           __self: true
         });
       }
@@ -617,7 +618,7 @@
         {
           type: "genart:paramchange",
           paramID: id,
-          spec,
+          spec: this.asNestedParam(spec),
           __self: true
         },
         notify
@@ -635,6 +636,20 @@
      */
     isRecipient({ data }) {
       return data != null && typeof data === "object" && (!this.id || this.id === data.apiID);
+    }
+    asNestedParams(dest, src) {
+      for (let id in src) {
+        dest[id] = this.asNestedParam(src[id]);
+      }
+      return dest;
+    }
+    asNestedParam(param) {
+      const dest = { ...param };
+      const impl = this._paramTypes[param.type];
+      if (impl.params) {
+        dest.__params = this.asNestedParams({}, impl.params);
+      }
+      return dest;
     }
   };
   globalThis.$genart = new API();
