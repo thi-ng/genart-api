@@ -211,7 +211,12 @@ export interface GenArtAPI {
 		notify?: NotifyType
 	): void;
 
-	randomizeParamValue(id: string, rnd?: RandomFn, notify?: NotifyType): void;
+	randomizeParamValue(
+		id: string,
+		key?: string,
+		rnd?: RandomFn,
+		notify?: NotifyType
+	): void;
 
 	/**
 	 * Returns the value for previously registered parameter `id`, possibly

@@ -251,7 +251,7 @@ class API implements GenArtAPI {
 					this.setParamValue(data.paramID, data.value, data.key);
 					break;
 				case "genart:randomizeparam":
-					this.randomizeParamValue(data.paramID);
+					this.randomizeParamValue(data.paramID, data.key);
 			}
 		});
 	}
@@ -397,7 +397,7 @@ class API implements GenArtAPI {
 				return;
 			}
 			(<any>spec)[key || "value"] = impl.coerce
-				? impl.coerce(spec, value)
+				? impl.coerce(keyParamSpec!, value)
 				: value;
 		}
 		this.notifyParamChange(id, spec, notify);
@@ -405,32 +405,26 @@ class API implements GenArtAPI {
 
 	randomizeParamValue(
 		id: string,
+		key?: string,
 		rnd: RandomFn = Math.random,
 		notify: NotifyType = "all"
 	) {
 		const {
 			spec,
-			impl: { params, randomize },
+			impl: { randomize },
 		} = this.ensureParam(id);
 		const canRandomizeValue = randomize && spec.randomize !== false;
-		if (params) {
-			let update = false;
-			for (let pid in params) {
-				const param = params[pid];
-				const pimpl = this.ensureParamImpl(param.type);
-				if (pimpl.randomize && param.randomize !== false) {
-					this.setParamValue(
-						id,
-						pimpl.randomize(param, rnd),
-						pid,
-						"none"
-					);
-					update = true;
-				}
-			}
-			if (update && !canRandomizeValue) {
-				this.notifyParamChange(id, spec, notify);
-				return;
+		if (key) {
+			const { spec: nested, impl } = this.ensureNestedParam(spec, key);
+			const canRandomizeKey =
+				impl.randomize && nested.randomize !== false;
+			if (canRandomizeKey) {
+				this.setParamValue(
+					id,
+					impl.randomize!(nested, rnd),
+					key,
+					canRandomizeKey || !canRandomizeValue ? notify : "none"
+				);
 			}
 		}
 		if (canRandomizeValue) {
@@ -552,6 +546,14 @@ class API implements GenArtAPI {
 		const impl = this._paramTypes[type];
 		if (!impl) throw new Error(`unknown param type: ${type}`);
 		return impl;
+	}
+
+	protected ensureNestedParam(param: Param<any>, key: string) {
+		const impl = this.ensureParamImpl(param.type);
+		const spec = impl.params?.[key];
+		if (!spec)
+			throw new Error(`param type '${param.type}' has no nested: ${key}`);
+		return { spec, impl: this.ensureParamImpl(spec.type) };
 	}
 
 	protected waitFor(type: "_adapter" | "_time") {
