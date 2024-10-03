@@ -684,6 +684,8 @@ build order must be used:
     Minimal "art" example using various parameter types
 -   [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/):
     Example using an image map parameter
+-   [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
+    Custom & composite parameter type example
 -   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/):
     GUI param editors to modify param values exposed by an artwork running in an
     embedded `<iframe>`.
