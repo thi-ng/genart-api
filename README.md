@@ -17,6 +17,7 @@
         -   [Date](#date-parameter)
         -   [Datetime](#datetime-parameter)
         -   [Image](#image-parameter)
+        -   [List](#list-parameter)
         -   [Range](#range-parameter)
         -   [Text](#text-parameter)
         -   [Time](#time-of-day-parameter)
@@ -27,6 +28,7 @@
         -   [Ramp](#ramp-parameter)
     -   [Custom parameter types](#custom-parameter-types)
         -   [Example: Oscillator parameter type](#example-oscillator-parameter-type)
+    -   [Composite parameter types](#composite-parameter-types)
 -   [Platform adapters](#platform-adapters)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
@@ -117,6 +119,7 @@ fully documented interfaces & types, and some example test cases to demonstrate
 -   Provide an extensible, platform-independent parameter system with a set of
     commonly used parameter types
     -   Parameter type-specific validation, coercion, randomization
+    -   Composite parameter types
     -   Randomized parameter lookups (per individual read)
     -   Timebased parameters (e.g. [ramps](#ramp-parameter))
     -   Built-in support for custom parameter types and their implementation
@@ -339,6 +342,30 @@ data in the expected format.
 > hard browser-defined limits and this param type is not (yet?) supported by any
 > of the major online art platforms.
 
+#### List parameter
+
+TODO
+
+##### Numeric list
+
+```ts
+$genart.params.numlist({
+    name: "test",
+    desc: "List of numbers",
+    default: [1, 2, 3],
+});
+```
+
+##### String list
+
+```ts
+$genart.params.strlist({
+    name: "test",
+    desc: "List of strings",
+    default: ["a", "b", "c"],
+});
+```
+
 #### Range parameter
 
 Numeric value from a closed range/interval (defined by `min`/`max`, defaulting
@@ -521,15 +548,16 @@ registers its own types, it SHOULD consider namespacing the type name, e.g.
 
 #### Example: Oscillator parameter type
 
-The following example shows how to implement, register and then use a sinewave
-oscillator parameter type, providing time-based values:
+The following example shows how to implement, register and then use a sine wave
+oscillator parameter type, providing time-based values. A more advanced version
+is shown in the [param-custom
+example](https://github.com/thi-ng/genart-api/blob/main/examples/param-custom).
 
 ```ts
 // define a new param type with given name and implementation.
 interface OscParam extends Param<number> {
     type: "user:sinosc";
     freq: number;
-    phase: number;
     amp: number;
     offset: number;
 }
@@ -542,8 +570,8 @@ $genart.registerParamType("user:sinosc", {
     // the read function is called each time this param is evaluated,
     // here to provide a time-based value
     read: (spec, t) => {
-        const { freq, phase, amp, offset } = <OscParam>spec;
-        return Math.sin((t * freq + phase) * Math.PI * 2) * amp + offset;
+        const { freq, amp, offset } = <OscParam>spec;
+        return Math.sin(t * freq * Math.PI * 2) * amp + offset;
     },
 });
 
@@ -552,7 +580,6 @@ const param = $genart.setParams({
     sine: {
         type: "user:sinosc", // param type (should be unique)
         freq: 0.25, // frequency in Hz
-        phase: 0, // phase shift
         amp: 5, // amplitude
         offset: 5, // center offset
         default: 0, // ignored
@@ -568,6 +595,14 @@ $genart.setUpdate((t) => {
     return true;
 });
 ```
+
+### Composite parameter types
+
+TODO
+
+Please see the [param-custom
+example](https://github.com/thi-ng/genart-api/blob/main/examples/param-custom)
+for reference...
 
 ## Platform adapters
 
@@ -629,6 +664,14 @@ TODO
 
 ## Getting started
 
+### Building core API files
+
+```bash
+yarn install
+
+yarn build
+```
+
 ### Bundled examples
 
 This repo contains several examples used for testing and evaluating the
@@ -644,6 +687,13 @@ build order must be used:
 -   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/):
     GUI param editors to modify param values exposed by an artwork running in an
     embedded `<iframe>`.
+
+#### Building examples
+
+```bash
+# from the repo root
+yarn build:examples
+```
 
 ### An artist's "Hello world"
 
