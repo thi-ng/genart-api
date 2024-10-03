@@ -388,16 +388,19 @@ class API implements GenArtAPI {
 	) {
 		let { spec, impl } = this.ensureParam(id);
 		if (value != null) {
-			const keyParamSpec = key ? impl.params?.[key] : spec;
+			let updateSpec = spec;
 			if (key) {
-				impl = this.ensureParamImpl(keyParamSpec?.type || "");
+				const { spec: nested, impl: nestedImpl } =
+					this.ensureNestedParam(spec, key);
+				updateSpec = nested;
+				impl = nestedImpl;
 			}
-			if (!impl.validate(keyParamSpec!, value)) {
+			if (!impl.validate(updateSpec, value)) {
 				this.paramError(id);
 				return;
 			}
 			(<any>spec)[key || "value"] = impl.coerce
-				? impl.coerce(keyParamSpec!, value)
+				? impl.coerce(updateSpec, value)
 				: value;
 		}
 		this.notifyParamChange(id, spec, notify);
