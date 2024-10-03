@@ -8,6 +8,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node build.js",
+		"build:examples": "node build-examples.js",
 		"build:types": "tsc -d --emitDeclarationOnly -t esnext -m esnext -outDir dist src/api.ts",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
