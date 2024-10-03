@@ -18,9 +18,9 @@
 	},
 	"devDependencies": {
 		"@thi.ng/meta-css": "^0.15.3",
-		"@types/node": "^22.5.5",
+		"@types/node": "^22.7.4",
 		"typescript": "^5.6.2",
-		"vite": "^5.4.7",
+		"vite": "^5.4.8",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
@@ -28,17 +28,18 @@
 		"@thi.ng/canvas": "^0.5.3",
 		"@thi.ng/checks": "^3.6.12",
 		"@thi.ng/color": "^5.7.5",
+		"@thi.ng/defmulti": "^3.0.48",
 		"@thi.ng/hex": "^2.3.54",
 		"@thi.ng/hiccup-canvas": "^3.1.18",
 		"@thi.ng/hiccup-html": "^2.7.7",
-		"@thi.ng/imgui": "^2.3.3",
+		"@thi.ng/imgui": "^3.0.0",
 		"@thi.ng/layout": "^3.1.2",
 		"@thi.ng/math": "^5.11.10",
 		"@thi.ng/mime": "^2.6.16",
 		"@thi.ng/pixel": "^7.3.4",
 		"@thi.ng/ramp": "^3.3.2",
-		"@thi.ng/rdom": "^1.7.4",
-		"@thi.ng/rdom-forms": "^0.3.32",
+		"@thi.ng/rdom": "^1.7.5",
+		"@thi.ng/rdom-forms": "^0.3.33",
 		"@thi.ng/rstream": "^9.0.4",
 		"@thi.ng/transducers": "^9.2.4"
 	},

@@ -21,7 +21,7 @@ label { db b mb2 l:mb0 }
 
 fieldset { ma0 mb3 pa0 bw0 }
 
-legend { pa0 mb3 color-gray b }
+legend { pa0 mb3 color-gray b w-100 bwb-1px }
 
 .control {
 	bg-color=#fff
