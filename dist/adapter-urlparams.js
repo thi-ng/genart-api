@@ -45,15 +45,22 @@
 
   // src/adapters/urlparams.ts
   var {
-    math: { clamp01, parseNum }
+    math: { clamp01, parseNum },
+    utils: { formatValuePrec }
   } = $genart;
+  var AUTO = "__autostart";
+  var WIDTH = "__width";
+  var HEIGHT = "__height";
+  var SEED = "__seed";
   var URLParamsAdapter = class {
     params;
-    cache = {};
+    _cache = {};
+    _random;
     constructor() {
       this.params = new URLSearchParams(location.search);
+      this.initPRNG();
       $genart.on("genart:paramchange", (e) => {
-        const value = this.serializeParam(e.spec);
+        const value = this.serializeParam(e.param);
         this.params.set(e.paramID, value);
         parent.postMessage(
           {
@@ -62,23 +69,24 @@
           },
           "*"
         );
-        if (e.spec.update === "reload") {
+        if (e.param.update === "reload") {
           console.log("reloading w/", this.params.toString());
           location.search = this.params.toString();
         }
       });
-      $genart.on(
-        "genart:statechange",
-        ({ state }) => state === "ready" && $genart.start()
-      );
+      $genart.on("genart:statechange", ({ state }) => {
+        if (state === "ready" && this.params.get(AUTO) !== "0") {
+          $genart.start();
+        }
+      });
     }
     get mode() {
       return this.params.get("__mode") || "play";
     }
     get screen() {
       return {
-        width: parseNum(this.params.get("__width"), window.innerWidth),
-        height: parseNum(this.params.get("__height"), window.innerHeight),
+        width: parseNum(this.params.get(WIDTH), window.innerWidth),
+        height: parseNum(this.params.get(HEIGHT), window.innerHeight),
         dpr: parseNum(
           this.params.get("__dpr"),
           window.devicePixelRatio || 1
@@ -86,31 +94,53 @@
       };
     }
     get prng() {
-      const seedParam = this.params.get("__seed");
-      const seed = BigInt(seedParam ? "0x" + seedParam : Date.now());
-      const M = 0xffffffffn;
-      const reset = () => {
-        return impl.rnd = sfc32([
-          Number(seed >> 96n & M) >>> 0,
-          Number(seed >> 64n & M) >>> 0,
-          Number(seed >> 32n & M) >>> 0,
-          Number(seed & M) >>> 0
-        ]);
-      };
-      const impl = {
-        seed: seed.toString(16),
-        reset
-      };
-      reset();
-      return impl;
+      return this._random;
     }
-    async setParams(_) {
-      return true;
+    async setParams(params) {
+      Object.assign(params, {
+        [SEED]: $genart.params.range({
+          name: "PRNG seed",
+          desc: "Manually defined seed value",
+          min: 0,
+          max: 1e13,
+          default: Number(BigInt(this._random.seed)),
+          update: "reload",
+          widget: "precise"
+        }),
+        [WIDTH]: $genart.params.range({
+          name: "Width",
+          desc: "Canvas width",
+          min: 100,
+          max: 16384,
+          default: window.innerWidth,
+          randomize: false,
+          update: "reload",
+          widget: "precise"
+        }),
+        [HEIGHT]: $genart.params.range({
+          name: "Height",
+          desc: "Canvas height",
+          min: 100,
+          max: 16384,
+          default: window.innerHeight,
+          randomize: false,
+          update: "reload",
+          widget: "precise"
+        }),
+        [AUTO]: $genart.params.toggle({
+          name: "Autostart",
+          desc: "If enabled, artwork will start playing automatically",
+          default: this.params.get(AUTO) !== "0",
+          randomize: false,
+          update: "reload"
+        })
+      });
+      return params;
     }
     async updateParam(id, spec) {
       let value = this.params.get(id);
-      if (!value || this.cache[id] === value) return;
-      this.cache[id] = value;
+      if (value == null || this._cache[id] === value) return;
+      this._cache[id] = value;
       switch (spec.type) {
         case "color":
         case "choice":
@@ -170,6 +200,8 @@
           const $spec = spec;
           return $spec.mode[0] + "," + $spec.stops.flatMap((x) => x).join(",");
         }
+        case "range":
+          return formatValuePrec(spec.step)(spec.value);
         case "time":
           return spec.value.join(":");
         case "toggle":
@@ -182,6 +214,25 @@
     }
     capture(el) {
       console.log("TODO handle capture...", el);
+    }
+    initPRNG() {
+      const seedParam = this.params.get(SEED);
+      const seed = BigInt(seedParam ?? Date.now());
+      const M = 0xffffffffn;
+      const reset = () => {
+        return impl.rnd = sfc32([
+          Number(seed >> 96n & M) >>> 0,
+          Number(seed >> 64n & M) >>> 0,
+          Number(seed >> 32n & M) >>> 0,
+          Number(seed & M) >>> 0
+        ]);
+      };
+      const impl = {
+        seed: "0x" + seed.toString(16),
+        reset
+      };
+      reset();
+      this._random = impl;
     }
   };
   $genart.setAdapter(new URLParamsAdapter());

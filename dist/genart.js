@@ -160,6 +160,7 @@
   // src/utils.ts
   var utils_exports = {};
   __export(utils_exports, {
+    formatValuePrec: () => formatValuePrec,
     isNumber: () => isNumber,
     isNumericArray: () => isNumericArray,
     isString: () => isString,
@@ -167,7 +168,8 @@
     u16: () => u16,
     u24: () => u24,
     u32: () => u32,
-    u8: () => u8
+    u8: () => u8,
+    valuePrec: () => valuePrec
   });
   var isNumber = (x) => typeof x === "number" && !isNaN(x);
   var isString = (x) => typeof x === "string";
@@ -177,6 +179,15 @@
   var u16 = (x) => u8(x >>> 8) + u8(x);
   var u24 = (x) => u16(x >>> 8) + u8(x & 255);
   var u32 = (x) => u16(x >>> 16) + u16(x);
+  var valuePrec = (step) => {
+    const str = step.toString();
+    const i = str.indexOf(".");
+    return i > 0 ? str.length - i - 1 : 0;
+  };
+  var formatValuePrec = (step) => {
+    const prec = valuePrec(step);
+    return (x) => x.toFixed(prec);
+  };
 
   // src/index.ts
   var { isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
@@ -389,6 +400,14 @@
       return this._paramTypes[type];
     }
     async setParams(params) {
+      if (this._adapter?.setParams) {
+        try {
+          params = await this._adapter.setParams(params);
+        } catch (e) {
+          this.setState("error", e.message);
+          throw e;
+        }
+      }
       for (let id in params) {
         const param = params[id];
         if (param.default == null) {
@@ -402,7 +421,6 @@
       }
       this._params = params;
       if (this._adapter) {
-        await this._adapter.setParams?.(params);
         await this.updateParams();
       }
       this.notifySetParams();
@@ -471,7 +489,16 @@
         }
         spec[key || "value"] = impl.coerce ? impl.coerce(updateSpec, value) : value;
       }
-      this.notifyParamChange(id, spec, notify);
+      this.emit(
+        {
+          type: "genart:paramchange",
+          param: this.asNestedParam(spec),
+          paramID: id,
+          key,
+          __self: true
+        },
+        notify
+      );
     }
     randomizeParamValue(id, key, rnd = Math.random, notify = "all") {
       const {
@@ -551,12 +578,13 @@
       this._adapter?.capture(el);
       this.emit({ type: `genart:capture`, __self: true }, "parent");
     }
-    setState(newState) {
+    setState(newState, info) {
       this._state = newState;
       this.emit({
         type: "genart:statechange",
         state: newState,
-        __self: true
+        __self: true,
+        info
       });
     }
     ensureAdapter() {
@@ -612,17 +640,6 @@
           __self: true
         });
       }
-    }
-    notifyParamChange(id, spec, notify) {
-      this.emit(
-        {
-          type: "genart:paramchange",
-          paramID: id,
-          spec: this.asNestedParam(spec),
-          __self: true
-        },
-        notify
-      );
     }
     notifyReady() {
       if (this._state === "init" && this._adapter && this._time && this._update)
