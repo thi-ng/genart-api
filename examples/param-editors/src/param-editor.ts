@@ -1,3 +1,4 @@
+import type { Maybe } from "@thi.ng/api";
 import { div } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
 import {
@@ -19,6 +20,7 @@ import {
 	dateTime,
 	file,
 	group,
+	num,
 	range,
 	selectStr,
 	str,
@@ -35,7 +37,10 @@ import {
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
+import { reduce } from "@thi.ng/transducers";
 import type {
+	APIMessage,
+	APIState,
 	ChoiceParam,
 	ImageParam,
 	ParamChangeMsg,
@@ -45,10 +50,12 @@ import type {
 	SetParamsMsg,
 	SetParamValueMsg,
 	SetTraitsMsg,
+	StateChangeMsg,
 	TextParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
 import { canvasColorPicker } from "./color-picker.js";
+import { formatValuePrec } from "./utils.js";
 
 // ROOT.set(new ConsoleLogger());
 
@@ -64,7 +71,10 @@ const iframeParams = reactive(iframe.src.substring(iframe.src.indexOf("?")), {
 const paramCache: Record<string, any> = {};
 const paramValues: Record<string, ISubscription<any, any>> = {};
 
+const apiState = reactive<APIState>("init");
+
 let apiID: string;
+let apiError: Maybe<string>;
 let selfUpdate = false;
 
 window.addEventListener("message", (e) => {
@@ -79,13 +89,20 @@ window.addEventListener("message", (e) => {
 			const $msg = <SetParamsMsg>e.data;
 			apiID = $msg.apiID;
 			if (Object.keys($msg.params).length) controls.next($msg.params);
+			console.log("setparams", $msg.params);
 			break;
 		}
 		case "genart:paramchange": {
 			const $msg = <ParamChangeMsg>e.data;
 			selfUpdate = true;
-			paramValues[$msg.paramID]?.next($msg.spec.value);
+			paramValues[$msg.paramID]?.next($msg.param.value);
 			selfUpdate = false;
+			break;
+		}
+		case "genart:statechange": {
+			const $msg = <StateChangeMsg>e.data;
+			apiState.next($msg.state);
+			if ($msg.state === "error") apiError = $msg.info;
 			break;
 		}
 		case "paramadapter:update":
@@ -94,15 +111,17 @@ window.addEventListener("message", (e) => {
 	}
 });
 
-const valuePrec = (x: number) => {
-	const y = x.toString();
-	const i = y.indexOf(".");
-	return i > 0 ? y.length - i - 1 : 0;
-};
-
 const createParamControls = (params: ParamSpecs) => {
 	let items: FormItem[] = [];
-	for (let id in params) {
+	const ids = reduce<string, string[][]>(
+		[
+			() => [[], []],
+			(acc) => acc,
+			(acc, x) => (acc[x.startsWith("__") ? 1 : 0].push(x), acc),
+		],
+		Object.keys(params)
+	);
+	for (let id of [...ids[0], ...ids[1]]) {
 		const param = params[id];
 		let value: ISubscription<any, any> = reactive(
 			(paramCache[id] = param.value ?? param.default)
@@ -234,12 +253,14 @@ const createParamControls = (params: ParamSpecs) => {
 				{
 					const { min, max, step } = <RangeParam>param;
 					items.push(
-						range({
+						(param.widget && param.widget !== "default"
+							? num
+							: range)({
 							...base,
 							min,
 							max,
 							step,
-							vlabel: valuePrec(step ?? 1),
+							vlabel: formatValuePrec(step ?? 1),
 						})
 					);
 				}
@@ -321,14 +342,10 @@ const createParamControls = (params: ParamSpecs) => {
 					attribs: {
 						title: "Click to randomize this param",
 						onclick: () =>
-							iframeWindow.postMessage(
-								<RandomizeParamMsg>{
-									type: "genart:randomizeparam",
-									apiID,
-									paramID: id,
-								},
-								"*"
-							),
+							sendMessage<RandomizeParamMsg>({
+								type: "genart:randomizeparam",
+								paramID: id,
+							}),
 					},
 					readonly: true,
 				})
@@ -338,20 +355,17 @@ const createParamControls = (params: ParamSpecs) => {
 			next(value) {
 				if (!selfUpdate && paramCache[id] !== value) {
 					paramCache[id] = value;
-					iframeWindow.postMessage(
-						<SetParamValueMsg>{
-							type: "genart:setparamvalue",
-							apiID,
-							paramID: id,
-							value,
-						},
-						"*"
-					);
+					sendMessage<SetParamValueMsg>({
+						type: "genart:setparamvalue",
+						paramID: id,
+						value,
+					});
 				}
 			},
 		});
 	}
 
+	const copy = reactive(false);
 	items.push(
 		group(
 			{ label: "Info" },
@@ -361,11 +375,50 @@ const createParamControls = (params: ParamSpecs) => {
 				attribs: { disabled: true },
 				value: iframeParams,
 			}),
+			trigger({
+				title: copy.map((x) => (x ? "Copied" : "Copy to clipboard")),
+				label: "",
+				attribs: {
+					onclick: () => {
+						const data = iframeParams.deref();
+						if (data) {
+							navigator.clipboard.writeText(data);
+							copy.next(true);
+							setTimeout(() => copy.next(false), 1000);
+						}
+					},
+					disabled: copy,
+				},
+			}),
 			text({
 				label: "Artwork traits",
 				desc: "Optional. Not all artworks define traits...",
 				attribs: { disabled: true, rows: 10 },
 				value: traits.map((x) => JSON.stringify(x, null, 2)),
+			})
+		),
+		group(
+			{ label: "Transport control" },
+			trigger({
+				label: "",
+				title: "Play",
+				attribs: {
+					onclick: () =>
+						sendMessage<APIMessage>({
+							type:
+								apiState.deref() === "stop"
+									? "genart:resume"
+									: "genart:start",
+						}),
+				},
+			}),
+			trigger({
+				label: "",
+				title: "Pause",
+				attribs: {
+					onclick: () =>
+						sendMessage<APIMessage>({ type: "genart:stop" }),
+				},
 			})
 		)
 	);
@@ -383,3 +436,7 @@ export const launchEditorForms = () =>
 	$compile($replace(syncRAF(controls).map(createParamControls))).mount(
 		document.getElementById("editor")!
 	);
+
+const sendMessage = <T extends APIMessage>(msg: Omit<T, "apiID">) => {
+	iframeWindow.postMessage({ ...msg, apiID }, "*");
+};

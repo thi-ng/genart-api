@@ -76,7 +76,7 @@ window.addEventListener("message", (e) => {
 		}
 		case "genart:paramchange": {
 			const $msg = <ParamChangeMsg>e.data;
-			params[$msg.paramID] = $msg.spec;
+			params[$msg.paramID] = $msg.param;
 			selfUpdate = true;
 			gui && updateGUI();
 			selfUpdate = false;
