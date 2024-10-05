@@ -13,8 +13,8 @@ $genart.setAdapter({
 		rnd: Math.random,
 	},
 	async updateParam() {},
-	async setParams(_: ParamSpecs) {
-		return true;
+	async setParams(params: ParamSpecs) {
+		return params;
 	},
 	setTraits() {},
 	capture() {},
