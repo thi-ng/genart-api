@@ -59,4 +59,16 @@ export interface Utils {
 	 * @param x
 	 */
 	u32(x: number): string;
+	/**
+	 * Returns number of fractional digits for given `step` size. Helper for
+	 * {@link Utils.formatPrec}.
+	 *
+	 * @param step
+	 */
+	valuePrec(step: number): number;
+	/**
+	 * Returns a string formatting function which uses the appropriate number of
+	 * fractional digits for given `step` size (using {@link Utils.valuePrec}).
+	 */
+	formatValuePrec(step: number): (x: number) => string;
 }

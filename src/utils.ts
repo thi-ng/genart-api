@@ -29,3 +29,14 @@ export const u16 = (x: number) => u8(x >>> 8) + u8(x);
 export const u24 = (x: number) => u16(x >>> 8) + u8(x & 0xff);
 
 export const u32 = (x: number) => u16(x >>> 16) + u16(x);
+
+export const valuePrec = (step: number) => {
+	const str = step.toString();
+	const i = str.indexOf(".");
+	return i > 0 ? str.length - i - 1 : 0;
+};
+
+export const formatValuePrec = (step: number) => {
+	const prec = valuePrec(step);
+	return (x: number) => x.toFixed(prec);
+};
