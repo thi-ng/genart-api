@@ -1,5 +1,5 @@
 import type { APIState, Traits } from "../api.js";
-import type { NestedParamSpecs, Param } from "./params.js";
+import type { NestedParam, NestedParamSpecs } from "./params.js";
 
 export interface APIMessage {
 	type: MessageType;
@@ -32,12 +32,22 @@ export interface SetParamValueMsg extends APIMessage {
 export interface RandomizeParamMsg extends APIMessage {
 	type: "genart:randomizeparam";
 	paramID: string;
+	/**
+	 * Optional. The property in the param spec which has been randomized (only
+	 * used if the param is a composite, i.e. has nested params)
+	 */
+	key?: string;
 }
 
 export interface ParamChangeMsg extends APIMessage {
 	type: "genart:paramchange";
+	param: NestedParam;
 	paramID: string;
-	spec: Param<any>;
+	/**
+	 * Optional. The property in the param spec which has been randomized (only
+	 * used if the param is a composite, i.e. has nested params)
+	 */
+	key?: string;
 }
 
 export interface ParamErrorMsg extends APIMessage {
@@ -48,7 +58,14 @@ export interface ParamErrorMsg extends APIMessage {
 
 export interface StateChangeMsg extends APIMessage {
 	type: "genart:statechange";
+	/**
+	 * New API state
+	 */
 	state: APIState;
+	/**
+	 * Optional additional information (e.g. error message)
+	 */
+	info?: string;
 }
 
 export interface MessageTypeMap {
@@ -63,6 +80,7 @@ export interface MessageTypeMap {
 	"genart:resume": APIMessage;
 	"genart:stop": APIMessage;
 	"genart:capture": APIMessage;
+	"genart:capturerequest": APIMessage;
 }
 
 export type MessageType = keyof MessageTypeMap;
