@@ -98,6 +98,6 @@ const TAU = 2 * Math.PI;
 	});
 
 	$genart.on("genart:paramchange", (e) => {
-		console.log("art param change", e.paramID, e.spec);
+		console.log("art param change", e);
 	});
 })();

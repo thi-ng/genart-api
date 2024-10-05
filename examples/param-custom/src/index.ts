@@ -191,6 +191,6 @@ $genart.registerParamType("user:sinosc", {
 	});
 
 	$genart.on("genart:paramchange", (e) => {
-		console.log("art param change", e.paramID, e.spec);
+		console.log("art param change", e);
 	});
 })();
