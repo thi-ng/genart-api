@@ -75,7 +75,22 @@ export interface Param<T> {
 	 * @defaultValue true
 	 */
 	randomize?: boolean;
+	/**
+	 * Optional, non-binding hint for param editors to customize which GUI
+	 * widget to use for this param. (e.g. a {@link RangeParam} might be
+	 * represented as a slider by default, but offer a numeric input field for
+	 * more precise inputs as alternative, esp. if the number range is very
+	 * large)
+	 *
+	 * @defaultValue "default"
+	 */
+	widget?: ParamWidgetType;
 }
+
+/**
+ * Value type for {@link Param.widget}.
+ */
+export type ParamWidgetType = "default" | "alt" | "precise";
 
 export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<
 	T,
