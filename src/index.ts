@@ -302,6 +302,16 @@ class API implements GenArtAPI {
 	}
 
 	async setParams<P extends ParamSpecs>(params: P) {
+		// allow platform to pre-initialize params and/or inject additional ones
+		if (this._adapter?.setParams) {
+			try {
+				params = <P>await this._adapter.setParams(params);
+			} catch (e) {
+				this.setState("error", (<Error>e).message);
+				// rethrow to propagate to artwork
+				throw e;
+			}
+		}
 		// validate param declarations
 		for (let id in params) {
 			const param = params[id];
@@ -317,7 +327,6 @@ class API implements GenArtAPI {
 		this._params = params;
 		// augment params with platform overrides
 		if (this._adapter) {
-			await this._adapter.setParams?.(params);
 			await this.updateParams();
 		}
 		this.notifySetParams();
@@ -403,7 +412,16 @@ class API implements GenArtAPI {
 				? impl.coerce(updateSpec, value)
 				: value;
 		}
-		this.notifyParamChange(id, spec, notify);
+		this.emit<ParamChangeMsg>(
+			{
+				type: "genart:paramchange",
+				param: this.asNestedParam(spec),
+				paramID: id,
+				key,
+				__self: true,
+			},
+			notify
+		);
 	}
 
 	randomizeParamValue(
@@ -514,12 +532,13 @@ class API implements GenArtAPI {
 		this.emit({ type: `genart:capture`, __self: true }, "parent");
 	}
 
-	protected setState(newState: APIState) {
+	protected setState(newState: APIState, info?: string) {
 		this._state = newState;
 		this.emit<StateChangeMsg>({
 			type: "genart:statechange",
 			state: newState,
 			__self: true,
+			info,
 		});
 	}
 
@@ -585,22 +604,6 @@ class API implements GenArtAPI {
 				__self: true,
 			});
 		}
-	}
-
-	protected notifyParamChange(
-		id: string,
-		spec: Param<any>,
-		notify: NotifyType
-	) {
-		this.emit<ParamChangeMsg>(
-			{
-				type: "genart:paramchange",
-				paramID: id,
-				spec: this.asNestedParam(spec),
-				__self: true,
-			},
-			notify
-		);
 	}
 
 	protected notifyReady() {

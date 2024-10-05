@@ -433,19 +433,25 @@ export interface PlatformAdapter {
 	): Promise<{ value?: any; update?: Record<string, any> } | void>;
 
 	/**
-	 * Called by {@link GenArtAPI.setParams} to pass parameter specs provided by
-	 * the artwork to the platform adapter to prepare itself for param
-	 * initialization (e.g. initiating a network request for loading
-	 * parameters). The actual value parsing of individual parameters then
-	 * happens via {@link PlatformAdapter.updateParam} (which is also indirectly
-	 * called by {@link GenArtAPI.setParams}).
+	 * Called by {@link GenArtAPI.setParams} to receive parameter specs provided
+	 * by the artwork and to allow the adapter to inject additional platform
+	 * specific parameters and/or prepare itself for param initialization (e.g.
+	 * initiating a network request for loading parameter overrides). This
+	 * function is async and MUST throw an error if pre-initialization failed on
+	 * the adapter's side.
 	 *
-	 * This function is async and MUST return true to indicate param
-	 * pre-initialization succeeded on the adapter's side.
+	 * @remarks
+	 * The actual value parsing of individual parameter customization only
+	 * happens later via {@link PlatformAdapter.updateParam} (which is also
+	 * indirectly called by {@link GenArtAPI.setParams}).
+	 *
+	 * If additional parameters are injected, the adapter MUST ensure their
+	 * naming doesn't override existing used defined params, i.e. these param
+	 * names should be prefixed with `__` (e.g. `__seed`)
 	 *
 	 * @param params
 	 */
-	setParams?(params: ParamSpecs): Promise<boolean>;
+	setParams?(params: ParamSpecs): Promise<ParamSpecs>;
 
 	/**
 	 * See {@link GenArtAPI.setTraits}.
