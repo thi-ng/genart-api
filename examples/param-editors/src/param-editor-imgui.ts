@@ -133,11 +133,11 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 				gui: gui!,
 				layout: ctx.layout.nest(1, [COLS - 1, 1], 0),
 				id: ctx.widgetID,
+				label: ctx.label,
 				value: $param.options.findIndex(
 					(x) => (isString(x) ? x : x[0]) === ctx.value
 				),
 				items: $param.options.map((x) => (isString(x) ? x : x[1])),
-				title: ctx.label,
 				info: param.doc,
 			});
 			if (idx != null) {
@@ -180,7 +180,7 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 				id: ctx.widgetID + "year",
 				value: date.getFullYear() - 2024,
 				items: YEARS,
-				title: "Year",
+				label: "Year",
 				info: param.doc,
 			});
 			let res: any;
@@ -195,7 +195,7 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 				id: ctx.widgetID + "month",
 				value: date.getMonth(),
 				items: MONTHS,
-				title: "Month",
+				label: "Month",
 				info: param.doc,
 			});
 			if (idx != null) {
@@ -209,7 +209,7 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 				id: ctx.widgetID + "day",
 				value: date.getDate() - 1,
 				items: DAYS,
-				title: "Day",
+				label: "Day",
 				info: param.doc,
 			});
 			if (idx != null) {
@@ -245,7 +245,7 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 				id: ctx.widgetID + "-mode",
 				value: modeID,
 				items: modes,
-				title: "Ramp mode",
+				label: "Ramp mode",
 			});
 			if (mode != null) {
 				res = modes[mode];
@@ -297,9 +297,9 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 				gui: gui!,
 				layout: ctx.layout.nest(1, [COLS - 1, 1], 0),
 				id: ctx.widgetID,
+				label: ctx.label,
 				value: $param.options.findIndex((x) => x[1] === ctx.value),
 				items: $param.options.map((x) => x[2] || `${x[1]} (${x[0]})`),
-				title: ctx.label,
 				info: param.doc,
 			});
 			if (idx != null) {
