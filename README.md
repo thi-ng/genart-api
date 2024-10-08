@@ -39,6 +39,7 @@
 -   [Time providers](#time-providers)
     -   [Existing time provider implementations](#existing-time-provider-implementations)
 -   [Getting started](#getting-started)
+    -   [Parameter editors](#parameter-editors)
     -   [Bundled examples](#bundled-examples)
     -   [Artist's Hello world](#an-artists-hello-world)
     -   [Creating a basic PlatformAdapter](#platforms)
@@ -669,8 +670,45 @@ TODO
 ```bash
 yarn install
 
+# output files will be written to /dist
 yarn build
+
+# generate TypeScript type declarations (also written to /dist)
+yarn build:types
 ```
+
+### Parameter editors
+
+The repo contains two reference implementations of GUI parameter editors to
+modify param values exposed by an artwork running in an embedded `<iframe>`.
+These editors can be used to customize parameters of the other [bundled
+examples](#bundled-examples) (or any other project using GenArt API and the
+supplied [reference platform adapter](#reference-platform-adapter)). See the
+[param-editors
+readme](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/)
+for details.
+
+The following table provides an overview of the **current** parameter types
+support in both editors:
+
+| Param type      | thi.ng/rdom editor | thi.ng/imgui editor |
+| --------------- | ------------------ | ------------------- |
+| Choice          | ✅                 | ✅                  |
+| Color           | ✅                 | ✅ (1)              |
+| Date            | ✅                 | ✅                  |
+| Datetime        | ✅                 | ❌                  |
+| Image           | ✅                 | ❌                  |
+| List            | ❌                 | ❌                  |
+| Range           | ✅                 | ✅                  |
+| Ramp            | ❌                 | ✅                  |
+| Text            | ✅                 | ✅ (2)              |
+| Time            | ✅                 | ❌                  |
+| Toggle          | ✅                 | ✅                  |
+| Weighted choice | ✅                 | ✅                  |
+| XY              | ✅ (1)             | ✅                  |
+
+-   (1) No dedicated widget yet, using fallback only
+-   (2) Only single line, not mobile friendly
 
 ### Bundled examples
 
@@ -686,9 +724,6 @@ build order must be used:
     Example using an image map parameter
 -   [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
     Custom & composite parameter type example
--   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/):
-    GUI param editors to modify param values exposed by an artwork running in an
-    embedded `<iframe>`.
 
 #### Building examples
 
@@ -715,10 +750,12 @@ project and adding the following `<script>` tags to your HTML header:
 -   [Release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.js)
 -   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.min.js)
 
-This repo also provides a basic [platform adapter](#platform-adapters) for
-sourcing parameters via URL query string (aka
+#### Reference platform adapter
+
+The repo provides a basic [platform adapter](#platform-adapters) for sourcing
+parameters via URL query string (aka
 [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)).
-This adapter can be useful during local development and used as basis for other
+This adapter can be useful during local development, or used as basis for other
 use cases:
 
 ```html
@@ -778,17 +815,17 @@ use cases:
     // declare parameters
     const param = await $genart.setParams({
         bgColor: $genart.params.color({
-            name: "Bg color",
-            desc: "Canvas background color",
+            name: "Bg color", // mandatory human readable name
+            desc: "Canvas background color", // mandatory brief description
             doc: "Optional extended documentation or usage hints",
-            default: "#0000ff",
+            default: "#0000ff", // default value (if omitted, will be initialized to random...)
             update: "reload", // trigger reload on value change
         }),
 
         maxR: $genart.params.range({
             name: "Max radius",
             desc: "Maximum brush size",
-            default: 50,
+            // default: 50, // no default
             min: 10,
             max: 100,
             step: 5,
