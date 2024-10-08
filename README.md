@@ -158,7 +158,7 @@ implementation to be provided when running elsewhere.
 
 #### Lifecycle
 
-![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg)
+![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg?20241008)
 
 [Diagram source code](https://github.com/thi-ng/genart-api/blob/main/diagrams/lifecycle.puml)
 
@@ -702,7 +702,7 @@ support in both editors:
 | List             | ❌                 | ❌                  |
 | Range            | ✅                 | ✅                  |
 | Ramp             | ❌                 | ✅                  |
-| Text             | ✅                 | ✅ (2)              |
+| Text             | ✅                 | ✅ (3)              |
 | Time             | ✅                 | ❌                  |
 | Toggle           | ✅                 | ✅                  |
 | Weighted choice  | ✅                 | ✅                  |

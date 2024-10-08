@@ -4,7 +4,7 @@ autonumber 1.1
 skinparam pageMargin 10
 
 participant Browser
-participant ArtPiece
+participant Artwork
 participant API
 participant PlatformAdapter
 participant TimeProvider
@@ -13,83 +13,85 @@ activate Browser
 	== Startup ==
 
 	Browser -> Browser : Load HTML w/ GenArt API script
-	Browser -> PlatformAdapter : Load platform adapter
-	Browser --> TimeProvider : Load custom timing provider
-	note right
-		optional, by default uses
-		`timingProviderRAF()`
-	end note
-	Browser -> ArtPiece : Load art piece script
+	
 	activate API
 		API -> API : Initialize
+		Browser -> PlatformAdapter : Load platform adapter
 		activate PlatformAdapter
 		PlatformAdapter -> PlatformAdapter : Initialize (optional)
 		PlatformAdapter -> PlatformAdapter : Initialize PRNG
-		note left : Seeded/deterministic
+		note left : Seeding MUST happen\nbefore artwork starts
 		PlatformAdapter -> PlatformAdapter : Set execution mode
 		note left : Play / Preview / Edit
-		TimeProvider -> TimeProvider : Initialize (optional)
 		
-		PlatformAdapter -> API : Register adapter
+		PlatformAdapter -> API : Register
 		note right : `$genart.setAdapter()`
 		deactivate PlatformAdapter
 	deactivate API
 
-	activate ArtPiece
-		ArtPiece -> API : Wait for adapter registration
+	Browser --> TimeProvider : Load custom timing provider
+	note right : optional, API uses `timingProviderRAF()`\nby default
+	activate TimeProvider
+	TimeProvider --> TimeProvider : Initialize (optional)
+	TimeProvider -> API : Register
+	note right : `$genart.setTime()`
+	deactivate TimeProvider
+
+	Browser -> Artwork : Load artwork script
+	activate Artwork
+		Artwork -> API : Wait for adapter registration
 		note left : `await $genart.waitForAdapter()`
-		API --> ArtPiece : Return when adapter available...
-		ArtPiece -> API : Declare & register param specs
+		API --> Artwork : Return when adapter available...
+		Artwork -> API : Declare & register param specs
 		activate API
 			note left
 				`$genart.setParams({...})`
 			end note
+			API -> PlatformAdapter : Pass param specs
+			note right : Pre-initialize param loading and\nallow adapter to inject its own params
+			PlatformAdapter --> API : Return updated specs
 			API -> API : Validate params specs
 			note right : Ensure valid param types
 			API -> API : Add missing default values
 			note right: Randomize missing defaults
-			API -> PlatformAdapter : Pass param specs
-			note right : `adapter.setParams({...})`
+			API -> PlatformAdapter : Update/augment params
 			activate PlatformAdapter
-				PlatformAdapter -> PlatformAdapter : Load & parse params
-				PlatformAdapter --> API : return true if successful
-				API -> PlatformAdapter : Update/augment params
-				note right
-					source param values via
-					platform-specific means
-				end note
-				PlatformAdapter --> API : Param values
+				PlatformAdapter -> PlatformAdapter : Load & parse param
+				note right : source param values via\nplatform-specific means
+				PlatformAdapter --> API : Customized param value(s)
 			deactivate PlatformAdapter
 
 			API -> API : Validate & apply param overrides
 			API -->> API : Emit `genart:setparams` message
 			note right : Sent to current & parent window
-			API --> ArtPiece : Typesafe param getter function
-			note left : ArtPiece uses this function\nto obtain param values
+			API --> Artwork : Typesafe param getter function
+			note left : Artwork uses this function\nto obtain param values
 		deactivate API
 
-		ArtPiece -> API : Request screen config
+		Artwork -> API : Request screen config
 		API -> PlatformAdapter : Request screen config
 		note right : optionally define resolution
 		PlatformAdapter --> API : Config
-		API --> ArtPiece : Config
-		ArtPiece -> ArtPiece : Initialize
-		ArtPiece -> API : Get param value
+		API --> Artwork : Config
+		Artwork -> Artwork : Initialize
+		Artwork -> API : Get param value
+		note left : Optionally time-based or randomized
 		activate API
-			API -> API : Delegate to param impl
-			API --> ArtPiece : Param value
+			API -> API : Delegate to param type impl
+			note right : Uses `ParamImpl.read()` if type defines it
+			API --> Artwork : Param value
 		deactivate API
 
-		== Animation start ==
-		ArtPiece ->	API : Register update/draw function
-		API -> API : Transition state to `ready`
-		API --> API : Emit `genart:statechange` message
-		activate PlatformAdapter
-			PlatformAdapter -> PlatformAdapter : Process `ready` state change
-			PlatformAdapter -> API : Start anim loop
-			note right : `$genart.start()`
-		deactivate PlatformAdapter
-	deactivate ArtPiece
+	== Animation start ==
+	Artwork ->	API : Register update/draw function
+	deactivate Artwork
+	API -> API : Transition state to `ready`
+	API --> API : Emit `genart:statechange` message
+	activate PlatformAdapter
+		PlatformAdapter -> PlatformAdapter : Process `ready` state change
+		PlatformAdapter -> API : Start anim loop
+		note right : Platform decides auto-start behavior
+	deactivate PlatformAdapter
 
 	activate API
 		API -> TimeProvider : Start (reset timestamp)
@@ -97,10 +99,12 @@ activate Browser
 			API -> TimeProvider : Queue next frame update
 			note right : Default: `requestAnimationFrame()`
 			TimeProvider --> API : Trigger update with current time & frame
-			API -> ArtPiece : Call update w/ timestamp
-			ArtPiece -> ArtPiece : Generate next frame
-			ArtPiece -> API : Trigger screen capture (once, after X seconds)
+			API -> Artwork : Call update w/ timestamp
+			activate Artwork
+			Artwork -> Artwork : Generate next frame
+			Artwork -> API : Trigger screen capture (once, after X seconds)
 			note left: `$genart.capture(canvas)`
+			deactivate Artwork
 			API -> PlatformAdapter : Handle screen capture
 			note right : Optional, platform specific
 			API --> API : Emit `genart:capture` message
