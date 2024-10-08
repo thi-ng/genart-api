@@ -691,24 +691,26 @@ for details.
 The following table provides an overview of the **current** parameter types
 support in both editors:
 
-| Param type      | thi.ng/rdom editor | thi.ng/imgui editor |
-| --------------- | ------------------ | ------------------- |
-| Choice          | ✅                 | ✅                  |
-| Color           | ✅                 | ✅ (1)              |
-| Date            | ✅                 | ✅                  |
-| Datetime        | ✅                 | ❌                  |
-| Image           | ✅                 | ❌                  |
-| List            | ❌                 | ❌                  |
-| Range           | ✅                 | ✅                  |
-| Ramp            | ❌                 | ✅                  |
-| Text            | ✅                 | ✅ (2)              |
-| Time            | ✅                 | ❌                  |
-| Toggle          | ✅                 | ✅                  |
-| Weighted choice | ✅                 | ✅                  |
-| XY              | ✅ (1)             | ✅                  |
+| Param type       | thi.ng/rdom editor | thi.ng/imgui editor |
+| ---------------- | ------------------ | ------------------- |
+| Choice           | ✅                 | ✅                  |
+| Color            | ✅                 | ✅ (1)              |
+| Composite params | ❌                 | ✅ (2)              |
+| Date             | ✅                 | ✅                  |
+| Datetime         | ✅                 | ❌                  |
+| Image            | ✅                 | ❌                  |
+| List             | ❌                 | ❌                  |
+| Range            | ✅                 | ✅                  |
+| Ramp             | ❌                 | ✅                  |
+| Text             | ✅                 | ✅ (2)              |
+| Time             | ✅                 | ❌                  |
+| Toggle           | ✅                 | ✅                  |
+| Weighted choice  | ✅                 | ✅                  |
+| XY               | ✅ (1)             | ✅                  |
 
 -   (1) No dedicated widget yet, using fallback only
--   (2) Only single line, not mobile friendly
+-   (2) See [composite parameter types](#composite-parameter-types)
+-   (3) Only single line, not mobile friendly
 
 ### Bundled examples
 
