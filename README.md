@@ -5,6 +5,7 @@
     -   [Goals](#goals)
     -   [Non-goals](#non-goals)
 -   [Core API](#core-api)
+    -   [Definitions / terminology](#definitions--terminology)
     -   [Architecture overview](#architecture-overview)
         -   [Lifecycle](#lifecycle)
         -   [State machine](#state-machine)
@@ -154,6 +155,20 @@ implementation to be provided when running elsewhere.
 
 ## Core API
 
+### Definitions / terminology
+
+-   **Artwork**: A browser-based art piece running in a standard HTML
+    environment
+-   **Platform**: The host website, application, or system in which the
+    artwork's HMTL wrapper will be deployed and which might provide parameter
+    customizations, PRNG seeds, control playback behavior, handle preview
+    generation etc.
+-   **Platform adpater**: A software plugin for the proposed GenArt API which
+    handles and/or translates all platform specifics
+-   **Time provider**: A software plugin for the proposed GenArt API which is
+    used to provide animation time information and schedule animation frames,
+    all controlled by the main GenArt API layer.
+
 ### Architecture overview
 
 #### Lifecycle
@@ -244,14 +259,16 @@ simplicity values are always strings, but optionally can also define labels
 ```ts
 // options
 $genart.params.choice({
-    doc: "Shape size preset",
+    name: "Test param",
+    desc: "Shape size preset",
     options: ["s", "m", "l"],
     default: "m",
 });
 
 // ...or using options with labels
 $genart.params.choice({
-    doc: "Shape size preset",
+    name: "Test param",
+    desc: "Shape size preset",
     options: [
         ["s", "Small"],
         ["m", "Medium"],
@@ -274,7 +291,8 @@ widgets for editing these colors...
 
 ```ts
 $genart.params.color({
-    doc: "Background color",
+    name: "Test param",
+    desc: "Background color",
     default: "#aabbcc",
 });
 ```
@@ -289,7 +307,8 @@ JS `Date` value in precision of full days only (UTC midnight).
 
 ```ts
 $genart.params.date({
-    doc: "Date",
+    name: "Test param",
+    desc: "Best before date",
     default: new Date("2024-09-05"),
 });
 ```
@@ -305,7 +324,8 @@ JS `Date` value (in UTC).
 
 ```ts
 $genart.params.datetime({
-    doc: "Date and time (in UTC)",
+    name: "Test param",
+    desc: "Date and time (in UTC)",
     default: new Date("2024-09-05T12:34:56+02:00"),
 });
 ```
@@ -375,7 +395,8 @@ to [0, 100]). If `step` is given, the value will be rounded to multiples of
 
 ```ts
 $genart.params.range({
-    doc: "Pick a number between 0-100",
+    name: "Test param",
+    desc: "Pick a number between 0-100",
     min: 0,
     max: 100,
     step: 5,
@@ -394,7 +415,8 @@ pattern validation.
 
 ```ts
 $genart.params.text({
-    doc: "Seed phrase",
+    name: "Test param",
+    desc: "Seed phrase",
     max: 256
     match: "^[a-z ]+$"
     multiline: true
@@ -480,7 +502,8 @@ to control two co-dependent parameters using an XY controller/touchpad...
 
 ```ts
 $genart.params.xy({
-    doc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
+    name: "Test param",
+    desc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
     default: [0.5, 0.5],
 });
 ```
@@ -520,7 +543,8 @@ and by default the API supports the following interpolation modes:
 
 ```ts
 $genart.params.ramp({
-    doc: "Brightness over time",
+    name: "Test param",
+    desc: "Brightness over time",
     stops: [
         [0, 0.1],
         [0.9, 1],
@@ -614,8 +638,8 @@ providing (deployment) platform-specific functionality and interop features.
 
 ### Existing adapter implementations
 
--   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/dummy.ts)
--   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts)
+-   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts) : Reference implementation
+-   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/dummy.ts) : Absolute barebones, scaffolding only
 
 ### Parameter sourcing
 
@@ -627,6 +651,10 @@ TODO write docs
 
 ### Determinism & PRNG provision
 
+Related issues/RFCs:
+
+-   [#1: Provide single PRNG or allow platfom adapters to define implementation?](https://github.com/thi-ng/genart-api/issues/1)
+
 Platform adapters are responsible to provide a seedable and resettable,
 deterministic pseudo-random number generator which the artwork can access via
 [`$genart.random`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#random).
@@ -636,15 +664,11 @@ platform.
 -   [PRNG interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PRNG.html)
 -   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/17cbe7df708601d40ee353e77605525822f27ab1/src/adapters/urlparams.ts#L56-L73)
 
-For cases where a platform does not provide its own PRNG, this repo contains
-two implementations which can be used by an adapter:
+For cases where a platform does not provide its own PRNG, this repo contains two
+implementations which can be used by an adapter:
 
 -   [SFC32](https://github.com/thi-ng/genart-api/blob/main/src/prng/sfc32.ts)
 -   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/src/prng/xorshift128.ts)
-
-Related issues/RFCs:
-
--   [#1: Provide single PRNG or allow platfom adapters to define implementation?](https://github.com/thi-ng/genart-api/issues/1)
 
 ### Screen configuration
 
@@ -824,10 +848,11 @@ use cases:
             update: "reload", // trigger reload on value change
         }),
 
+        // this param has no default, so will be initialized to random value
+        // (unless the platform provides a customized value)
         maxR: $genart.params.range({
             name: "Max radius",
             desc: "Maximum brush size",
-            // default: 50, // no default
             min: 10,
             max: 100,
             step: 5,
@@ -878,8 +903,7 @@ use cases:
 
 ### Creating a basic PlatformAdapter
 
-TODO for now see [existing adapter
-implementations](#existing-adapter-implementations)...
+TODO for now see [existing adapter implementations](#existing-adapter-implementations)...
 
 ## License
 
