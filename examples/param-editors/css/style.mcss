@@ -19,14 +19,14 @@ h1 { ls--1 mb2 }
 
 label { db b mb2 l:mb0 }
 
-fieldset { ma0 mb3 pa0 bw0 }
+fieldset { mh0 mv3 pa0 bw0 }
 
 legend { pa0 mb3 color-gray b w-100 bwb-1px }
 
 .control {
 	bg-color=#fff
 	dark:bg-color=#000
-	l:grid l:grid-cols-2 gap3 mb3
+	l:grid l:grid-cols-2 gap3 mb2
 	{
 		input, button, textarea, select {
 			w-100 pa2
