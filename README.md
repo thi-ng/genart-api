@@ -719,8 +719,19 @@ mkdir -p lib
 cp node_modules/@thi.ng/genart-api/*.js lib
 ```
 
-If you're a TypeScript user, you'll also want to add a declaration file with the
-following content to your `/src` directory:
+If you're a TypeScript user, you'll also want to add the package to your
+`tsconfig.json` types field OR add a declaration file with the following content
+to your `/src` directory:
+
+tsconfig.json
+
+```json
+{
+    "compilerOptions": {
+        "types": ["@thi.ng/genart-api"]
+    }
+}
+```
 
 /src/types.d.ts:
 
@@ -728,7 +739,8 @@ following content to your `/src` directory:
 /// <reference types="@thi.ng/genart-api" />
 ```
 
-Then you should be ready to go to [TODO]()
+Then you should be ready to go to [the next
+step](#use-in-your-own-projects-an-artists-hello-world)...
 
 ### Manual installation
 
@@ -736,8 +748,19 @@ The [/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory
 contains all pre-built release files and type declarations which you should copy
 to your project directory (e.g. in a `/lib` dir or similar).
 
-If you're a TypeScript user, you'll also want to add a declaration file with the
-following content to your `/src` directory:
+If you're a TypeScript user, you'll also want to add the package to your
+`tsconfig.json` types field OR add a declaration file with the following content
+to your `/src` directory:
+
+tsconfig.json
+
+```json
+{
+    "compilerOptions": {
+        "types": ["@thi.ng/genart-api"]
+    }
+}
+```
 
 /src/types.d.ts:
 
