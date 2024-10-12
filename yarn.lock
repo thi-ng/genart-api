@@ -122,47 +122,47 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.24.0.tgz#168ab1c7e1c318b922637fad8f339d48b01e1244"
   integrity sha512-7IAFPrjSQIJrGsK6flwg7NFmwBoSTyF3rl7If0hNUFQU4ilTsEPL6GuMuU9BfIWVVGuRnuIidkSMC+c0Otu8IA==
 
-"@shikijs/core@1.17.7":
-  version "1.17.7"
-  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.17.7.tgz#0b01a10384cbce2b2f6ee59a750eb9209478bdb7"
-  integrity sha512-ZnIDxFu/yvje3Q8owSHaEHd+bu/jdWhHAaJ17ggjXofHx5rc4bhpCSW+OjC6smUBi5s5dd023jWtZ1gzMu/yrw==
+"@shikijs/core@1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.22.0.tgz#74e5d4485e5f7afa85109e322b42e400686f92bb"
+  integrity sha512-S8sMe4q71TJAW+qG93s5VaiihujRK6rqDFqBnxqvga/3LvqHEnxqBIOPkt//IdXVtHkQWKu4nOQNk0uBGicU7Q==
   dependencies:
-    "@shikijs/engine-javascript" "1.17.7"
-    "@shikijs/engine-oniguruma" "1.17.7"
-    "@shikijs/types" "1.17.7"
-    "@shikijs/vscode-textmate" "^9.2.2"
+    "@shikijs/engine-javascript" "1.22.0"
+    "@shikijs/engine-oniguruma" "1.22.0"
+    "@shikijs/types" "1.22.0"
+    "@shikijs/vscode-textmate" "^9.3.0"
     "@types/hast" "^3.0.4"
-    hast-util-to-html "^9.0.2"
+    hast-util-to-html "^9.0.3"
 
-"@shikijs/engine-javascript@1.17.7":
-  version "1.17.7"
-  resolved "https://registry.yarnpkg.com/@shikijs/engine-javascript/-/engine-javascript-1.17.7.tgz#3216f94a8897b6e1dc0cae49d92fc165ce4e39da"
-  integrity sha512-wwSf7lKPsm+hiYQdX+1WfOXujtnUG6fnN4rCmExxa4vo+OTmvZ9B1eKauilvol/LHUPrQgW12G3gzem7pY5ckw==
+"@shikijs/engine-javascript@1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/engine-javascript/-/engine-javascript-1.22.0.tgz#2e5db29f0421755492f5279f8224ef7a7f907a29"
+  integrity sha512-AeEtF4Gcck2dwBqCFUKYfsCq0s+eEbCEbkUuFou53NZ0sTGnJnJ/05KHQFZxpii5HMXbocV9URYVowOP2wH5kw==
   dependencies:
-    "@shikijs/types" "1.17.7"
-    "@shikijs/vscode-textmate" "^9.2.2"
+    "@shikijs/types" "1.22.0"
+    "@shikijs/vscode-textmate" "^9.3.0"
     oniguruma-to-js "0.4.3"
 
-"@shikijs/engine-oniguruma@1.17.7":
-  version "1.17.7"
-  resolved "https://registry.yarnpkg.com/@shikijs/engine-oniguruma/-/engine-oniguruma-1.17.7.tgz#ed5a890a156cb29803368d3506e6cf239e7057bd"
-  integrity sha512-pvSYGnVeEIconU28NEzBXqSQC/GILbuNbAHwMoSfdTBrobKAsV1vq2K4cAgiaW1TJceLV9QMGGh18hi7cCzbVQ==
+"@shikijs/engine-oniguruma@1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/engine-oniguruma/-/engine-oniguruma-1.22.0.tgz#74c661fac4cd1f08f2c09b5d6e2fd2a6720d0401"
+  integrity sha512-5iBVjhu/DYs1HB0BKsRRFipRrD7rqjxlWTj4F2Pf+nQSPqc3kcyqFFeZXnBMzDf0HdqaFVvhDRAGiYNvyLP+Mw==
   dependencies:
-    "@shikijs/types" "1.17.7"
-    "@shikijs/vscode-textmate" "^9.2.2"
+    "@shikijs/types" "1.22.0"
+    "@shikijs/vscode-textmate" "^9.3.0"
 
-"@shikijs/types@1.17.7":
-  version "1.17.7"
-  resolved "https://registry.yarnpkg.com/@shikijs/types/-/types-1.17.7.tgz#f68acd78b8d8ef89d66837fe3751f30ed3abb7cb"
-  integrity sha512-+qA4UyhWLH2q4EFd+0z4K7GpERDU+c+CN2XYD3sC+zjvAr5iuwD1nToXZMt1YODshjkEGEDV86G7j66bKjqDdg==
+"@shikijs/types@1.22.0":
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/types/-/types-1.22.0.tgz#d2a572381395c9308b472c8199b8e0289753b9ad"
+  integrity sha512-Fw/Nr7FGFhlQqHfxzZY8Cwtwk5E9nKDUgeLjZgt3UuhcM3yJR9xj3ZGNravZZok8XmEZMiYkSMTPlPkULB8nww==
   dependencies:
-    "@shikijs/vscode-textmate" "^9.2.2"
+    "@shikijs/vscode-textmate" "^9.3.0"
     "@types/hast" "^3.0.4"
 
-"@shikijs/vscode-textmate@^9.2.2":
-  version "9.2.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/vscode-textmate/-/vscode-textmate-9.2.2.tgz#24571f50625c7cd075f9efe0def8b9d2c0930ada"
-  integrity sha512-TMp15K+GGYrWlZM8+Lnj9EaHEFmOen0WJBrfa17hF7taDOYthuPPV0GWzfd/9iMij0akS/8Yw2ikquH7uVi/fg==
+"@shikijs/vscode-textmate@^9.3.0":
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/vscode-textmate/-/vscode-textmate-9.3.0.tgz#b2f1776e488c1d6c2b6cd129bab62f71bbc9c7ab"
+  integrity sha512-jn7/7ky30idSkd/O5yDBfAnVt+JJpepofP/POZ1iMOxK59cOfqIgg/Dj0eFsjOTMw+4ycJN0uhZH/Eb0bs/EUA==
 
 "@types/hast@^3.0.0", "@types/hast@^3.0.4":
   version "3.0.4"
@@ -177,13 +177,6 @@
   integrity sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==
   dependencies:
     "@types/unist" "*"
-
-"@types/node@^22.7.5":
-  version "22.7.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.7.5.tgz#cfde981727a7ab3611a481510b473ae54442b92b"
-  integrity sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==
-  dependencies:
-    undici-types "~6.19.2"
 
 "@types/unist@*", "@types/unist@^3.0.0":
   version "3.0.3"
@@ -279,7 +272,7 @@ esbuild@^0.24.0:
     "@esbuild/win32-ia32" "0.24.0"
     "@esbuild/win32-x64" "0.24.0"
 
-hast-util-to-html@^9.0.2:
+hast-util-to-html@^9.0.3:
   version "9.0.3"
   resolved "https://registry.yarnpkg.com/hast-util-to-html/-/hast-util-to-html-9.0.3.tgz#a9999a0ba6b4919576a9105129fead85d37f302b"
   integrity sha512-M17uBDzMJ9RPCqLMO92gNNUDuBSq10a25SDBI08iCCxmorf4Yy6sYHK57n9WAbRAAaU+DuR4W6GN9K4DFZesYg==
@@ -409,20 +402,20 @@ punycode.js@^2.3.1:
   integrity sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==
 
 regex@^4.3.2:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/regex/-/regex-4.3.2.tgz#a68a68c9b337a77bf4ce4ed0b4b1a49d97cb3b7b"
-  integrity sha512-kK/AA3A9K6q2js89+VMymcboLOlF5lZRCYJv3gzszXFHBr6kO6qLGzbm+UIugBEV8SMMKCTR59txoY6ctRHYVw==
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/regex/-/regex-4.3.3.tgz#8cda73ccbdfa7c5691881d02f9bb142dba9daa6a"
+  integrity sha512-r/AadFO7owAq1QJVeZ/nq9jNS1vyZt+6t1p/E59B56Rn2GCya+gr1KSyOzNL/er+r+B7phv5jG2xU2Nz1YkmJg==
 
 shiki@^1.16.2:
-  version "1.17.7"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.17.7.tgz#88557d68c27c7a3f393e08aab92aa8a957200b4c"
-  integrity sha512-Zf6hNtWhFyF4XP5OOsXkBTEx9JFPiN0TQx4wSe+Vqeuczewgk2vT4IZhF4gka55uelm052BD5BaHavNqUNZd+A==
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.22.0.tgz#45d1dfff0e03a598af70e2ec8592f14ef07827b4"
+  integrity sha512-/t5LlhNs+UOKQCYBtl5ZsH/Vclz73GIqT2yQsCBygr8L/ppTdmpL4w3kPLoZJbMKVWtoG77Ue1feOjZfDxvMkw==
   dependencies:
-    "@shikijs/core" "1.17.7"
-    "@shikijs/engine-javascript" "1.17.7"
-    "@shikijs/engine-oniguruma" "1.17.7"
-    "@shikijs/types" "1.17.7"
-    "@shikijs/vscode-textmate" "^9.2.2"
+    "@shikijs/core" "1.22.0"
+    "@shikijs/engine-javascript" "1.22.0"
+    "@shikijs/engine-oniguruma" "1.22.0"
+    "@shikijs/types" "1.22.0"
+    "@shikijs/vscode-textmate" "^9.3.0"
     "@types/hast" "^3.0.4"
 
 space-separated-tokens@^2.0.0:
@@ -444,9 +437,9 @@ trim-lines@^3.0.0:
   integrity sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==
 
 typedoc@^0.26.7:
-  version "0.26.7"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.26.7.tgz#1980e3ed51c6c315b7a09786b2b9af1106a3aa80"
-  integrity sha512-gUeI/Wk99vjXXMi8kanwzyhmeFEGv1LTdTQsiyIsmSYsBebvFxhbcyAx7Zjo4cMbpLGxM4Uz3jVIjksu/I2v6Q==
+  version "0.26.9"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.26.9.tgz#a37075a2eeecc7348ab0fbc7d103b30283c00e8c"
+  integrity sha512-Rc7QpWL7EtmrT8yxV0GmhOR6xHgFnnhphbD9Suti3fz3um7ZOrou6q/g9d6+zC5PssTLZmjaW4Upmzv8T1rCcQ==
   dependencies:
     lunr "^2.3.9"
     markdown-it "^14.1.0"
@@ -455,19 +448,14 @@ typedoc@^0.26.7:
     yaml "^2.5.1"
 
 typescript@^5.6.2:
-  version "5.6.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.2.tgz#d1de67b6bef77c41823f822df8f0b3bcff60a5a0"
-  integrity sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==
+  version "5.6.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.3.tgz#5f3449e31c9d94febb17de03cc081dd56d81db5b"
+  integrity sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==
 
 uc.micro@^2.0.0, uc.micro@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-2.1.0.tgz#f8d3f7d0ec4c3dea35a7e3c8efa4cb8b45c9e7ee"
   integrity sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==
-
-undici-types@~6.19.2:
-  version "6.19.8"
-  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.8.tgz#35111c9d1437ab83a7cdc0abae2f26d88eda0a02"
-  integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
 
 unist-util-is@^6.0.0:
   version "6.0.0"

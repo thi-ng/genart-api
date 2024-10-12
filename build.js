@@ -47,3 +47,4 @@ writeFileSync(
 );
 
 copyFileSync("README.md", `${BUILD_DIR}/README.md`);
+copyFileSync("LICENSE", `${BUILD_DIR}/LICENSE`);

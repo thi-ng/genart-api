@@ -907,4 +907,4 @@ TODO for now see [existing adapter implementations](#existing-adapter-implementa
 
 ## License
 
-&copy; 2024 Karsten Schmidt and contributors // Apache Software License 2.0
+&copy; 2024 Karsten Schmidt and contributors // MIT License
