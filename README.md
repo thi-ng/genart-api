@@ -40,10 +40,14 @@
 -   [Time providers](#time-providers)
     -   [Existing time provider implementations](#existing-time-provider-implementations)
 -   [Getting started](#getting-started)
-    -   [Parameter editors](#parameter-editors)
-    -   [Bundled examples](#bundled-examples)
-    -   [Artist's Hello world](#an-artists-hello-world)
+    -   [Installion as package](#installion-as-package)
+    -   [Manual installation](#manual-installation)
+    -   [Use in your own projects: Artist's Hello world](#use-in-your-own-projects-an-artists-hello-world)
     -   [Creating a basic PlatformAdapter](#platforms)
+-   [Build information](#build-information)
+    -   [Building core API files](#building-core-api-files)
+    -   [Building examples](#build-information)
+-   [Parameter editors](#parameter-editors)
 -   [License](#license)
 
 ## Status
@@ -52,6 +56,9 @@
 
 Please also see RFCs and open questions in the [issue
 tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
+
+> [!NOTE]
+> tl;dr Jump to the [Getting started section](#getting-started).
 
 ## About
 
@@ -689,92 +696,66 @@ TODO
 
 ## Getting started
 
-### Building core API files
+> [!NOTE]
+> The reference implementation of the API provided has no dependencies.
+
+### Installion as package
+
+The [@thi.ng/genart-api package](https://www.npmjs.com/@thi.ng/genart-api)
+contains the pre-built release files & type declarations, but is **not** an ESM
+module which can (or even should) be imported via `import` syntax. The API is
+always provided as singleton via the global `$genart` variable.
+
+Instead, the JS file(s) should be copied to your project's `/lib` dir (or
+similar) to be referenced by `<script>` tag in your HTML wrapper (see below):
 
 ```bash
-yarn install
+yarn add @thi.ng/genart-api
 
-# output files will be written to /dist
-yarn build
+# create dest dir
+mkdir -p lib
 
-# generate TypeScript type declarations (also written to /dist)
-yarn build:types
+# copy files
+cp node_modules/@thi.ng/genart-api/*.js lib
 ```
 
-### Parameter editors
+If you're a TypeScript user, you'll also want to add a declaration file with the
+following content to your `/src` directory:
 
-The repo contains two reference implementations of GUI parameter editors to
-modify param values exposed by an artwork running in an embedded `<iframe>`.
-These editors can be used to customize parameters of the other [bundled
-examples](#bundled-examples) (or any other project using GenArt API and the
-supplied [reference platform adapter](#reference-platform-adapter)). See the
-[param-editors
-readme](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/)
-for details.
+/src/types.d.ts:
 
-The following table provides an overview of the **current** parameter types
-support in both editors:
-
-| Param type       | thi.ng/rdom editor | thi.ng/imgui editor |
-| ---------------- | ------------------ | ------------------- |
-| Choice           | ✅                 | ✅                  |
-| Color            | ✅                 | ✅ (1)              |
-| Composite params | ❌                 | ✅ (2)              |
-| Date             | ✅                 | ✅                  |
-| Datetime         | ✅                 | ❌                  |
-| Image            | ✅                 | ❌                  |
-| List             | ❌                 | ❌                  |
-| Range            | ✅                 | ✅                  |
-| Ramp             | ❌                 | ✅                  |
-| Text             | ✅                 | ✅ (3)              |
-| Time             | ✅                 | ❌                  |
-| Toggle           | ✅                 | ✅                  |
-| Weighted choice  | ✅                 | ✅                  |
-| XY               | ✅ (1)             | ✅                  |
-
--   (1) No dedicated widget yet, using fallback only
--   (2) See [composite parameter types](#composite-parameter-types)
--   (3) Only single line, not mobile friendly
-
-### Bundled examples
-
-This repo contains several examples used for testing and evaluating the
-reference API implementation. These are all separate projects/packages located
-in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
-directory. Please ensure you read their README instructions, since a certain
-build order must be used:
-
--   [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/):
-    Minimal "art" example using various parameter types
--   [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/):
-    Example using an image map parameter
--   [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
-    Custom & composite parameter type example
-
-#### Building examples
-
-```bash
-# from the repo root
-yarn build:examples
+```ts
+/// <reference types="@thi.ng/genart-api" />
 ```
 
-### An artist's "Hello world"
+Then you should be ready to go to [TODO]()
 
-This section describes the basic approach to create a `GenArtAPI` conformant art
-project.
+### Manual installation
 
-**The reference implementation of the API provided here has no dependencies**
-and can be included by downloading/copying the scripts in the
-[/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory to your
-project and adding the following `<script>` tags to your HTML header:
+The [/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory
+contains all pre-built release files and type declarations which you should copy
+to your project directory (e.g. in a `/lib` dir or similar).
+
+If you're a TypeScript user, you'll also want to add a declaration file with the
+following content to your `/src` directory:
+
+/src/types.d.ts:
+
+```ts
+/// <reference types="../lib/genart.d.ts" />
+```
+
+### Use in your own projects: An artist's "Hello world"
+
+This section explains the basic approach to create a `GenArtAPI` conformant art
+project and assumes you have installed the API files/types via one of the ways
+described above.
 
 ```html
-<script src="genart.min.js"></script>
+<script src="./lib/genart.min.js"></script>
 ```
 
 -   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/index.ts)
--   [Release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.js)
--   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/genart.min.js)
 
 #### Reference platform adapter
 
@@ -785,12 +766,10 @@ This adapter can be useful during local development, or used as basis for other
 use cases:
 
 ```html
-<script src="adapter-urlparams.min.js"></script>
+<script src="./lib/adapter-urlparams.min.js"></script>
 ```
 
 -   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts)
--   [Release build](https://github.com/thi-ng/genart-api/blob/main/dist/adapter-urlparams.js)
--   [Minified release build](https://github.com/thi-ng/genart-api/blob/main/dist/adapter-urlparams.min.js)
 
 #### Example files
 
@@ -803,9 +782,9 @@ use cases:
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Hello GenArtAPI</title>
         <!-- main GenArtAPI script -->
-        <script src="genart.min.js"></script>
-        <!-- dummy platform adapter -->
-        <script src="adapter-urlparams.min.js"></script>
+        <script src="./lib/genart.js"></script>
+        <!-- platform adapter -->
+        <script src="./lib/adapter-urlparams.js"></script>
         <style>
             body {
                 margin: 0;
@@ -819,11 +798,11 @@ use cases:
             configure API to use offline time (new frame every 250 ms)
         -->
         <script type="module">
-            // import { timeProviderOffline } from "./time-offline.min.js";
+            // import { timeProviderOffline } from "./lib/time-offline.js";
             // $genart.setTimeProvider(timeProviderOffline(250));
         </script>
         <!-- User artwork script -->
-        <script type="module" src="index.js"></script>
+        <script type="module" src="/src/index.js"></script>
     </body>
 </html>
 ```
@@ -904,6 +883,77 @@ use cases:
 ### Creating a basic PlatformAdapter
 
 TODO for now see [existing adapter implementations](#existing-adapter-implementations)...
+
+## Build information
+
+### Building core API files
+
+```bash
+yarn install
+
+# output files will be written to /dist
+yarn build
+
+# generate TypeScript type declarations (also written to /dist)
+yarn build:types
+```
+
+### Building examples
+
+This repo contains several examples used for testing and evaluating the
+reference API implementation. These are all separate projects/packages located
+in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
+directory. Please ensure you read their README instructions, since a certain
+build order must be used:
+
+-   [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/):
+    Minimal "art" example using various parameter types
+-   [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/):
+    Example using an image map parameter
+-   [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
+    Custom & composite parameter type example
+-   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
+    Example/reference [editor implementations](#parameter-editors)
+
+```bash
+# from the repo root
+yarn build:examples
+```
+
+## Parameter editors
+
+The repo contains two reference implementations of GUI parameter editors to
+modify param values exposed by an artwork running in an embedded `<iframe>`.
+These editors can be used to customize parameters of the other [bundled
+examples](#bundled-examples) (or any other project using GenArt API and the
+supplied [reference platform adapter](#reference-platform-adapter)). See the
+[param-editors
+readme](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/)
+for details.
+
+The following table provides an overview of the **current** parameter types
+support in both editors:
+
+| Param type       | thi.ng/rdom editor | thi.ng/imgui editor |
+| ---------------- | ------------------ | ------------------- |
+| Choice           | ✅                 | ✅                  |
+| Color            | ✅                 | ✅ (1)              |
+| Composite params | ❌                 | ✅ (2)              |
+| Date             | ✅                 | ✅                  |
+| Datetime         | ✅                 | ❌                  |
+| Image            | ✅                 | ❌                  |
+| List             | ❌                 | ❌                  |
+| Range            | ✅                 | ✅                  |
+| Ramp             | ❌                 | ✅                  |
+| Text             | ✅                 | ✅ (3)              |
+| Time             | ✅                 | ❌                  |
+| Toggle           | ✅                 | ✅                  |
+| Weighted choice  | ✅                 | ✅                  |
+| XY               | ✅ (1)             | ✅                  |
+
+-   (1) No dedicated widget yet, using fallback only
+-   (2) See [composite parameter types](#composite-parameter-types)
+-   (3) Only single line, not mobile friendly
 
 ## License
 
