@@ -319,9 +319,14 @@ class API implements GenArtAPI {
 				const impl = this.ensureParamImpl(param.type);
 				if (impl.randomize) {
 					param.default = impl.randomize(param, this.random.rnd);
+					param.state = "random";
+				} else if (impl.read) {
+					param.state = "dynamic";
 				} else {
 					throw new Error(`missing default value for param: ${id}`);
 				}
+			} else {
+				param.state = "default";
 			}
 		}
 		this._params = params;
@@ -411,6 +416,7 @@ class API implements GenArtAPI {
 			(<any>spec)[key || "value"] = impl.coerce
 				? impl.coerce(updateSpec, value)
 				: value;
+			if (!key) spec.state = "custom";
 		}
 		this.emit<ParamChangeMsg>(
 			{

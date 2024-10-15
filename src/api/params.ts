@@ -1,4 +1,4 @@
-import type { Maybe, RandomFn } from "../api.js";
+import type { RandomFn } from "../api.js";
 
 /**
  * Declarative data-only description of a single parameter declared by the art
@@ -76,6 +76,12 @@ export interface Param<T> {
 	 */
 	randomize?: boolean;
 	/**
+	 * This value is only for information purposes and initialized during
+	 * {@link GenArtAPI.setParams} and {@link GenArtAPI.updateParams}. See
+	 * {@link ParamState} for meaning of the possible values.
+	 */
+	state: ParamState;
+	/**
 	 * Optional, non-binding hint for param editors to customize which GUI
 	 * widget to use for this param. (e.g. a {@link RangeParam} might be
 	 * represented as a slider by default, but offer a numeric input field for
@@ -88,13 +94,29 @@ export interface Param<T> {
 }
 
 /**
+ * Possible states a parameter can be in:
+ *
+ * - `custom`: The param value has been customized/overridden (by whatever
+ *   means, e.g. via platform adapter)
+ * - `default`: The param uses an artist provided default value
+ * - `dynamic`: The param value will only be determined via the
+ *   {@link ParamImpl.read} method.
+ * - `random`: The param uses a randomized default value (because the artist
+ *   hasn't provided one, also see note below)
+ * - `void`: The param has only been declared but not yet initialized (internal use only)
+ *
+ * **Note:** Artists can omit defaults only for randomizable parameter types.
+ */
+export type ParamState = "custom" | "default" | "dynamic" | "random" | "void";
+
+/**
  * Value type for {@link Param.widget}.
  */
 export type ParamWidgetType = "default" | "alt" | "precise";
 
 export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<
 	T,
-	"type" | EXCLUDE
+	"type" | "state" | EXCLUDE
 >;
 
 export interface ChoiceParam<T extends string> extends Param<T> {
