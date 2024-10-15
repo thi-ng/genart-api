@@ -11,7 +11,7 @@ import {
 	intBufferFromImage,
 	RGB888,
 } from "@thi.ng/pixel";
-import { $compile, $refresh, $replace, $wrapEl } from "@thi.ng/rdom";
+import { $attribs, $compile, $refresh, $replace, $wrapEl } from "@thi.ng/rdom";
 import {
 	compileForm,
 	container,
@@ -335,6 +335,30 @@ const createParamControls = (params: ParamSpecs) => {
 				break;
 		}
 		if (param.randomize !== false) {
+			if (param.state === "random") {
+				items.push(
+					trigger({
+						label: "",
+						title: "apply",
+						attribs: {
+							id: id + "-apply",
+							title: "Click to apply the current value (randomized default)",
+							onclick: () => {
+								$attribs(
+									document.getElementById(id + "-apply")!,
+									{ style: { display: "none" } }
+								);
+								sendMessage<SetParamValueMsg>({
+									type: "genart:setparamvalue",
+									paramID: id,
+									value: value.deref(),
+								});
+							},
+						},
+						readonly: true,
+					})
+				);
+			}
 			items.push(
 				trigger({
 					label: "",
