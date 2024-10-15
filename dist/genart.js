@@ -58,82 +58,67 @@
     weighted: () => weighted,
     xy: () => xy
   });
-  var choice = (spec) => ({
-    type: "choice",
+  var $ = (type, spec, randomize = true) => ({
+    type,
+    state: "void",
+    randomize,
     ...spec
   });
-  var color = (spec) => ({
-    type: "color",
-    ...spec
-  });
-  var datetime = (spec) => ({
-    type: "datetime",
-    randomize: false,
-    ...spec
-  });
-  var date = (spec) => ({
-    type: "date",
-    randomize: false,
-    ...spec
-  });
-  var image = (spec) => ({
-    type: "img",
-    randomize: false,
-    default: spec.default || new Uint8Array(spec.width * spec.height),
-    ...spec
-  });
-  var numlist = (spec) => ({
-    type: "numlist",
-    randomize: false,
-    default: [],
-    ...spec
-  });
-  var ramp = (spec) => ({
-    type: "ramp",
-    name: spec.name,
-    desc: spec.desc,
-    doc: spec.doc,
-    stops: spec.stops ? spec.stops.flat() : [0, 0, 1, 1],
-    mode: spec.mode || "linear",
-    randomize: false,
-    default: 0
-  });
-  var range = (spec) => ({
-    type: "range",
+  var choice = (spec) => $("choice", spec);
+  var color = (spec) => $("color", spec);
+  var datetime = (spec) => $("datetime", spec, false);
+  var date = (spec) => $("date", spec, false);
+  var image = (spec) => $(
+    "img",
+    {
+      default: spec.default || new Uint8Array(spec.width * spec.height),
+      ...spec
+    },
+    false
+  );
+  var numlist = (spec) => $(
+    "numlist",
+    {
+      default: [],
+      ...spec
+    },
+    false
+  );
+  var ramp = (spec) => $(
+    "ramp",
+    {
+      name: spec.name,
+      desc: spec.desc,
+      doc: spec.doc,
+      stops: spec.stops ? spec.stops.flat() : [0, 0, 1, 1],
+      mode: spec.mode || "linear",
+      default: 0
+    },
+    false
+  );
+  var range = (spec) => $("range", {
     min: 0,
     max: 100,
     step: 1,
     ...spec
   });
-  var strlist = (spec) => ({
-    type: "strlist",
-    randomize: false,
-    default: [],
-    ...spec
-  });
-  var text = (spec) => ({
-    type: "text",
-    randomize: false,
-    ...spec
-  });
-  var time = (spec) => ({
-    type: "time",
-    ...spec
-  });
-  var toggle = (spec) => ({
-    type: "toggle",
-    ...spec
-  });
-  var weighted = (spec) => ({
+  var strlist = (spec) => $(
+    "strlist",
+    {
+      default: [],
+      ...spec
+    },
+    false
+  );
+  var text = (spec) => $("text", spec, false);
+  var time = (spec) => $("time", spec);
+  var toggle = (spec) => $("toggle", spec);
+  var weighted = (spec) => $("weighted", {
     ...spec,
-    type: "weighted",
     options: spec.options.sort((a, b) => b[0] - a[0]),
     total: spec.options.reduce((acc, x) => acc + x[0], 0)
   });
-  var xy = (spec) => ({
-    type: "xy",
-    ...spec
-  });
+  var xy = (spec) => $("xy", spec);
 
   // src/time/raf.ts
   var timeProviderRAF = (timeOffset = 0, frameOffset = 0) => {
@@ -414,9 +399,14 @@
           const impl = this.ensureParamImpl(param.type);
           if (impl.randomize) {
             param.default = impl.randomize(param, this.random.rnd);
+            param.state = "random";
+          } else if (impl.read) {
+            param.state = "dynamic";
           } else {
             throw new Error(`missing default value for param: ${id}`);
           }
+        } else {
+          param.state = "default";
         }
       }
       this._params = params;
@@ -488,6 +478,7 @@
           return;
         }
         spec[key || "value"] = impl.coerce ? impl.coerce(updateSpec, value) : value;
+        if (!key) spec.state = "custom";
       }
       this.emit(
         {
