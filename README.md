@@ -30,6 +30,7 @@
     -   [Custom parameter types](#custom-parameter-types)
         -   [Example: Oscillator parameter type](#example-oscillator-parameter-type)
     -   [Composite parameter types](#composite-parameter-types)
+-   [Traits](#traits)
 -   [Platform adapters](#platform-adapters)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
@@ -648,6 +649,42 @@ TODO
 Please see the [param-custom
 example](https://github.com/thi-ng/genart-api/blob/main/examples/param-custom)
 for reference...
+
+## Traits
+
+Some platforms support the concept of artist-defined metadata, commonly called
+"traits" or "features". In most cases, this metadata is a key-value dictionary,
+where the keys are arbitrarily defined criteria the artist wants to expose, and
+usually, the values are derived from the current parameter configuration of a
+particular variation.
+
+This API principally supports this use case via the `$genart.setTraits()`
+function, but it's the platform adapter's responsibility to deal with this
+information provided, i.e. declaring traits has zero impact on any other
+workings or state of the API layer.
+
+The value of a single trait can be a number, string or boolean.
+
+```ts
+// declare a single param
+const param = await $genart.setParams({
+    bright: $genart.params.range({
+        name: "brightness",
+        desc: "overall brightness",
+        min: 0,
+        max: 100,
+    }),
+});
+
+// internal random param
+const density = $genart.random.rnd();
+
+// declare traits to outside world
+$genart.setTraits({
+    brightness: param("bright") < 50 ? "dark" : "light",
+    density: Math.floor(density * 100) + "%",
+});
+```
 
 ## Platform adapters
 
