@@ -7,7 +7,7 @@
 	"license": "Apache-2.0",
 	"type": "module",
 	"scripts": {
-		"build:prepare": "cp ../../dist/*.min.js lib",
+		"build:prepare": "cp ../../dist/*.js lib",
 		"start": "yarn build:prepare && vite --host --open",
 		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
 		"preview": "vite preview --host --open"
