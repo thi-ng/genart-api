@@ -61,7 +61,7 @@ export interface Utils {
 	u32(x: number): string;
 	/**
 	 * Returns number of fractional digits for given `step` size. Helper for
-	 * {@link Utils.formatPrec}.
+	 * {@link Utils.formatValuePrec}.
 	 *
 	 * @param step
 	 */
