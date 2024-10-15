@@ -53,12 +53,16 @@ activate Browser
 			API -> API : Validate params specs
 			note right : Ensure valid param types
 			API -> API : Add missing default values
-			note right: Randomize missing defaults
+			note right : Randomize missing defaults
+			API -> API : Set param states
+			note right : Depending on provided defaults
 			API -> PlatformAdapter : Update/augment params
 			activate PlatformAdapter
 				PlatformAdapter -> PlatformAdapter : Load & parse param
 				note right : source param values via\nplatform-specific means
 				PlatformAdapter --> API : Customized param value(s)
+				API -> API : Update param states
+				note right : Set to `custom` (only those which changed)
 			deactivate PlatformAdapter
 
 			API -> API : Validate & apply param overrides

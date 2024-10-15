@@ -40,6 +40,7 @@
 -   [Time providers](#time-providers)
     -   [Existing time provider implementations](#existing-time-provider-implementations)
 -   [Getting started](#getting-started)
+    -   [Project template](#project-template)
     -   [Installion as package](#installion-as-package)
     -   [Manual installation](#manual-installation)
     -   [Use in your own projects: Artist's Hello world](#use-in-your-own-projects-an-artists-hello-world)
@@ -86,6 +87,7 @@ realtime/non-realtime rendering when recording image sequences for video
 production, and do so in an unintrusive & externally controlled manner).
 
 ![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/overview.svg)
+
 Schematic overview of the proposed architecture
 
 The primary purpose of this API is to decouple key aspects commonly used for
@@ -630,6 +632,17 @@ $genart.setUpdate((t) => {
 
 ### Composite parameter types
 
+Composite parameter types contain child parameters to allow the main param be
+configured in more detailed/complex ways. Usually, a composite parameter type
+will define a
+[`.read()`](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html#read)
+method to dynamically produce values, based on the current configuration
+of its child params.
+
+An example of such a composite parameter type is an extended version of the
+oscillator described in the [previous
+section](#example-oscillator-parameter-type).
+
 TODO
 
 Please see the [param-custom
@@ -698,6 +711,26 @@ TODO
 
 > [!NOTE]
 > The reference implementation of the API provided has no dependencies.
+
+### Project template
+
+This repo contains an empty project template which can be used as starting
+point. The template uses TypeScript & Vite, but can be _very_ easily adapted to
+other tooling (eg. there's hardly any code, so switching to JavaScript requires
+just renaming the source file).
+
+-   TODO move template to own repo for easier use
+
+```bash
+git clone https://github.com/thi-ng/genart-api.git
+
+# copy template to new directory
+cp -R genart-api/project-template my-new-art-project
+
+# install dependencies (genart api, typescript, vite)
+cd my-new-art-project
+yarn install
+```
 
 ### Installion as package
 
