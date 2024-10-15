@@ -781,19 +781,8 @@ The [/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory
 contains all pre-built release files and type declarations which you should copy
 to your project directory (e.g. in a `/lib` dir or similar).
 
-If you're a TypeScript user, you'll also want to add the package to your
-`tsconfig.json` types field OR add a declaration file with the following content
-to your `/src` directory:
-
-tsconfig.json
-
-```json
-{
-    "compilerOptions": {
-        "types": ["@thi.ng/genart-api"]
-    }
-}
-```
+If you're a TypeScript user, you'll also want to add a declaration file with the
+following content to your `/src` directory:
 
 /src/types.d.ts:
 
