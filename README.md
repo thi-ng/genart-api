@@ -737,7 +737,34 @@ TODO
 
 ## Time providers
 
-TODO
+A time provider is a further decoupling mechanism to allow artists (or
+platforms) to re-purpose an artwork in different media production or asset
+management contexts. Common scenarios include: an artist (or platform) might
+want to produce high-res outputs or high-quality video assets which can only be
+created by running the piece at a much lower frame rate (or a frame rate
+controlled via external events/triggers). In order to protect the artwork code
+from having to be adjusted for these use cases, the API uses pluggable timing
+providers which are merely responsible to schedule the next animation frame and
+provide a related timestamp and frame number.
+
+The API defaults to using a [`requestAnimationFrame()`-based
+provider](https://github.com/thi-ng/genart-api/blob/main/src/time/raf.ts), but
+this one can be replaced by loading an alternative implementation via another
+`<script>` tag, like so:
+
+```html
+<!-- main GenArtAPI script -->
+<script src="./lib/genart.js"></script>
+<!--
+    optional: use custom time provider (e.g. for non-realtime rendering of image sequences)
+    configure API to use offline time (new frame every 250 ms)
+    IMPORTANT: MUST be loaded AFTER the main genart script!
+-->
+<script type="module">
+    // import { timeProviderOffline } from "./lib/time-offline.js";
+    // $genart.setTimeProvider(timeProviderOffline(250));
+</script>
+```
 
 ### Existing time provider implementations
 
