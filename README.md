@@ -41,6 +41,7 @@
 -   [Time providers](#time-providers)
     -   [Existing time provider implementations](#existing-time-provider-implementations)
 -   [Getting started](#getting-started)
+    -   [Examples projects](#example-projects)
     -   [Project template](#project-template)
     -   [Installion as package](#installion-as-package)
     -   [Manual installation](#manual-installation)
@@ -776,12 +777,27 @@ this one can be replaced by loading an alternative implementation via another
 > [!NOTE]
 > The reference implementation of the API provided has no dependencies.
 
+### Example projects
+
+This repo contains several examples used for testing and evaluating the
+reference API implementation. These are all separate projects/packages located
+in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
+directory. Please ensure you read their README instructions, since a certain
+build order must be used:
+
+| **Project**                                                                            | **Live demo**                                                                                          | **Description**                                                |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/)      | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-test/)   | Minimal "art" example using various parameter types            |
+| [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/)    | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)  | Example using an image map parameter                           |
+| [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/)  | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/) | Custom & composite parameter type example                      |
+| [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/) |                                                                                                        | Example/reference [editor implementations](#parameter-editors) |
+
 ### Project template
 
-This repo contains an empty project template which can be used as starting
-point. The template uses TypeScript & Vite, but can be _very_ easily adapted to
-other tooling (eg. there's hardly any code, so switching to JavaScript requires
-just renaming the source file).
+This repo contains an empty project template which can be used as starting point
+for new projects. The template uses TypeScript & Vite, but can be _very_ easily
+adapted to other tooling (eg. there's hardly any code, so switching to
+JavaScript requires just renaming the source file).
 
 -   TODO move template to own repo for easier use
 
@@ -1009,20 +1025,7 @@ yarn build:types
 
 ### Building examples
 
-This repo contains several examples used for testing and evaluating the
-reference API implementation. These are all separate projects/packages located
-in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
-directory. Please ensure you read their README instructions, since a certain
-build order must be used:
-
--   [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/):
-    Minimal "art" example using various parameter types
--   [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/):
-    Example using an image map parameter
--   [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
-    Custom & composite parameter type example
--   [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/):
-    Example/reference [editor implementations](#parameter-editors)
+The following command is used to create production builds of _all_ examples:
 
 ```bash
 # from the repo root
