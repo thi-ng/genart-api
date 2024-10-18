@@ -205,19 +205,35 @@ The API implements a finite state machine with the following possible states:
 
 #### Message types
 
-TODO
+The API also defines and uses a message protocol to communicate certain
+lifecycle events, state changes and requests to both internal & external
+participants.
 
+-   `genart:capture`
+-   `genart:capturerequest`
+-   `genart:paramchange`
+-   `genart:paramerror`
+-   `genart:randomizeparam`
+-   `genart:frame`
+-   `genart:resize`
+-   `genart:resume`
 -   `genart:setparams`
 -   `genart:setparamvalue`
 -   `genart:settraits`
--   `genart:randomizeparam`
--   `genart:paramchange`
--   `genart:paramerror`
--   `genart:statechange`
 -   `genart:start`
--   `genart:resume`
+-   `genart:statechange`
 -   `genart:stop`
--   `genart:capture`
+
+TODO — for now please see the following links for more information:
+
+-   [.emit()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#emit)
+-   [.on()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#on)
+-   [.id](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#id)
+-   [.setParams()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#setParams)
+-   [.setTraits()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#setTraits)
+-   [.setUpdate()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#setUpdate)
+-   [.start()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#start)
+-   [.stop()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#stop)
 
 ### API documentation
 
