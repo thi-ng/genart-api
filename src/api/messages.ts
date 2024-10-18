@@ -84,23 +84,42 @@ export interface ResizeMsg extends APIMessage {
 }
 
 /**
+ * Message type emitted by the {@link GenArtAPI.start} update/animation loop for
+ * each single frame update. The message contains the time & frame information
+ * of the currently rendered frame and intended for 3rd party tooling (i.e.
+ * editors, players, sequencers).
+ */
+export interface AnimFrameMsg extends APIMessage {
+	type: "genart:frame";
+	/**
+	 * Current animation time (in seconds)
+	 */
+	time: number;
+	/**
+	 * Current frame number
+	 */
+	frame: number;
+}
+
+/**
  * LUT mapping message types (names) to their respective type of API message.
  * Used for type checking/inference in {@link GenArtAPI.on}.
  */
 export interface MessageTypeMap {
+	"genart:capture": APIMessage;
+	"genart:capturerequest": APIMessage;
+	"genart:paramchange": ParamChangeMsg;
+	"genart:paramerror": ParamErrorMsg;
+	"genart:randomizeparam": RandomizeParamMsg;
+	"genart:frame": AnimFrameMsg;
+	"genart:resize": ResizeMsg;
+	"genart:resume": APIMessage;
 	"genart:setparams": SetParamsMsg;
 	"genart:setparamvalue": SetParamValueMsg;
 	"genart:settraits": SetTraitsMsg;
-	"genart:randomizeparam": RandomizeParamMsg;
-	"genart:paramchange": ParamChangeMsg;
-	"genart:paramerror": ParamErrorMsg;
-	"genart:statechange": StateChangeMsg;
-	"genart:resize": ResizeMsg;
 	"genart:start": APIMessage;
-	"genart:resume": APIMessage;
+	"genart:statechange": StateChangeMsg;
 	"genart:stop": APIMessage;
-	"genart:capture": APIMessage;
-	"genart:capturerequest": APIMessage;
 }
 
 /**

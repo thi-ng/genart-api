@@ -336,6 +336,11 @@ export interface GenArtAPI {
 	 * the API must have a {@link PlatformAdapter}, a {@link TimeProvider} and a
 	 * {@link UpdateFn} must have been configured.
 	 *
+	 * Whilst the animation loop is active, a {@link AnimFrameMsg} will be
+	 * emitted at the end of each frame update. These messages contain the time
+	 * & frame information of the currently rendered frame and are intended for
+	 * 3rd party tooling (i.e. editors, players, sequencers).
+	 *
 	 * @param resume
 	 */
 	start(resume?: boolean): void;
