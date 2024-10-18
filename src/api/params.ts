@@ -1,4 +1,4 @@
-import type { RandomFn } from "../api.js";
+import type { RandomFn } from "./random.js";
 
 /**
  * Declarative data-only description of a single parameter declared by the art

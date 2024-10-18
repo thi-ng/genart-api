@@ -1,5 +1,7 @@
-import type { APIState, Traits } from "../api.js";
 import type { NestedParam, NestedParamSpecs } from "./params.js";
+import type { ScreenConfig } from "./screen.js";
+import type { APIState } from "./state.js";
+import type { Traits } from "./traits.js";
 
 export interface APIMessage {
 	type: MessageType;
@@ -68,6 +70,23 @@ export interface StateChangeMsg extends APIMessage {
 	info?: string;
 }
 
+/**
+ * Message triggered by the platform adapter when a screen configuration change
+ * occurred and the artwork (or 3rd party tooling) shoyld respond/adapt to these
+ * new dimensions provided.
+ */
+export interface ResizeMsg extends APIMessage {
+	type: "genart:resize";
+	/**
+	 * New screen/canvas configuration
+	 */
+	screen: ScreenConfig;
+}
+
+/**
+ * LUT mapping message types (names) to their respective type of API message.
+ * Used for type checking/inference in {@link GenArtAPI.on}.
+ */
 export interface MessageTypeMap {
 	"genart:setparams": SetParamsMsg;
 	"genart:setparamvalue": SetParamValueMsg;
@@ -76,6 +95,7 @@ export interface MessageTypeMap {
 	"genart:paramchange": ParamChangeMsg;
 	"genart:paramerror": ParamErrorMsg;
 	"genart:statechange": StateChangeMsg;
+	"genart:resize": ResizeMsg;
 	"genart:start": APIMessage;
 	"genart:resume": APIMessage;
 	"genart:stop": APIMessage;
@@ -83,6 +103,17 @@ export interface MessageTypeMap {
 	"genart:capturerequest": APIMessage;
 }
 
+/**
+ * All known message types/names
+ */
 export type MessageType = keyof MessageTypeMap;
 
-export type NotifyType = "none" | "self" | "parent" | "all";
+/**
+ * Message notification types:
+ *
+ * - `all`: message sent to same and parent (if different)
+ * - `none`: message will NOT be sent
+ * - `parent`: message only sent to parent window (if different present)
+ * - `self`: message only sent to same window/iframe
+ */
+export type NotifyType = "all" | "none" | "parent" | "self";
