@@ -4,6 +4,7 @@ import type { ParamFactories, ParamImpl, ParamSpecs, ParamValue } from "./api/pa
 import type { PlatformAdapter, RunMode } from "./api/platform.js";
 import type { PRNG, RandomFn } from "./api/random.js";
 import type { ScreenConfig } from "./api/screen.js";
+import type { APIState } from "./api/state.js";
 import type { TimeProvider } from "./api/time.js";
 import type { Traits } from "./api/traits.js";
 import type { Utils } from "./api/utils.js";
@@ -13,6 +14,7 @@ export * from "./api/params.js";
 export * from "./api/platform.js";
 export * from "./api/random.js";
 export * from "./api/screen.js";
+export * from "./api/state.js";
 export * from "./api/time.js";
 export * from "./api/traits.js";
 export * from "./api/utils.js";
@@ -25,7 +27,6 @@ export type Maybe<T> = T | undefined;
  * explicitly.
  */
 export type UpdateFn = (time: number, frame: number) => boolean;
-export type APIState = "init" | "ready" | "play" | "stop" | "error";
 export interface GenArtAPI {
     /**
      * Unique ID for this GenArtAPI instance, intended for use cases where

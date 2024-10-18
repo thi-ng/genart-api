@@ -54,10 +54,12 @@
   var SEED = "__seed";
   var URLParamsAdapter = class {
     params;
-    _cache = {};
-    _random;
+    cache = {};
+    _prng;
+    _screen;
     constructor() {
       this.params = new URLSearchParams(location.search);
+      this._screen = this.screen;
       this.initPRNG();
       $genart.on("genart:paramchange", (e) => {
         const value = this.serializeParam(e.param);
@@ -79,6 +81,17 @@
           $genart.start();
         }
       });
+      window.addEventListener("resize", () => {
+        const { width, height, dpr } = this._screen;
+        const newScreen = this.screen;
+        if (width !== newScreen.width || height !== newScreen.height || dpr !== newScreen.dpr) {
+          this._screen = newScreen;
+          $genart.emit({
+            type: "genart:resize",
+            screen: newScreen
+          });
+        }
+      });
     }
     get mode() {
       return this.params.get("__mode") || "play";
@@ -94,7 +107,7 @@
       };
     }
     get prng() {
-      return this._random;
+      return this._prng;
     }
     async setParams(params) {
       Object.assign(params, {
@@ -103,7 +116,7 @@
           desc: "Manually defined seed value",
           min: 0,
           max: 1e13,
-          default: Number(BigInt(this._random.seed)),
+          default: Number(BigInt(this._prng.seed)),
           update: "reload",
           widget: "precise"
         }),
@@ -139,8 +152,8 @@
     }
     async updateParam(id, spec) {
       let value = this.params.get(id);
-      if (value == null || this._cache[id] === value) return;
-      this._cache[id] = value;
+      if (value == null || this.cache[id] === value) return;
+      this.cache[id] = value;
       switch (spec.type) {
         case "color":
         case "choice":
@@ -232,7 +245,7 @@
         reset
       };
       reset();
-      this._random = impl;
+      this._prng = impl;
     }
   };
   $genart.setAdapter(new URLParamsAdapter());

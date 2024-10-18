@@ -1,5 +1,7 @@
-import type { APIState, Traits } from "../api.js";
 import type { NestedParam, NestedParamSpecs } from "./params.js";
+import type { ScreenConfig } from "./screen.js";
+import type { APIState } from "./state.js";
+import type { Traits } from "./traits.js";
 export interface APIMessage {
     type: MessageType;
     /**
@@ -59,6 +61,10 @@ export interface StateChangeMsg extends APIMessage {
      */
     info?: string;
 }
+export interface ResizeMsg extends APIMessage {
+    type: "genart:resize";
+    screen: ScreenConfig;
+}
 export interface MessageTypeMap {
     "genart:setparams": SetParamsMsg;
     "genart:setparamvalue": SetParamValueMsg;
@@ -67,6 +73,7 @@ export interface MessageTypeMap {
     "genart:paramchange": ParamChangeMsg;
     "genart:paramerror": ParamErrorMsg;
     "genart:statechange": StateChangeMsg;
+    "genart:resize": ResizeMsg;
     "genart:start": APIMessage;
     "genart:resume": APIMessage;
     "genart:stop": APIMessage;
