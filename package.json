@@ -1,6 +1,6 @@
 {
 	"name": "@thi.ng/genart-api",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Platform-independent extensible API for browser-based generative art",
 	"repository": {
 		"type": "git",
