@@ -61,24 +61,65 @@ export interface StateChangeMsg extends APIMessage {
      */
     info?: string;
 }
+/**
+ * Message triggered by the platform adapter when a screen configuration change
+ * occurred and the artwork (or 3rd party tooling) shoyld respond/adapt to these
+ * new dimensions provided.
+ */
 export interface ResizeMsg extends APIMessage {
     type: "genart:resize";
+    /**
+     * New screen/canvas configuration
+     */
     screen: ScreenConfig;
 }
+/**
+ * Message type emitted by the {@link GenArtAPI.start} update/animation loop for
+ * each single frame update. The message contains the time & frame information
+ * of the currently rendered frame and intended for 3rd party tooling (i.e.
+ * editors, players, sequencers).
+ */
+export interface AnimFrameMsg extends APIMessage {
+    type: "genart:frame";
+    /**
+     * Current animation time (in seconds)
+     */
+    time: number;
+    /**
+     * Current frame number
+     */
+    frame: number;
+}
+/**
+ * LUT mapping message types (names) to their respective type of API message.
+ * Used for type checking/inference in {@link GenArtAPI.on}.
+ */
 export interface MessageTypeMap {
+    "genart:capture": APIMessage;
+    "genart:capturerequest": APIMessage;
+    "genart:paramchange": ParamChangeMsg;
+    "genart:paramerror": ParamErrorMsg;
+    "genart:randomizeparam": RandomizeParamMsg;
+    "genart:frame": AnimFrameMsg;
+    "genart:resize": ResizeMsg;
+    "genart:resume": APIMessage;
     "genart:setparams": SetParamsMsg;
     "genart:setparamvalue": SetParamValueMsg;
     "genart:settraits": SetTraitsMsg;
-    "genart:randomizeparam": RandomizeParamMsg;
-    "genart:paramchange": ParamChangeMsg;
-    "genart:paramerror": ParamErrorMsg;
-    "genart:statechange": StateChangeMsg;
-    "genart:resize": ResizeMsg;
     "genart:start": APIMessage;
-    "genart:resume": APIMessage;
+    "genart:statechange": StateChangeMsg;
     "genart:stop": APIMessage;
-    "genart:capture": APIMessage;
-    "genart:capturerequest": APIMessage;
 }
+/**
+ * All known message types/names
+ */
 export type MessageType = keyof MessageTypeMap;
-export type NotifyType = "none" | "self" | "parent" | "all";
+/**
+ * Message notification types:
+ *
+ * - `all`: message sent to same and parent (if different)
+ * - `none`: message will NOT be sent
+ * - `parent`: message only sent to parent window (if different present)
+ * - `self`: message only sent to same window/iframe
+ */
+export type NotifyType = "all" | "none" | "parent" | "self";

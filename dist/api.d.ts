@@ -233,6 +233,20 @@ export interface GenArtAPI {
      * @param traits
      */
     setTraits(traits: Traits): void;
+    /**
+     * Registers a handler/listener for given message `type`.
+     *
+     * @remarks
+     * This is just facade for `window.addListener("message",...)` which also
+     * handles pre-filtering of received messages and therefore reduces
+     * boilerplate in individual listeners. Messages not conforming to the
+     * overall {@link APIMessage} format, or which aren't addressed to the
+     * configured {@link GenArtAPI.id} or not matching the message `type` will
+     * be ignored.
+     *
+     * @param type
+     * @param listener
+     */
     on<T extends MessageType>(type: T, listener: (e: MessageTypeMap[T]) => void): void;
     /**
      * Sends an {@link APIMessage} using (optionally) specified `notify` type
@@ -278,6 +292,11 @@ export interface GenArtAPI {
      * An error will be thrown if API is not in `ready` or `stop` state, i.e.
      * the API must have a {@link PlatformAdapter}, a {@link TimeProvider} and a
      * {@link UpdateFn} must have been configured.
+     *
+     * Whilst the animation loop is active, a {@link AnimFrameMsg} will be
+     * emitted at the end of each frame update. These messages contain the time
+     * & frame information of the currently rendered frame and are intended for
+     * 3rd party tooling (i.e. editors, players, sequencers).
      *
      * @param resume
      */

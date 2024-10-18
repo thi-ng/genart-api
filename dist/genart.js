@@ -541,16 +541,23 @@
         throw new Error(`can't start in state: ${this._state}`);
       this.setState("play");
       let isFirst = !resume;
+      const msg = {
+        type: "genart:frame",
+        apiID: this.id,
+        time: 0,
+        frame: 0
+      };
       const update = () => {
         if (this._state != "play") return;
-        if (this._update.call(
-          null,
-          ...this._time[isFirst ? "now" : "tick"]()
-        )) {
+        const timing = this._time[isFirst ? "now" : "tick"]();
+        if (this._update.call(null, ...timing)) {
           this._time.next(update);
         } else {
           this.stop();
         }
+        msg.time = timing[0];
+        msg.frame = timing[1];
+        this.emit(msg);
         isFirst = false;
       };
       if (!resume) this._time.start();

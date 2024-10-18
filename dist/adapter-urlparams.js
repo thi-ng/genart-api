@@ -51,6 +51,7 @@
   var AUTO = "__autostart";
   var WIDTH = "__width";
   var HEIGHT = "__height";
+  var DPR = "__dpr";
   var SEED = "__seed";
   var URLParamsAdapter = class {
     params;
@@ -92,6 +93,13 @@
           });
         }
       });
+      parent.postMessage(
+        {
+          type: "paramadapter:update",
+          params: this.params.toString()
+        },
+        "*"
+      );
     }
     get mode() {
       return this.params.get("__mode") || "play";
@@ -100,10 +108,7 @@
       return {
         width: parseNum(this.params.get(WIDTH), window.innerWidth),
         height: parseNum(this.params.get(HEIGHT), window.innerHeight),
-        dpr: parseNum(
-          this.params.get("__dpr"),
-          window.devicePixelRatio || 1
-        )
+        dpr: parseNum(this.params.get(DPR), window.devicePixelRatio || 1)
       };
     }
     get prng() {
@@ -125,7 +130,7 @@
           desc: "Canvas width",
           min: 100,
           max: 16384,
-          default: window.innerWidth,
+          default: this._screen.width,
           randomize: false,
           update: "reload",
           widget: "precise"
@@ -135,7 +140,17 @@
           desc: "Canvas height",
           min: 100,
           max: 16384,
-          default: window.innerHeight,
+          default: this._screen.height,
+          randomize: false,
+          update: "reload",
+          widget: "precise"
+        }),
+        [DPR]: $genart.params.range({
+          name: "DPR",
+          desc: "Device pixel ratio",
+          min: 1,
+          max: 4,
+          default: this._screen.dpr,
           randomize: false,
           update: "reload",
           widget: "precise"
