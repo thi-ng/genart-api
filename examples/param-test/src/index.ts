@@ -109,7 +109,10 @@ declare var $genart: GenArtAPI;
 
 	setTraits();
 
+	// obtain dimensions configured by platform adapter
+	// (also see resize event handler comments at the end of this file)
 	const { width: W, height: H } = $genart.screen;
+
 	const canvas = document.createElement("canvas");
 	canvas.width = W;
 	canvas.height = H;
@@ -165,5 +168,18 @@ declare var $genart: GenArtAPI;
 	$genart.on("genart:paramchange", (e) => {
 		console.log("art param change", e);
 		setTraits();
+	});
+
+	// reload artwork when platform adapter triggers resize. with the reference
+	// adapter this will only happen if the window/iframe is being resized AND
+	// if no specific dimensions have been defined via URL search params (i.e.
+	// `__width`, `__height` and `__dpr` params)
+	//
+	// for example, when loading the following URL no resize events will be
+	// triggered when resizing the browser window because the given parameters
+	// will take priority: http://localhost:5173/?__width=640&__height=640
+
+	$genart.on("genart:resize", () => {
+		location.reload();
 	});
 })();
