@@ -22,6 +22,7 @@ const {
 const AUTO = "__autostart";
 const WIDTH = "__width";
 const HEIGHT = "__height";
+const DPR = "__dpr";
 const SEED = "__seed";
 
 class URLParamsAdapter implements PlatformAdapter {
@@ -70,6 +71,14 @@ class URLParamsAdapter implements PlatformAdapter {
 				});
 			}
 		});
+		// broadcast initial set of parameters (e.g. for editors)
+		parent.postMessage(
+			{
+				type: "paramadapter:update",
+				params: this.params.toString(),
+			},
+			"*"
+		);
 	}
 
 	get mode() {
@@ -80,10 +89,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		return {
 			width: parseNum(this.params.get(WIDTH), window.innerWidth),
 			height: parseNum(this.params.get(HEIGHT), window.innerHeight),
-			dpr: parseNum(
-				this.params.get("__dpr"),
-				window.devicePixelRatio || 1
-			),
+			dpr: parseNum(this.params.get(DPR), window.devicePixelRatio || 1),
 		};
 	}
 
@@ -107,7 +113,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				desc: "Canvas width",
 				min: 100,
 				max: 16384,
-				default: window.innerWidth,
+				default: this._screen.width,
 				randomize: false,
 				update: "reload",
 				widget: "precise",
@@ -117,7 +123,17 @@ class URLParamsAdapter implements PlatformAdapter {
 				desc: "Canvas height",
 				min: 100,
 				max: 16384,
-				default: window.innerHeight,
+				default: this._screen.height,
+				randomize: false,
+				update: "reload",
+				widget: "precise",
+			}),
+			[DPR]: $genart.params.range({
+				name: "DPR",
+				desc: "Device pixel ratio",
+				min: 1,
+				max: 4,
+				default: this._screen.dpr,
 				randomize: false,
 				update: "reload",
 				widget: "precise",
