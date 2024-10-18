@@ -7,7 +7,9 @@ import type {
 	PRNG,
 	RampParam,
 	RangeParam,
+	ResizeMsg,
 	RunMode,
+	ScreenConfig,
 } from "../api.js";
 import { sfc32 } from "../prng/sfc32.js";
 import { base64Decode, base64Encode } from "./base64.js";
@@ -23,12 +25,14 @@ const HEIGHT = "__height";
 const SEED = "__seed";
 
 class URLParamsAdapter implements PlatformAdapter {
-	params: URLSearchParams;
-	protected _cache: Record<string, string> = {};
-	protected _random!: PRNG;
+	protected params: URLSearchParams;
+	protected cache: Record<string, string> = {};
+	protected _prng!: PRNG;
+	protected _screen: ScreenConfig;
 
 	constructor() {
 		this.params = new URLSearchParams(location.search);
+		this._screen = this.screen;
 		this.initPRNG();
 		$genart.on("genart:paramchange", (e) => {
 			const value = this.serializeParam(e.param);
@@ -51,6 +55,21 @@ class URLParamsAdapter implements PlatformAdapter {
 				$genart.start();
 			}
 		});
+		window.addEventListener("resize", () => {
+			const { width, height, dpr } = this._screen;
+			const newScreen = this.screen;
+			if (
+				width !== newScreen.width ||
+				height !== newScreen.height ||
+				dpr !== newScreen.dpr
+			) {
+				this._screen = newScreen;
+				$genart.emit<ResizeMsg>({
+					type: "genart:resize",
+					screen: newScreen,
+				});
+			}
+		});
 	}
 
 	get mode() {
@@ -69,7 +88,7 @@ class URLParamsAdapter implements PlatformAdapter {
 	}
 
 	get prng() {
-		return this._random;
+		return this._prng;
 	}
 
 	async setParams(params: ParamSpecs) {
@@ -79,7 +98,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				desc: "Manually defined seed value",
 				min: 0,
 				max: 1e13,
-				default: Number(BigInt(this._random.seed)),
+				default: Number(BigInt(this._prng.seed)),
 				update: "reload",
 				widget: "precise",
 			}),
@@ -116,8 +135,8 @@ class URLParamsAdapter implements PlatformAdapter {
 
 	async updateParam(id: string, spec: Param<any>) {
 		let value = this.params.get(id);
-		if (value == null || this._cache[id] === value) return;
-		this._cache[id] = value;
+		if (value == null || this.cache[id] === value) return;
+		this.cache[id] = value;
 		switch (spec.type) {
 			case "color":
 			case "choice":
@@ -221,7 +240,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			reset,
 		};
 		reset();
-		this._random = impl;
+		this._prng = impl;
 	}
 }
 
