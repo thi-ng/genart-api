@@ -1,24 +1,23 @@
 import type { MathOps } from "./api/math.js";
 import type { APIMessage, MessageType, MessageTypeMap, NotifyType } from "./api/messages.js";
-import type { Param, ParamFactories, ParamImpl, ParamSpecs, ParamValue } from "./api/params.js";
+import type { ParamFactories, ParamImpl, ParamSpecs, ParamValue } from "./api/params.js";
+import type { PlatformAdapter, RunMode } from "./api/platform.js";
+import type { PRNG, RandomFn } from "./api/random.js";
+import type { ScreenConfig } from "./api/screen.js";
+import type { TimeProvider } from "./api/time.js";
+import type { Traits } from "./api/traits.js";
 import type { Utils } from "./api/utils.js";
 export * from "./api/math.js";
 export * from "./api/messages.js";
 export * from "./api/params.js";
+export * from "./api/platform.js";
+export * from "./api/random.js";
+export * from "./api/screen.js";
+export * from "./api/time.js";
+export * from "./api/traits.js";
 export * from "./api/utils.js";
 export type NumOrString = number | string;
 export type Maybe<T> = T | undefined;
-/**
- * No-arg function which returns a pseudo-random number in the semi-open [0,1)
- * interval (like `Math.random()`).
- *
- * @remarks
- * See compatible PRNG implementations:
- *
- * - https://github.com/thi-ng/genart-api/blob/main/src/prng/sfc32.ts
- * - https://github.com/thi-ng/genart-api/blob/main/src/prng/xorshift128.ts
- */
-export type RandomFn = () => number;
 /**
  * Animation update/draw function. See {@link GenArtAPI.setUpdate}. If the
  * function returns false, the animation loop will be stopped (via
@@ -26,16 +25,7 @@ export type RandomFn = () => number;
  * explicitly.
  */
 export type UpdateFn = (time: number, frame: number) => boolean;
-/**
- * Platform defined presentation mode for the artwork:
- *
- * - `play`: default mode
- * - `preview`: capturing, minting, thumbnail, etc.
- * - `edit`: platform has param editor active
- */
-export type RunMode = "play" | "preview" | "edit";
 export type APIState = "init" | "ready" | "play" | "stop" | "error";
-export type Traits = Record<string, number | string | boolean>;
 export interface GenArtAPI {
     /**
      * Unique ID for this GenArtAPI instance, intended for use cases where
@@ -53,7 +43,7 @@ export interface GenArtAPI {
      */
     id: string;
     /**
-     * Current deploy/run mode, defined by {@link PlatformAdapter.mode}.
+     * Current deploy/run mode, proxy accessor for {@link PlatformAdapter.mode}.
      */
     readonly mode: RunMode;
     /**
@@ -303,125 +293,4 @@ export interface GenArtAPI {
      * @param el
      */
     capture(el?: HTMLCanvasElement | SVGElement): void;
-}
-export interface TimeProvider {
-    /**
-     * (Re)initializes the time provider's internal state.
-     */
-    start(): void;
-    /**
-     * Schedules given no-arg function to be executed in the future.
-     *
-     * @param fn
-     */
-    next(fn: () => void): void;
-    /**
-     * Returns tuple of current `[time, frame]` (where `time` is in
-     * milliseconds and `frame` the current frame number)
-     */
-    now(): [number, number];
-    /**
-     * Progresses time & frame count and returns both as tuple (same format as
-     * {@link TimeProvider.now}).
-     */
-    tick(): [number, number];
-}
-export interface PlatformAdapter {
-    readonly mode: RunMode;
-    readonly screen: ScreenConfig;
-    readonly prng: PRNG;
-    /**
-     * Called by {@link GenArtAPI.updateParams} (and indirectly by
-     * {@link GenArtAPI.setParams}) to possibly augment/update a single param
-     * spec with any customizations sourced via platform-specific means (e.g.
-     * from URL query-string params).
-     *
-     * @remarks
-     * The function can return one of the following:
-     *
-     * 1. If the function returns `void`, no customizations found/performed and
-     *    no notifications will be triggered.
-     * 3. If the function returns `{ update: { key1: any, key2: any, ...} }`,
-     *    the given keys in the param spec will be modified/customized with
-     *    their new values via calling {@link GenArtAPI.setParamValue} for each
-     *    key-value pair. The keys to be updated MUST correspond to nested param
-     *    specs defined by the main param type's {@link ParamImpl.params},
-     *    otherwise an error will be thrown (see [Composite
-     *    parameters](https://github.com/thi-ng/genart-api/blob/main/README.md#composite-parameters)
-     *    for reference).
-     * 3. If the function returns `{ value: any }` and if that `value` is
-     *    non-nullish, the param spec will be updated via
-     *    {@link GenArtAPI.setParamValue}.
-     *
-     * If this function returned a `value` and/or `update`, and if the retured
-     * value(s) passed param type-specific validation (see
-     * {@link ParamImpl.validate}), then by default
-     * {@link GenArtAPI.setParamValue} emits a {@link ParamChangeMsg} message
-     * with the updated param spec.
-     *
-     * @param id
-     * @param spec
-     */
-    updateParam(id: string, spec: Readonly<Param<any>>): Promise<{
-        value?: any;
-        update?: Record<string, any>;
-    } | void>;
-    /**
-     * Called by {@link GenArtAPI.setParams} to receive parameter specs provided
-     * by the artwork and to allow the adapter to inject additional platform
-     * specific parameters and/or prepare itself for param initialization (e.g.
-     * initiating a network request for loading parameter overrides). This
-     * function is async and MUST throw an error if pre-initialization failed on
-     * the adapter's side.
-     *
-     * @remarks
-     * The actual value parsing of individual parameter customization only
-     * happens later via {@link PlatformAdapter.updateParam} (which is also
-     * indirectly called by {@link GenArtAPI.setParams}).
-     *
-     * If additional parameters are injected, the adapter MUST ensure their
-     * naming doesn't override existing used defined params, i.e. these param
-     * names should be prefixed with `__` (e.g. `__seed`)
-     *
-     * @param params
-     */
-    setParams?(params: ParamSpecs): Promise<ParamSpecs>;
-    /**
-     * See {@link GenArtAPI.setTraits}.
-     *
-     * @param traits
-     */
-    setTraits?(traits: Traits): void;
-    /**
-     * Platform-specific handler to deal with capturing a thumbnail/preview of
-     * the art piece. (e.g. by sending a message to the parent window). See
-     * {@link GenArtAPI.capture}.
-     *
-     * @param el
-     */
-    capture(el?: HTMLCanvasElement | SVGElement): void;
-}
-/**
- * Pseudo-random number generator, obtained from & provided by the currently
- * active {@link PlatformAdapter}.
- */
-export interface PRNG {
-    /**
-     * The currently configured seed value (as string) used by the PRNG. For
-     * information purposes only.
-     */
-    readonly seed: string;
-    /**
-     * Re-initializes the PRNG to the configured seed state.
-     */
-    reset: () => PRNG["rnd"];
-    /**
-     * Returns a pseudo-random number in the semi-open [0,1) interval.
-     */
-    rnd: () => number;
-}
-export interface ScreenConfig {
-    width: number;
-    height: number;
-    dpr: number;
 }

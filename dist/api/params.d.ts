@@ -284,7 +284,6 @@ export interface ParamImpl<T = any> {
      * {@link RampParam.stops} (a {@link StringListParam}) and
      * {@link RampParam.mode} (a {@link ChoiceParam}).
      *
-     * @remarks
      * These param specs can be used to delegate {@link ParamImpl} tasks to the
      * implementations of those embedded params.
      */
