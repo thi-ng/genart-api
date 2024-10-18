@@ -37,6 +37,7 @@
     -   [Parameter updates](#parameter-updates)
     -   [Determinism & PRNG provision](#determinism--prng-provision)
     -   [Screen configuration](#screen-configuration)
+        -   [Handling dynamic resizing](#handling-dynamic-resizing)
     -   [Thumbnail/preview generation](#thumbnailpreview-generation)
 -   [Time providers](#time-providers)
     -   [Existing time provider implementations](#existing-time-provider-implementations)
@@ -68,11 +69,12 @@ tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
 Over the past years, generative/computational art has experienced a surge in
 popularity because of the availability of online art platforms for publishing
 these works. The number of these platforms keeps on mushrooming, each one
-defining their own ad hoc solutions to deal with common aspects (e.g. handling
-of parameters to customize pieces/variations, generating previews, etc.). Often,
-this means artists have to either already decide on which platform to publish a
-new piece before they work on it and/or spend a considerable amount of time
-reworking key aspects (like parameter, resolution or time handling) when
+defining their own ad hoc solutions to deal with common aspects (e.g. [handling
+of parameters](#parameters) to customize pieces/variations, generating previews,
+etc.). Often, this means artists have to either already decide on which platform
+to publish a new piece before they work on it and/or spend a considerable amount
+of time reworking key aspects (like parameter, [screen
+resolution](#screen-configuration) or [time handling](#time-providers)) when
 repurposing a piece for a different use (e.g. creating hires print versions,
 high-quality video assets, or displaying the piece in a gallery with different
 configurations or requirements). Since online platforms/startups usually only
@@ -730,7 +732,36 @@ implementations which can be used by an adapter:
 
 ### Screen configuration
 
-TODO
+Platform adapters are responsible to provide screen/canvas dimensions (and pixel
+density information) to the artwork, and the latter MUST use the
+[`$genart.screen`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#screen)
+accessor to obtain this information (rather than directly querying
+`window.innerWidth` etc.). This accessor returns a [`ScreenConfig`
+object](https://docs.thi.ng/umbrella/genart-api/interfaces/ScreenConfig.html).
+
+This approach gives the platform full control to define fixed dimensions,
+irrespective of actual window dimensions and also be in charge of resizing
+behavior.
+
+#### Handling dynamic resizing
+
+Similar to the above, artwork which aims to be responsive to changing screen
+configurations MUST NOT listen to `window` resize events directly, but MUST add
+a listener for `genart:resize` messages, like so:
+
+```ts
+// resize events contain the new screen config
+$genart.on("genart:resize", ({ screen }) => {
+    console.log("new screen info:", screen.width, screen.height, screen.dpr);
+});
+```
+
+If an artwork is unable to dynamically respond to resize events, it should at
+least implement a handler which reloads the window on resize, like so:
+
+```ts
+$genart.on("genart:resize", () => location.reload());
+```
 
 ### Thumbnail/preview generation
 
