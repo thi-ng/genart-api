@@ -284,6 +284,20 @@ export interface GenArtAPI {
 	 */
 	setTraits(traits: Traits): void;
 
+	/**
+	 * Registers a handler/listener for given message `type`.
+	 *
+	 * @remarks
+	 * This is just facade for `window.addListener("message",...)` which also
+	 * handles pre-filtering of received messages and therefore reduces
+	 * boilerplate in individual listeners. Messages not conforming to the
+	 * overall {@link APIMessage} format, or which aren't addressed to the
+	 * configured {@link GenArtAPI.id} or not matching the message `type` will
+	 * be ignored.
+	 *
+	 * @param type
+	 * @param listener
+	 */
 	on<T extends MessageType>(
 		type: T,
 		listener: (e: MessageTypeMap[T]) => void
