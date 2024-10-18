@@ -1,4 +1,5 @@
 import type { Maybe } from "@thi.ng/api";
+import { defTimecode } from "@thi.ng/date";
 import { div } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
 import {
@@ -37,8 +38,10 @@ import {
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
+import { padLeft } from "@thi.ng/strings";
 import { reduce } from "@thi.ng/transducers";
 import type {
+	AnimFrameMsg,
 	APIMessage,
 	APIState,
 	ChoiceParam,
@@ -67,12 +70,17 @@ const controls = stream<ParamSpecs>();
 const iframeParams = reactive(iframe.src.substring(iframe.src.indexOf("?")), {
 	closeOut: "never",
 });
+const currentTime = reactive(0);
+const currentFrame = reactive(0);
+const fmtTime = defTimecode(60);
+const fmtFrame = padLeft(6, "0");
 
 const paramCache: Record<string, any> = {};
 const paramValues: Record<string, ISubscription<any, any>> = {};
 
 const apiState = reactive<APIState>("init");
 
+let artURL: string;
 let apiID: string;
 let apiError: Maybe<string>;
 let selfUpdate = false;
@@ -105,6 +113,11 @@ window.addEventListener("message", (e) => {
 			if ($msg.state === "error") apiError = $msg.info;
 			break;
 		}
+		case "genart:frame":
+			const $msg = <AnimFrameMsg>e.data;
+			currentTime.next($msg.time);
+			currentFrame.next($msg.frame);
+			break;
 		case "paramadapter:update":
 			iframeParams.next(e.data.params);
 			break;
@@ -414,6 +427,20 @@ const createParamControls = (params: ParamSpecs) => {
 					disabled: copy,
 				},
 			}),
+			trigger({
+				title: "Open in new window",
+				label: "",
+				attribs: {
+					onclick: () => {
+						const url = new URL(artURL);
+						url.search = iframeParams.deref() || "";
+						const anchor = document.createElement("a");
+						anchor.href = url.toString();
+						anchor.target = "_blank";
+						anchor.click();
+					},
+				},
+			}),
 			text({
 				label: "Artwork traits",
 				desc: "Optional. Not all artworks define traits...",
@@ -424,7 +451,8 @@ const createParamControls = (params: ParamSpecs) => {
 		group(
 			{ label: "Transport control" },
 			trigger({
-				label: "",
+				label: "Current time",
+				desc: currentTime.map(fmtTime),
 				title: "Play",
 				attribs: {
 					onclick: () =>
@@ -437,7 +465,8 @@ const createParamControls = (params: ParamSpecs) => {
 				},
 			}),
 			trigger({
-				label: "",
+				label: "Current frame",
+				desc: currentFrame.map(fmtFrame),
 				title: "Pause",
 				attribs: {
 					onclick: () =>
@@ -456,10 +485,12 @@ const createParamControls = (params: ParamSpecs) => {
 	});
 };
 
-export const launchEditorForms = () =>
+export const launchEditorForms = (url: string) => {
+	artURL = url;
 	$compile($replace(syncRAF(controls).map(createParamControls))).mount(
 		document.getElementById("editor")!
 	);
+};
 
 const sendMessage = <T extends APIMessage>(msg: Omit<T, "apiID">) => {
 	iframeWindow.postMessage({ ...msg, apiID }, "*");

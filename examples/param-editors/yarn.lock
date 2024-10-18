@@ -397,6 +397,15 @@
     "@thi.ng/api" "^8.11.11"
     "@thi.ng/errors" "^2.5.17"
 
+"@thi.ng/date@^2.7.29":
+  version "2.7.29"
+  resolved "https://registry.yarnpkg.com/@thi.ng/date/-/date-2.7.29.tgz#526677edd00883d6aa12f1463e17faeadb47c630"
+  integrity sha512-dhOOcNPkyJfhKeeLpHcXabIhreF4iWAX0vUeTnM1u0hM6d8wZ58KdR+vYOzteXojx/MlStZIsPzTh0/zjWm0GQ==
+  dependencies:
+    "@thi.ng/api" "^8.11.11"
+    "@thi.ng/checks" "^3.6.13"
+    "@thi.ng/strings" "^3.8.6"
+
 "@thi.ng/dcons@^3.2.130":
   version "3.2.130"
   resolved "https://registry.yarnpkg.com/@thi.ng/dcons/-/dcons-3.2.130.tgz#da48f98b90fe046d180eef544c6c6b4c1f0e820b"

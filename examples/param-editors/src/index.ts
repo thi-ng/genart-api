@@ -19,13 +19,14 @@ if (initialURL) iframe.src = initialURL;
 editorID.subscribe({
 	async next(id) {
 		if (id >= 0) {
+			const url = iframeURL.deref()!;
 			await root.unmount();
 			requestAnimationFrame(() =>
 				// prettier-ignore
 				[
 					launchEditorForms,
 					launchEditorImgui,
-				][id]()
+				][id](url)
 			);
 		}
 	},
