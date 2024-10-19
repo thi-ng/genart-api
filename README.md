@@ -832,8 +832,9 @@ in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
 directory. Please ensure you read their README instructions, since a certain
 build order must be used:
 
-| **Project**                                                                            | **Live demo**                                                                                          | **Description**                                                |
+| **Project**                                                                            | **Live demo w/ editor**                                                                                | **Description**                                                |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| [p5-basic](https://github.com/thi-ng/genart-api/tree/main/examples/p5-basic/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/p5-basic/)     | Basic p5.js example                                            |
 | [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/)      | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-test/)   | Minimal "art" example using various parameter types            |
 | [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/)    | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)  | Example using an image map parameter                           |
 | [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/)  | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/) | Custom & composite parameter type example                      |
