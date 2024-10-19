@@ -7,9 +7,9 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build:prepare": "cp ../../dist/*.js lib",
+		"build:prepare": "cp ../../dist/*.js public/lib",
 		"start": "yarn build:prepare && vite --host --open",
-		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
+		"build": "yarn build:prepare && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
