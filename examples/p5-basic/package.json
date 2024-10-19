@@ -1,0 +1,21 @@
+{
+	"name": "@example/p5-basic",
+	"version": "0.0.1",
+	"description": "Basic p5.js & GenArtAPI example",
+	"repository": "https://github.com/thi-ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build:prepare": "cp ../../dist/*.js lib",
+		"start": "yarn build:prepare && vite --host --open",
+		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
+		"preview": "vite preview --host --open"
+	},
+	"devDependencies": {
+		"vite": "^5.4.9",
+		"vite-plugin-html": "^3.2.2"
+	},
+	"dependencies": {},
+	"sideEffects": false
+}
