@@ -245,7 +245,7 @@
     }
     initPRNG() {
       const seedParam = this.params.get(SEED);
-      const seed = BigInt(seedParam ?? Date.now());
+      const seed = BigInt(seedParam ?? Math.floor(Math.random() * 1e13));
       const M = 0xffffffffn;
       const reset = () => {
         return impl.rnd = sfc32([
