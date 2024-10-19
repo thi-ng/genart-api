@@ -18,7 +18,7 @@
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
-		"@thi.ng/genart-api": "^0.2.0"
+		"@thi.ng/genart-api": "^0.4.0"
 	},
 	"sideEffects": false
 }
