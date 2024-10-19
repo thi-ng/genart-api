@@ -3,16 +3,15 @@
 [Live demo with editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)
 
 This example uses the built-in image param type and should be used in
-combination with the [parameter editor
-example](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors)
+combination with the [@thi.ng/rdom parameter
+editor](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors)
 to enable interactive configuration of the image and other parameters used.
 
 ## Launching & building
 
 > [!IMPORTANT]
 > Before running this example, make sure you first build the actual GenArt API
-> files. Furthermore, this example MUST be started/built prior to launching the
-> [param-editors example](../param-editors/).
+> files.
 
 ```bash
 # Starting in the repo root directory...
@@ -23,8 +22,9 @@ yarn install
 # build API files
 yarn build
 
-# switch to example
+# switch to this example
 cd examples/param-image
+yarn install
 
 # run vite dev server
 yarn start
@@ -36,9 +36,9 @@ yarn build
 ### Use with param editor
 
 To use this example with a param editor, you can either use the [online param
-editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)
-or you'll need to run both locally at the same time. The easiest way to do so is
-to launch them from two separate terminals, like so:
+editor](https://demo.thi.ng/genart-api/param-editors/) or you'll need to run
+both locally at the same time. The easiest way to do so is to launch them from
+two separate terminals, like so:
 
 ```bash
 # from the genart-api repo root
@@ -63,4 +63,4 @@ start configuring the parameters...
 
 ## License
 
-&copy; 2024 Karsten Schmidt // Apache Software License 2.0
+&copy; 2024 Karsten Schmidt // MIT license

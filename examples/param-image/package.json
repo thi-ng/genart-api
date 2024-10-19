@@ -3,8 +3,8 @@
 	"version": "0.0.1",
 	"description": "GenArtAPI image param test example",
 	"repository": "https://github.com/thi-ng/genart-api",
-	"author": "Karsten Schmidt <k+npm@thi.ng>",
-	"license": "Apache-2.0",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
 	"type": "module",
 	"scripts": {
 		"build:prepare": "cp ../../dist/*.js lib",
@@ -13,8 +13,8 @@
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"typescript": "^5.6.2",
-		"vite": "^5.4.8",
+		"typescript": "^5.6.3",
+		"vite": "^5.4.9",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {},

@@ -1,6 +1,6 @@
 # genart-api custom parameter example
 
-[Live demo with editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/)
+[Pre-built live demo with editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/)
 
 This example defines a custom parameter type (a configurable oscillator) and
 should be used in combination with the [parameter editor
@@ -11,8 +11,7 @@ to enable interactive configuration of all the parameters used.
 
 > [!IMPORTANT]
 > Before running this example, make sure you first build the actual GenArt API
-> files. Furthermore, this example MUST be started/built prior to launching the
-> [param-editors example](../param-editors/).
+> files.
 
 ```bash
 # Starting in the repo root directory...
@@ -23,8 +22,9 @@ yarn install
 # build API files
 yarn build
 
-# switch to example
+# switch to this example
 cd examples/param-custom
+yarn install
 
 # run vite dev server
 yarn start
@@ -36,7 +36,7 @@ yarn build
 ### Use with param editor
 
 To use this example with a param editor, you can either use the [online param
-editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/)
+editor](https://demo.thi.ng/genart-api/param-editors/)
 or you'll need to run both locally at the same time. The easiest way to do so is
 to launch them from two separate terminals, like so:
 
@@ -58,9 +58,9 @@ to launch them from two separate terminals, like so:
 The param-editor is configured to run @ http://localhost:8080/, whereas the
 example is served from a different port: http://localhost:5173/. Paste this
 latter URL into the `Art URL` input field of the editor and press enter to load
-the new example. Then select an editor implementation from the dropdown menu to
-start configuring the parameters...
+the new example. Then select the `@thi.ng/imgui` editor implementation from the
+dropdown menu to start configuring the parameters...
 
 ## License
 
-&copy; 2024 Karsten Schmidt // Apache Software License 2.0
+&copy; 2024 Karsten Schmidt // MIT license
