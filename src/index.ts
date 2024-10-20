@@ -8,6 +8,7 @@ import type {
 	Maybe,
 	MessageType,
 	MessageTypeMap,
+	NestedParam,
 	NestedParamSpecs,
 	NotifyType,
 	Param,
@@ -278,7 +279,10 @@ class API implements GenArtAPI {
 
 	get random() {
 		if (this._prng) return this._prng;
-		return (this._prng = this.ensureAdapter().prng);
+		return (this._prng = ensure(
+			this._adapter,
+			"missing platform adapter"
+		).prng);
 	}
 
 	get state() {
@@ -427,10 +431,10 @@ class API implements GenArtAPI {
 		this.emit<ParamChangeMsg>(
 			{
 				type: "genart:paramchange",
+				__self: true,
 				param: this.asNestedParam(spec),
 				paramID: id,
 				key,
-				__self: true,
 			},
 			notify
 		);
@@ -500,20 +504,23 @@ class API implements GenArtAPI {
 	) {
 		if (notify === "none") return;
 		(<T>e).apiID = this.id;
-		if (notify === "all" || notify === "self") window.postMessage(e, "*");
-		if ((notify === "all" && parent !== window) || notify === "parent")
+		const isAll = notify === "all";
+		if (isAll || notify === "self") window.postMessage(e, "*");
+		if ((isAll && parent !== window) || notify === "parent")
 			parent.postMessage(e, "*");
 	}
 
 	start(resume = false) {
-		if (this._state == "play") return;
-		if (this._state !== "ready" && this._state !== "stop")
-			throw new Error(`can't start in state: ${this._state}`);
+		const state = this._state;
+		if (state == "play") return;
+		if (state !== "ready" && state !== "stop")
+			throw new Error(`can't start in state: ${state}`);
 		this.setState("play");
 		let isFirst = !resume;
 		// re-use same msg object to avoid per-frame allocations
 		const msg: AnimFrameMsg = {
 			type: "genart:frame",
+			__self: true,
 			apiID: this.id,
 			time: 0,
 			frame: 0,
@@ -551,49 +558,33 @@ class API implements GenArtAPI {
 		this.emit({ type: `genart:capture`, __self: true }, "parent");
 	}
 
-	protected setState(newState: APIState, info?: string) {
-		this._state = newState;
+	protected setState(state: APIState, info?: string) {
+		this._state = state;
 		this.emit<StateChangeMsg>({
 			type: "genart:statechange",
-			state: newState,
 			__self: true,
+			state,
 			info,
 		});
 	}
 
-	protected ensureAdapter() {
-		if (!this._adapter) throw new Error("missing platform adapter");
-		return this._adapter;
-	}
-
-	protected ensureTimeProvider() {
-		if (!this._time) throw new Error("missing time provider");
-		return this._time;
-	}
-
-	protected ensureParams() {
-		if (!this._params) throw new Error("no params defined");
-		return this._params;
-	}
-
 	protected ensureParam(id: string) {
-		const spec = this.ensureParams()[id];
-		if (!spec) throw new Error(`unknown param: ${id}`);
-		const impl = this.ensureParamImpl(spec.type);
-		return { spec, impl };
+		const spec = ensure(
+			ensure(this._params, "no params defined")[id],
+			`unknown param: ${id}`
+		);
+		return { spec, impl: this.ensureParamImpl(spec.type) };
 	}
 
 	protected ensureParamImpl(type: string) {
-		const impl = this._paramTypes[type];
-		if (!impl) throw new Error(`unknown param type: ${type}`);
-		return impl;
+		return ensure(this._paramTypes[type], `unknown param type: ${type}`);
 	}
 
 	protected ensureNestedParam(param: Param<any>, key: string) {
-		const impl = this.ensureParamImpl(param.type);
-		const spec = impl.params?.[key];
-		if (!spec)
-			throw new Error(`param type '${param.type}' has no nested: ${key}`);
+		const spec = ensure(
+			this.ensureParamImpl(param.type).params?.[key],
+			`param type '${param.type}' has no nested: ${key}`
+		);
 		return { spec, impl: this.ensureParamImpl(spec.type) };
 	}
 
@@ -619,8 +610,8 @@ class API implements GenArtAPI {
 		if (this._params && Object.keys(this._params).length) {
 			this.emit<SetParamsMsg>({
 				type: "genart:setparams",
-				params: this.asNestedParams({}, this._params),
 				__self: true,
+				params: this.asNestedParams({}, this._params),
 			});
 		}
 	}
@@ -643,9 +634,7 @@ class API implements GenArtAPI {
 	 */
 	protected isRecipient({ data }: MessageEvent): boolean {
 		return (
-			data != null &&
-			typeof data === "object" &&
-			(!this.id || this.id === data.apiID)
+			data != null && typeof data === "object" && data.apiID === this.id
 		);
 	}
 
@@ -657,7 +646,7 @@ class API implements GenArtAPI {
 	}
 
 	protected asNestedParam(param: Param<any>) {
-		const dest: NestedParamSpecs["a"] = { ...param };
+		const dest: NestedParam = { ...param };
 		const impl = this._paramTypes[param.type];
 		if (impl.params) {
 			dest.__params = this.asNestedParams({}, impl.params);
@@ -665,5 +654,11 @@ class API implements GenArtAPI {
 		return dest;
 	}
 }
+
+/** @internal */
+const ensure = <T>(x: T, msg: string) => {
+	if (!x) throw new Error(msg);
+	return x;
+};
 
 globalThis.$genart = new API();
