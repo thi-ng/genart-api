@@ -24,3 +24,34 @@ export interface TimeProvider {
 	 */
 	tick(): [number, number];
 }
+
+/**
+ * Collection of default {@link TimeProvider}s.
+ */
+export interface TimeProviders {
+	/**
+	 * Default {@link TimeProvider}, `requestAnimationFrame()`-based. Start time
+	 * & frame offsets can be provided (both defaulting to zero).
+	 *
+	 * @param timeOffset
+	 * @param frameOffset
+	 */
+	raf: (timeOffset?: number, frameOffset?: number) => TimeProvider;
+	/**
+	 * Returns a {@link TimeProvider} for fixed frame rate, offline (aka
+	 * non-realtime) animation use cases, e.g. recording image sequences.
+	 *
+	 * @remarks
+	 * Supports arbitrary delays between frames (default: 250ms) and reference
+	 * frame rates (default: 60fps).
+	 *
+	 * @param frameDelay
+	 * @param referenceFPS
+	 * @param frameOffset
+	 */
+	offline: (
+		frameDelay?: number,
+		referenceFPS?: number,
+		frameOffset?: number
+	) => TimeProvider;
+}

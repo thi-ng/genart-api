@@ -32,6 +32,7 @@ import type {
 } from "./api.js";
 import * as math from "./math.js";
 import * as params from "./params.js";
+import { timeProviderOffline } from "./time/offline.js";
 import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
 
@@ -232,6 +233,10 @@ class API implements GenArtAPI {
 	readonly math = math;
 	readonly params = params;
 	readonly utils = utils;
+	readonly time = {
+		raf: timeProviderRAF,
+		offline: timeProviderOffline,
+	};
 
 	constructor() {
 		window.addEventListener("message", (e) => {
@@ -288,7 +293,7 @@ class API implements GenArtAPI {
 		return this._adapter;
 	}
 
-	get time() {
+	get timeProvider() {
 		return this._time;
 	}
 
