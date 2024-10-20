@@ -805,12 +805,11 @@ this one can be replaced by loading an alternative implementation via another
 <script src="./lib/genart.js"></script>
 <!--
     optional: use custom time provider (e.g. for non-realtime rendering of image sequences)
-    configure API to use offline time (new frame every 250 ms)
+    configure API to use offline time (new frame every 250 ms, time base: 60 fps)
     IMPORTANT: MUST be loaded AFTER the main genart script!
 -->
-<script type="module">
-    // import { timeProviderOffline } from "./lib/time-offline.js";
-    // $genart.setTimeProvider(timeProviderOffline(250));
+<script>
+    $genart.setTimeProvider($genart.time.offline(250, 60));
 </script>
 ```
 
@@ -968,11 +967,10 @@ use cases:
     <body>
         <!--
             optional: use custom time provider (e.g. for non-realtime rendering of image sequences)
-            configure API to use offline time (new frame every 250 ms)
+            configure API to use offline time (new frame every 250 ms, time base: 60 fps)
         -->
-        <script type="module">
-            // import { timeProviderOffline } from "./lib/time-offline.js";
-            // $genart.setTimeProvider(timeProviderOffline(250));
+        <script>
+            // $genart.setTimeProvider($genart.time.offline(250, 60));
         </script>
         <!-- User artwork script -->
         <script type="module" src="/src/index.js"></script>
