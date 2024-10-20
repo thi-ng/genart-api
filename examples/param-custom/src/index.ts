@@ -9,7 +9,7 @@ interface OscParam extends Param<number> {
 	/**
 	 * Param types MUST have unique names, best done using prefixes
 	 */
-	type: "user:sinosc";
+	type: "user:osc";
 	/**
 	 * Waveform type
 	 */
@@ -34,7 +34,7 @@ interface OscParam extends Param<number> {
 // extensions, but as is shown in this example, there're also use cases, where
 // an artwork itself might do so...
 
-$genart.registerParamType("user:sinosc", {
+$genart.registerParamType("user:osc", {
 	// for brevity we decide this param cannot be customized directly
 	// (only via its nested params)
 	validate: () => false,
@@ -106,8 +106,8 @@ $genart.registerParamType("user:sinosc", {
 		oscX: <OscParam>{
 			name: "Osc X",
 			desc: "Oscillator X",
-			type: "user:sinosc", // param type
-			mode: "sin",
+			type: "user:osc", // param type
+			mode: "sin", // waveform type
 			freq: 0.1, // frequency in Hz
 			amp: 1, // amplitude
 			offset: 0, // center offset
@@ -118,8 +118,8 @@ $genart.registerParamType("user:sinosc", {
 		oscY: <OscParam>{
 			name: "Osc Y",
 			desc: "Oscillator Y",
-			type: "user:sinosc", // param type
-			mode: "tri",
+			type: "user:osc", // param type
+			mode: "tri", // waveform type
 			freq: 0.1, // frequency in Hz
 			amp: 1, // amplitude
 			offset: 0, // center offset
