@@ -120,6 +120,26 @@
   });
   var xy = (spec) => $("xy", spec);
 
+  // src/time/offline.ts
+  var timeProviderOffline = (frameDelay = 250, referenceFPS = 60, frameOffset = 0) => {
+    let frame = frameOffset;
+    const frameTime = 1e3 / referenceFPS;
+    return {
+      start() {
+        frame = frameOffset;
+      },
+      next(fn) {
+        setTimeout(fn, frameDelay);
+      },
+      now() {
+        return [frame * frameTime, frame];
+      },
+      tick() {
+        return [++frame * frameTime, frame];
+      }
+    };
+  };
+
   // src/time/raf.ts
   var timeProviderRAF = (timeOffset = 0, frameOffset = 0) => {
     let t0 = performance.now();
@@ -328,6 +348,10 @@
     math = math_exports;
     params = params_exports;
     utils = utils_exports;
+    time = {
+      raf: timeProviderRAF,
+      offline: timeProviderOffline
+    };
     constructor() {
       window.addEventListener("message", (e) => {
         const data = e.data;
@@ -373,7 +397,7 @@
     get adapter() {
       return this._adapter;
     }
-    get time() {
+    get timeProvider() {
       return this._time;
     }
     registerParamType(type, impl) {

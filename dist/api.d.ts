@@ -5,7 +5,7 @@ import type { PlatformAdapter, RunMode } from "./api/platform.js";
 import type { PRNG, RandomFn } from "./api/random.js";
 import type { ScreenConfig } from "./api/screen.js";
 import type { APIState } from "./api/state.js";
-import type { TimeProvider } from "./api/time.js";
+import type { TimeProvider, TimeProviders } from "./api/time.js";
 import type { Traits } from "./api/traits.js";
 import type { Utils } from "./api/utils.js";
 export * from "./api/math.js";
@@ -71,10 +71,11 @@ export interface GenArtAPI {
     readonly state: APIState;
     readonly paramSpecs: Maybe<Readonly<ParamSpecs>>;
     readonly adapter: Maybe<PlatformAdapter>;
-    readonly time: Maybe<TimeProvider>;
+    readonly timeProvider: Maybe<TimeProvider>;
     readonly math: MathOps;
     readonly params: ParamFactories;
     readonly utils: Utils;
+    readonly time: TimeProviders;
     /**
      * Registers a new parameter type and its implementation. Supports
      * overriding default types, but prints a warning in the console when doing
