@@ -8,7 +8,6 @@ const buildAll = async (minify) => {
 	for (let [entry, out] of [
 		["src/index.ts", "genart"],
 		["src/adapters/urlparams.ts", "adapter-urlparams"],
-		["src/time/offline.ts", "time-offline"],
 	]) {
 		const outFile = `${BUILD_DIR}/${out}${ext}`;
 		console.log("building", outFile);
