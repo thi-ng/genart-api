@@ -126,19 +126,24 @@ export interface GenArtAPI {
 	 * available parameters, their configurations and (optional) default values.
 	 *
 	 * @remarks
-	 * If the {@link PlatformAdapter} is already set (via
-	 * {@link GenArtAPI.setAdapter}), this function also calls & waits for
-	 * {@link PlatformAdapter.setParams} to pre-initialize platform-specific
-	 * param handling and then calls {@link GenArtAPI.updateParams} to apply any
-	 * param customizations/overrides sourced via the adapter. Once done, it
-	 * then sends a {@link SetParamsMsg} message to the current & parent window
-	 * for other software components to be notified (e.g. param editors)
+	 * This function assumes {@link PlatformAdapter} is already set (via
+	 * {@link GenArtAPI.setAdapter}). It first calls
+	 * {@link PlatformAdapter.augmentParams} (if available) to allow for any
+	 * additional platform-specific params to be injected, then validates all
+	 * params and defines random default values for those params with missing
+	 * defaults. If available, it then calls and waits for
+	 * {@link PlatformAdapter.initParams} to pre-initialize any
+	 * platform-specific param handling and then calls
+	 * {@link GenArtAPI.updateParams} to apply any param
+	 * customizations/overrides sourced via the adapter. Finally, once done, it
+	 * sends a {@link SetParamsMsg} message to the current & parent window for
+	 * other software components to be notified (e.g. param editors)
 	 *
-	 * Regardless of the above behavior, this function returns a promise of a
-	 * typesafe getter function (based on the declared param specs) to obtain
-	 * param values (wraps {@link GenArtAPI.getParamValue}). For some param
-	 * types (e.g. {@link RampParam}), these value lookups can be time-based or
-	 * randomized (for param types which support randomization).
+	 * The function returns a promise of a typesafe getter function (based on
+	 * the declared param specs) to obtain param values (wraps
+	 * {@link GenArtAPI.getParamValue}). For some param types (e.g.
+	 * {@link RampParam}), these value lookups can be time-based or randomized
+	 * (for param types which support randomization).
 	 *
 	 * @example
 	 * ```ts

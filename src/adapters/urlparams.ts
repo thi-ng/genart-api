@@ -97,8 +97,8 @@ class URLParamsAdapter implements PlatformAdapter {
 		return this._prng;
 	}
 
-	async setParams(params: ParamSpecs) {
-		Object.assign(params, {
+	augmentParams(params: ParamSpecs) {
+		return Object.assign(params, {
 			[SEED]: $genart.params.range({
 				name: "PRNG seed",
 				desc: "Manually defined seed value",
@@ -146,7 +146,6 @@ class URLParamsAdapter implements PlatformAdapter {
 				update: "reload",
 			}),
 		});
-		return params;
 	}
 
 	async updateParam(id: string, spec: Param<any>) {

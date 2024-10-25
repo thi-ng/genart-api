@@ -12,10 +12,8 @@ $genart.setAdapter({
 		reset: () => Math.random,
 		rnd: Math.random,
 	},
+	async initParams(_: ParamSpecs) {},
 	async updateParam() {},
-	async setParams(params: ParamSpecs) {
-		return params;
-	},
 	setTraits() {},
 	capture() {},
 });

@@ -312,41 +312,48 @@ class API implements GenArtAPI {
 	}
 
 	async setParams<P extends ParamSpecs>(params: P) {
-		// allow platform to pre-initialize params and/or inject additional ones
-		if (this._adapter?.setParams) {
-			try {
-				params = <P>await this._adapter.setParams(params);
-			} catch (e) {
-				this.setState("error", (<Error>e).message);
-				// rethrow to propagate to artwork
-				throw e;
+		try {
+			// allow platform to pre-initialize params and/or inject additional ones
+			if (this._adapter?.augmentParams) {
+				params = <P>this._adapter.augmentParams(params);
 			}
-		}
-		// validate param declarations
-		for (let id in params) {
-			const param = params[id];
-			if (param.default == null) {
-				const impl = this.ensureParamImpl(param.type);
-				if (impl.randomize) {
-					param.default = impl.randomize(param, this.random.rnd);
-					param.state = "random";
-				} else if (impl.read) {
-					param.state = "dynamic";
+			// validate param declarations
+			for (let id in params) {
+				ensureValidID(id);
+				const param = params[id];
+				if (param.default == null) {
+					const impl = this.ensureParamImpl(param.type);
+					if (impl.randomize) {
+						param.default = impl.randomize(param, this.random.rnd);
+						param.state = "random";
+					} else if (impl.read) {
+						param.state = "dynamic";
+					} else {
+						throw new Error(
+							`missing default value for param: ${id}`
+						);
+					}
 				} else {
-					throw new Error(`missing default value for param: ${id}`);
+					param.state = "default";
 				}
-			} else {
-				param.state = "default";
 			}
+			this._params = params;
+			if (this._adapter) {
+				// pre-initialize params in platform specific way
+				if (this._adapter.initParams) {
+					await this._adapter.initParams(params);
+				}
+				// source param values via platform overrides
+				await this.updateParams();
+			}
+			this.notifySetParams();
+			return <K extends keyof P>(id: K, t?: number, rnd?: PRNG["rnd"]) =>
+				this.getParamValue<P, K>(id, t, rnd);
+		} catch (e) {
+			this.setState("error", (<Error>e).message);
+			// rethrow to propagate to artwork
+			throw e;
 		}
-		this._params = params;
-		// augment params with platform overrides
-		if (this._adapter) {
-			await this.updateParams();
-		}
-		this.notifySetParams();
-		return <K extends keyof P>(id: K, t?: number, rnd?: PRNG["rnd"]) =>
-			this.getParamValue<P, K>(id, t, rnd);
 	}
 
 	setTraits(traits: Traits): void {
@@ -660,5 +667,12 @@ const ensure = <T>(x: T, msg: string) => {
 	if (!x) throw new Error(msg);
 	return x;
 };
+
+/** @internal */
+const ensureValidID = (id: string, kind = "ID") =>
+	ensure(
+		!(id === "__proto__" || id === "prototype" || id === "constructor"),
+		`illegal param ${kind}: ${id}`
+	);
 
 globalThis.$genart = new API();
