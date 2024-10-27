@@ -117,9 +117,9 @@ export type MessageType = keyof MessageTypeMap;
 /**
  * Message notification types:
  *
- * - `all`: message sent to same and parent (if different)
+ * - `all`: message sent to current and parent window (if different)
  * - `none`: message will NOT be sent
  * - `parent`: message only sent to parent window (if different present)
- * - `self`: message only sent to same window/iframe
+ * - `self`: message only sent to current window/iframe
  */
 export type NotifyType = "all" | "none" | "parent" | "self";

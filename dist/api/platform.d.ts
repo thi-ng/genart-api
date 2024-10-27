@@ -22,6 +22,43 @@ export interface PlatformAdapter {
     readonly screen: ScreenConfig;
     readonly prng: PRNG;
     /**
+     * Called by {@link GenArtAPI.setParams} to receive parameter specs provided
+     * by the artwork and to allow the adapter to inject additional platform
+     * specific parameters into the given {@link ParamSpecs} object.
+     *
+     * @remarks
+     * **No platform-specific param initialization should happen at this
+     * stage.** The param specs passed to this function might be still not fully
+     * initialized (i.e. might still have missing default values). The same goes
+     * for any params injected here. Use {@link PlatformAdapter.initParams} for
+     * actual platform specific initialization (which will be called
+     * automatically if present, see lifecycle diagram).
+     *
+     * **If additional parameters are injected, the adapter MUST ensure their
+     * naming doesn't override existing params, i.e. these param names should be
+     * prefixed with a platform specific prefix (e.g. `foo:` or `__`)**
+     *
+     * @param params
+     */
+    augmentParams?(params: ParamSpecs): ParamSpecs;
+    /**
+     * Called by {@link GenArtAPI.setParams} to receive fully initialized
+     * parameter specs provided by the artwork (and possibly augmented by
+     * {@link PlatformAdapter.augmentParams}. This function allows the adapter
+     * to prepare itself for param initialization (e.g. initiating a network
+     * request for loading parameter overrides). This function is async and MUST
+     * throw an error if pre-initialization failed on the adapter's side.
+     *
+     * @remarks
+     * The actual value parsing of individual parameter customization only
+     * happens later via {@link PlatformAdapter.updateParam} (which is also
+     * indirectly called by {@link GenArtAPI.setParams} after this function
+     * returns).
+     *
+     * @param params
+     */
+    initParams?(params: ParamSpecs): Promise<void>;
+    /**
      * Called by {@link GenArtAPI.updateParams} (and indirectly by
      * {@link GenArtAPI.setParams}) to possibly augment/update a single param
      * spec with any customizations sourced via platform-specific means (e.g.
@@ -57,26 +94,6 @@ export interface PlatformAdapter {
         value?: any;
         update?: Record<string, any>;
     } | void>;
-    /**
-     * Called by {@link GenArtAPI.setParams} to receive parameter specs provided
-     * by the artwork and to allow the adapter to inject additional platform
-     * specific parameters and/or prepare itself for param initialization (e.g.
-     * initiating a network request for loading parameter overrides). This
-     * function is async and MUST throw an error if pre-initialization failed on
-     * the adapter's side.
-     *
-     * @remarks
-     * The actual value parsing of individual parameter customization only
-     * happens later via {@link PlatformAdapter.updateParam} (which is also
-     * indirectly called by {@link GenArtAPI.setParams}).
-     *
-     * If additional parameters are injected, the adapter MUST ensure their
-     * naming doesn't override existing used defined params, i.e. these param
-     * names should be prefixed with `__` (e.g. `__seed`)
-     *
-     * @param params
-     */
-    setParams?(params: ParamSpecs): Promise<ParamSpecs>;
     /**
      * See {@link GenArtAPI.setTraits}.
      *

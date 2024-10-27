@@ -114,8 +114,8 @@
     get prng() {
       return this._prng;
     }
-    async setParams(params) {
-      Object.assign(params, {
+    augmentParams(params) {
+      return Object.assign(params, {
         [SEED]: $genart.params.range({
           name: "PRNG seed",
           desc: "Manually defined seed value",
@@ -163,7 +163,6 @@
           update: "reload"
         })
       });
-      return params;
     }
     async updateParam(id, spec) {
       let value = this.params.get(id);

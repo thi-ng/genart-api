@@ -386,7 +386,10 @@
     }
     get random() {
       if (this._prng) return this._prng;
-      return this._prng = this.ensureAdapter().prng;
+      return this._prng = ensure(
+        this._adapter,
+        "missing platform adapter"
+      ).prng;
     }
     get state() {
       return this._state;
@@ -401,44 +404,53 @@
       return this._time;
     }
     registerParamType(type, impl) {
-      if (this._paramTypes[type])
+      ensureValidType(type);
+      if (this._paramTypes[type]) {
         console.warn("overriding impl for param type:", type);
+      }
       this._paramTypes[type] = impl;
     }
     paramType(type) {
+      ensureValidType(type);
       return this._paramTypes[type];
     }
     async setParams(params) {
-      if (this._adapter?.setParams) {
-        try {
-          params = await this._adapter.setParams(params);
-        } catch (e) {
-          this.setState("error", e.message);
-          throw e;
+      try {
+        if (this._adapter?.augmentParams) {
+          params = this._adapter.augmentParams(params);
         }
-      }
-      for (let id in params) {
-        const param = params[id];
-        if (param.default == null) {
-          const impl = this.ensureParamImpl(param.type);
-          if (impl.randomize) {
-            param.default = impl.randomize(param, this.random.rnd);
-            param.state = "random";
-          } else if (impl.read) {
-            param.state = "dynamic";
+        for (let id in params) {
+          ensureValidID(id);
+          const param = params[id];
+          if (param.default == null) {
+            const impl = this.ensureParamImpl(param.type);
+            if (impl.randomize) {
+              param.default = impl.randomize(param, this.random.rnd);
+              param.state = "random";
+            } else if (impl.read) {
+              param.state = "dynamic";
+            } else {
+              throw new Error(
+                `missing default value for param: ${id}`
+              );
+            }
           } else {
-            throw new Error(`missing default value for param: ${id}`);
+            param.state = "default";
           }
-        } else {
-          param.state = "default";
         }
+        this._params = params;
+        if (this._adapter) {
+          if (this._adapter.initParams) {
+            await this._adapter.initParams(params);
+          }
+          await this.updateParams();
+        }
+        this.notifySetParams();
+        return (id, t, rnd) => this.getParamValue(id, t, rnd);
+      } catch (e) {
+        this.setState("error", e.message);
+        throw e;
       }
-      this._params = params;
-      if (this._adapter) {
-        await this.updateParams();
-      }
-      this.notifySetParams();
-      return (id, t, rnd) => this.getParamValue(id, t, rnd);
     }
     setTraits(traits) {
       this._traits = traits;
@@ -447,11 +459,6 @@
     async setAdapter(adapter) {
       console.log("set adapter", adapter);
       this._adapter = adapter;
-      if (this._params) {
-        await this._adapter.setParams?.(this._params);
-        await this.updateParams();
-        this.notifySetParams();
-      }
       this.notifyReady();
     }
     waitForAdapter() {
@@ -507,10 +514,10 @@
       this.emit(
         {
           type: "genart:paramchange",
+          __self: true,
           param: this.asNestedParam(spec),
           paramID: id,
-          key,
-          __self: true
+          key
         },
         notify
       );
@@ -555,18 +562,22 @@
     emit(e, notify = "all") {
       if (notify === "none") return;
       e.apiID = this.id;
-      if (notify === "all" || notify === "self") window.postMessage(e, "*");
-      if (notify === "all" && parent !== window || notify === "parent")
+      const isAll = notify === "all";
+      if (isAll || notify === "self") window.postMessage(e, "*");
+      if (isAll && parent !== window || notify === "parent")
         parent.postMessage(e, "*");
     }
     start(resume = false) {
-      if (this._state == "play") return;
-      if (this._state !== "ready" && this._state !== "stop")
-        throw new Error(`can't start in state: ${this._state}`);
+      const state = this._state;
+      if (state == "play") return;
+      if (state !== "ready" && state !== "stop") {
+        throw new Error(`can't start in state: ${state}`);
+      }
       this.setState("play");
       let isFirst = !resume;
       const msg = {
         type: "genart:frame",
+        __self: true,
         apiID: this.id,
         time: 0,
         frame: 0
@@ -600,43 +611,32 @@
       this._adapter?.capture(el);
       this.emit({ type: `genart:capture`, __self: true }, "parent");
     }
-    setState(newState, info) {
-      this._state = newState;
+    setState(state, info) {
+      this._state = state;
       this.emit({
         type: "genart:statechange",
-        state: newState,
         __self: true,
+        state,
         info
       });
     }
-    ensureAdapter() {
-      if (!this._adapter) throw new Error("missing platform adapter");
-      return this._adapter;
-    }
-    ensureTimeProvider() {
-      if (!this._time) throw new Error("missing time provider");
-      return this._time;
-    }
-    ensureParams() {
-      if (!this._params) throw new Error("no params defined");
-      return this._params;
-    }
     ensureParam(id) {
-      const spec = this.ensureParams()[id];
-      if (!spec) throw new Error(`unknown param: ${id}`);
-      const impl = this.ensureParamImpl(spec.type);
-      return { spec, impl };
+      ensureValidID(id);
+      const spec = ensure(
+        ensure(this._params, "no params defined")[id],
+        `unknown param: ${id}`
+      );
+      return { spec, impl: this.ensureParamImpl(spec.type) };
     }
     ensureParamImpl(type) {
-      const impl = this._paramTypes[type];
-      if (!impl) throw new Error(`unknown param type: ${type}`);
-      return impl;
+      ensureValidType(type);
+      return ensure(this._paramTypes[type], `unknown param type: ${type}`);
     }
     ensureNestedParam(param, key) {
-      const impl = this.ensureParamImpl(param.type);
-      const spec = impl.params?.[key];
-      if (!spec)
-        throw new Error(`param type '${param.type}' has no nested: ${key}`);
+      const spec = ensure(
+        this.ensureParamImpl(param.type).params?.[key],
+        `param type '${param.type}' has no nested: ${key}`
+      );
       return { spec, impl: this.ensureParamImpl(spec.type) };
     }
     waitFor(type) {
@@ -658,8 +658,8 @@
       if (this._params && Object.keys(this._params).length) {
         this.emit({
           type: "genart:setparams",
-          params: this.asNestedParams({}, this._params),
-          __self: true
+          __self: true,
+          params: this.asNestedParams({}, this._params)
         });
       }
     }
@@ -674,7 +674,7 @@
      * @param event
      */
     isRecipient({ data }) {
-      return data != null && typeof data === "object" && (!this.id || this.id === data.apiID);
+      return data != null && typeof data === "object" && data.apiID === this.id;
     }
     asNestedParams(dest, src) {
       for (let id in src) {
@@ -691,5 +691,14 @@
       return dest;
     }
   };
+  var ensure = (x, msg) => {
+    if (!x) throw new Error(msg);
+    return x;
+  };
+  var ensureValidID = (id, kind = "ID") => ensure(
+    !(id === "__proto__" || id === "prototype" || id === "constructor"),
+    `illegal param ${kind}: ${id}`
+  );
+  var ensureValidType = (type) => ensureValidID(type, "type");
   globalThis.$genart = new API();
 })();

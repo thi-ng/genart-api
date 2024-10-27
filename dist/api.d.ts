@@ -106,19 +106,24 @@ export interface GenArtAPI {
      * available parameters, their configurations and (optional) default values.
      *
      * @remarks
-     * If the {@link PlatformAdapter} is already set (via
-     * {@link GenArtAPI.setAdapter}), this function also calls & waits for
-     * {@link PlatformAdapter.setParams} to pre-initialize platform-specific
-     * param handling and then calls {@link GenArtAPI.updateParams} to apply any
-     * param customizations/overrides sourced via the adapter. Once done, it
-     * then sends a {@link SetParamsMsg} message to the current & parent window
-     * for other software components to be notified (e.g. param editors)
+     * This function assumes {@link PlatformAdapter} is already set (via
+     * {@link GenArtAPI.setAdapter}). It first calls
+     * {@link PlatformAdapter.augmentParams} (if available) to allow for any
+     * additional platform-specific params to be injected, then validates all
+     * params and defines random default values for those params with missing
+     * defaults. If available, it then calls and waits for
+     * {@link PlatformAdapter.initParams} to pre-initialize any
+     * platform-specific param handling and then calls
+     * {@link GenArtAPI.updateParams} to apply any param
+     * customizations/overrides sourced via the adapter. Finally, once done, it
+     * sends a {@link SetParamsMsg} message to the current & parent window for
+     * other software components to be notified (e.g. param editors)
      *
-     * Regardless of the above behavior, this function returns a promise of a
-     * typesafe getter function (based on the declared param specs) to obtain
-     * param values (wraps {@link GenArtAPI.getParamValue}). For some param
-     * types (e.g. {@link RampParam}), these value lookups can be time-based or
-     * randomized (for param types which support randomization).
+     * The function returns a promise of a typesafe getter function (based on
+     * the declared param specs) to obtain param values (wraps
+     * {@link GenArtAPI.getParamValue}). For some param types (e.g.
+     * {@link RampParam}), these value lookups can be time-based or randomized
+     * (for param types which support randomization).
      *
      * @example
      * ```ts
@@ -144,23 +149,85 @@ export interface GenArtAPI {
      * @param params
      */
     setParams<P extends ParamSpecs>(params: P): Promise<(<K extends keyof P>(id: K, t?: number, rnd?: PRNG["rnd"]) => ParamValue<P[K]>)>;
-    setAdapter(adapter: PlatformAdapter): void;
-    waitForAdapter(): Promise<void>;
-    setTimeProvider(time: TimeProvider): void;
-    waitForTimeProvider(time: TimeProvider): Promise<void>;
     /**
-     * Called from {@link GenArtAPI.setParams} or from {@link PlatformAdapter}
-     * to apply any param customizations/overrides sourced via the adapter.
+     * Sets the {@link PlatformAdapter} instance to use.
+     *
+     * @param adapter
+     */
+    setAdapter(adapter: PlatformAdapter): void;
+    /**
+     * Artwork should call this function **prior to any other interaction** with
+     * the global `$genart` instance to wait for the {@link PlatformAdapter} to
+     * be ready.
+     *
+     * @example
+     * ```js
+     * await $genart.waitForAdapter();
+     * ```
+     */
+    waitForAdapter(): Promise<void>;
+    /**
+     * Sets the {@link TimeProvider} instance to use.
+     *
+     * @param time
+     */
+    setTimeProvider(time: TimeProvider): void;
+    /**
+     * Artwork should call this function at start up to wait for the
+     * {@link TimeProvider} to be ready.
      *
      * @remarks
-     * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts
-     * {@link ParamChangeMsg} messages to the current window for each param
-     * whose value has been updated.
+     * The reference implementation of the {@link GenArtAPI} provides a default
+     * time provider (i.e. {@link timeProviderRAF}), so this call is not
+     * required here...
+     *
+     * @param time
+     */
+    waitForTimeProvider(time: TimeProvider): Promise<void>;
+    /**
+     * Iterates over all registered parameters and calls
+     * {@link PlatformAdapter.updateParam} and {@link GenArtAPI.setParamValue}
+     * to apply any param customizations/overrides sourced via the adapter. If
+     * `notify` is given, sends a {@link ParamChangeMsg} for each changed
+     * param/value.
+     *
+     * @remarks
+     * By default, this function is only called via {@link GenArtAPI.setParams}
+     * and will NOT emit any param change messages.
      *
      * @param notify
      */
     updateParams(notify?: NotifyType): Promise<void>;
+    /**
+     * Updates the given param's value, or if `key` is specified one its nested
+     * params' value, then emits a {@link ParamChangeMsg} (depending on
+     * `notify`, default: "all")
+     *
+     * @param id
+     * @param value
+     * @param key
+     * @param notify
+     */
     setParamValue(id: string, value: any, key?: string, notify?: NotifyType): void;
+    /**
+     * Triggers randomization of the given param's value, or if `key` is
+     * specified one its nested params. Only params which support randomization
+     * will be handled, otherwise silently ignored. If randomization succeeded,
+     * calls {@link GenArtAPI.setParamValue} to apply the new value and emit a
+     * {@link ParamChangeMsg} (depending on `notify`, default: "all").
+     *
+     * @remarks
+     * The optional `rnd` function is passed to {@link ParamImpl.randomize} to
+     * produce a new random value. The default is `Math.random`.
+     *
+     * In the reference implementation of {@link GenArtAPI}, this function can
+     * also be triggered via a {@link RandomizeParamMsg}.
+     *
+     * @param id
+     * @param key
+     * @param rnd
+     * @param notify
+     */
     randomizeParamValue(id: string, key?: string, rnd?: RandomFn, notify?: NotifyType): void;
     /**
      * Returns the value for previously registered parameter `id`, possibly
@@ -258,7 +325,8 @@ export interface GenArtAPI {
      * differentiation of multiple `GenArtAPI` instances running concurrently
      * (in different windows/iframes).
      *
-     * If `notify` is `none`, no message will be emitted.
+     * If `notify` is `none`, no message will be emitted (default: "all"). See
+     * {@link NotifyType} for possible values.
      *
      * @param e
      * @param notify
