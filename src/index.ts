@@ -367,11 +367,6 @@ class API implements GenArtAPI {
 	async setAdapter(adapter: PlatformAdapter) {
 		console.log("set adapter", adapter);
 		this._adapter = adapter;
-		if (this._params) {
-			await this._adapter.setParams?.(this._params);
-			await this.updateParams();
-			this.notifySetParams();
-		}
 		this.notifyReady();
 	}
 
