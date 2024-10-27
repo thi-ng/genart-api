@@ -58,10 +58,12 @@ export interface GenArtAPI {
 	 * GenArtAPI instance.
 	 */
 	id: string;
+
 	/**
 	 * Current deploy/run mode, proxy accessor for {@link PlatformAdapter.mode}.
 	 */
 	readonly mode: RunMode;
+
 	/**
 	 * Returns the platform's configured screen/canvas dimensions & pixel
 	 * density.
@@ -69,6 +71,7 @@ export interface GenArtAPI {
 	 * TODO support & handle resizing, add message type
 	 */
 	readonly screen: ScreenConfig;
+
 	/**
 	 * Returns the platform's configured pseudo-random number generator, incl.
 	 * currently used seed value.
@@ -77,6 +80,7 @@ export interface GenArtAPI {
 	 * Please see related issue: https://github.com/thi-ng/genart-api/issues/1
 	 */
 	readonly random: PRNG;
+
 	/**
 	 * The API's current state.
 	 *
@@ -178,25 +182,70 @@ export interface GenArtAPI {
 		) => ParamValue<P[K]>
 	>;
 
+	/**
+	 * Sets the {@link PlatformAdapter} instance to use.
+	 *
+	 * @param adapter
+	 */
 	setAdapter(adapter: PlatformAdapter): void;
+
+	/**
+	 * Artwork should call this function **prior to any other interaction** with
+	 * the global `$genart` instance to wait for the {@link PlatformAdapter} to
+	 * be ready.
+	 *
+	 * @example
+	 * ```js
+	 * await $genart.waitForAdapter();
+	 * ```
+	 */
 	waitForAdapter(): Promise<void>;
 
+	/**
+	 * Sets the {@link TimeProvider} instance to use.
+	 *
+	 * @param time
+	 */
 	setTimeProvider(time: TimeProvider): void;
+
+	/**
+	 * Artwork should call this function at start up to wait for the
+	 * {@link TimeProvider} to be ready.
+	 *
+	 * @remarks
+	 * The reference implementation of the {@link GenArtAPI} provides a default
+	 * time provider (i.e. {@link timeProviderRAF}), so this call is not
+	 * required here...
+	 *
+	 * @param time
+	 */
 	waitForTimeProvider(time: TimeProvider): Promise<void>;
 
 	/**
-	 * Called from {@link GenArtAPI.setParams} or from {@link PlatformAdapter}
-	 * to apply any param customizations/overrides sourced via the adapter.
+	 * Iterates over all registered parameters and calls
+	 * {@link PlatformAdapter.updateParam} and {@link GenArtAPI.setParamValue}
+	 * to apply any param customizations/overrides sourced via the adapter. If
+	 * `notify` is given, sends a {@link ParamChangeMsg} for each changed
+	 * param/value.
 	 *
 	 * @remarks
-	 * If {@link GenArtAPI.state} is `ready`, `play`, `stop`, posts
-	 * {@link ParamChangeMsg} messages to the current window for each param
-	 * whose value has been updated.
+	 * By default, this function is only called via {@link GenArtAPI.setParams}
+	 * and will NOT emit any param change messages.
 	 *
 	 * @param notify
 	 */
 	updateParams(notify?: NotifyType): Promise<void>;
 
+	/**
+	 * Updates the given param's value, or if `key` is specified one its nested
+	 * params' value, then emits a {@link ParamChangeMsg} (depending on
+	 * `notify`, default: "all")
+	 *
+	 * @param id
+	 * @param value
+	 * @param key
+	 * @param notify
+	 */
 	setParamValue(
 		id: string,
 		value: any,
@@ -204,6 +253,25 @@ export interface GenArtAPI {
 		notify?: NotifyType
 	): void;
 
+	/**
+	 * Triggers randomization of the given param's value, or if `key` is
+	 * specified one its nested params. Only params which support randomization
+	 * will be handled, otherwise silently ignored. If randomization succeeded,
+	 * calls {@link GenArtAPI.setParamValue} to apply the new value and emit a
+	 * {@link ParamChangeMsg} (depending on `notify`, default: "all").
+	 *
+	 * @remarks
+	 * The optional `rnd` function is passed to {@link ParamImpl.randomize} to
+	 * produce a new random value. The default is `Math.random`.
+	 *
+	 * In the reference implementation of {@link GenArtAPI}, this function can
+	 * also be triggered via a {@link RandomizeParamMsg}.
+	 *
+	 * @param id
+	 * @param key
+	 * @param rnd
+	 * @param notify
+	 */
 	randomizeParamValue(
 		id: string,
 		key?: string,
@@ -318,7 +386,8 @@ export interface GenArtAPI {
 	 * differentiation of multiple `GenArtAPI` instances running concurrently
 	 * (in different windows/iframes).
 	 *
-	 * If `notify` is `none`, no message will be emitted.
+	 * If `notify` is `none`, no message will be emitted (default: "all"). See
+	 * {@link NotifyType} for possible values.
 	 *
 	 * @param e
 	 * @param notify
