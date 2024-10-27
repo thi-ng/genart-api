@@ -302,12 +302,15 @@ class API implements GenArtAPI {
 	}
 
 	registerParamType(type: string, impl: ParamImpl) {
-		if (this._paramTypes[type])
+		ensureValidType(type);
+		if (this._paramTypes[type]) {
 			console.warn("overriding impl for param type:", type);
+		}
 		this._paramTypes[type] = impl;
 	}
 
 	paramType(type: string): Maybe<ParamImpl> {
+		ensureValidType(type);
 		return this._paramTypes[type];
 	}
 
@@ -520,8 +523,9 @@ class API implements GenArtAPI {
 	start(resume = false) {
 		const state = this._state;
 		if (state == "play") return;
-		if (state !== "ready" && state !== "stop")
+		if (state !== "ready" && state !== "stop") {
 			throw new Error(`can't start in state: ${state}`);
+		}
 		this.setState("play");
 		let isFirst = !resume;
 		// re-use same msg object to avoid per-frame allocations
@@ -576,6 +580,7 @@ class API implements GenArtAPI {
 	}
 
 	protected ensureParam(id: string) {
+		ensureValidID(id);
 		const spec = ensure(
 			ensure(this._params, "no params defined")[id],
 			`unknown param: ${id}`
@@ -584,6 +589,7 @@ class API implements GenArtAPI {
 	}
 
 	protected ensureParamImpl(type: string) {
+		ensureValidType(type);
 		return ensure(this._paramTypes[type], `unknown param type: ${type}`);
 	}
 
@@ -674,5 +680,8 @@ const ensureValidID = (id: string, kind = "ID") =>
 		!(id === "__proto__" || id === "prototype" || id === "constructor"),
 		`illegal param ${kind}: ${id}`
 	);
+
+/** @internal */
+const ensureValidType = (type: string) => ensureValidID(type, "type");
 
 globalThis.$genart = new API();
