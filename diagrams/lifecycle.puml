@@ -42,13 +42,13 @@ activate Browser
 		Artwork -> API : Wait for adapter registration
 		note left : `await $genart.waitForAdapter()`
 		API --> Artwork : Return when adapter available...
-		Artwork -> API : Declare & register param specs
+		Artwork -> API : Declare & register param specs (async)
 		activate API
 			note left
 				`$genart.setParams({...})`
 			end note
-			API -> PlatformAdapter : Pass param specs
-			note right : Pre-initialize param loading and\nallow adapter to inject its own params
+			API -> PlatformAdapter : Augment param specs (optional)
+			note right : `adapter.augmentParams()`\nAllow adapter to inject additional platform specific params
 			PlatformAdapter --> API : Return updated specs
 			API -> API : Validate params specs
 			note right : Ensure valid param types
@@ -56,14 +56,17 @@ activate Browser
 			note right : Randomize missing defaults
 			API -> API : Set param states
 			note right : Depending on provided defaults
-			API -> PlatformAdapter : Update/augment params
+			API -> PlatformAdapter : Pre-initialize params (async)
+			note right : `adapter.initParams()`\n(e.g. load params via network request)
+			PlatformAdapter --> API : Return when ready
+			API -> PlatformAdapter : Update param values
 			activate PlatformAdapter
-				PlatformAdapter -> PlatformAdapter : Load & parse param
-				note right : source param values via\nplatform-specific means
+				PlatformAdapter -> PlatformAdapter : Parse param values/overrides
+				note right : `adapter.updateParam()`\nsource param values via\nplatform-specific means
 				PlatformAdapter --> API : Customized param value(s)
-				API -> API : Update param states
-				note right : Set to `custom` (only those which changed)
 			deactivate PlatformAdapter
+			API -> API : Update param states
+			note right : Set to `custom` (only those which changed)
 
 			API -> API : Validate & apply param overrides
 			API -->> API : Emit `genart:setparams` message
