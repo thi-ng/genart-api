@@ -2,6 +2,7 @@ import type {
 	AnimFrameMsg,
 	APIMessage,
 	APIState,
+	CaptureMessage,
 	ChoiceParam,
 	GenArtAPI,
 	ImageParam,
@@ -22,9 +23,12 @@ import type {
 	RampParam,
 	RandomFn,
 	RangeParam,
+	ResumeMessage,
 	SetParamsMsg,
 	SetTraitsMsg,
+	StartMessage,
 	StateChangeMsg,
+	StopMessage,
 	TextParam,
 	TimeProvider,
 	Traits,
@@ -547,7 +551,7 @@ class API implements GenArtAPI {
 		};
 		if (!resume) this._time!.start();
 		update();
-		this.emit({
+		this.emit<StartMessage | ResumeMessage>({
 			type: `genart:${resume ? "resume" : "start"}`,
 			__self: true,
 		});
@@ -556,12 +560,15 @@ class API implements GenArtAPI {
 	stop() {
 		if (this._state !== "play") return;
 		this.setState("stop");
-		this.emit({ type: `genart:stop`, __self: true });
+		this.emit<StopMessage>({ type: `genart:stop`, __self: true });
 	}
 
 	capture(el?: HTMLCanvasElement | SVGElement) {
 		this._adapter?.capture(el);
-		this.emit({ type: `genart:capture`, __self: true }, "parent");
+		this.emit<CaptureMessage>(
+			{ type: `genart:capture`, __self: true },
+			"parent"
+		);
 	}
 
 	protected setState(state: APIState, info?: string) {
