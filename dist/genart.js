@@ -609,7 +609,10 @@
     }
     capture(el) {
       this._adapter?.capture(el);
-      this.emit({ type: `genart:capture`, __self: true }, "parent");
+      this.emit(
+        { type: `genart:capture`, __self: true },
+        "parent"
+      );
     }
     setState(state, info) {
       this._state = state;

@@ -177,13 +177,11 @@ export interface GenArtAPI {
      * {@link TimeProvider} to be ready.
      *
      * @remarks
-     * The reference implementation of the {@link GenArtAPI} provides a default
-     * time provider (i.e. {@link timeProviderRAF}), so this call is not
-     * required here...
-     *
-     * @param time
+     * The reference implementation of the {@link GenArtAPI} provides a number
+     * of default {@link TimeProviders}, so this call is not required here (but
+     * defined as option for other implementations)...
      */
-    waitForTimeProvider(time: TimeProvider): Promise<void>;
+    waitForTimeProvider(): Promise<void>;
     /**
      * Iterates over all registered parameters and calls
      * {@link PlatformAdapter.updateParam} and {@link GenArtAPI.setParamValue}
