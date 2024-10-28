@@ -1,5 +1,9 @@
 # Platform independent API for generative art
 
+[![npm version](https://img.shields.io/npm/v/@thi.ng/genart-api.svg)](https://www.npmjs.com/package/@thi.ng/genart-api)
+![npm downloads](https://img.shields.io/npm/dm/@thi.ng/genart-api.svg)
+[![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
+
 -   [Status](#status)
 -   [About](#about)
     -   [Goals](#goals)
@@ -207,24 +211,23 @@ The API implements a finite state machine with the following possible states:
 
 The API also defines and uses a message protocol to communicate certain
 lifecycle events, state changes and requests to both internal & external
-participants.
+participants. Please see links for descriptions of each message type.
 
--   `genart:capture`
--   `genart:capturerequest`
--   `genart:paramchange`
--   `genart:paramerror`
--   `genart:randomizeparam`
--   `genart:frame`
--   `genart:resize`
--   `genart:resume`
--   `genart:setparams`
--   `genart:setparamvalue`
--   `genart:settraits`
--   `genart:start`
--   `genart:statechange`
--   `genart:stop`
+-   `genart:capture`: [CaptureMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/CaptureMessage.html)
+-   `genart:frame`: [AnimFrameMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/AnimFrameMsg.html)
+-   `genart:paramchange`: [ParamChangeMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamChangeMsg.html)
+-   `genart:paramerror`: [ParamErrorMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamErrorMsg.html)
+-   `genart:randomizeparam`: [RandomizeParamMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/RandomizeParamMsg.html)
+-   `genart:resize`: [ResizeMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/ResizeMsg.html)
+-   `genart:resume`: [ResumeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ResumeMessage.html)
+-   `genart:setparams`: [SetParamsMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/SetParamsMsg.html)
+-   `genart:setparamvalue`: [SetParamValueMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/SetParamValueMsg.html)
+-   `genart:settraits`: [SetTraitsMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/SetTraitsMsg.html)
+-   `genart:start`: [StartMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StartMessage.html)
+-   `genart:statechange`: [StateChangeMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/StateChangeMsg.html)
+-   `genart:stop`: [StopMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StopMessage.html)
 
-TODO — for now please see the following links for more information:
+TODO — for now please also see the following links for more messaging related information:
 
 -   [.emit()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#emit)
 -   [.on()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#on)
@@ -713,6 +716,9 @@ providing (deployment) platform-specific functionality and interop features.
 -   [`PlatformAdapter` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PlatformAdapter.html)
 
 ### Existing adapter implementations
+
+**Please refer or contribute to issue [#2: List of art platforms we should
+provide adapters for](https://github.com/thi-ng/genart-api/issues/2)**
 
 -   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts) : Reference implementation
 -   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/dummy.ts) : Absolute barebones, scaffolding only
