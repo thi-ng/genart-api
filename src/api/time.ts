@@ -36,7 +36,7 @@ export interface TimeProviders {
 	 * @param timeOffset
 	 * @param frameOffset
 	 */
-	raf: (timeOffset?: number, frameOffset?: number) => TimeProvider;
+	raf(timeOffset?: number, frameOffset?: number): TimeProvider;
 	/**
 	 * Returns a {@link TimeProvider} for fixed frame rate, offline (aka
 	 * non-realtime) animation use cases, e.g. recording image sequences.
@@ -49,9 +49,79 @@ export interface TimeProviders {
 	 * @param referenceFPS
 	 * @param frameOffset
 	 */
-	offline: (
+	offline(
 		frameDelay?: number,
 		referenceFPS?: number,
 		frameOffset?: number
-	) => TimeProvider;
+	): TimeProvider;
+
+	/**
+	 * Similar to {@link TimeProviders.raf}, but also collects FPS samples and
+	 * injects a canvas overlay to visualize recent frame rates and compute
+	 * moving averages. Visualization can be configured via provided options.
+	 *
+	 * @param opts
+	 */
+	debug(opts?: Partial<DebugTimeProviderOpts>): TimeProvider;
+}
+
+export interface DebugTimeProviderOpts {
+	/**
+	 * @defaultValue 60
+	 */
+	targetFPS: number;
+	/**
+	 * Window size (number of frames) of recorded FPS samples
+	 *
+	 * @defaultValue 200
+	 */
+	history: number;
+	/**
+	 * Window size (number of frames) of secondary simple moving average frame rate
+	 *
+	 * @defaultValue same as {@link DebugTimeProviderOpts.targetFPS}
+	 */
+	sma: number;
+	/**
+	 * Canvas width in pixels
+	 *
+	 * @defaultValue same as {@link DebugTimeProviderOpts.history}
+	 */
+	width: number;
+	/**
+	 * Canvas width in pixels
+	 *
+	 * @defaultValue 100
+	 */
+	height: number;
+	/**
+	 * Custom CSS to attach to canvas element.
+	 *
+	 * @remarks
+	 * By default the canvas is positioned in the top-right corner.
+	 */
+	style: string;
+	/**
+	 * Background color
+	 *
+	 * @defaultValue `#222`
+	 */
+	bg: string;
+	/**
+	 * Tuple of color values for the area plot gradient, in the following order:
+	 *
+	 * - target framerate
+	 * - target framerate - 1
+	 * - half target framerate
+	 * - zero
+	 *
+	 * @defaultValue `["#0f0", "#ff0", "#f00", "#300"]`
+	 */
+	fps: [string, string, string, string];
+	/**
+	 * Text color
+	 *
+	 * @defaultValue `#fff`
+	 */
+	text: string;
 }
