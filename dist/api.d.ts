@@ -102,17 +102,20 @@ export interface GenArtAPI {
      */
     paramType(type: string): Maybe<ParamImpl>;
     /**
-     * Called during initialization of the art piece to declare all of its
+     * Called during initialization of the artwork to declare all of its
      * available parameters, their configurations and (optional) default values.
      *
      * @remarks
-     * This function assumes {@link PlatformAdapter} is already set (via
-     * {@link GenArtAPI.setAdapter}). It first calls
-     * {@link PlatformAdapter.augmentParams} (if available) to allow for any
-     * additional platform-specific params to be injected, then validates all
-     * params and defines random default values for those params with missing
-     * defaults. If available, it then calls and waits for
-     * {@link PlatformAdapter.initParams} to pre-initialize any
+     * This function assumes a {@link PlatformAdapter} has already been
+     * configured (via {@link GenArtAPI.setAdapter}). To ensure that's the case
+     * from the artwork's POV, the artwork should always begin with waiting for
+     * {@link GenArtAPI.waitForAdapter} before calling `setParams()`.
+     *
+     * This function first calls {@link PlatformAdapter.augmentParams} (if
+     * available) to allow for any additional platform-specific params to be
+     * injected, then validates all params and defines random default values for
+     * those params with missing defaults. If available, it then calls and waits
+     * for {@link PlatformAdapter.initParams} to pre-initialize any
      * platform-specific param handling and then calls
      * {@link GenArtAPI.updateParams} to apply any param
      * customizations/overrides sourced via the adapter. Finally, once done, it
@@ -125,12 +128,30 @@ export interface GenArtAPI {
      * {@link RampParam}), these value lookups can be time-based or randomized
      * (for param types which support randomization).
      *
+     * **Parameter IDs declared by the artwork MUST not start with `__`, which
+     * is a reserved prefix!**
+     *
      * @example
      * ```ts
      * const param = await $genart.setParams({
-     *   color: $genart.params.color({ doc: "brush color", default: "#ffff00" }),
-     *   size: $genart.params.range({ doc: "brush size", default: 10, min: 5, max: 50 }),
-     *   density: $genart.params.ramp({ doc: "density", stops: [[0, 0.5], [1, 1]] }),
+     *   color: $genart.params.color({
+     *     name: "brush color",
+     *     desc: "base color for brush strokes",
+     *     default: "#ffff00",
+     *   }),
+     *   size: $genart.params.range({
+     *     name: "brush size",
+     *     desc: "base brush size (normalized)",
+     *     doc: "percentage of shortest canvas size",
+     *     default: 10,
+     *     min: 5,
+     *     max: 50,
+     *   }),
+     *   density: $genart.params.ramp({
+     *     name: "brush density",
+     *     desc: "density distribution curve",
+     *     stops: [[0, 0.5], [0.5, 0.5], [1, 1]],
+     *   }),
      * });
      *
      * // get possibly customized param values (typesafe)
