@@ -45,6 +45,9 @@
     -   [Thumbnail/preview generation](#thumbnailpreview-generation)
 -   [Time providers](#time-providers)
     -   [Existing time provider implementations](#existing-time-provider-implementations)
+        -   [RAF](#raf)
+        -   [Offline](#offline)
+        -   [Debug](#debug)
 -   [Getting started](#getting-started)
     -   [Examples projects](#example-projects)
     -   [Project template](#project-template)
@@ -821,8 +824,33 @@ this one can be replaced by loading an alternative implementation via another
 
 ### Existing time provider implementations
 
--   [/src/time/raf.ts](https://github.com/thi-ng/genart-api/blob/main/src/time/raf.ts): `requestAnimationFrame()`-based
--   [/src/time/offline.ts](https://github.com/thi-ng/genart-api/blob/main/src/time/offline.ts): non-realtime, configurable
+The following [time providers are
+included](https://docs.thi.ng/umbrella/genart-api/interfaces/TimeProviders.html)
+in the API reference implementation:
+
+#### RAF
+
+Default TimeProvider, requestAnimationFrame()-based. Start time & frame offsets
+can be provided (both defaulting to zero).
+
+[Source](https://github.com/thi-ng/genart-api/blob/main/src/time/raf.ts)
+
+#### Offline
+
+A time provider for fixed frame rates, offline (aka non-realtime) animation use
+cases, e.g. recording image sequences. Supports arbitrary delays between frames
+(default: 250ms) and reference frame rates (default: 60fps).
+
+[Source](https://github.com/thi-ng/genart-api/blob/main/src/time/offline.ts)
+
+#### Debug
+
+Similar to the [RAF time provider](#raf), but also collects FPS samples and
+injects a canvas overlay to visualize recent frame rates and compute moving
+averages. Visualization can be configured via provided
+[options](https://docs.thi.ng/umbrella/genart-api/interfaces/DebugTimeProviderOpts.html).
+
+[Source](https://github.com/thi-ng/genart-api/blob/main/src/time/debug.ts)
 
 ## Getting started
 
