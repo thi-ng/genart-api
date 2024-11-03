@@ -17,7 +17,7 @@ header { mb3 }
 
 h1 { ls--1 mb2 }
 
-label { db b mb2 l:mb0 }
+label { db b ttc mb2 l:mb0 }
 
 fieldset { mh0 mv3 pa0 bw0 }
 
@@ -65,3 +65,5 @@ legend { pa0 mb3 color-gray b w-100 bwb-1px }
 		label { db mb2 }
 	}
 }
+
+#collapse { mt3 }

@@ -1,6 +1,12 @@
 import { anchor, div } from "@thi.ng/hiccup-html";
 import { $attribs, $compile } from "@thi.ng/rdom";
-import { compileForm, container, selectNum, str } from "@thi.ng/rdom-forms";
+import {
+	compileForm,
+	container,
+	selectNum,
+	str,
+	trigger,
+} from "@thi.ng/rdom-forms";
 import { reactive } from "@thi.ng/rstream";
 import { launchEditorImgui } from "./param-editor-imgui.js";
 import { launchEditorForms } from "./param-editor.js";
@@ -51,6 +57,17 @@ const root = $compile(
 							},
 						},
 					}),
+					trigger({
+						label: false,
+						title: "Reload",
+						attribs: {
+							onclick: () => {
+								iframe.src = (<HTMLInputElement>(
+									document.getElementById("url")
+								)).value;
+							},
+						},
+					}),
 					selectNum({
 						label: "Editor",
 						items: [
@@ -86,7 +103,7 @@ $compile(
 				e.preventDefault();
 			},
 		},
-		collapse.map((x) => (x ? "show" : "hide"))
+		collapse.map((x) => (x ? "Show" : "Hide") + " sidebar")
 	)
 ).mount(document.getElementById("collapse")!);
 
