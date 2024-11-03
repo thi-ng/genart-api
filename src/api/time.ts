@@ -71,21 +71,15 @@ export interface DebugTimeProviderOpts {
 	 */
 	targetFPS: number;
 	/**
-	 * Window size (number of frames) of recorded FPS samples
+	 * Window size (number of frames) of recorded FPS samples and to compute the moving average frame rate
 	 *
 	 * @defaultValue 200
 	 */
-	history: number;
-	/**
-	 * Window size (number of frames) of secondary simple moving average frame rate
-	 *
-	 * @defaultValue same as {@link DebugTimeProviderOpts.targetFPS}
-	 */
-	sma: number;
+	period: number;
 	/**
 	 * Canvas width in pixels
 	 *
-	 * @defaultValue same as {@link DebugTimeProviderOpts.history}
+	 * @defaultValue same as {@link DebugTimeProviderOpts.period}
 	 */
 	width: number;
 	/**

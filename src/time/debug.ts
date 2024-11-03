@@ -2,10 +2,9 @@ import type { DebugTimeProviderOpts, TimeProvider } from "../api/time.js";
 
 export const debugTimeProvider = ({
 	targetFPS = 60,
-	history = 200,
-	width = history,
+	period = 200,
+	width = period,
 	height = 100,
-	sma = targetFPS,
 	style = "position:fixed;z-index:9999;top:0;right:0;",
 	bg = "#222",
 	text = "#fff",
@@ -13,20 +12,25 @@ export const debugTimeProvider = ({
 }: Partial<DebugTimeProviderOpts> = {}): TimeProvider => {
 	let canvas: HTMLCanvasElement;
 	let ctx: CanvasRenderingContext2D;
-	const scaleX = width / history;
+	const scaleX = width / period;
 	const showTickLabels = width >= 120;
 	let t0 = performance.now();
 	let frame = 0;
 	let now = 0;
 	let prev = 0;
 	let peak = targetFPS;
-	const samples: number[] = [];
+	let samples: number[] = [];
+	let peakIndex: number[] = [];
+	let windowSum = 0;
 	return {
 		start() {
 			t0 = performance.now();
+			prev = t0;
 			frame = 0;
-			prev = 0;
 			peak = targetFPS;
+			samples = [];
+			peakIndex = [];
+			windowSum = 0;
 			if (!canvas) {
 				canvas = document.createElement("canvas");
 				canvas.width = width;
@@ -52,15 +56,30 @@ export const debugTimeProvider = ({
 				(now = performance.now() - t0),
 				++frame,
 			];
-			if (samples.length === history) samples.shift();
 			let delta = now - prev;
 			prev = now;
-			samples.push(1000 / delta);
-			const num = samples.length;
-			peak = Math.max(
-				targetFPS,
-				peak + (Math.max(...samples) - peak) * 0.05
-			);
+			if (delta <= 0) return res;
+			const $fps = 1000 / delta;
+			const num = samples.push($fps);
+			while (
+				peakIndex.length &&
+				samples[peakIndex[peakIndex.length - 1]] <= $fps
+			) {
+				peakIndex.pop();
+			}
+			peakIndex.push(num - 1);
+			if (num > period) {
+				windowSum -= samples.shift()!;
+				if (peakIndex[0] === 0) peakIndex.shift();
+				for (let i = 0; i < peakIndex.length; i++) peakIndex[i]--;
+			}
+			windowSum += $fps;
+			if (peakIndex.length) {
+				peak = Math.max(
+					targetFPS,
+					peak + (samples[peakIndex[0]] - peak) * 0.05
+				);
+			}
 			const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
 			grad.addColorStop(1 - targetFPS / peak, fps[0]);
 			grad.addColorStop(1 - (targetFPS - 1) / peak, fps[1]);
@@ -91,22 +110,9 @@ export const debugTimeProvider = ({
 			}
 			ctx.stroke();
 
-			if (num >= sma) {
-				let sum = 0;
-				for (let i = num - sma; i < num; i++) sum += samples[i];
-				sum /= sma;
+			if (num >= period) {
 				ctx.fillText(
-					`sma(${sma}) ${sum.toFixed(1)} fps`,
-					4,
-					height - 20
-				);
-			}
-			if (num >= history) {
-				let sum = 0;
-				for (let i = 0; i < num; i++) sum += samples[i];
-				sum /= num;
-				ctx.fillText(
-					`sma(${num}) ${sum.toFixed(1)} fps`,
+					`sma(${period}) ${(windowSum / period).toFixed(1)} fps`,
 					4,
 					height - 8
 				);
