@@ -75,10 +75,11 @@ export const debugTimeProvider = ({
 			}
 			windowSum += $fps;
 			if (peakIndex.length) {
-				peak = Math.max(
-					targetFPS,
-					peak + (samples[peakIndex[0]] - peak) * 0.05
+				const clamped = Math.min(
+					Math.max(samples[peakIndex[0]], targetFPS),
+					targetFPS * 1.5
 				);
+				peak += (clamped - peak) * 0.05;
 			}
 			const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
 			grad.addColorStop(1 - targetFPS / peak, fps[0]);
