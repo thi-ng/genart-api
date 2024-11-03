@@ -69,6 +69,15 @@ declare var $genart: GenArtAPI;
 			default: [0.5, 0.5],
 		}),
 
+		numDots: $genart.params.range({
+			name: "Dots",
+			desc: "Number of dots",
+			min: 10,
+			max: 20000,
+			default: 20,
+			step: 10,
+		}),
+
 		ramp: $genart.params.ramp({
 			name: "Curve",
 			desc: "Curve for text movement",
@@ -139,7 +148,7 @@ declare var $genart: GenArtAPI;
 		// lissajous curve
 		ctx.fillStyle = param("dot");
 		const [xx, yy] = param("curve");
-		for (let i = 0; i < 20; i++, t += 20) {
+		for (let i = 0, n = param("numDots"); i < n; i++, t += 1) {
 			ctx.beginPath();
 			ctx.arc(
 				(0.5 + Math.sin(t * xx * 0.01) * 0.45) * W,
