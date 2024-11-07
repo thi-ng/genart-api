@@ -65,10 +65,16 @@
 
 **ALPHA** — Work in progress... **Welcoming feedback!** 🙏
 
+
 Please also see RFCs and open questions in the [issue
 tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
 
 > [!NOTE]
+> In the future this repo might be moved to a standalone GitHub org to emphasize
+> that this project is **not** directly related to other
+> [thi.ng](https://thi.ng) projects and instead is intended for **any browser
+> based generative art** projects and related tooling.
+>
 > tl;dr Jump to the [Getting started section](#getting-started).
 
 ## About
