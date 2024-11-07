@@ -116,4 +116,10 @@ export interface DebugTimeProviderOpts {
 	 * @defaultValue `#fff`
 	 */
 	text: string;
+	/**
+	 * If true, visualization uses area plot, else line plot.
+	 *
+	 * @defaultValue true
+	 */
+	fill: boolean;
 }
