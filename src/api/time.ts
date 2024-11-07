@@ -8,21 +8,19 @@ export interface TimeProvider {
 	 */
 	start(): void;
 	/**
-	 * Schedules given no-arg function to be executed in the future.
+	 * Schedules given frame update function to be executed in the future. The
+	 * given function will be wrapped and called with updated timestamp & frame
+	 * number ({@link TimeProvider.now} will then return the same values, as
+	 * tuple).
 	 *
 	 * @param fn
 	 */
-	next(fn: () => void): void;
+	next(fn: (time: number, frame: number) => void): void;
 	/**
 	 * Returns tuple of current `[time, frame]` (where `time` is in
 	 * milliseconds and `frame` the current frame number)
 	 */
 	now(): [number, number];
-	/**
-	 * Progresses time & frame count and returns both as tuple (same format as
-	 * {@link TimeProvider.now}).
-	 */
-	tick(): [number, number];
 }
 
 /**

@@ -528,7 +528,6 @@ class API implements GenArtAPI {
 			throw new Error(`can't start in state: ${state}`);
 		}
 		this.setState("play");
-		let isFirst = !resume;
 		// re-use same msg object to avoid per-frame allocations
 		const msg: AnimFrameMsg = {
 			type: "genart:frame",
@@ -537,22 +536,20 @@ class API implements GenArtAPI {
 			time: 0,
 			frame: 0,
 		};
-		const update = () => {
+		const update = (time: number, frame: number) => {
 			if (this._state != "play") return;
-			const timing = this._time![isFirst ? "now" : "tick"]();
-			if (this._update!.call(null, ...timing)) {
+			if (this._update!.call(null, time, frame)) {
 				this._time!.next(update);
 			} else {
 				this.stop();
 			}
 			// emit frame msg
-			msg.time = timing[0];
-			msg.frame = timing[1];
+			msg.time = time;
+			msg.frame = frame;
 			this.emit<AnimFrameMsg>(msg);
-			isFirst = false;
 		};
 		if (!resume) this._time!.start();
-		update();
+		this._time.next(update);
 		this.emit<StartMessage | ResumeMessage>({
 			type: `genart:${resume ? "resume" : "start"}`,
 			__self: true,

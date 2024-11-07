@@ -7,19 +7,24 @@ export const timeProviderRAF = (
 	let t0 = performance.now();
 	let frame = frameOffset;
 	let now = timeOffset;
+	let isStart = true;
 	return {
 		start() {
-			t0 = performance.now();
-			frame = frameOffset;
+			isStart = true;
 		},
 		next(fn) {
-			requestAnimationFrame(fn);
+			requestAnimationFrame((t) => {
+				if (isStart) {
+					t0 = t;
+					frame = frameOffset;
+					isStart = false;
+				} else {
+					frame++;
+				}
+				now = timeOffset + t - t0;
+				fn(now, frame);
+			});
 		},
-		now() {
-			return [now, frame];
-		},
-		tick() {
-			return [(now = timeOffset + performance.now() - t0), ++frame];
-		},
+		now: () => [now, frame],
 	};
 };
