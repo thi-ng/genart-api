@@ -65,7 +65,6 @@
 
 **ALPHA** — Work in progress... **Welcoming feedback!** 🙏
 
-
 Please also see RFCs and open questions in the [issue
 tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
 
@@ -852,8 +851,8 @@ cases, e.g. recording image sequences. Supports arbitrary delays between frames
 #### Debug
 
 Similar to the [RAF time provider](#raf), but also collects FPS samples and
-injects a canvas overlay to visualize recent frame rates and compute moving
-averages. Visualization can be configured via provided
+injects a canvas overlay to visualize recent frame rates and compute moving min,
+max and average. Visualization can be configured via provided
 [options](https://docs.thi.ng/umbrella/genart-api/interfaces/DebugTimeProviderOpts.html).
 
 [Source](https://github.com/thi-ng/genart-api/blob/main/src/time/debug.ts)
