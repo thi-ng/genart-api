@@ -121,6 +121,19 @@
   var xy = (spec) => $("xy", spec);
 
   // src/time/debug.ts
+  var deque = (samples, pred, index = []) => ({
+    head: () => samples[index[0]],
+    push(x) {
+      while (index.length && pred(samples[index[index.length - 1]], x)) {
+        index.pop();
+      }
+      index.push(samples.length - 1);
+    },
+    shift() {
+      if (index[0] === 0) index.shift();
+      for (let i = index.length; i-- > 0; ) index[i]--;
+    }
+  });
   var debugTimeProvider = ({
     targetFPS = 60,
     period = 200,
@@ -129,7 +142,8 @@
     style = "position:fixed;z-index:9999;top:0;right:0;",
     bg = "#222",
     text: text2 = "#fff",
-    fps = ["#0f0", "#ff0", "#f00", "#303"]
+    fps = ["#0f0", "#ff0", "#f00", "#306"],
+    fill = true
   } = {}) => {
     let canvas;
     let ctx;
@@ -139,18 +153,84 @@
     let frame = 0;
     let now = 0;
     let prev = 0;
-    let peak = targetFPS;
     let samples = [];
-    let peakIndex = [];
+    let min;
+    let max;
+    let peak = targetFPS;
     let windowSum = 0;
+    let isStart = true;
+    const update = () => {
+      const res = [now, frame];
+      let delta = now - prev;
+      prev = now;
+      if (delta <= 0) return res;
+      const $fps = 1e3 / delta;
+      let num = samples.push($fps);
+      min.push($fps);
+      max.push($fps);
+      if (num > period) {
+        num--;
+        windowSum -= samples.shift();
+        min.shift();
+        max.shift();
+      }
+      windowSum += $fps;
+      const { clamp01: clamp013, round: round3 } = $genart.math;
+      peak += (max.head() * 1.1 - peak) * 0.1;
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(clamp013(1 - targetFPS / peak), fps[0]);
+      grad.addColorStop(clamp013(1 - (targetFPS - 1) / peak), fps[1]);
+      grad.addColorStop(clamp013(1 - targetFPS / 2 / peak), fps[2]);
+      grad.addColorStop(1, fps[3]);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+      ctx[fill ? "fillStyle" : "strokeStyle"] = grad;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(-1, height);
+      for (let i = 0; i < num; i++) {
+        ctx.lineTo(i * scaleX, (1 - samples[i] / peak) * height);
+      }
+      if (fill) {
+        ctx.lineTo((num - 1) * scaleX, height);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.stroke();
+      }
+      ctx.fillStyle = ctx.strokeStyle = text2;
+      ctx.setLineDash([1, 1]);
+      ctx.beginPath();
+      for (let step = peak > 90 ? 30 : peak > 30 ? 15 : 5, i = round3(Math.min(targetFPS, peak + step / 2), step); i > 0; i -= step) {
+        const y = (1 - i / peak) * height;
+        ctx.moveTo(width - 80, y);
+        if (showTickLabels) {
+          ctx.lineTo(width - 22, y);
+          ctx.fillText(String(i), width - 20, y + 1);
+        } else {
+          ctx.lineTo(width, y);
+        }
+      }
+      ctx.stroke();
+      if (num >= period) {
+        [
+          [`sma(${period}):`, windowSum / period],
+          ["max:", max.head()],
+          ["min:", min.head()]
+        ].forEach(([label, value], i) => {
+          const y = height - 8 - i * 12;
+          ctx.fillText(label, 4, y);
+          ctx.fillText(value.toFixed(1) + " fps", 64, y);
+        });
+      }
+      return res;
+    };
     return {
       start() {
-        t0 = performance.now();
-        prev = t0;
-        frame = 0;
-        peak = targetFPS;
         samples = [];
-        peakIndex = [];
+        min = deque(samples, (a, b) => a >= b);
+        max = deque(samples, (a, b) => a <= b);
+        peak = targetFPS * 1.2;
         windowSum = 0;
         if (!canvas) {
           canvas = document.createElement("canvas");
@@ -160,81 +240,28 @@
           canvas.setAttribute("style", style);
           document.body.appendChild(canvas);
           ctx = canvas.getContext("2d");
-          ctx.font = "10px sans-serif";
+          ctx.font = "12px sans-serif";
           ctx.textBaseline = "middle";
           ctx.strokeStyle = text2;
           ctx.setLineDash([1, 1]);
         }
       },
       next(fn) {
-        requestAnimationFrame(fn);
+        requestAnimationFrame((t) => {
+          if (isStart) {
+            t0 = t;
+            frame = 0;
+            isStart = false;
+          } else {
+            frame++;
+          }
+          now = t - t0;
+          fn(now, frame);
+          update();
+        });
       },
       now() {
         return [now, frame];
-      },
-      tick() {
-        const res = [
-          now = performance.now() - t0,
-          ++frame
-        ];
-        let delta = now - prev;
-        prev = now;
-        if (delta <= 0) return res;
-        const $fps = 1e3 / delta;
-        const num = samples.push($fps);
-        while (peakIndex.length && samples[peakIndex[peakIndex.length - 1]] <= $fps) {
-          peakIndex.pop();
-        }
-        peakIndex.push(num - 1);
-        if (num > period) {
-          windowSum -= samples.shift();
-          if (peakIndex[0] === 0) peakIndex.shift();
-          for (let i = 0; i < peakIndex.length; i++) peakIndex[i]--;
-        }
-        windowSum += $fps;
-        if (peakIndex.length) {
-          peak = Math.max(
-            targetFPS,
-            peak + (samples[peakIndex[0]] - peak) * 0.05
-          );
-        }
-        const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        grad.addColorStop(1 - targetFPS / peak, fps[0]);
-        grad.addColorStop(1 - (targetFPS - 1) / peak, fps[1]);
-        grad.addColorStop(1 - targetFPS / 2 / peak, fps[2]);
-        grad.addColorStop(1, fps[3]);
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.moveTo(0, height);
-        for (let i = 0; i < num; i++) {
-          ctx.lineTo(i * scaleX, (1 - samples[i] / peak) * height);
-        }
-        ctx.lineTo((num - 1) * scaleX, height);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = text2;
-        ctx.beginPath();
-        for (let fps2 of [targetFPS, targetFPS / 2]) {
-          const y = (1 - fps2 / peak) * height;
-          ctx.moveTo(0, y);
-          if (showTickLabels) {
-            ctx.lineTo(width - 22, y);
-            ctx.fillText(String(fps2), width - 20, y + 1);
-          } else {
-            ctx.lineTo(width, y);
-          }
-        }
-        ctx.stroke();
-        if (num >= period) {
-          ctx.fillText(
-            `sma(${period}) ${(windowSum / period).toFixed(1)} fps`,
-            4,
-            height - 8
-          );
-        }
-        return res;
       }
     };
   };
@@ -245,17 +272,15 @@
     const frameTime = 1e3 / referenceFPS;
     return {
       start() {
-        frame = frameOffset;
+        frame = frameOffset - 1;
       },
       next(fn) {
-        setTimeout(fn, frameDelay);
+        setTimeout(() => {
+          frame++;
+          fn(frame * frameTime, frame);
+        }, frameDelay);
       },
-      now() {
-        return [frame * frameTime, frame];
-      },
-      tick() {
-        return [++frame * frameTime, frame];
-      }
+      now: () => [frame * frameTime, frame]
     };
   };
 
@@ -264,20 +289,25 @@
     let t0 = performance.now();
     let frame = frameOffset;
     let now = timeOffset;
+    let isStart = true;
     return {
       start() {
-        t0 = performance.now();
-        frame = frameOffset;
+        isStart = true;
       },
       next(fn) {
-        requestAnimationFrame(fn);
+        requestAnimationFrame((t) => {
+          if (isStart) {
+            t0 = t;
+            frame = frameOffset;
+            isStart = false;
+          } else {
+            frame++;
+          }
+          now = timeOffset + t - t0;
+          fn(now, frame);
+        });
       },
-      now() {
-        return [now, frame];
-      },
-      tick() {
-        return [now = timeOffset + performance.now() - t0, ++frame];
-      }
+      now: () => [now, frame]
     };
   };
 
@@ -694,7 +724,6 @@
         throw new Error(`can't start in state: ${state}`);
       }
       this.setState("play");
-      let isFirst = !resume;
       const msg = {
         type: "genart:frame",
         __self: true,
@@ -702,21 +731,19 @@
         time: 0,
         frame: 0
       };
-      const update = () => {
+      const update = (time2, frame) => {
         if (this._state != "play") return;
-        const timing = this._time[isFirst ? "now" : "tick"]();
-        if (this._update.call(null, ...timing)) {
+        if (this._update.call(null, time2, frame)) {
           this._time.next(update);
         } else {
           this.stop();
         }
-        msg.time = timing[0];
-        msg.frame = timing[1];
+        msg.time = time2;
+        msg.frame = frame;
         this.emit(msg);
-        isFirst = false;
       };
       if (!resume) this._time.start();
-      update();
+      this._time.next(update);
       this.emit({
         type: `genart:${resume ? "resume" : "start"}`,
         __self: true
