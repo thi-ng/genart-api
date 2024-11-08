@@ -1,36 +1,33 @@
 import type { DebugTimeProviderOpts, TimeProvider } from "../api/time.js";
 
-class Deque {
-	protected index: number[];
-
-	constructor(
-		protected samples: number[],
-		protected pred: (a: number, b: number) => boolean
-	) {
-		this.samples = samples;
-		this.pred = pred;
-		this.index = [];
-	}
-
-	head() {
-		return this.samples[this.index[0]];
-	}
-
+/**
+ * Deque data structure to keep track of moving min/max values.
+ *
+ * @internal
+ */
+const deque = (
+	samples: number[],
+	pred: (a: number, b: number) => boolean,
+	index: number[] = []
+) => ({
+	head: () => samples[index[0]],
 	push(x: number) {
-		const { index, pred, samples } = this;
 		while (index.length && pred(samples[index[index.length - 1]], x)) {
 			index.pop();
 		}
 		index.push(samples.length - 1);
-	}
-
+	},
 	shift() {
-		const { index } = this;
 		if (index[0] === 0) index.shift();
 		for (let i = index.length; i-- > 0; ) index[i]--;
-	}
-}
+	},
+});
 
+/**
+ * See {@link TimeProviders.debug}.
+ *
+ * @param opts
+ */
 export const debugTimeProvider = ({
 	targetFPS = 60,
 	period = 200,
@@ -51,8 +48,8 @@ export const debugTimeProvider = ({
 	let now = 0;
 	let prev = 0;
 	let samples: number[] = [];
-	let min: Deque;
-	let max: Deque;
+	let min: ReturnType<typeof deque>;
+	let max: ReturnType<typeof deque>;
 	let peak = targetFPS;
 	let windowSum = 0;
 	let isStart = true;
@@ -136,8 +133,8 @@ export const debugTimeProvider = ({
 	return {
 		start() {
 			samples = [];
-			min = new Deque(samples, (a, b) => a >= b);
-			max = new Deque(samples, (a, b) => a <= b);
+			min = deque(samples, (a, b) => a >= b);
+			max = deque(samples, (a, b) => a <= b);
 			peak = targetFPS * 1.2;
 			windowSum = 0;
 			if (!canvas) {
