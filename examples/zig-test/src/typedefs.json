@@ -1,0 +1,175 @@
+[
+	{
+		"name": "Param",
+		"type": "union",
+		"fields": [
+			{ "name": "choice", "type": "ChoiceParam", "setter": false },
+			{ "name": "color", "type": "ColorParam", "setter": false },
+			{ "name": "range", "type": "RangeParam", "setter": false }
+		]
+	},
+	{
+		"name": "ChoiceParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "type",
+				"type": "string",
+				"setter": false,
+				"default": "\"choice\"",
+				"doc": "DO NOT EDIT - internal use only"
+			},
+			{ "name": "id", "type": "string", "setter": false },
+			{ "name": "name", "type": "string", "setter": false },
+			{ "name": "desc", "type": "string", "setter": false },
+			{
+				"name": "doc",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			},
+			{
+				"name": "default",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			},
+			{
+				"name": "options",
+				"type": "Option",
+				"tag": "slice",
+				"doc": "In Zig, use `genart.options()` to wrap",
+				"const": true,
+				"setter": false
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(): ReturnType<typeof $genart.params.choice>;",
+				"impl": [
+					"asParam() {",
+					"return $genart.params.choice<string>({",
+					"name: this.name.deref(),",
+					"desc: this.desc.deref(),",
+					"doc: this.doc.deref() || undefined,",
+					"default: this.default.deref() || undefined,",
+					"options: this.options.map((x) => x.label.addr ? [x.value.deref(), x.label.deref()]: x.value.deref()),",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "Option",
+		"type": "struct",
+		"fields": [
+			{ "name": "value", "type": "string" },
+			{
+				"name": "label",
+				"type": "string",
+				"optional": true,
+				"default": { "zig": "null" }
+			}
+		]
+	},
+	{
+		"name": "ColorParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "type",
+				"type": "string",
+				"setter": false,
+				"default": "\"color\"",
+				"doc": "DO NOT EDIT - internal use only"
+			},
+			{ "name": "id", "type": "string", "setter": false },
+			{ "name": "name", "type": "string", "setter": false },
+			{ "name": "desc", "type": "string", "setter": false },
+			{
+				"name": "doc",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			},
+			{
+				"name": "default",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(): ReturnType<typeof $genart.params.color>;",
+				"impl": [
+					"asParam() {",
+					"return $genart.params.color({",
+					"name: this.name.deref(),",
+					"desc: this.desc.deref(),",
+					"doc: this.doc.deref() || undefined,",
+					"default: this.default.deref() || undefined,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "RangeParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "type",
+				"type": "string",
+				"setter": false,
+				"default": "\"range\"",
+				"doc": "DO NOT EDIT - internal use only"
+			},
+			{ "name": "id", "type": "string", "setter": false },
+			{ "name": "name", "type": "string", "setter": false },
+			{ "name": "desc", "type": "string", "setter": false },
+			{
+				"name": "doc",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			},
+			{
+				"name": "default",
+				"type": "f64",
+				"setter": false,
+				"default": { "zig": "std.math.inf(f64)" }
+			},
+			{ "name": "min", "type": "f64", "default": 0, "setter": false },
+			{ "name": "max", "type": "f64", "default": 100, "setter": false },
+			{ "name": "step", "type": "f64", "default": 1, "setter": false },
+			{ "name": "exponent", "type": "f64", "default": 1, "setter": false }
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(): ReturnType<typeof $genart.params.range>;",
+				"impl": [
+					"asParam() {",
+					"return $genart.params.range({",
+					"name: this.name.deref(),",
+					"desc: this.desc.deref(),",
+					"doc: this.doc.deref() || undefined,",
+					"default: isFinite(this.default) ? this.default : undefined,",
+					"min: this.min,",
+					"max: this.max,",
+					"step: this.step,",
+					"exponent: this.exponent,",
+					"});",
+					"}"
+				]
+			}
+		}
+	}
+]

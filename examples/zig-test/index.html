@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>genart-api :: zig-test</title>
+		<!-- genart API -->
+		<script src="./lib/genart.js"></script>
+		<!-- platform adapter -->
+		<script src="./lib/adapter-urlparams.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			// use custom time provider
+			// $genart.setTimeProvider($genart.time.offline(250, 60));
+			$genart.setTimeProvider($genart.time.debug());
+		</script>
+		<script type="module" src="/src/index.ts"></script>
+	</body>
+</html>

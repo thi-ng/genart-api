@@ -1,0 +1,28 @@
+{
+	"name": "@example/zig-test",
+	"version": "0.0.1",
+	"description": "Basic GenArtAPI test example",
+	"repository": "https://github.com/thi-ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build:prepare": "cp ../../dist/*.js lib && yarn build:zig",
+		"start": "yarn build:prepare && vite --host --open",
+		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
+		"build:types": "npx wasm-api-bindgen --config src/typedefs-config.json --lang ts -o src/generated/api.ts --lang zig -o zig/api.zig src/typedefs.json",
+		"build:zig": "zig build && wasm-opt zig-out/bin/main.wasm -o src/main.wasm -O3 && wasm-dis -o src/main.wast src/main.wasm",
+		"preview": "vite preview --host --open"
+	},
+	"devDependencies": {
+		"@thi.ng/wasm-api-bindgen": "^0.7.9",
+		"typescript": "^5.6.3",
+		"vite": "^5.4.10",
+		"vite-plugin-html": "^3.2.2"
+	},
+	"dependencies": {
+		"@thi.ng/wasm-api": "^2.1.0",
+		"@thi.ng/wasm-api-canvas": "^1.0.9"
+	},
+	"sideEffects": false
+}
