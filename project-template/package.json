@@ -18,6 +18,6 @@
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
-		"@thi.ng/genart-api": "^0.8.1"
+		"@thi.ng/genart-api": "^0.9.0"
 	}
 }
