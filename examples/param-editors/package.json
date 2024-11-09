@@ -17,33 +17,33 @@
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"@thi.ng/meta-css": "^0.15.5",
-		"@types/node": "^22.7.4",
+		"@thi.ng/meta-css": "^0.15.9",
+		"@types/node": "^22.9.0",
 		"typescript": "^5.6.3",
-		"vite": "^5.4.9",
+		"vite": "^5.4.10",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
 		"@thi.ng/api": "^8.11.11",
 		"@thi.ng/canvas": "^0.5.4",
 		"@thi.ng/checks": "^3.6.13",
-		"@thi.ng/color": "^5.7.7",
-		"@thi.ng/date": "^2.7.29",
+		"@thi.ng/color": "^5.7.11",
+		"@thi.ng/date": "^2.7.32",
 		"@thi.ng/defmulti": "^3.0.49",
 		"@thi.ng/hex": "^2.3.55",
-		"@thi.ng/hiccup-canvas": "^3.1.21",
+		"@thi.ng/hiccup-canvas": "^3.1.25",
 		"@thi.ng/hiccup-html": "^2.7.8",
-		"@thi.ng/imgui": "^3.1.0",
-		"@thi.ng/layout": "^3.1.4",
+		"@thi.ng/imgui": "^3.1.4",
+		"@thi.ng/layout": "^3.1.5",
 		"@thi.ng/math": "^5.11.11",
 		"@thi.ng/mime": "^2.6.17",
 		"@thi.ng/pixel": "^7.3.6",
-		"@thi.ng/ramp": "^3.3.4",
-		"@thi.ng/rdom": "^1.7.7",
-		"@thi.ng/rdom-forms": "^0.4.1",
-		"@thi.ng/rstream": "^9.0.6",
-		"@thi.ng/strings": "^3.8.6",
-		"@thi.ng/transducers": "^9.2.6"
+		"@thi.ng/ramp": "^3.3.8",
+		"@thi.ng/rdom": "^1.7.11",
+		"@thi.ng/rdom-forms": "^0.4.5",
+		"@thi.ng/rstream": "^9.0.7",
+		"@thi.ng/strings": "^3.8.9",
+		"@thi.ng/transducers": "^9.2.7"
 	},
 	"sideEffects": false
 }
