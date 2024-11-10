@@ -1,12 +1,15 @@
 import type { Fn0 } from "@thi.ng/api";
 import { ConsoleLogger, ROOT } from "@thi.ng/logger";
 import { WasmBridge } from "@thi.ng/wasm-api";
-import { GenArtWasmAPIModule, type GenArtWasmAPIExports } from "./genart-wasm";
-import WASM_URL from "./main.wasm?url";
 import {
 	WasmCanvas2DModule,
 	type WasmCanvas2DExports,
 } from "@thi.ng/wasm-api-canvas";
+import {
+	GenArtWasmAPIModule,
+	type GenArtWasmAPIExports,
+} from "./genart-wasm.js";
+import WASM_URL from "./main.wasm?url";
 
 ROOT.set(new ConsoleLogger());
 

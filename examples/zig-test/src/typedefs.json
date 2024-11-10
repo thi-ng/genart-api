@@ -9,6 +9,12 @@
 		]
 	},
 	{
+		"name": "UpdateBehavior",
+		"type": "enum",
+		"tag": "u8",
+		"values": ["event", "reload"]
+	},
+	{
 		"name": "ChoiceParam",
 		"type": "struct",
 		"fields": [
@@ -28,6 +34,12 @@
 				"optional": true,
 				"setter": false,
 				"default": { "zig": "null" }
+			},
+			{
+				"name": "update",
+				"type": "UpdateBehavior",
+				"setter": false,
+				"default": { "zig": ".event" }
 			},
 			{
 				"name": "default",
@@ -54,6 +66,7 @@
 					"name: this.name.deref(),",
 					"desc: this.desc.deref(),",
 					"doc: this.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[this.update],",
 					"default: this.default.deref() || undefined,",
 					"options: this.options.map((x) => x.label.addr ? [x.value.deref(), x.label.deref()]: x.value.deref()),",
 					"});",
@@ -97,6 +110,12 @@
 				"default": { "zig": "null" }
 			},
 			{
+				"name": "update",
+				"type": "UpdateBehavior",
+				"setter": false,
+				"default": { "zig": ".event" }
+			},
+			{
 				"name": "default",
 				"type": "string",
 				"optional": true,
@@ -113,6 +132,7 @@
 					"name: this.name.deref(),",
 					"desc: this.desc.deref(),",
 					"doc: this.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[this.update],",
 					"default: this.default.deref() || undefined,",
 					"});",
 					"}"
@@ -142,6 +162,12 @@
 				"default": { "zig": "null" }
 			},
 			{
+				"name": "update",
+				"type": "UpdateBehavior",
+				"setter": false,
+				"default": { "zig": ".event" }
+			},
+			{
 				"name": "default",
 				"type": "f64",
 				"setter": false,
@@ -161,6 +187,7 @@
 					"name: this.name.deref(),",
 					"desc: this.desc.deref(),",
 					"doc: this.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[this.update],",
 					"default: isFinite(this.default) ? this.default : undefined,",
 					"min: this.min,",
 					"max: this.max,",
