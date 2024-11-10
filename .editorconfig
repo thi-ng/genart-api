@@ -1,6 +1,6 @@
 root = true
 
-[*.{c,css,html,js,json,zig}]
+[*.{css,html,js,json,mcss,ts,wast,zig}]
 charset = utf-8
 end_of_line = lf
 indent_size = 4
