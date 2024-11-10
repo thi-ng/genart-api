@@ -3,6 +3,12 @@ let param;
 
 // setup function should be async
 async function setup() {
+	// Optional (see: https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#id)
+	// $genart.id = "p5-basic";
+
+	// ensure platform adapter is ready before starting artwork
+	await $genart.waitForAdapter();
+
 	// declare paramters & their constraints
 	param = await $genart.setParams({
 		bg: $genart.params.color({
