@@ -31,8 +31,7 @@
     return result;
   };
   var base64Decode = (src) => {
-    const match = /=*$/.exec(src);
-    const num = src.length - (match?.[0].length ?? 0);
+    const num = src.length - (/=*$/.exec(src)?.[0].length ?? 0);
     const result = new Uint8Array(num / 4 * 3);
     let value = 0;
     for (let i = 0, j = 0; i < num; ) {
@@ -42,6 +41,15 @@
     }
     return result;
   };
+
+  // src/adapters/compress.ts
+  var pipe = async (buf, stream) => new Uint8Array(
+    await new Response(
+      new Blob([buf]).stream().pipeThrough(stream)
+    ).arrayBuffer()
+  );
+  var compressBytes = (buf, fmt = "gzip") => pipe(buf, new CompressionStream(fmt));
+  var decompressBytes = async (buf, fmt = "gzip") => pipe(buf, new DecompressionStream(fmt));
 
   // src/adapters/urlparams.ts
   var {
@@ -62,8 +70,8 @@
       this.params = new URLSearchParams(location.search);
       this._screen = this.screen;
       this.initPRNG();
-      $genart.on("genart:paramchange", (e) => {
-        const value = this.serializeParam(e.param);
+      $genart.on("genart:paramchange", async (e) => {
+        const value = await this.serializeParam(e.param);
         this.params.set(e.paramID, value);
         parent.postMessage(
           {
@@ -180,7 +188,7 @@
         case "datetime":
           return { value: new Date(Date.parse(value)) };
         case "img":
-          return { value: base64Decode(value) };
+          return { value: await decompressBytes(base64Decode(value)) };
         case "numlist":
           return { value: value.split(",").map((x) => parseNum(x)) };
         case "range":
@@ -210,7 +218,7 @@
           return { value: value.split(",").map((x) => +x) };
       }
     }
-    serializeParam(spec) {
+    async serializeParam(spec) {
       switch (spec.type) {
         case "color":
           return spec.value.substring(1);
@@ -219,7 +227,9 @@
         case "datetime":
           return spec.value.toISOString();
         case "img":
-          return base64Encode(spec.value);
+          return base64Encode(
+            await compressBytes(spec.value)
+          );
         case "numlist":
         case "strlist":
           return spec.value.join(",");

@@ -125,7 +125,7 @@ export interface DateParam extends Param<Date> {
 export interface DateTimeParam extends Param<Date> {
     type: "datetime";
 }
-export interface ImageParam extends Param<number[] | Uint8Array | Uint8ClampedArray | Uint32Array> {
+export interface ImageParam extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
     type: "img";
     width: number;
     height: number;
