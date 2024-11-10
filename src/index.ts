@@ -194,7 +194,7 @@ class API implements GenArtAPI {
 			randomize: (_, rnd) => [
 				(rnd() * 24) | 0,
 				(rnd() * 60) | 0,
-				(rnd() * 24) | 0,
+				(rnd() * 60) | 0,
 			],
 		},
 		toggle: {
