@@ -19,6 +19,17 @@ const buildAll = async (minify) => {
 			bundle: true,
 			minify,
 		});
+		if (out === "genart") {
+			const pkg = JSON.parse(readFileSync("package.json"));
+			console.log("injecting version:", pkg.version, outFile);
+			writeFileSync(
+				outFile,
+				readFileSync(outFile, "utf-8").replace(
+					"__VERSION__",
+					pkg.version
+				)
+			);
+		}
 	}
 };
 

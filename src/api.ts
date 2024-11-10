@@ -60,6 +60,14 @@ export interface GenArtAPI {
 	id: string;
 
 	/**
+	 * API version in semantic versioning format (e.g. 0.12.3).
+	 *
+	 * @remarks
+	 * This information can be used to implement API compatibility checks in
+	 * artworks or platform adapters.
+	 */
+	readonly version: string;
+	/**
 	 * Current deploy/run mode, proxy accessor for {@link PlatformAdapter.mode}.
 	 */
 	readonly mode: RunMode;

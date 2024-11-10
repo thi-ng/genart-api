@@ -269,6 +269,11 @@ class API implements GenArtAPI {
 		});
 	}
 
+	get version() {
+		// DO NOT EDIT! — value will be injected by build script
+		return "__VERSION__";
+	}
+
 	get mode() {
 		return this._adapter?.mode || "play";
 	}
