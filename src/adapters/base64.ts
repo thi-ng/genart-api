@@ -25,8 +25,7 @@ export const base64Encode = (
 };
 
 export const base64Decode = (src: string) => {
-	const match = /=*$/.exec(src);
-	const num = src.length - (match?.[0].length ?? 0);
+	const num = src.length - (/=*$/.exec(src)?.[0].length ?? 0);
 	const result = new Uint8Array((num / 4) * 3);
 	let value = 0;
 	for (let i = 0, j = 0; i < num; ) {

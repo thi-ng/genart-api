@@ -13,6 +13,7 @@ import type {
 } from "../api.js";
 import { sfc32 } from "../prng/sfc32.js";
 import { base64Decode, base64Encode } from "./base64.js";
+import { compressBytes, decompressBytes } from "./compress.js";
 
 const {
 	math: { clamp01, parseNum },
@@ -35,8 +36,8 @@ class URLParamsAdapter implements PlatformAdapter {
 		this.params = new URLSearchParams(location.search);
 		this._screen = this.screen;
 		this.initPRNG();
-		$genart.on("genart:paramchange", (e) => {
-			const value = this.serializeParam(e.param);
+		$genart.on("genart:paramchange", async (e) => {
+			const value = await this.serializeParam(e.param);
 			this.params.set(e.paramID, value);
 			// (optional) send updated params to parent GUI for param editing
 			parent.postMessage(
@@ -165,7 +166,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "datetime":
 				return { value: new Date(Date.parse(value)) };
 			case "img":
-				return { value: base64Decode(value) };
+				return { value: await decompressBytes(base64Decode(value)) };
 			case "numlist":
 				return { value: value.split(",").map((x) => parseNum(x)) };
 			case "range":
@@ -198,7 +199,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		}
 	}
 
-	serializeParam(spec: Param<any>) {
+	async serializeParam(spec: Param<any>) {
 		switch (spec.type) {
 			case "color":
 				return spec.value.substring(1);
@@ -207,7 +208,9 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "datetime":
 				return spec.value.toISOString();
 			case "img":
-				return base64Encode((<ImageParam>spec).value!);
+				return base64Encode(
+					await compressBytes((<ImageParam>spec).value!)
+				);
 			case "numlist":
 			case "strlist":
 				return (<NumListParam>spec).value!.join(",");
