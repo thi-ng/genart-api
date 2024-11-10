@@ -462,7 +462,7 @@
         randomize: (_, rnd) => [
           rnd() * 24 | 0,
           rnd() * 60 | 0,
-          rnd() * 24 | 0
+          rnd() * 60 | 0
         ]
       },
       toggle: {
@@ -523,6 +523,9 @@
             this.randomizeParamValue(data.paramID, data.key);
         }
       });
+    }
+    get version() {
+      return "0.10.0";
     }
     get mode() {
       return this._adapter?.mode || "play";
@@ -607,7 +610,6 @@
       this.emit({ type: "genart:settraits", traits });
     }
     async setAdapter(adapter) {
-      console.log("set adapter", adapter);
       this._adapter = adapter;
       this.notifyReady();
     }
