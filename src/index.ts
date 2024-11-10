@@ -248,7 +248,6 @@ class API implements GenArtAPI {
 	constructor() {
 		window.addEventListener("message", (e) => {
 			const data = e.data;
-			// console.log("genart msg", data);
 			if (!this.isRecipient(e) || data?.__self) return;
 			switch (<MessageType>data.type) {
 				case "genart:start":
@@ -376,7 +375,6 @@ class API implements GenArtAPI {
 	}
 
 	async setAdapter(adapter: PlatformAdapter) {
-		console.log("set adapter", adapter);
 		this._adapter = adapter;
 		this.notifyReady();
 	}
