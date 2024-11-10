@@ -403,6 +403,10 @@ data in the expected format.
 > hard browser-defined limits and this param type is not (yet?) supported by any
 > of the major online art platforms.
 
+The [reference implementation platform
+adapter](#existing-adapter-implementations) encodes image data using gzip
+compression and base64 encoding.
+
 #### List parameter
 
 TODO
