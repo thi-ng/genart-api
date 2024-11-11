@@ -336,8 +336,9 @@ const createWidgets = (params: NestedParamSpecs, ctx: WidgetContext) => {
 		const root = ctx.root;
 		textLabel(gui!, ctx.layout.next([COLS, 1]), param.desc ?? "");
 		const res = paramWidget(ctx, param, id);
+		const key =
+			res && ctx.changedKey ? ctx.changedKey : ctx.root ? id : undefined;
 		const paramID = ctx.root?.id || id;
-		const key = ctx.root ? id : undefined;
 		if (param.randomize !== false) {
 			const rnd = buttonH({
 				gui: gui!,
