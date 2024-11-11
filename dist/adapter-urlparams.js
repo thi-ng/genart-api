@@ -49,7 +49,7 @@
     ).arrayBuffer()
   );
   var compressBytes = (buf, fmt = "gzip") => pipe(buf, new CompressionStream(fmt));
-  var decompressBytes = async (buf, fmt = "gzip") => pipe(buf, new DecompressionStream(fmt));
+  var decompressBytes = (buf, fmt = "gzip") => pipe(buf, new DecompressionStream(fmt));
 
   // src/adapters/urlparams.ts
   var {
