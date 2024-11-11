@@ -1,16 +1,9 @@
 import type { RandomFn } from "./random.js";
 
 /**
- * Declarative data-only description of a single parameter declared by the art
- * work and registered via {@link GenArtAPI.setParams}.
- *
- * @remarks
- * These param objects are forming the basis for much of {@link GenArtAPI}'s
- * core features and are designed to be sendable via {@link GenArtAPI.emit}
- * messages (aka `window.postMessage()`) between different windows.
+ * Common configuration options for all parameter types. See {@link Param}.
  */
-export interface Param<T> {
-	type: string;
+export interface ParamOpts {
 	/**
 	 * Human readable name/label for this parameter for external GUIs or other
 	 * display purposes. If omitted, the parameter ID should be used by default.
@@ -27,22 +20,6 @@ export interface Param<T> {
 	 * tooling.
 	 */
 	doc?: string;
-	/**
-	 * Default value. If omitted, a randomized default value will be generated,
-	 * iff the param type DOES provide a {@link ParamImpl.randomize} function.
-	 * Otherwise, {@link GenArtAPI.setParams} will throw an error if no default is
-	 * given and the param type ISN'T randomizable.
-	 *
-	 * @remarks
-	 * Randomization of default values will use the {@link GenArtAPI.random}
-	 * PRNG to ensure deterministic behavior.
-	 */
-	default?: T;
-	/**
-	 * Current param value, potentially randomized, or provided/customized via
-	 * external, platform specific means (e.g. param editors, stored variations).
-	 */
-	value?: T;
 	/**
 	 * Update mode/behavior when this param is being updated.
 	 *
@@ -76,12 +53,6 @@ export interface Param<T> {
 	 */
 	randomize?: boolean;
 	/**
-	 * This value is only for information purposes and initialized during
-	 * {@link GenArtAPI.setParams} and {@link GenArtAPI.updateParams}. See
-	 * {@link ParamState} for meaning of the possible values.
-	 */
-	state: ParamState;
-	/**
 	 * Optional, non-binding hint for param editors to customize which GUI
 	 * widget to use for this param. (e.g. a {@link RangeParam} might be
 	 * represented as a slider by default, but offer a numeric input field for
@@ -91,6 +62,41 @@ export interface Param<T> {
 	 * @defaultValue "default"
 	 */
 	widget?: ParamWidgetType;
+}
+
+/**
+ * Declarative data-only description of a single parameter declared by the art
+ * work and registered via {@link GenArtAPI.setParams}.
+ *
+ * @remarks
+ * These param objects are forming the basis for much of {@link GenArtAPI}'s
+ * core features and are designed to be sendable via {@link GenArtAPI.emit}
+ * messages (aka `window.postMessage()`) between different windows.
+ */
+export interface Param<T> extends ParamOpts {
+	type: string;
+	/**
+	 * Default value. If omitted, a randomized default value will be generated,
+	 * iff the param type DOES provide a {@link ParamImpl.randomize} function.
+	 * Otherwise, {@link GenArtAPI.setParams} will throw an error if no default is
+	 * given and the param type ISN'T randomizable.
+	 *
+	 * @remarks
+	 * Randomization of default values will use the {@link GenArtAPI.random}
+	 * PRNG to ensure deterministic behavior.
+	 */
+	default?: T;
+	/**
+	 * Current param value, potentially randomized, or provided/customized via
+	 * external, platform specific means (e.g. param editors, stored variations).
+	 */
+	value?: T;
+	/**
+	 * This value is only for information purposes and initialized during
+	 * {@link GenArtAPI.setParams} and {@link GenArtAPI.updateParams}. See
+	 * {@link ParamState} for meaning of the possible values.
+	 */
+	state: ParamState;
 }
 
 /**
@@ -110,7 +116,7 @@ export interface Param<T> {
 export type ParamState = "custom" | "default" | "dynamic" | "random" | "void";
 
 /**
- * Value type for {@link Param.widget}.
+ * Value type for {@link ParamOpts.widget}.
  */
 export type ParamWidgetType = "default" | "alt" | "precise";
 
