@@ -1,5 +1,17 @@
 [
 	{
+		"name": "UpdateBehavior",
+		"type": "enum",
+		"tag": "u8",
+		"values": ["event", "reload"]
+	},
+	{
+		"name": "EditPermission",
+		"type": "enum",
+		"tag": "u8",
+		"values": ["private", "protected", "public"]
+	},
+	{
 		"name": "Param",
 		"type": "struct",
 		"fields": [
@@ -24,8 +36,37 @@
 				"setter": false,
 				"default": { "zig": ".event" }
 			},
+			{
+				"name": "edit",
+				"type": "EditPermission",
+				"setter": false,
+				"default": { "zig": ".protected" }
+			},
+			{
+				"name": "randomize",
+				"type": "u8",
+				"setter": false,
+				"default": 1
+			},
 			{ "name": "body", "type": "ParamBody", "setter": false }
-		]
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(): ParamOpts;",
+				"impl": [
+					"asParam(): ParamOpts {",
+					"return {",
+					"name: this.name.deref(),",
+					"desc: this.desc.deref(),",
+					"doc: this.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[this.update],",
+					"edit: <any>EditPermission[this.edit],",
+					"randomize: !!this.randomize",
+					"};",
+					"}"
+				]
+			}
+		}
 	},
 	{
 		"name": "ParamBody",
@@ -33,14 +74,9 @@
 		"fields": [
 			{ "name": "choice", "type": "ChoiceParam", "setter": false },
 			{ "name": "color", "type": "ColorParam", "setter": false },
-			{ "name": "range", "type": "RangeParam", "setter": false }
+			{ "name": "range", "type": "RangeParam", "setter": false },
+			{ "name": "text", "type": "TextParam", "setter": false }
 		]
-	},
-	{
-		"name": "UpdateBehavior",
-		"type": "enum",
-		"tag": "u8",
-		"values": ["event", "reload"]
 	},
 	{
 		"name": "ChoiceParam",
@@ -68,10 +104,7 @@
 				"impl": [
 					"asParam(parent: Param) {",
 					"return $genart.params.choice<string>({",
-					"name: parent.name.deref(),",
-					"desc: parent.desc.deref(),",
-					"doc: parent.doc.deref() || undefined,",
-					"update: <any>UpdateBehavior[parent.update],",
+					"...parent.asParam(),",
 					"default: this.default.deref() || undefined,",
 					"options: this.options.map((x) => x.label.addr ? [x.value.deref(), x.label.deref()]: x.value.deref()),",
 					"});",
@@ -111,10 +144,7 @@
 				"impl": [
 					"asParam(parent: Param) {",
 					"return $genart.params.color({",
-					"name: parent.name.deref(),",
-					"desc: parent.desc.deref(),",
-					"doc: parent.doc.deref() || undefined,",
-					"update: <any>UpdateBehavior[parent.update],",
+					"...parent.asParam(),",
 					"default: this.default.deref() || undefined,",
 					"});",
 					"}"
@@ -143,15 +173,50 @@
 				"impl": [
 					"asParam(parent: Param) {",
 					"return $genart.params.range({",
-					"name: parent.name.deref(),",
-					"desc: parent.desc.deref(),",
-					"doc: parent.doc.deref() || undefined,",
-					"update: <any>UpdateBehavior[parent.update],",
+					"...parent.asParam(),",
 					"default: isFinite(this.default) ? this.default : undefined,",
 					"min: this.min,",
 					"max: this.max,",
 					"step: this.step,",
 					"exponent: this.exponent,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "TextParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "default",
+				"type": "string",
+				"setter": false
+			},
+			{
+				"name": "match",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			},
+			{ "name": "min", "type": "usize", "default": 0, "setter": false },
+			{ "name": "max", "type": "usize", "default": 0, "setter": false },
+			{ "name": "multiline", "type": "u8", "default": 0, "setter": false }
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.text>;",
+				"impl": [
+					"asParam(parent: Param) {",
+					"return $genart.params.text({",
+					"...parent.asParam(),",
+					"default: this.default.deref(),",
+					"match: this.match.deref() || undefined,",
+					"min: this.min || undefined,",
+					"max: this.max || undefined,",
+					"multiline: !!this.multiline,",
 					"});",
 					"}"
 				]

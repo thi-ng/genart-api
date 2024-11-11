@@ -107,3 +107,22 @@ pub inline fn range(spec: anytype) api.Param {
         },
     };
 }
+
+pub inline fn text(spec: anytype) api.Param {
+    return .{
+        .type = "text",
+        .id = spec.id,
+        .name = spec.name,
+        .desc = spec.desc,
+        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .body = .{
+            .text = .{
+                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
+                .match = if (@hasField(@TypeOf(spec), "match")) spec.match else null,
+                .min = if (@hasField(@TypeOf(spec), "min")) spec.min else 0,
+                .max = if (@hasField(@TypeOf(spec), "max")) spec.max else 0,
+            },
+        },
+    };
+}
