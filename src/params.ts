@@ -101,7 +101,7 @@ export const strlist = <T extends string>(
 		false
 	);
 
-export const text = (spec: BaseParam<TextParam>) =>
+export const text = (spec: BaseParam<TextParam> & { default: string }) =>
 	$<TextParam>("text", spec, false);
 
 export const time = (spec: BaseParam<TimeParam>) => $<TimeParam>("time", spec);
