@@ -1,6 +1,34 @@
 [
 	{
 		"name": "Param",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "type",
+				"type": "string",
+				"setter": false
+			},
+			{ "name": "id", "type": "string", "setter": false },
+			{ "name": "name", "type": "string", "setter": false },
+			{ "name": "desc", "type": "string", "setter": false },
+			{
+				"name": "doc",
+				"type": "string",
+				"optional": true,
+				"setter": false,
+				"default": { "zig": "null" }
+			},
+			{
+				"name": "update",
+				"type": "UpdateBehavior",
+				"setter": false,
+				"default": { "zig": ".event" }
+			},
+			{ "name": "body", "type": "ParamBody", "setter": false }
+		]
+	},
+	{
+		"name": "ParamBody",
 		"type": "union",
 		"fields": [
 			{ "name": "choice", "type": "ChoiceParam", "setter": false },
@@ -19,29 +47,6 @@
 		"type": "struct",
 		"fields": [
 			{
-				"name": "type",
-				"type": "string",
-				"setter": false,
-				"default": "\"choice\"",
-				"doc": "DO NOT EDIT - internal use only"
-			},
-			{ "name": "id", "type": "string", "setter": false },
-			{ "name": "name", "type": "string", "setter": false },
-			{ "name": "desc", "type": "string", "setter": false },
-			{
-				"name": "doc",
-				"type": "string",
-				"optional": true,
-				"setter": false,
-				"default": { "zig": "null" }
-			},
-			{
-				"name": "update",
-				"type": "UpdateBehavior",
-				"setter": false,
-				"default": { "zig": ".event" }
-			},
-			{
 				"name": "default",
 				"type": "string",
 				"optional": true,
@@ -59,14 +64,14 @@
 		],
 		"body": {
 			"ts": {
-				"decl": "asParam(): ReturnType<typeof $genart.params.choice>;",
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.choice>;",
 				"impl": [
-					"asParam() {",
+					"asParam(parent: Param) {",
 					"return $genart.params.choice<string>({",
-					"name: this.name.deref(),",
-					"desc: this.desc.deref(),",
-					"doc: this.doc.deref() || undefined,",
-					"update: <any>UpdateBehavior[this.update],",
+					"name: parent.name.deref(),",
+					"desc: parent.desc.deref(),",
+					"doc: parent.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[parent.update],",
 					"default: this.default.deref() || undefined,",
 					"options: this.options.map((x) => x.label.addr ? [x.value.deref(), x.label.deref()]: x.value.deref()),",
 					"});",
@@ -93,29 +98,6 @@
 		"type": "struct",
 		"fields": [
 			{
-				"name": "type",
-				"type": "string",
-				"setter": false,
-				"default": "\"color\"",
-				"doc": "DO NOT EDIT - internal use only"
-			},
-			{ "name": "id", "type": "string", "setter": false },
-			{ "name": "name", "type": "string", "setter": false },
-			{ "name": "desc", "type": "string", "setter": false },
-			{
-				"name": "doc",
-				"type": "string",
-				"optional": true,
-				"setter": false,
-				"default": { "zig": "null" }
-			},
-			{
-				"name": "update",
-				"type": "UpdateBehavior",
-				"setter": false,
-				"default": { "zig": ".event" }
-			},
-			{
 				"name": "default",
 				"type": "string",
 				"optional": true,
@@ -125,14 +107,14 @@
 		],
 		"body": {
 			"ts": {
-				"decl": "asParam(): ReturnType<typeof $genart.params.color>;",
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.color>;",
 				"impl": [
-					"asParam() {",
+					"asParam(parent: Param) {",
 					"return $genart.params.color({",
-					"name: this.name.deref(),",
-					"desc: this.desc.deref(),",
-					"doc: this.doc.deref() || undefined,",
-					"update: <any>UpdateBehavior[this.update],",
+					"name: parent.name.deref(),",
+					"desc: parent.desc.deref(),",
+					"doc: parent.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[parent.update],",
 					"default: this.default.deref() || undefined,",
 					"});",
 					"}"
@@ -144,29 +126,6 @@
 		"name": "RangeParam",
 		"type": "struct",
 		"fields": [
-			{
-				"name": "type",
-				"type": "string",
-				"setter": false,
-				"default": "\"range\"",
-				"doc": "DO NOT EDIT - internal use only"
-			},
-			{ "name": "id", "type": "string", "setter": false },
-			{ "name": "name", "type": "string", "setter": false },
-			{ "name": "desc", "type": "string", "setter": false },
-			{
-				"name": "doc",
-				"type": "string",
-				"optional": true,
-				"setter": false,
-				"default": { "zig": "null" }
-			},
-			{
-				"name": "update",
-				"type": "UpdateBehavior",
-				"setter": false,
-				"default": { "zig": ".event" }
-			},
 			{
 				"name": "default",
 				"type": "f64",
@@ -180,14 +139,14 @@
 		],
 		"body": {
 			"ts": {
-				"decl": "asParam(): ReturnType<typeof $genart.params.range>;",
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.range>;",
 				"impl": [
-					"asParam() {",
+					"asParam(parent: Param) {",
 					"return $genart.params.range({",
-					"name: this.name.deref(),",
-					"desc: this.desc.deref(),",
-					"doc: this.doc.deref() || undefined,",
-					"update: <any>UpdateBehavior[this.update],",
+					"name: parent.name.deref(),",
+					"desc: parent.desc.deref(),",
+					"doc: parent.doc.deref() || undefined,",
+					"update: <any>UpdateBehavior[parent.update],",
 					"default: isFinite(this.default) ? this.default : undefined,",
 					"min: this.min,",
 					"max: this.max,",

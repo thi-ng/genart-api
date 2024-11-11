@@ -1,3 +1,4 @@
+const std = @import("std");
 const wasm = @import("wasm-api");
 const bindgen = @import("wasm-api-bindgen");
 const api = @import("api.zig");
@@ -49,19 +50,60 @@ pub fn stringParamValue(name: [*:0]const u8, val: [:0]u8) []u8 {
     return val[0.._stringParamValue(name, val.ptr, val.len + 1)];
 }
 
-pub inline fn choice(spec: api.ChoiceParam) api.Param {
-    return .{ .choice = spec };
-}
-
-pub inline fn color(spec: api.ColorParam) api.Param {
-    return .{ .color = spec };
-}
-
-pub inline fn range(spec: api.RangeParam) api.Param {
-    return .{ .range = spec };
+pub inline fn choice(spec: anytype) api.Param {
+    return .{
+        .type = "choice",
+        .id = spec.id,
+        .name = spec.name,
+        .desc = spec.desc,
+        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .body = .{
+            .choice = .{
+                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
+                .options = spec.options,
+            },
+        },
+    };
 }
 
 /// Syntax sugar for: `ConstOptionSlice.wrap()`
 pub inline fn options(items: []const api.Option) api.ConstOptionSlice {
     return api.ConstOptionSlice.wrap(items);
+}
+
+pub inline fn color(spec: anytype) api.Param {
+    return .{
+        .type = "color",
+        .id = spec.id,
+        .name = spec.name,
+        .desc = spec.desc,
+        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .body = .{
+            .color = .{
+                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
+            },
+        },
+    };
+}
+
+pub inline fn range(spec: anytype) api.Param {
+    return .{
+        .type = "range",
+        .id = spec.id,
+        .name = spec.name,
+        .desc = spec.desc,
+        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .body = .{
+            .range = .{
+                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
+                .min = if (@hasField(@TypeOf(spec), "min")) spec.min else 0,
+                .max = if (@hasField(@TypeOf(spec), "max")) spec.max else 100,
+                .step = if (@hasField(@TypeOf(spec), "step")) spec.step else 1,
+                .exponent = if (@hasField(@TypeOf(spec), "exponent")) spec.exponent else 1,
+            },
+        },
+    };
 }
