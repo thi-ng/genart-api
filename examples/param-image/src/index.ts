@@ -15,7 +15,7 @@ const TAU = 2 * Math.PI;
 	const param = await $genart.setParams({
 		img: $genart.params.image({
 			name: "Image map",
-			desc: "Base image",
+			desc: `Will be resized to ${RES}x${RES} pixels`,
 			width: RES,
 			height: RES,
 			format: "gray",

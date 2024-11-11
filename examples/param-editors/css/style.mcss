@@ -35,7 +35,7 @@ legend { pa0 mb3 color-gray b w-100 bwb-1px }
 		}
 		input[type=checkbox] { w2 h2 }
 		input:disabled, button:disabled, textarea:disabled { color-gray }
-		.desc { db fw400 f6 o-60 }
+		.desc { db fw400 f6 o-60 ttn }
 		.rangevalue { db f6 }
 	}
 }
