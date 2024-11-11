@@ -249,7 +249,7 @@ TODO — for now please also see the following links for more messaging related 
 ### API documentation
 
 Full API docs are actively being worked on. For now, this readme, the source
-code and the [example projects](#bundled-examples) are the best reference.
+code and the [example projects](#example-projects) are the best reference.
 
 [Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
 
