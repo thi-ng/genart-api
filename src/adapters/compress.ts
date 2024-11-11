@@ -15,7 +15,7 @@ export const compressBytes = (
 	fmt: CompressionFormat = "gzip"
 ) => pipe(buf, new CompressionStream(fmt));
 
-export const decompressBytes = async (
+export const decompressBytes = (
 	buf: Uint8Array,
 	fmt: CompressionFormat = "gzip"
 ) => pipe(buf, new DecompressionStream(fmt));
