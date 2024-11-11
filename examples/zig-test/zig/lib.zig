@@ -60,16 +60,11 @@ pub inline fn choice(spec: anytype) api.Param {
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
         .body = .{
             .choice = .{
+                .options = api.ConstOptionSlice.wrap(spec.options),
                 .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
-                .options = spec.options,
             },
         },
     };
-}
-
-/// Syntax sugar for: `ConstOptionSlice.wrap()`
-pub inline fn options(items: []const api.Option) api.ConstOptionSlice {
-    return api.ConstOptionSlice.wrap(items);
 }
 
 pub inline fn color(spec: anytype) api.Param {
@@ -83,6 +78,23 @@ pub inline fn color(spec: anytype) api.Param {
         .body = .{
             .color = .{
                 .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
+            },
+        },
+    };
+}
+
+pub inline fn ramp(spec: anytype) api.Param {
+    return .{
+        .type = "ramp",
+        .id = spec.id,
+        .name = spec.name,
+        .desc = spec.desc,
+        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .body = .{
+            .ramp = .{
+                .stops = api.ConstF64Slice.wrap(spec.stops),
+                .mode = if (@hasField(@TypeOf(spec), "mode")) spec.mode else .linear,
             },
         },
     };

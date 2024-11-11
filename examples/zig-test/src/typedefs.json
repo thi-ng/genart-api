@@ -12,6 +12,12 @@
 		"values": ["private", "protected", "public"]
 	},
 	{
+		"name": "RampMode",
+		"type": "enum",
+		"tag": "u8",
+		"values": ["linear", "smooth", "exp"]
+	},
+	{
 		"name": "Param",
 		"type": "struct",
 		"fields": [
@@ -74,6 +80,7 @@
 		"fields": [
 			{ "name": "choice", "type": "ChoiceParam", "setter": false },
 			{ "name": "color", "type": "ColorParam", "setter": false },
+			{ "name": "ramp", "type": "RampParam", "setter": false },
 			{ "name": "range", "type": "RangeParam", "setter": false },
 			{ "name": "text", "type": "TextParam", "setter": false }
 		]
@@ -93,7 +100,6 @@
 				"name": "options",
 				"type": "Option",
 				"tag": "slice",
-				"doc": "In Zig, use `genart.options()` to wrap",
 				"const": true,
 				"setter": false
 			}
@@ -146,6 +152,42 @@
 					"return $genart.params.color({",
 					"...parent.asParam(),",
 					"default: this.default.deref() || undefined,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "RampParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "stops",
+				"type": "f64",
+				"tag": "slice",
+				"const": true,
+				"setter": false
+			},
+			{
+				"name": "mode",
+				"type": "RampMode",
+				"setter": false,
+				"default": { "zig": ".linear" }
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.ramp>;",
+				"impl": [
+					"asParam(parent: Param) {",
+					"const src = this.stops;",
+					"const stops: [number,number][] = [];",
+					"for(let i = 0; i < src.length; i += 2) stops.push([src[i], src[i+1]]);",
+					"return $genart.params.ramp({",
+					"...parent.asParam(),",
+					"mode: <any>RampMode[this.mode],",
+					"stops,",
 					"});",
 					"}"
 				]

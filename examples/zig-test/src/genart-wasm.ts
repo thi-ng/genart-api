@@ -1,11 +1,12 @@
-import {
-	type IWasmAPI,
-	type WasmBridge,
-	type WasmExports,
-	type WasmModuleSpec,
+import type {
+	IWasmAPI,
+	WasmBridge,
+	WasmExports,
+	WasmModuleSpec,
+	WasmTypeBase,
 } from "@thi.ng/wasm-api";
 import type { ParamSpecs, RandomFn } from "../../../dist/api.js";
-import { $Param } from "./generated/api.js";
+import { $Param, type ParamBody } from "./generated/api.js";
 
 export * from "./generated/api.js";
 
@@ -26,7 +27,7 @@ export const GenArtWasmAPIModule: WasmModuleSpec<GenArtWasmAPIExports> = {
 	factory: () => new GenArtWasmAPI(),
 };
 
-type ParamType = "choice" | "color" | "range";
+type ParamType = keyof Omit<ParamBody, keyof WasmTypeBase>;
 
 export class GenArtWasmAPI implements IWasmAPI<GenArtWasmAPIExports> {
 	parent!: WasmBridge<GenArtWasmAPIExports>;

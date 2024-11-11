@@ -21,9 +21,6 @@ pub usingnamespace wasm;
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 pub const WASM_ALLOCATOR = gpa.allocator();
 
-var choice: [8:0]u8 = undefined;
-var color: [8:0]u8 = undefined;
-
 export fn start() void {
     wasm.printStr("starting...");
     genart.setParams(
@@ -32,18 +29,24 @@ export fn start() void {
                 .id = "choice",
                 .name = "Color mode",
                 .desc = "Demo only",
-                .options = genart.options(&.{
+                .options = &.{
                     .{ .value = "HSL" },
                     .{ .value = "LCH" },
                     .{ .value = "RGB" },
                     .{ .value = "XYZ" },
-                }),
+                },
             }),
             genart.color(.{
                 .id = "bgcol",
                 .name = "Background",
                 .desc = "Background color",
                 // .default = "#abcdef",
+            }),
+            genart.ramp(.{
+                .id = "ramp",
+                .name = "Ramp",
+                .desc = "Draw a curve",
+                .stops = &.{ 0, 0, 0.5, 0.25, 1, 1 },
             }),
             genart.range(.{
                 .id = "density",
@@ -85,16 +88,19 @@ fn setup() void {
 fn update(t: f64, frame: f64) bool {
     const w: f32 = @floatFromInt(info.innerWidth);
     const h: f32 = @floatFromInt(info.innerHeight);
-    // get current bg color param value (FIXME type wrangling)
-    const fill = genart.stringParamValue("bgcol", &color);
-    canvas.setFill(@as([*:0]const u8, @ptrCast(fill.ptr)));
+    // buffers for reading param values
+    var color: [8:0]u8 = undefined;
+    var choice: [8:0]u8 = undefined;
+    // get current bg color param value
+    const bg = genart.stringParamValue("bgcol", &color);
+    canvas.setFill(@ptrCast(bg.ptr));
     canvas.fillRect(0, 0, w, h);
     canvas.setFill("#fff");
 
     // format & write timing info to canvas
     var buf: [256:0]u8 = undefined;
     var txt = std.fmt.bufPrintZ(&buf, "t={d:.2} frame={d}", .{ t, frame }) catch return false;
-    canvas.fillText(@as([*:0]const u8, @ptrCast(txt.ptr)), w - 20, h - 36, 0);
+    canvas.fillText(@ptrCast(txt.ptr), w - 20, h - 36, 0);
     // same for current values of other params...
     txt = std.fmt.bufPrintZ(&buf, "choice: {s}, bg: {s}, density: {d:.2}", .{
         genart.stringParamValue("choice", &choice),
