@@ -12,6 +12,13 @@
 		"values": ["private", "protected", "public"]
 	},
 	{
+		"name": "ImageFormat",
+		"doc": "Currently unused",
+		"type": "enum",
+		"tag": "u8",
+		"values": ["gray", "rgb", "argb"]
+	},
+	{
 		"name": "RampMode",
 		"type": "enum",
 		"tag": "u8",
@@ -152,6 +159,47 @@
 					"return $genart.params.color({",
 					"...parent.asParam(),",
 					"default: this.default.deref() || undefined,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "ImageParam",
+		"type": "struct",
+		"doc": "Currently only supports grayscale image data",
+		"fields": [
+			{
+				"name": "default",
+				"type": "u8",
+				"tag": "slice",
+				"const": true,
+				"setter": false
+			},
+			{
+				"name": "width",
+				"type": "u16",
+				"setter": false
+			},
+			{
+				"name": "height",
+				"type": "u16",
+				"setter": false
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.image>;",
+				"impl": [
+					"asParam(parent: Param) {",
+					"return $genart.params.image({",
+					"...parent.asParam(),",
+					"//format: <any>ImageFormat[this.format],",
+					"format: \"gray\",",
+					"width: this.width,",
+					"height: this.height,",
+					"default: this.default,",
 					"});",
 					"}"
 				]

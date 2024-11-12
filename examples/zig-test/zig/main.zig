@@ -46,7 +46,7 @@ export fn start() void {
                 .id = "ramp",
                 .name = "Ramp",
                 .desc = "Draw a curve",
-                .stops = &.{ 0, 0, 0.5, 0.25, 1, 1 },
+                .stops = &.{ 0, 0, 0.5, 1, 1, 0 },
             }),
             genart.range(.{
                 .id = "density",
@@ -95,12 +95,28 @@ fn update(t: f64, frame: f64) bool {
     const bg = genart.stringParamValue("bgcol", &color);
     canvas.setFill(@ptrCast(bg.ptr));
     canvas.fillRect(0, 0, w, h);
-    canvas.setFill("#fff");
+
+    // draw circle at ramp position
+    var tnorm = t * 0.001 * 0.25;
+    tnorm -= std.math.floor(tnorm);
+    canvas.setFill("#ff0");
+    canvas.beginPath();
+    canvas.arc(
+        @floatCast(tnorm * w),
+        @floatCast((1.0 - genart.rampParamValue("ramp", tnorm)) * h),
+        20,
+        0,
+        std.math.tau,
+        false,
+    );
+    canvas.fill();
 
     // format & write timing info to canvas
     var buf: [256:0]u8 = undefined;
     var txt = std.fmt.bufPrintZ(&buf, "t={d:.2} frame={d}", .{ t, frame }) catch return false;
+    canvas.setFill("#fff");
     canvas.fillText(@ptrCast(txt.ptr), w - 20, h - 36, 0);
+
     // same for current values of other params...
     txt = std.fmt.bufPrintZ(&buf, "choice: {s}, bg: {s}, density: {d:.2}", .{
         genart.stringParamValue("choice", &choice),

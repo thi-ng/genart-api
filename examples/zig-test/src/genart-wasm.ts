@@ -15,6 +15,7 @@ export interface GenArtWasmAPIImports extends WebAssembly.ModuleImports {
 	_setUpdate(addr: number): void;
 	_stringParamValue(id: number, slice: number, maxBytes: number): number;
 	numberParamValue(id: number): number;
+	rampParamValue(id: number, t: number): number;
 }
 
 export interface GenArtWasmAPIExports extends WasmExports {
@@ -64,6 +65,8 @@ export class GenArtWasmAPI implements IWasmAPI<GenArtWasmAPIExports> {
 				),
 
 			numberParamValue: (id) => this.param(this.parent.getString(id)),
+
+			rampParamValue: (id, t) => this.param(this.parent.getString(id), t),
 
 			_setUpdate: (addr) => {
 				$genart.setUpdate(

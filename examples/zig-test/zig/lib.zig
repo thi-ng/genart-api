@@ -26,6 +26,8 @@ pub extern "genart" fn _stringParamValue(id: [*:0]const u8, val: [*:0]u8, maxByt
 
 pub extern "genart" fn numberParamValue(id: [*:0]const u8) f64;
 
+pub extern "genart" fn rampParamValue(id: [*:0]const u8, t: f64) f64;
+
 pub const SetParamsCallback = *const fn () void;
 
 pub const UpdateCallback = *const fn (t: f64, frame: f64) bool;

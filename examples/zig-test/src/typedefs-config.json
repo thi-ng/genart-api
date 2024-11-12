@@ -1,5 +1,5 @@
 {
-	"global": { "uppercaseEnums": false },
+	"global": { "uppercaseEnums": false, "header": false },
 	"ts": {
 		"pre": ["import type { ParamOpts } from \"../../../../dist/api.js\";"]
 	}
