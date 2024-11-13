@@ -6,8 +6,8 @@ const RES = 64;
 const TAU = 2 * Math.PI;
 
 (async () => {
-	// Optional (see: https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#id)
-	// $genart.id = "param-image";
+	/// Optional (see: https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPIOpts)
+	$genart.configure({ id: "param-image" });
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();

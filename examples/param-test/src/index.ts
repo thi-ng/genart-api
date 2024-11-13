@@ -6,8 +6,8 @@ declare var $genart: GenArtAPI;
 	// log API version
 	console.log("$genart version:", $genart.version);
 
-	// Optional (see: https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#id)
-	$genart.id = "test";
+	// Optional (see: https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPIOpts)
+	$genart.configure({ id: "param-test" });
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();
