@@ -14,10 +14,10 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.6.3",
-		"vite": "^5.4.8",
+		"vite": "^5.4.11",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
-		"@thi.ng/genart-api": "^0.9.0"
+		"@thi.ng/genart-api": "^0.12.0"
 	}
 }
