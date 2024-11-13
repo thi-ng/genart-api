@@ -8,9 +8,16 @@ for (let ex of [
 	"param-test",
 	"zig-test",
 ]) {
-	console.log("building example:", ex);
+	console.log("deploying example:", ex);
 	try {
-		execFileSync("yarn", ["build"], { cwd: `examples/${ex}` });
+		execFileSync("bun", [
+			"../umbrella/tools/src/deploy-example.ts",
+			"--base",
+			"examples",
+			"--dest",
+			"genart-api",
+			ex,
+		]);
 	} catch (e) {
 		console.log(e);
 	}

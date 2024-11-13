@@ -15,6 +15,7 @@
 		"build": "bun build.js && yarn build:types",
 		"build:examples": "node build-examples.js",
 		"build:types": "tsc -d --emitDeclarationOnly -t esnext -m esnext -outDir dist src/api.ts",
+		"deploy:examples": "node deploy-examples.js",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
 	},
 	"devDependencies": {
