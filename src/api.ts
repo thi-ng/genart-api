@@ -42,11 +42,32 @@ export type Maybe<T> = T | undefined;
  */
 export type UpdateFn = (time: number, frame: number) => boolean;
 
+/**
+ * Configuration options for {@link GenArtAPI.configure}.
+ */
+export interface GenArtAPIOpts {
+	/**
+	 * See {@link GenArtAPI.id} for details.
+	 *
+	 * @defaultValue random string, generated at startup
+	 */
+	id: string;
+	/**
+	 * If true (default), the API will emit a {@link AnimFrameMsg} for each
+	 * single frame update.
+	 *
+	 * @defaultValue true
+	 */
+	notifyFrameUpdate: boolean;
+}
+
 export interface GenArtAPI {
 	/**
 	 * Unique ID for this GenArtAPI instance, intended for use cases where
 	 * multiple `<iframe>` elements with genart pieces exist within a parent
 	 * document and to allow sending messages to specific instances only.
+	 *
+	 * The value can be customized via {@link GenArtAPI.configure}.
 	 *
 	 * @remarks
 	 * The ID will be part of any {@link APIMessage} sent and will also be
@@ -57,7 +78,7 @@ export interface GenArtAPI {
 	 * The ID purely serves to filter out IPC messages received by this
 	 * GenArtAPI instance.
 	 */
-	id: string;
+	readonly id: string;
 
 	/**
 	 * API version in semantic versioning format (e.g. 0.12.3).
@@ -384,6 +405,14 @@ export interface GenArtAPI {
 	 * @param traits
 	 */
 	setTraits(traits: Traits): void;
+
+	/**
+	 * Configures optional behavior of the API. See {@link GenArtAPIOpts} for
+	 * details.
+	 *
+	 * @param opts
+	 */
+	configure(opts: Partial<GenArtAPIOpts>): void;
 
 	/**
 	 * Registers a handler/listener for given message `type`.

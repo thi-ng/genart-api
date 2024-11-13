@@ -5,6 +5,7 @@ import type {
 	CaptureMessage,
 	ChoiceParam,
 	GenArtAPI,
+	GenArtAPIOpts,
 	ImageParam,
 	Maybe,
 	MessageType,
@@ -46,8 +47,12 @@ const { isNumber, isString, isNumericArray } = utils;
 const { clamp, clamp01, mix, norm, round, parseNum } = math;
 
 class API implements GenArtAPI {
-	// auto-generated instance ID
-	id = Math.floor(Math.random() * 1e12).toString(36);
+	protected _opts: GenArtAPIOpts = {
+		// auto-generated instance ID
+		id: Math.floor(Math.random() * 1e12).toString(36),
+		notifyFrameUpdate: true,
+	};
+
 	protected _adapter?: PlatformAdapter;
 	protected _time: TimeProvider = timeProviderRAF();
 	protected _prng?: PRNG;
@@ -271,6 +276,10 @@ class API implements GenArtAPI {
 	get version() {
 		// DO NOT EDIT! — value will be injected by build script
 		return "__VERSION__";
+	}
+
+	get id() {
+		return this._opts.id;
 	}
 
 	get mode() {
@@ -503,6 +512,10 @@ class API implements GenArtAPI {
 		this.emit<ParamErrorMsg>({ type: "genart:paramerror", paramID });
 	}
 
+	configure(opts: Partial<GenArtAPIOpts>) {
+		Object.assign(this._opts, opts);
+	}
+
 	on<T extends MessageType>(
 		type: T,
 		listener: (e: MessageTypeMap[T]) => void
@@ -547,9 +560,11 @@ class API implements GenArtAPI {
 				this.stop();
 			}
 			// emit frame msg
-			msg.time = time;
-			msg.frame = frame;
-			this.emit<AnimFrameMsg>(msg);
+			if (this._opts.notifyFrameUpdate) {
+				msg.time = time;
+				msg.frame = frame;
+				this.emit<AnimFrameMsg>(msg);
+			}
 		};
 		if (!resume) this._time!.start();
 		this._time.next(update);
