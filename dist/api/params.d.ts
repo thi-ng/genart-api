@@ -144,7 +144,16 @@ export interface NumListParam extends Param<number[]> {
 }
 export interface RampParam extends Param<number> {
     type: "ramp";
+    /**
+     * Ramp curve control points. A flat array of alternating `time`, `value`
+     * pairs, where `time` is normalized in [0,1] range.
+     */
     stops: number[];
+    /**
+     * Ramp interpolation mode.
+     *
+     * @defaultValue "linear"
+     */
     mode?: "linear" | "smooth" | "exp";
 }
 export interface RangeParam extends Param<number> {

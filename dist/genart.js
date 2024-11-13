@@ -347,8 +347,11 @@
   var { isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
   var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, round: round2, parseNum: parseNum2 } = math_exports;
   var API = class {
-    // auto-generated instance ID
-    id = Math.floor(Math.random() * 1e12).toString(36);
+    _opts = {
+      // auto-generated instance ID
+      id: Math.floor(Math.random() * 1e12).toString(36),
+      notifyFrameUpdate: true
+    };
     _adapter;
     _time = timeProviderRAF();
     _prng;
@@ -525,7 +528,10 @@
       });
     }
     get version() {
-      return "0.11.0";
+      return "0.12.0";
+    }
+    get id() {
+      return this._opts.id;
     }
     get mode() {
       return this._adapter?.mode || "play";
@@ -706,6 +712,9 @@
     paramError(paramID) {
       this.emit({ type: "genart:paramerror", paramID });
     }
+    configure(opts) {
+      Object.assign(this._opts, opts);
+    }
     on(type, listener) {
       window.addEventListener("message", (e) => {
         if (this.isRecipient(e) && e.data?.type === type) listener(e.data);
@@ -740,9 +749,11 @@
         } else {
           this.stop();
         }
-        msg.time = time2;
-        msg.frame = frame;
-        this.emit(msg);
+        if (this._opts.notifyFrameUpdate) {
+          msg.time = time2;
+          msg.frame = frame;
+          this.emit(msg);
+        }
       };
       if (!resume) this._time.start();
       this._time.next(update);
