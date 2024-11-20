@@ -74,9 +74,8 @@ export interface GenArtAPI {
 	 * checked by any `genart:...` message received. A message will only be
 	 * processed if its {@link APIMessage.apiID} matches this value.
 	 *
-	 * The initial value is auto-generated, but can be overridden by if needed.
-	 * The ID purely serves to filter out IPC messages received by this
-	 * GenArtAPI instance.
+	 * The initial value is auto-generated, but it's recommended to set it at
+	 * startup of the artwork (via {@link GenArtAPI.configure}).
 	 */
 	readonly id: string;
 
@@ -118,13 +117,26 @@ export interface GenArtAPI {
 	 */
 	readonly state: APIState;
 
+	/**
+	 * Readonly access to all parameter definitions declared by the artwork
+	 * (incl. any additionally declared params defined by the platform adapter).
+	 *
+	 * @remarks
+	 * Also see {@link PlatformAdapter.augmentParams}.
+	 */
 	readonly paramSpecs: Maybe<Readonly<ParamSpecs>>;
+	/** Readonly access to the registered {@link PlatformAdapter} */
 	readonly adapter: Maybe<PlatformAdapter>;
+	/** Readonly access to the registered {@link TimeProvider} */
 	readonly timeProvider: Maybe<TimeProvider>;
 
+	/** Built-in math utilities */
 	readonly math: MathOps;
+	/** Built-in parameter declaration functions */
 	readonly params: ParamFactories;
+	/** Built-in utilities */
 	readonly utils: Utils;
+	/** Built-in time provider factory functions */
 	readonly time: TimeProviders;
 
 	/**
