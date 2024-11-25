@@ -26,6 +26,8 @@ const HEIGHT = "__height";
 const DPR = "__dpr";
 const SEED = "__seed";
 
+const GROUP = "platform";
+
 class URLParamsAdapter implements PlatformAdapter {
 	protected params: URLSearchParams;
 	protected cache: Record<string, string> = {};
@@ -101,6 +103,8 @@ class URLParamsAdapter implements PlatformAdapter {
 	augmentParams(params: ParamSpecs) {
 		return Object.assign(params, {
 			[SEED]: $genart.params.range({
+				group: GROUP,
+				order: 0,
 				name: "PRNG seed",
 				desc: "Manually defined seed value",
 				min: 0,
@@ -110,6 +114,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[WIDTH]: $genart.params.range({
+				group: GROUP,
+				order: 1,
 				name: "Width",
 				desc: "Canvas width",
 				min: 100,
@@ -120,6 +126,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[HEIGHT]: $genart.params.range({
+				group: GROUP,
+				order: 2,
 				name: "Height",
 				desc: "Canvas height",
 				min: 100,
@@ -130,6 +138,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[DPR]: $genart.params.range({
+				group: GROUP,
+				order: 3,
 				name: "DPR",
 				desc: "Device pixel ratio",
 				min: 1,
@@ -140,6 +150,8 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[AUTO]: $genart.params.toggle({
+				group: GROUP,
+				order: 4,
 				name: "Autostart",
 				desc: "If enabled, artwork will start playing automatically",
 				default: this.params.get(AUTO) !== "0",
