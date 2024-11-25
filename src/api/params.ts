@@ -21,6 +21,24 @@ export interface ParamOpts {
 	 */
 	doc?: string;
 	/**
+	 * Optional group name/key provided as hint for 3rd party tooling (e.g.
+	 * editor UIs) to group param controls.
+	 *
+	 * @defaultValue "main"
+	 */
+	group?: string;
+	/**
+	 * Optional param ordering index provided as hint for 3rd party tooling
+	 * (e.g. editor UIs) to sort parameters (in ascending order).
+	 *
+	 * @remarks
+	 * If {@link ParamOpts.group} is used, the ordering given here only
+	 * applies to establish the param order in that group.
+	 *
+	 * @defaultValue 0
+	 */
+	order?: number;
+	/**
 	 * Update mode/behavior when this param is being updated.
 	 *
 	 * - `reload`: the piece should be reloaded/relaunched with new param value

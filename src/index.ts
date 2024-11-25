@@ -46,6 +46,15 @@ import * as utils from "./utils.js";
 const { isNumber, isString, isNumericArray } = utils;
 const { clamp, clamp01, mix, norm, round, parseNum } = math;
 
+const PARAM_DEFAULTS: Partial<Param<any>> = {
+	edit: "protected",
+	group: "main",
+	order: 0,
+	randomize: true,
+	update: "event",
+	widget: "default",
+};
+
 class API implements GenArtAPI {
 	protected _opts: GenArtAPIOpts = {
 		// auto-generated instance ID
@@ -339,10 +348,11 @@ class API implements GenArtAPI {
 			if (this._adapter?.augmentParams) {
 				params = <P>this._adapter.augmentParams(params);
 			}
-			// validate param declarations
+			// validate & prepare param declarations
+			this._params = {};
 			for (let id in params) {
 				ensureValidID(id);
-				const param = params[id];
+				const param: Param<any> = { ...PARAM_DEFAULTS, ...params[id] };
 				if (param.default == null) {
 					const impl = this.ensureParamImpl(param.type);
 					if (impl.randomize) {
@@ -358,12 +368,12 @@ class API implements GenArtAPI {
 				} else {
 					param.state = "default";
 				}
+				this._params[id] = param;
 			}
-			this._params = params;
 			if (this._adapter) {
 				// pre-initialize params in platform specific way
 				if (this._adapter.initParams) {
-					await this._adapter.initParams(params);
+					await this._adapter.initParams(this._params);
 				}
 				// source param values via platform overrides
 				await this.updateParams();
