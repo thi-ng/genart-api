@@ -27,16 +27,13 @@ import type {
 	NestedParam,
 	NestedParamSpecs,
 	Param,
-	ParamChangeMsg,
 	RampParam,
 	RandomizeParamMsg,
 	RangeParam,
-	SetParamsMsg,
 	SetParamValueMsg,
-	SetTraitsMsg,
-	Traits,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
+import { params, selfUpdate, sendMessage } from "./state.js";
 import { formatValuePrec } from "./utils.js";
 
 const DPR = window.devicePixelRatio;
@@ -45,48 +42,11 @@ const W = APP.getBoundingClientRect().width;
 const H = 1500;
 const COLS = 3;
 
-let apiID: string;
-let traits: Traits;
-let params: NestedParamSpecs;
-let iframeParams: string;
-let selfUpdate = false;
 let gui: Maybe<IMGUI>;
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
 
 const EXPONENTIAL_N = EASING_N();
-
-const iframe = (<HTMLIFrameElement>document.getElementById("art"))
-	.contentWindow!;
-
-window.addEventListener("message", (e) => {
-	switch (e.data.type) {
-		case "genart:settraits": {
-			const $msg = <SetTraitsMsg>e.data;
-			apiID = $msg.apiID;
-			traits = $msg.traits;
-			break;
-		}
-		case "genart:setparams": {
-			const $msg = <SetParamsMsg>e.data;
-			apiID = $msg.apiID;
-			params = $msg.params;
-			gui && updateGUI();
-			break;
-		}
-		case "genart:paramchange": {
-			const $msg = <ParamChangeMsg>e.data;
-			params[$msg.paramID] = $msg.param;
-			selfUpdate = true;
-			gui && updateGUI();
-			selfUpdate = false;
-			break;
-		}
-		case "paramadapter:update":
-			iframeParams = e.data.params;
-			break;
-	}
-});
 
 interface WidgetContext {
 	layout: GridLayout;
@@ -347,15 +307,11 @@ const createWidgets = (params: NestedParamSpecs, ctx: WidgetContext) => {
 				label: "Randomize",
 			});
 			if (!ctx.isDrawing && rnd) {
-				iframe.postMessage(
-					<RandomizeParamMsg>{
-						type: "genart:randomizeparam",
-						apiID,
-						paramID,
-						key,
-					},
-					"*"
-				);
+				sendMessage<RandomizeParamMsg>({
+					type: "genart:randomizeparam",
+					paramID,
+					key,
+				});
 			}
 		}
 		if (!ctx.isDrawing && res != null) {
@@ -373,7 +329,7 @@ const updateWidgets = (draw: boolean) => {
 		isDrawing: draw,
 	};
 	gui!.begin(draw);
-	createWidgets(params, ctx);
+	createWidgets(params.deref()!, ctx);
 	gui!.end();
 	if (ctx.changedID && !selfUpdate) {
 		emitChange(ctx.changedID, ctx.changedValue, ctx.changedKey);
@@ -390,17 +346,13 @@ const updateGUI = () => {
 
 const emitChange = (id: string, value: any, key?: string) => {
 	console.log("emit", id, value, key);
-	if (params[id].value !== value) {
-		iframe.postMessage(
-			<SetParamValueMsg>{
-				type: "genart:setparamvalue",
-				apiID,
-				paramID: id,
-				value,
-				key,
-			},
-			"*"
-		);
+	if (params.deref()![id].value !== value) {
+		sendMessage<SetParamValueMsg>({
+			type: "genart:setparamvalue",
+			paramID: id,
+			value,
+			key,
+		});
 	} else {
 		console.log("no change...");
 	}
