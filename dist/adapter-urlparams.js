@@ -61,6 +61,7 @@
   var HEIGHT = "__height";
   var DPR = "__dpr";
   var SEED = "__seed";
+  var GROUP = "platform";
   var URLParamsAdapter = class {
     params;
     cache = {};
@@ -125,6 +126,8 @@
     augmentParams(params) {
       return Object.assign(params, {
         [SEED]: $genart.params.range({
+          group: GROUP,
+          order: 0,
           name: "PRNG seed",
           desc: "Manually defined seed value",
           min: 0,
@@ -134,6 +137,8 @@
           widget: "precise"
         }),
         [WIDTH]: $genart.params.range({
+          group: GROUP,
+          order: 1,
           name: "Width",
           desc: "Canvas width",
           min: 100,
@@ -144,6 +149,8 @@
           widget: "precise"
         }),
         [HEIGHT]: $genart.params.range({
+          group: GROUP,
+          order: 2,
           name: "Height",
           desc: "Canvas height",
           min: 100,
@@ -154,6 +161,8 @@
           widget: "precise"
         }),
         [DPR]: $genart.params.range({
+          group: GROUP,
+          order: 3,
           name: "DPR",
           desc: "Device pixel ratio",
           min: 1,
@@ -164,6 +173,8 @@
           widget: "precise"
         }),
         [AUTO]: $genart.params.toggle({
+          group: GROUP,
+          order: 4,
           name: "Autostart",
           desc: "If enabled, artwork will start playing automatically",
           default: this.params.get(AUTO) !== "0",

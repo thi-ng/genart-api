@@ -346,6 +346,14 @@
   // src/index.ts
   var { isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
   var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, round: round2, parseNum: parseNum2 } = math_exports;
+  var PARAM_DEFAULTS = {
+    edit: "protected",
+    group: "main",
+    order: 0,
+    randomize: true,
+    update: "event",
+    widget: "default"
+  };
   var API = class {
     _opts = {
       // auto-generated instance ID
@@ -528,7 +536,7 @@
       });
     }
     get version() {
-      return "0.12.2";
+      return "0.13.0";
     }
     get id() {
       return this._opts.id;
@@ -578,9 +586,10 @@
         if (this._adapter?.augmentParams) {
           params = this._adapter.augmentParams(params);
         }
+        this._params = {};
         for (let id in params) {
           ensureValidID(id);
-          const param = params[id];
+          const param = { ...PARAM_DEFAULTS, ...params[id] };
           if (param.default == null) {
             const impl = this.ensureParamImpl(param.type);
             if (impl.randomize) {
@@ -596,11 +605,11 @@
           } else {
             param.state = "default";
           }
+          this._params[id] = param;
         }
-        this._params = params;
         if (this._adapter) {
           if (this._adapter.initParams) {
-            await this._adapter.initParams(params);
+            await this._adapter.initParams(this._params);
           }
           await this.updateParams();
         }
