@@ -61,7 +61,7 @@ class API implements GenArtAPI {
 		// auto-generated instance ID
 		id: Math.floor(Math.random() * 1e12).toString(36),
 		allowExternalConfig: false,
-		notifyFrameUpdate: true,
+		notifyFrameUpdate: false,
 	};
 
 	protected _adapter?: PlatformAdapter;

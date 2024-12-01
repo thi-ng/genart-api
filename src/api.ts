@@ -63,10 +63,15 @@ export interface GenArtAPIOpts {
 	 */
 	allowExternalConfig: boolean;
 	/**
-	 * If true (default), the API will emit a {@link AnimFrameMessage} for each
-	 * single frame update.
+	 * If true, the API will emit a {@link AnimFrameMessage} for each single
+	 * frame update.
 	 *
-	 * @defaultValue true
+	 * @remarks
+	 * This option is disabled by default, but can be enabled (e.g. by tooling
+	 * interested in this information) by sending a {@link ConfigureMessage} to
+	 * the GenArtAPI instance.
+	 *
+	 * @defaultValue false
 	 */
 	notifyFrameUpdate: boolean;
 }
