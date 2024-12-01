@@ -180,7 +180,7 @@ declare var $genart: GenArtAPI;
 		return true;
 	});
 
-	$genart.on("genart:paramchange", (e) => {
+	$genart.on("genart:param-change", (e) => {
 		console.log("art param change", e);
 		setTraits();
 	});
@@ -197,4 +197,15 @@ declare var $genart: GenArtAPI;
 	$genart.on("genart:resize", () => {
 		location.reload();
 	});
+
+	// display API info as overlay
+	const info = document.getElementById("info")!;
+	$genart.on(
+		"genart:info",
+		(msg) => (info.innerText = JSON.stringify(msg, null, 4))
+	);
+	setInterval(
+		() => postMessage({ type: "genart:get-info", apiID: "param-test" }),
+		1000
+	);
 })();

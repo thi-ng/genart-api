@@ -14,9 +14,20 @@
 				margin: 0;
 				overflow: hidden;
 			}
+			#info {
+				display: block;
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				z-index: 1;
+				padding: 1rem;
+				background: #ffc8;
+				font-size: 0.8rem;
+			}
 		</style>
 	</head>
 	<body>
+		<pre id="info"></pre>
 		<script>
 			// use custom time provider
 			// $genart.setTimeProvider($genart.time.offline(250, 60));
