@@ -89,7 +89,7 @@ export interface PlatformAdapter {
 	 * If this function returned a `value` and/or `update`, and if the retured
 	 * value(s) passed param type-specific validation (see
 	 * {@link ParamImpl.validate}), then by default
-	 * {@link GenArtAPI.setParamValue} emits a {@link ParamChangeMsg} message
+	 * {@link GenArtAPI.setParamValue} emits a {@link ParamChangeMessage} message
 	 * with the updated param spec.
 	 *
 	 * @param id

@@ -53,7 +53,17 @@ export interface GenArtAPIOpts {
 	 */
 	id: string;
 	/**
-	 * If true (default), the API will emit a {@link AnimFrameMsg} for each
+	 * If true, the API will accept {@link SetConfigMessage}s allowing the API
+	 * behavior to be reconfigured by external tooling.
+	 *
+	 * @remarks
+	 * For security reasons, this should only be enabled during development.
+	 *
+	 * @defaultValue false
+	 */
+	allowExternalConfig: boolean;
+	/**
+	 * If true (default), the API will emit a {@link AnimFrameMessage} for each
 	 * single frame update.
 	 *
 	 * @defaultValue true
@@ -72,10 +82,24 @@ export interface GenArtAPI {
 	 * @remarks
 	 * The ID will be part of any {@link APIMessage} sent and will also be
 	 * checked by any `genart:...` message received. A message will only be
-	 * processed if its {@link APIMessage.apiID} matches this value.
+	 * processed if its {@link APIMessage.apiID} matches this value or if equal
+	 * to the string `"*""`, i.e. the wildcard catch-all ID, which will be
+	 * matched by any active `GenArtAPI` instance.
 	 *
-	 * The initial value is auto-generated, but it's recommended to set it at
-	 * startup of the artwork (via {@link GenArtAPI.configure}).
+	 * Use cases for the wildcard ID (`"*"`) are related to handling multiple
+	 * artworks running in a page/app, regardless if they're sharing the same
+	 * document or in multiple iframes, for example:
+	 *
+	 * - Detection/registration of all currently running `GenArtAPI` instances
+	 *   by broadcasting a {@link GetInfoMessage}, to which each instance then
+	 *   responds with a {@link InfoMessage} (which then also includes each
+	 *   instance's actual configured `id`)
+	 * - Starting/stopping all currently running `GenArtAPI` instances via
+	 *   single message, e.g. `postMessage({ type: "genart:start", apiID: "*"
+	 *   }, "*")`.
+	 *
+	 * The initial ID value is auto-generated, but it's considered best practice
+	 * to set it at startup of the artwork (via {@link GenArtAPI.configure}).
 	 */
 	readonly id: string;
 
@@ -113,7 +137,7 @@ export interface GenArtAPI {
 	 * The API's current state.
 	 *
 	 * @remarks
-	 * Also see {@link StateChangeMsg}.
+	 * Also see {@link StateChangeMessage}.
 	 */
 	readonly state: APIState;
 
@@ -184,7 +208,7 @@ export interface GenArtAPI {
 	 * platform-specific param handling and then calls
 	 * {@link GenArtAPI.updateParams} to apply any param
 	 * customizations/overrides sourced via the adapter. Finally, once done, it
-	 * sends a {@link SetParamsMsg} message to the current & parent window for
+	 * sends a {@link ParamsMessage} message to the current & parent window for
 	 * other software components to be notified (e.g. param editors)
 	 *
 	 * The function returns a promise of a typesafe getter function (based on
@@ -285,7 +309,7 @@ export interface GenArtAPI {
 	 * Iterates over all registered parameters and calls
 	 * {@link PlatformAdapter.updateParam} and {@link GenArtAPI.setParamValue}
 	 * to apply any param customizations/overrides sourced via the adapter. If
-	 * `notify` is given, sends a {@link ParamChangeMsg} for each changed
+	 * `notify` is given, sends a {@link ParamChangeMessage} for each changed
 	 * param/value.
 	 *
 	 * @remarks
@@ -298,7 +322,7 @@ export interface GenArtAPI {
 
 	/**
 	 * Updates the given param's value, or if `key` is specified one its nested
-	 * params' value, then emits a {@link ParamChangeMsg} (depending on
+	 * params' value, then emits a {@link ParamChangeMessage} (depending on
 	 * `notify`, default: "all")
 	 *
 	 * @param id
@@ -318,14 +342,14 @@ export interface GenArtAPI {
 	 * specified one its nested params. Only params which support randomization
 	 * will be handled, otherwise silently ignored. If randomization succeeded,
 	 * calls {@link GenArtAPI.setParamValue} to apply the new value and emit a
-	 * {@link ParamChangeMsg} (depending on `notify`, default: "all").
+	 * {@link ParamChangeMessage} (depending on `notify`, default: "all").
 	 *
 	 * @remarks
 	 * The optional `rnd` function is passed to {@link ParamImpl.randomize} to
 	 * produce a new random value. The default is `Math.random`.
 	 *
 	 * In the reference implementation of {@link GenArtAPI}, this function can
-	 * also be triggered via a {@link RandomizeParamMsg}.
+	 * also be triggered via a {@link RandomizeParamMessage}.
 	 *
 	 * @param id
 	 * @param key
@@ -362,8 +386,8 @@ export interface GenArtAPI {
 	 * that's the case and `rnd` is given, `getParamValue()` will produce a
 	 * randomized value using {@link ParamImpl.randomize}, but this value is
 	 * ephemeral and will NOT modify the param spec's `.value` or trigger a
-	 * {@link RandomizeParamMsg} message being broadcast. If `rnd` is given but
-	 * the param type does NOT support randomization, the param's value is
+	 * {@link RandomizeParamMessage} message being broadcast. If `rnd` is given
+	 * but the param type does NOT support randomization, the param's value is
 	 * produced normally (see above).
 	 *
 	 * **Important: It's the artist's responsibility to ensure deterministic
@@ -382,7 +406,7 @@ export interface GenArtAPI {
 	): ParamValue<T[K]>;
 
 	/**
-	 * Emits a {@link ParamErrorMsg} message (called from
+	 * Emits a {@link ParamErrorMessage} message (called from
 	 * {@link GenArtAPI.setParamValue}, if needed, but can be triggered by
 	 * others too...)
 	 *
@@ -401,7 +425,7 @@ export interface GenArtAPI {
 	 * Usually these traits are derived from the random seed and currently
 	 * configured parameters. The API will forward this object to
 	 * {@link PlatformAdapter.setTraits} for platform-specific processing, but
-	 * also emits a {@link SetTraitsMsg} message to the current & parent
+	 * also emits a {@link TraitsMessage} message to the current & parent
 	 * windows.
 	 *
 	 * @example
@@ -468,8 +492,8 @@ export interface GenArtAPI {
 	 * @remarks
 	 * If both platform adapter and time provider are already known, this will
 	 * trigger the GenArtAPI to go into the `ready` state and emit a
-	 * {@link StateChangeMsg} message. In most cases, a platform adapter should
-	 * react to this message and call {@link GenArtAPI.start} to trigger
+	 * {@link StateChangeMessage} message. In most cases, a platform adapter
+	 * should react to this message and call {@link GenArtAPI.start} to trigger
 	 * auto-playback of the artwork when `ready` state is entered.
 	 *
 	 * @param fn
@@ -486,14 +510,14 @@ export interface GenArtAPI {
 	 * (re)initialized (otherwise just continues).
 	 *
 	 * Triggers the API to go into `play` state and emits a
-	 * {@link StateChangeMsg}, as well as `genart:start` or `genart:resume`
+	 * {@link StateChangeMessage}, as well as `genart:start` or `genart:resume`
 	 * messages. Function is idempotent if API is already in `play` state.
 	 *
 	 * An error will be thrown if API is not in `ready` or `stop` state, i.e.
 	 * the API must have a {@link PlatformAdapter}, a {@link TimeProvider} and a
 	 * {@link UpdateFn} must have been configured.
 	 *
-	 * Whilst the animation loop is active, a {@link AnimFrameMsg} will be
+	 * Whilst the animation loop is active, a {@link AnimFrameMessage} will be
 	 * emitted at the end of each frame update. These messages contain the time
 	 * & frame information of the currently rendered frame and are intended for
 	 * 3rd party tooling (i.e. editors, players, sequencers).

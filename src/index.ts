@@ -1,5 +1,5 @@
 import type {
-	AnimFrameMsg,
+	AnimFrameMessage,
 	APIMessage,
 	APIState,
 	CaptureMessage,
@@ -7,6 +7,7 @@ import type {
 	GenArtAPI,
 	GenArtAPIOpts,
 	ImageParam,
+	InfoMessage,
 	Maybe,
 	MessageType,
 	MessageTypeMap,
@@ -14,9 +15,10 @@ import type {
 	NestedParamSpecs,
 	NotifyType,
 	Param,
-	ParamChangeMsg,
-	ParamErrorMsg,
+	ParamChangeMessage,
+	ParamErrorMessage,
 	ParamImpl,
+	ParamsMessage,
 	ParamSpecs,
 	ParamValue,
 	PlatformAdapter,
@@ -25,14 +27,13 @@ import type {
 	RandomFn,
 	RangeParam,
 	ResumeMessage,
-	SetParamsMsg,
-	SetTraitsMsg,
 	StartMessage,
-	StateChangeMsg,
+	StateChangeMessage,
 	StopMessage,
 	TextParam,
 	TimeProvider,
 	Traits,
+	TraitsMessage,
 	UpdateFn,
 	WeightedChoiceParam,
 } from "./api.js";
@@ -59,6 +60,7 @@ class API implements GenArtAPI {
 	protected _opts: GenArtAPIOpts = {
 		// auto-generated instance ID
 		id: Math.floor(Math.random() * 1e12).toString(36),
+		allowExternalConfig: false,
 		notifyFrameUpdate: true,
 	};
 
@@ -264,20 +266,31 @@ class API implements GenArtAPI {
 			const data = e.data;
 			if (!this.isRecipient(e) || data?.__self) return;
 			switch (<MessageType>data.type) {
-				case "genart:start":
-					this.start();
+				case "genart:get-info":
+					this.notifyInfo();
+					break;
+				case "genart:randomize-param":
+					this.randomizeParamValue(data.paramID, data.key);
 					break;
 				case "genart:resume":
 					this.start(true);
 					break;
+				case "genart:configure": {
+					const opts = data.opts;
+					delete opts.id;
+					delete opts.allowExternalConfig;
+					this.configure(opts);
+					break;
+				}
+				case "genart:set-param-value":
+					this.setParamValue(data.paramID, data.value, data.key);
+					break;
+				case "genart:start":
+					this.start();
+					break;
 				case "genart:stop":
 					this.stop();
 					break;
-				case "genart:setparamvalue":
-					this.setParamValue(data.paramID, data.value, data.key);
-					break;
-				case "genart:randomizeparam":
-					this.randomizeParamValue(data.paramID, data.key);
 			}
 		});
 	}
@@ -390,7 +403,7 @@ class API implements GenArtAPI {
 
 	setTraits(traits: Traits): void {
 		this._traits = traits;
-		this.emit<SetTraitsMsg>({ type: "genart:settraits", traits });
+		this.emit<TraitsMessage>({ type: "genart:traits", traits });
 	}
 
 	async setAdapter(adapter: PlatformAdapter) {
@@ -461,9 +474,9 @@ class API implements GenArtAPI {
 				: value;
 			if (!key) spec.state = "custom";
 		}
-		this.emit<ParamChangeMsg>(
+		this.emit<ParamChangeMessage>(
 			{
-				type: "genart:paramchange",
+				type: "genart:param-change",
 				__self: true,
 				param: this.asNestedParam(spec),
 				paramID: id,
@@ -519,11 +532,12 @@ class API implements GenArtAPI {
 	}
 
 	paramError(paramID: string) {
-		this.emit<ParamErrorMsg>({ type: "genart:paramerror", paramID });
+		this.emit<ParamErrorMessage>({ type: "genart:param-error", paramID });
 	}
 
 	configure(opts: Partial<GenArtAPIOpts>) {
 		Object.assign(this._opts, opts);
+		this.notifyInfo();
 	}
 
 	on<T extends MessageType>(
@@ -555,7 +569,7 @@ class API implements GenArtAPI {
 		}
 		this.setState("play");
 		// re-use same msg object to avoid per-frame allocations
-		const msg: AnimFrameMsg = {
+		const msg: AnimFrameMessage = {
 			type: "genart:frame",
 			__self: true,
 			apiID: this.id,
@@ -573,7 +587,7 @@ class API implements GenArtAPI {
 			if (this._opts.notifyFrameUpdate) {
 				msg.time = time;
 				msg.frame = frame;
-				this.emit<AnimFrameMsg>(msg);
+				this.emit<AnimFrameMessage>(msg);
 			}
 		};
 		if (!resume) this._time!.start();
@@ -600,8 +614,8 @@ class API implements GenArtAPI {
 
 	protected setState(state: APIState, info?: string) {
 		this._state = state;
-		this.emit<StateChangeMsg>({
-			type: "genart:statechange",
+		this.emit<StateChangeMessage>({
+			type: "genart:state-change",
 			__self: true,
 			state,
 			info,
@@ -645,13 +659,13 @@ class API implements GenArtAPI {
 	}
 
 	/**
-	 * Emits {@link SetParamsMsg} message (only iff the params specs aren't
+	 * Emits {@link ParamsMessage} message (only iff the params specs aren't
 	 * empty).
 	 */
 	protected notifySetParams() {
 		if (this._params && Object.keys(this._params).length) {
-			this.emit<SetParamsMsg>({
-				type: "genart:setparams",
+			this.emit<ParamsMessage>({
+				type: "genart:params",
 				__self: true,
 				params: this.asNestedParams({}, this._params),
 			});
@@ -668,6 +682,19 @@ class API implements GenArtAPI {
 			this.setState("ready");
 	}
 
+	protected notifyInfo() {
+		const [time, frame] = this._time.now();
+		this.emit<InfoMessage>({
+			type: "genart:info",
+			opts: this._opts,
+			state: this._state,
+			version: this.version,
+			seed: this.random.seed,
+			time,
+			frame,
+		});
+	}
+
 	/**
 	 * Returns true if this API instance is the likely recipient for a received
 	 * IPC message.
@@ -676,7 +703,9 @@ class API implements GenArtAPI {
 	 */
 	protected isRecipient({ data }: MessageEvent): boolean {
 		return (
-			data != null && typeof data === "object" && data.apiID === this.id
+			data != null &&
+			typeof data === "object" &&
+			(data.apiID === this.id || data.apiID === "*")
 		);
 	}
 

@@ -7,7 +7,7 @@ import type {
 	PRNG,
 	RampParam,
 	RangeParam,
-	ResizeMsg,
+	ResizeMessage,
 	RunMode,
 	ScreenConfig,
 } from "../api.js";
@@ -38,7 +38,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		this.params = new URLSearchParams(location.search);
 		this._screen = this.screen;
 		this.initPRNG();
-		$genart.on("genart:paramchange", async (e) => {
+		$genart.on("genart:param-change", async (e) => {
 			const value = await this.serializeParam(e.param);
 			this.params.set(e.paramID, value);
 			// (optional) send updated params to parent GUI for param editing
@@ -54,7 +54,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				location.search = this.params.toString();
 			}
 		});
-		$genart.on("genart:statechange", ({ state }) => {
+		$genart.on("genart:state-change", ({ state }) => {
 			if (state === "ready" && this.params.get(AUTO) !== "0") {
 				$genart.start();
 			}
@@ -68,7 +68,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				dpr !== newScreen.dpr
 			) {
 				this._screen = newScreen;
-				$genart.emit<ResizeMsg>({
+				$genart.emit<ResizeMessage>({
 					type: "genart:resize",
 					screen: newScreen,
 				});
