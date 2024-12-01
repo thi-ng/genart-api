@@ -358,7 +358,8 @@
     _opts = {
       // auto-generated instance ID
       id: Math.floor(Math.random() * 1e12).toString(36),
-      notifyFrameUpdate: true
+      allowExternalConfig: false,
+      notifyFrameUpdate: false
     };
     _adapter;
     _time = timeProviderRAF();
@@ -518,25 +519,36 @@
         const data = e.data;
         if (!this.isRecipient(e) || data?.__self) return;
         switch (data.type) {
-          case "genart:start":
-            this.start();
+          case "genart:get-info":
+            this.notifyInfo();
+            break;
+          case "genart:randomize-param":
+            this.randomizeParamValue(data.paramID, data.key);
             break;
           case "genart:resume":
             this.start(true);
             break;
+          case "genart:configure": {
+            const opts = data.opts;
+            delete opts.id;
+            delete opts.allowExternalConfig;
+            this.configure(opts);
+            break;
+          }
+          case "genart:set-param-value":
+            this.setParamValue(data.paramID, data.value, data.key);
+            break;
+          case "genart:start":
+            this.start();
+            break;
           case "genart:stop":
             this.stop();
             break;
-          case "genart:setparamvalue":
-            this.setParamValue(data.paramID, data.value, data.key);
-            break;
-          case "genart:randomizeparam":
-            this.randomizeParamValue(data.paramID, data.key);
         }
       });
     }
     get version() {
-      return "0.13.0";
+      return "0.14.0";
     }
     get id() {
       return this._opts.id;
@@ -622,7 +634,7 @@
     }
     setTraits(traits) {
       this._traits = traits;
-      this.emit({ type: "genart:settraits", traits });
+      this.emit({ type: "genart:traits", traits });
     }
     async setAdapter(adapter) {
       this._adapter = adapter;
@@ -680,7 +692,7 @@
       }
       this.emit(
         {
-          type: "genart:paramchange",
+          type: "genart:param-change",
           __self: true,
           param: this.asNestedParam(spec),
           paramID: id,
@@ -719,10 +731,11 @@
       return rnd && randomize ? randomize(spec, rnd) : read ? read(spec, t) : spec.value ?? spec.default;
     }
     paramError(paramID) {
-      this.emit({ type: "genart:paramerror", paramID });
+      this.emit({ type: "genart:param-error", paramID });
     }
     configure(opts) {
       Object.assign(this._opts, opts);
+      this.notifyInfo();
     }
     on(type, listener) {
       window.addEventListener("message", (e) => {
@@ -786,7 +799,7 @@
     setState(state, info) {
       this._state = state;
       this.emit({
-        type: "genart:statechange",
+        type: "genart:state-change",
         __self: true,
         state,
         info
@@ -823,13 +836,13 @@
       });
     }
     /**
-     * Emits {@link SetParamsMsg} message (only iff the params specs aren't
+     * Emits {@link ParamsMessage} message (only iff the params specs aren't
      * empty).
      */
     notifySetParams() {
       if (this._params && Object.keys(this._params).length) {
         this.emit({
-          type: "genart:setparams",
+          type: "genart:params",
           __self: true,
           params: this.asNestedParams({}, this._params)
         });
@@ -839,6 +852,18 @@
       if (this._state === "init" && this._adapter && this._time && this._update)
         this.setState("ready");
     }
+    notifyInfo() {
+      const [time2, frame] = this._time.now();
+      this.emit({
+        type: "genart:info",
+        opts: this._opts,
+        state: this._state,
+        version: this.version,
+        seed: this.random.seed,
+        time: time2,
+        frame
+      });
+    }
     /**
      * Returns true if this API instance is the likely recipient for a received
      * IPC message.
@@ -846,7 +871,7 @@
      * @param event
      */
     isRecipient({ data }) {
-      return data != null && typeof data === "object" && data.apiID === this.id;
+      return data != null && typeof data === "object" && (data.apiID === this.id || data.apiID === "*");
     }
     asNestedParams(dest, src) {
       for (let id in src) {

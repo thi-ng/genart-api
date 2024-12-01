@@ -1,3 +1,4 @@
+import type { GenArtAPIOpts } from "../api.js";
 import type { NestedParam, NestedParamSpecs } from "./params.js";
 import type { ScreenConfig } from "./screen.js";
 import type { APIState } from "./state.js";
@@ -11,35 +12,40 @@ export interface APIMessage {
      */
     type: MessageType;
     /**
-     * ID of the {@link GenArtAPI} instance this message is intended for. Also
-     * see {@link GenArtAPI.id}.
+     * ID of the {@link GenArtAPI} instance this message is intended for. Use
+     * `"*"` to broadcast message to all active `GenArtAPI` instances. Also see
+     * {@link GenArtAPI.id}.
      */
     apiID: string;
-    /** @internal */
+    /**
+     * Flag used to indicate the message was emitted by the same instance.
+     *
+     * @internal
+     */
     __self?: boolean;
 }
 /**
  * Message type emitted by {@link GenArtAPI.setTraits} to inform external
  * tooling about artwork defined {@link Traits}.
  */
-export interface SetTraitsMsg extends APIMessage {
-    type: "genart:settraits";
+export interface TraitsMessage extends APIMessage {
+    type: "genart:traits";
     traits: Traits;
 }
 /**
  * Message type emitted at the end of {@link GenArtAPI.setParams} to inform
  * external tooling about artwork defined {@link ParamSpecs}.
  */
-export interface SetParamsMsg extends APIMessage {
-    type: "genart:setparams";
+export interface ParamsMessage extends APIMessage {
+    type: "genart:params";
     params: NestedParamSpecs;
 }
 /**
  * Command message type received by {@link GenArtAPI} to remotely trigger
  * {@link GenArtAPI.setParamValue}.
  */
-export interface SetParamValueMsg extends APIMessage {
-    type: "genart:setparamvalue";
+export interface SetParamValueMessage extends APIMessage {
+    type: "genart:set-param-value";
     /**
      * ID of parameter to update.
      */
@@ -57,8 +63,8 @@ export interface SetParamValueMsg extends APIMessage {
  * Command message type received by {@link GenArtAPI} to remotely trigger
  * {@link GenArtAPI.randomizeParamValue}.
  */
-export interface RandomizeParamMsg extends APIMessage {
-    type: "genart:randomizeparam";
+export interface RandomizeParamMessage extends APIMessage {
+    type: "genart:randomize-param";
     /**
      * ID of parameter to randomize.
      */
@@ -73,8 +79,8 @@ export interface RandomizeParamMsg extends APIMessage {
  * Message type emitted by {@link GenArtAPI.setParamValue} when a parameter has
  * been changed/updated.
  */
-export interface ParamChangeMsg extends APIMessage {
-    type: "genart:paramchange";
+export interface ParamChangeMessage extends APIMessage {
+    type: "genart:param-change";
     param: NestedParam;
     paramID: string;
     /**
@@ -87,8 +93,8 @@ export interface ParamChangeMsg extends APIMessage {
  * Message type emitted by {@link GenArtAPI.setParamValue} if the given value is
  * not valid or the param couldn't be updated for any other reason.
  */
-export interface ParamErrorMsg extends APIMessage {
-    type: "genart:paramerror";
+export interface ParamErrorMessage extends APIMessage {
+    type: "genart:param-error";
     paramID: string;
     error?: string;
 }
@@ -96,8 +102,8 @@ export interface ParamErrorMsg extends APIMessage {
  * Message type emitted when the {@link GenArtAPI} internally switches into a
  * new state. See {@link APIState} for details.
  */
-export interface StateChangeMsg extends APIMessage {
-    type: "genart:statechange";
+export interface StateChangeMessage extends APIMessage {
+    type: "genart:state-change";
     /**
      * New API state
      */
@@ -112,7 +118,7 @@ export interface StateChangeMsg extends APIMessage {
  * change occurred and the artwork (or 3rd party tooling) should respond/adapt
  * to these new dimensions provided.
  */
-export interface ResizeMsg extends APIMessage {
+export interface ResizeMessage extends APIMessage {
     type: "genart:resize";
     /**
      * New screen/canvas configuration
@@ -125,7 +131,7 @@ export interface ResizeMsg extends APIMessage {
  * of the currently rendered frame and is intended for 3rd party tooling (i.e.
  * editors, players, sequencers).
  */
-export interface AnimFrameMsg extends APIMessage {
+export interface AnimFrameMessage extends APIMessage {
     type: "genart:frame";
     /**
      * Current animation time (in seconds)
@@ -161,23 +167,72 @@ export interface StopMessage extends APIMessage {
     type: "genart:stop";
 }
 /**
+ * Message type sent when {@link GenArtAPI.configure} is called or a
+ * {@link ConfigureMessage} or {@link GetInfoMessage} is received by the API.
+ * Includes all current config options, API state, timing info,
+ * {@link GenArtAPI.version} and more.
+ */
+export interface InfoMessage extends APIMessage {
+    type: "genart:info";
+    opts: GenArtAPIOpts;
+    state: APIState;
+    version: string;
+    /**
+     * Current animation time (in milliseconds). See {@link TimeProvider.now}.
+     */
+    time: number;
+    /**
+     * Current animation frame number. See {@link TimeProvider.now}.
+     */
+    frame: number;
+    /**
+     * Random seed used by this instance's {@link PRNG}.
+     */
+    seed: string;
+}
+/**
+ * Command message type received by {@link GenArtAPI} to trigger an
+ * {@link InfoMessage} being sent in response.
+ */
+export interface GetInfoMessage extends APIMessage {
+    type: "genart:get-info";
+}
+/**
+ * Command message type received by {@link GenArtAPI}. Only if the
+ * {@link GenArtAPIOpts.allowExternalConfig} option is enabled, the message
+ * payload's options are passed to {@link GenArtAPI.configure}, which then
+ * results in a {@link InfoMessage} being sent in response.
+ *
+ * @remarks
+ * For security reasons, the {@link GenArtAPIOpts.id} and
+ * {@link GenArtAPIOpts.allowExternalConfig} options cannot be changed
+ * themselves using this mechanism.
+ */
+export interface ConfigureMessage extends APIMessage {
+    type: "genart:configure";
+    opts: Partial<Omit<GenArtAPIOpts, "id">>;
+}
+/**
  * LUT mapping message types (names) to their respective type of API message.
  * Used for type checking/inference in {@link GenArtAPI.on}.
  */
 export interface MessageTypeMap {
     "genart:capture": CaptureMessage;
-    "genart:paramchange": ParamChangeMsg;
-    "genart:paramerror": ParamErrorMsg;
-    "genart:randomizeparam": RandomizeParamMsg;
-    "genart:frame": AnimFrameMsg;
-    "genart:resize": ResizeMsg;
+    "genart:configure": ConfigureMessage;
+    "genart:frame": AnimFrameMessage;
+    "genart:get-info": GetInfoMessage;
+    "genart:info": InfoMessage;
+    "genart:param-change": ParamChangeMessage;
+    "genart:param-error": ParamErrorMessage;
+    "genart:randomize-param": RandomizeParamMessage;
+    "genart:resize": ResizeMessage;
     "genart:resume": ResumeMessage;
-    "genart:setparams": SetParamsMsg;
-    "genart:setparamvalue": SetParamValueMsg;
-    "genart:settraits": SetTraitsMsg;
+    "genart:params": ParamsMessage;
+    "genart:set-param-value": SetParamValueMessage;
     "genart:start": StartMessage;
-    "genart:statechange": StateChangeMsg;
+    "genart:state-change": StateChangeMessage;
     "genart:stop": StopMessage;
+    "genart:traits": TraitsMessage;
 }
 /**
  * All known message types/names

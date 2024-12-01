@@ -71,7 +71,7 @@
       this.params = new URLSearchParams(location.search);
       this._screen = this.screen;
       this.initPRNG();
-      $genart.on("genart:paramchange", async (e) => {
+      $genart.on("genart:param-change", async (e) => {
         const value = await this.serializeParam(e.param);
         this.params.set(e.paramID, value);
         parent.postMessage(
@@ -86,7 +86,7 @@
           location.search = this.params.toString();
         }
       });
-      $genart.on("genart:statechange", ({ state }) => {
+      $genart.on("genart:state-change", ({ state }) => {
         if (state === "ready" && this.params.get(AUTO) !== "0") {
           $genart.start();
         }

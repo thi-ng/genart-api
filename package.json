@@ -1,6 +1,6 @@
 {
 	"name": "@thi.ng/genart-api",
-	"version": "0.13.0",
+	"version": "0.14.0",
 	"description": "Platform-independent extensible API for browser-based generative art",
 	"repository": {
 		"type": "git",
@@ -12,7 +12,7 @@
 	"type": "module",
 	"private": "true",
 	"scripts": {
-		"build": "bun build.js && yarn build:types",
+		"build": "tsc && bun build.js && yarn build:types",
 		"build:examples": "node build-examples.js",
 		"build:types": "tsc -d --emitDeclarationOnly -t esnext -m esnext -outDir dist src/api.ts",
 		"deploy:examples": "node deploy-examples.js",

@@ -53,7 +53,7 @@ export interface GenArtAPIOpts {
 	 */
 	id: string;
 	/**
-	 * If true, the API will accept {@link SetConfigMessage}s allowing the API
+	 * If true, the API will accept {@link ConfigureMessage}s allowing the API
 	 * behavior to be reconfigured by external tooling.
 	 *
 	 * @remarks

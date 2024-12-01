@@ -42,7 +42,7 @@ export interface ParamOpts {
      *
      * - `reload`: the piece should be reloaded/relaunched with new param value
      *   (platform providers are responsible to honor & implement this)
-     * - `event`: the API will trigger a {@link ParamChangeMsg} via
+     * - `event`: the API will trigger a {@link ParamChangeMessage} via
      *   {@link GenArtAPI.emit}
      *
      * @defaultValue "event"
@@ -262,7 +262,7 @@ export interface ParamImpl<T = any> {
      * @remarks
      * If this validator returns false, the param update will be terminated
      * immediately and {@link GenArtAPI.setParamValue} will emit a
-     * {@link ParamErrorMsg} message (by default).
+     * {@link ParamErrorMessage} message (by default).
      *
      * @param spec
      * @param value

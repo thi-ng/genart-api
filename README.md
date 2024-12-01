@@ -66,6 +66,8 @@
 
 **ALPHA** — Work in progress... **Welcoming feedback!** 🙏
 
+[Projects updates on Mastodon](https://mastodon.thi.ng/@toxi/tagged/GenArtAPI)
+
 Please also see RFCs and open questions in the [issue
 tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
 
