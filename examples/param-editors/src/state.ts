@@ -12,6 +12,7 @@ import type {
 	AnimFrameMessage,
 	APIMessage,
 	APIState,
+	ConfigureMessage,
 	NestedParamSpecs,
 	ParamChangeMessage,
 	ParamsMessage,
@@ -58,6 +59,10 @@ window.addEventListener("message", (e) => {
 			const $msg = <ParamsMessage>e.data;
 			apiID.next($msg.apiID);
 			if (Object.keys($msg.params).length) params.next($msg.params);
+			sendMessage<ConfigureMessage>({
+				type: "genart:configure",
+				opts: { notifyFrameUpdate: true },
+			});
 			console.log("set-params", $msg.params);
 			break;
 		}
