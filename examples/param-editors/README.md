@@ -2,6 +2,15 @@
 
 [Online version](https://demo.thi.ng/genart-api/param-editors/)
 
+> [!IMPORTANT]
+> Message names have been updated in v0.14.0 and are partially incompatible with
+> older versions. Please see [commit
+> details](https://github.com/thi-ng/genart-api/commit/35b627d7380bad75d280cc1e051ec7ed23aa8995)
+> for what has changed and why, and what (might) need to be changed in your projects.
+>
+> **The parameter editors are only compatible with artworks using (at minimum)
+> the above stated version of the GenArtAPI reference implementation.**
+
 This example provides a couple of GUI editors (WIP) to customize parameter
 values exposed by an artwork running in an `<iframe>` and using the GenArt API
 with the [bundled

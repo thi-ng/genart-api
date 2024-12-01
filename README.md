@@ -14,6 +14,7 @@
         -   [Lifecycle](#lifecycle)
         -   [State machine](#state-machine)
         -   [Message types](#message-types)
+        -   [Message handling](#message-handling)
     -   [API documentation](#api-documentation)
 -   [Parameters](#parameters)
     -   [Static parameter types](#static-parameter-types)
@@ -217,23 +218,56 @@ The API implements a finite state machine with the following possible states:
 
 #### Message types
 
+> [!IMPORTANT]
+> Message names have been updated in v0.14.0 and are partially incompatible with
+> older versions. Please see [commit
+> details](https://github.com/thi-ng/genart-api/commit/35b627d7380bad75d280cc1e051ec7ed23aa8995)
+> for what has changed and why, and what (might) need to be changed in your projects.
+>
+> **The [parameter editors](#parameter-editors) are only compatible with
+> artworks using (at minimum) the above stated version of the GenArtAPI
+> reference implementation.**
+
 The API also defines and uses a message protocol to communicate certain
 lifecycle events, state changes and requests to both internal & external
 participants. Please see links for descriptions of each message type.
 
 -   `genart:capture`: [CaptureMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/CaptureMessage.html)
--   `genart:frame`: [AnimFrameMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/AnimFrameMsg.html)
--   `genart:paramchange`: [ParamChangeMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamChangeMsg.html)
--   `genart:paramerror`: [ParamErrorMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamErrorMsg.html)
--   `genart:randomizeparam`: [RandomizeParamMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/RandomizeParamMsg.html)
--   `genart:resize`: [ResizeMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/ResizeMsg.html)
+-   `genart:configure`: [ConfigureMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ConfigureMessage.html)
+-   `genart:frame`: [AnimFrameMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/AnimFrameMessage.html)
+-   `genart:get-info`: [GetInfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/GetInfoMessage.html)
+-   `genart:info`: [InfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/InfoMessage.html)
+-   `genart:params`: [ParamsMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamsMessage.html)
+-   `genart:param-change`: [ParamChangeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamChangeMessage.html)
+-   `genart:param-error`: [ParamErrorMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamErrorMessage.html)
+-   `genart:randomize-param`: [RandomizeParamMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/RandomizeParamMessage.html)
+-   `genart:resize`: [ResizeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ResizeMessage.html)
 -   `genart:resume`: [ResumeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ResumeMessage.html)
--   `genart:setparams`: [SetParamsMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/SetParamsMsg.html)
--   `genart:setparamvalue`: [SetParamValueMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/SetParamValueMsg.html)
--   `genart:settraits`: [SetTraitsMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/SetTraitsMsg.html)
+-   `genart:set-param-value`: [SetParamValueMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/SetParamValueMessage.html)
 -   `genart:start`: [StartMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StartMessage.html)
--   `genart:statechange`: [StateChangeMsg](https://docs.thi.ng/umbrella/genart-api/interfaces/StateChangeMsg.html)
+-   `genart:state-change`: [StateChangeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StateChangeMessage.html)
 -   `genart:stop`: [StopMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StopMessage.html)
+-   `genart:traits`: [TraitsMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/TraitsMessage.html)
+
+#### Message handling
+
+Messages received via the browser's
+[`postMessage()`](https://developer.mozilla.org/en-US/docs/Web/API/MessagePort/postMessage)
+mechanism will only be processed by `GenArtAPI` if the [`apiDI`]() included in
+the message matches, or if it's the wildcard ID `"*"`. The latter can be used to
+broadcast messages to **all** currently active/receiving `GenArtAPI` instances.
+
+Use cases for the wildcard ID (`"*"`) are related to handling multiple artworks
+running in multiple iframes, for example:
+
+-   Detection/registration of all currently running `GenArtAPI` instances by
+    broadcasting a
+    [GetInfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/GetInfoMessage.html),
+    to which each instance then responds with a
+    [InfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/InfoMessage.html)
+    (which then also includes each instance's actual configured `id`)
+-   Starting/stopping all currently running `GenArtAPI` instances via single
+    message, e.g. `postMessage({ type: "genart:start", apiID: "*"}, "*")`.
 
 TODO — for now please also see the following links for more messaging related information:
 

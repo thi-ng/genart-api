@@ -91,9 +91,9 @@ export interface GenArtAPI {
 	 * to the string `"*""`, i.e. the wildcard catch-all ID, which will be
 	 * matched by any active `GenArtAPI` instance.
 	 *
-	 * Use cases for the wildcard ID (`"*"`) are related to handling multiple
-	 * artworks running in a page/app, regardless if they're sharing the same
-	 * document or in multiple iframes, for example:
+	 * Use cases for the wildcard ID (`"*"`) are related to managing multiple
+	 * artworks running in multiple iframes (e.g. in an online gallery
+	 * scenario), for example:
 	 *
 	 * - Detection/registration of all currently running `GenArtAPI` instances
 	 *   by broadcasting a {@link GetInfoMessage}, to which each instance then

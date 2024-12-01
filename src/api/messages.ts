@@ -13,8 +13,9 @@ export interface APIMessage {
 	 */
 	type: MessageType;
 	/**
-	 * ID of the {@link GenArtAPI} instance this message is intended for. Also
-	 * see {@link GenArtAPI.id}.
+	 * ID of the {@link GenArtAPI} instance this message is intended for. Use
+	 * `"*"` to broadcast message to all active `GenArtAPI` instances. Also see
+	 * {@link GenArtAPI.id}.
 	 */
 	apiID: string;
 	/**
