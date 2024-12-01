@@ -1,23 +1,23 @@
 import type { Maybe } from "@thi.ng/api";
-import type {
-	AnimFrameMsg,
-	APIMessage,
-	APIState,
-	NestedParamSpecs,
-	ParamChangeMsg,
-	ParamSpecs,
-	SetParamsMsg,
-	SetTraitsMsg,
-	StateChangeMsg,
-} from "../../../src/api";
+import { isPlainObject, isString } from "@thi.ng/checks";
+import { defTimecode } from "@thi.ng/date";
 import {
 	reactive,
 	stream,
 	type ISubscription,
 	type WithErrorHandlerOpts,
 } from "@thi.ng/rstream";
-import { defTimecode } from "@thi.ng/date";
 import { padLeft } from "@thi.ng/strings";
+import type {
+	AnimFrameMessage,
+	APIMessage,
+	APIState,
+	NestedParamSpecs,
+	ParamChangeMessage,
+	ParamsMessage,
+	StateChangeMessage,
+	TraitsMessage,
+} from "../../../src/api";
 
 const INF: Partial<WithErrorHandlerOpts> = { closeOut: "never" };
 
@@ -46,36 +46,37 @@ export const formattedFrame = currentFrame.map(padLeft(6, "0"), INF);
 export let selfUpdate = false;
 
 window.addEventListener("message", (e) => {
+	if (!(isPlainObject(e.data) && isString(e.data.type))) return;
 	switch (e.data.type) {
-		case "genart:settraits": {
-			const $msg = <SetTraitsMsg>e.data;
+		case "genart:traits": {
+			const $msg = <TraitsMessage>e.data;
 			apiID.next($msg.apiID);
 			traits.next($msg.traits);
 			break;
 		}
-		case "genart:setparams": {
-			const $msg = <SetParamsMsg>e.data;
+		case "genart:params": {
+			const $msg = <ParamsMessage>e.data;
 			apiID.next($msg.apiID);
 			if (Object.keys($msg.params).length) params.next($msg.params);
-			console.log("setparams", $msg.params);
+			console.log("set-params", $msg.params);
 			break;
 		}
-		case "genart:paramchange": {
-			const $msg = <ParamChangeMsg>e.data;
+		case "genart:param-change": {
+			const $msg = <ParamChangeMessage>e.data;
 			selfUpdate = true;
 			paramValues[$msg.paramID]?.next($msg.param.value);
 			params.next({ ...params.deref(), [$msg.paramID]: $msg.param });
 			selfUpdate = false;
 			break;
 		}
-		case "genart:statechange": {
-			const $msg = <StateChangeMsg>e.data;
+		case "genart:state-change": {
+			const $msg = <StateChangeMessage>e.data;
 			apiState.next($msg.state);
 			if ($msg.state === "error") apiError.next($msg.info);
 			break;
 		}
 		case "genart:frame":
-			const $msg = <AnimFrameMsg>e.data;
+			const $msg = <AnimFrameMessage>e.data;
 			currentTime.next($msg.time);
 			currentFrame.next($msg.frame);
 			break;

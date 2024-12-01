@@ -100,7 +100,7 @@ const TAU = 2 * Math.PI;
 		return true;
 	});
 
-	$genart.on("genart:paramchange", (e) => {
+	$genart.on("genart:param-change", (e) => {
 		console.log("art param change", e);
 	});
 })();

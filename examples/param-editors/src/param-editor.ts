@@ -42,9 +42,9 @@ import type {
 	ChoiceParam,
 	ImageParam,
 	ParamSpecs,
-	RandomizeParamMsg,
+	RandomizeParamMessage,
 	RangeParam,
-	SetParamValueMsg,
+	SetParamValueMessage,
 	TextParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
@@ -303,8 +303,8 @@ const createParamControls = (params: ParamSpecs) => {
 									document.getElementById(id + "-apply")!,
 									{ style: { display: "none" } }
 								);
-								sendMessage<SetParamValueMsg>({
-									type: "genart:setparamvalue",
+								sendMessage<SetParamValueMessage>({
+									type: "genart:set-param-value",
 									paramID: id,
 									value: value.deref(),
 								});
@@ -321,8 +321,8 @@ const createParamControls = (params: ParamSpecs) => {
 					attribs: {
 						title: "Click to randomize this param",
 						onclick: () =>
-							sendMessage<RandomizeParamMsg>({
-								type: "genart:randomizeparam",
+							sendMessage<RandomizeParamMessage>({
+								type: "genart:randomize-param",
 								paramID: id,
 							}),
 					},
@@ -334,8 +334,8 @@ const createParamControls = (params: ParamSpecs) => {
 			next(value) {
 				if (!selfUpdate && paramCache[id] !== value) {
 					paramCache[id] = value;
-					sendMessage<SetParamValueMsg>({
-						type: "genart:setparamvalue",
+					sendMessage<SetParamValueMessage>({
+						type: "genart:set-param-value",
 						paramID: id,
 						value,
 					});

@@ -28,9 +28,9 @@ import type {
 	NestedParamSpecs,
 	Param,
 	RampParam,
-	RandomizeParamMsg,
+	RandomizeParamMessage,
 	RangeParam,
-	SetParamValueMsg,
+	SetParamValueMessage,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
 import { params, selfUpdate, sendMessage } from "./state.js";
@@ -307,8 +307,8 @@ const createWidgets = (params: NestedParamSpecs, ctx: WidgetContext) => {
 				label: "Randomize",
 			});
 			if (!ctx.isDrawing && rnd) {
-				sendMessage<RandomizeParamMsg>({
-					type: "genart:randomizeparam",
+				sendMessage<RandomizeParamMessage>({
+					type: "genart:randomize-param",
 					paramID,
 					key,
 				});
@@ -347,8 +347,8 @@ const updateGUI = () => {
 const emitChange = (id: string, value: any, key?: string) => {
 	console.log("emit", id, value, key);
 	if (params.deref()![id].value !== value) {
-		sendMessage<SetParamValueMsg>({
-			type: "genart:setparamvalue",
+		sendMessage<SetParamValueMessage>({
+			type: "genart:set-param-value",
 			paramID: id,
 			value,
 			key,
