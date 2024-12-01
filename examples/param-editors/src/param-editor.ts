@@ -1,3 +1,5 @@
+import { FMT_HHmm, FMT_yyyyMMdd } from "@thi.ng/date";
+import { equiv } from "@thi.ng/equiv";
 import { div } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
 import {
@@ -130,21 +132,22 @@ const createParamControls = (params: ParamSpecs) => {
 			}
 			case "datetime":
 				{
-					value = value.map((x) => {
-						x = x instanceof Date ? x.toISOString() : x;
-						return x.replace(/(\.\d{3})?(Z|[-+]\d{2}:\d{2})$/, "");
-					});
+					value = value.map((x) =>
+						x instanceof Date
+							? FMT_yyyyMMdd(x) + "T" + FMT_HHmm(x)
+							: x
+					);
 					items.push(dateTime({ ...base, value }));
-					value = value.map((x) => x + ":00Z");
+					value = value.map((x) => new Date(Date.parse(x)));
 				}
 				break;
 			case "date":
 				{
-					value = value.map((x) => {
-						x = x instanceof Date ? x.toISOString() : x;
-						return x.substring(0, 10);
-					});
+					value = value.map((x) =>
+						x instanceof Date ? FMT_yyyyMMdd(x) : x
+					);
 					items.push(date({ ...base, value }));
+					value = value.map((x) => new Date(Date.parse(x)));
 				}
 				break;
 			case "img": {
@@ -332,7 +335,7 @@ const createParamControls = (params: ParamSpecs) => {
 		}
 		value.subscribe({
 			next(value) {
-				if (!selfUpdate && paramCache[id] !== value) {
+				if (!selfUpdate && !equiv(paramCache[id], value)) {
 					paramCache[id] = value;
 					sendMessage<SetParamValueMessage>({
 						type: "genart:set-param-value",

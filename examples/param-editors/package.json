@@ -32,6 +32,7 @@
 		"@thi.ng/compare": "^2.4.5",
 		"@thi.ng/date": "^2.7.34",
 		"@thi.ng/defmulti": "^3.0.51",
+		"@thi.ng/equiv": "^2.1.69",
 		"@thi.ng/hex": "^2.3.57",
 		"@thi.ng/hiccup-canvas": "^3.1.27",
 		"@thi.ng/hiccup-html": "^2.7.10",
