@@ -70,7 +70,6 @@ window.addEventListener("message", (e) => {
 			const $msg = <ParamChangeMessage>e.data;
 			selfUpdate = true;
 			paramValues[$msg.paramID]?.next($msg.param.value);
-			params.next({ ...params.deref(), [$msg.paramID]: $msg.param });
 			selfUpdate = false;
 			break;
 		}
