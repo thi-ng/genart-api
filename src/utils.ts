@@ -1,5 +1,10 @@
 import type { TypedArray } from "./api/utils";
 
+export const ensure = <T>(x: T, msg: string) => {
+	if (!x) throw new Error(msg);
+	return x;
+};
+
 export const isNumber = (x: any): x is number =>
 	typeof x === "number" && !isNaN(x);
 

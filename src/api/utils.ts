@@ -11,6 +11,13 @@ export type TypedArray =
 
 export interface Utils {
 	/**
+	 * Throws an error if `x` is non-truthy, otherwise returns `x`.
+	 *
+	 * @param x
+	 * @param msg
+	 */
+	ensure<T>(x: T, msg: string): T;
+	/**
 	 * Returns true if `x` is a number and not NaN.
 	 *
 	 * @param x

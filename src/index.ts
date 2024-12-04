@@ -44,7 +44,7 @@ import { timeProviderOffline } from "./time/offline.js";
 import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
 
-const { isNumber, isString, isNumericArray } = utils;
+const { ensure, isNumber, isString, isNumericArray } = utils;
 const { clamp, clamp01, mix, norm, round, parseNum } = math;
 
 const PARAM_DEFAULTS: Partial<Param<any>> = {
@@ -725,12 +725,6 @@ class API implements GenArtAPI {
 		return dest;
 	}
 }
-
-/** @internal */
-const ensure = <T>(x: T, msg: string) => {
-	if (!x) throw new Error(msg);
-	return x;
-};
 
 /** @internal */
 const ensureValidID = (id: string, kind = "ID") =>
