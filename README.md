@@ -28,6 +28,7 @@
         -   [Text](#text-parameter)
         -   [Time](#time-of-day-parameter)
         -   [Toggle](#toggle-parameter)
+        -   [Vector](#vector-parameter)
         -   [Weighted choice](#weighted-choice-parameter)
         -   [XY](#xy-parameter)
     -   [Dynamic parameter types](#dynamic-parameter-types)
@@ -524,6 +525,31 @@ On/off switch (boolean) parameter.
 ##### Recommended GUI widget
 
 -   checkbox
+
+#### Vector parameter
+
+n-dimensional vector parameter.
+
+-   `dim` defines number of dimensions
+-   `min` / `max` / `step` can be given as scalars or vectors
+-   `labels` are only mandatory for `dim > 4`, otherwise default to XYZW
+
+```ts
+$genart.params.vector({
+    name: "Test param",
+    desc: "3D vector",
+    dim: 3, // dimensions, mandatory
+    min: 0
+    max: 1
+    step: 0.01,
+    labels: ["X", "Y", "Z"],
+    default: [0.1, 0.2, 0.3]
+});
+```
+
+##### Recommended GUI widget
+
+-   per-component slider/dial
 
 #### Weighted choice parameter
 
@@ -1186,6 +1212,7 @@ support in both editors:
 | Text             | ✅                 | ✅ (3)              |
 | Time             | ✅                 | ❌                  |
 | Toggle           | ✅                 | ✅                  |
+| Vector           | ✅                 | ✅                  |
 | Weighted choice  | ✅                 | ✅                  |
 | XY               | ✅ (1)             | ✅                  |
 
