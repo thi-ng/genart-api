@@ -45,6 +45,7 @@ export const formattedTime = currentTime.map(defTimecode(60), INF);
 export const formattedFrame = currentFrame.map(padLeft(6, "0"), INF);
 
 export let selfUpdate = false;
+let doUpdateParamsOnChange = false;
 
 window.addEventListener("message", (e) => {
 	if (!(isPlainObject(e.data) && isString(e.data.type))) return;
@@ -70,6 +71,9 @@ window.addEventListener("message", (e) => {
 			const $msg = <ParamChangeMessage>e.data;
 			selfUpdate = true;
 			paramValues[$msg.paramID]?.next($msg.param.value);
+			if (doUpdateParamsOnChange) {
+				params.next({ ...params.deref(), [$msg.paramID]: $msg.param });
+			}
 			selfUpdate = false;
 			break;
 		}
@@ -93,3 +97,6 @@ window.addEventListener("message", (e) => {
 export const sendMessage = <T extends APIMessage>(msg: Omit<T, "apiID">) => {
 	iframeWindow.postMessage({ ...msg, apiID: apiID.deref() }, "*");
 };
+
+export const updateParamsOnChange = (state: boolean) =>
+	(doUpdateParamsOnChange = state);

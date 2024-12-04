@@ -1,6 +1,7 @@
 import { adaptiveCanvas2d } from "@thi.ng/canvas";
 import { isString } from "@thi.ng/checks";
 import { DEFAULT, defmulti } from "@thi.ng/defmulti";
+import { equiv } from "@thi.ng/equiv";
 import { U24 } from "@thi.ng/hex";
 import { draw } from "@thi.ng/hiccup-canvas";
 import {
@@ -31,9 +32,15 @@ import type {
 	RandomizeParamMessage,
 	RangeParam,
 	SetParamValueMessage,
+	VectorParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
-import { params, selfUpdate, sendMessage } from "./state.js";
+import {
+	params,
+	selfUpdate,
+	sendMessage,
+	updateParamsOnChange,
+} from "./state.js";
 import { formatValuePrec } from "./utils.js";
 
 const DPR = window.devicePixelRatio;
@@ -251,6 +258,35 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 			});
 		},
 
+		vector: (ctx, param) => {
+			const { dim, min, max, step, labels } = <VectorParam>param;
+			const info =
+				param.desc +
+				(param.update === "reload" ? " (change forces reload) " : "");
+			const layout = ctx.layout.nest(1, [COLS - 1, dim]);
+			let edited = false;
+			const value = [...ctx.value];
+			for (let i = 0; i < dim; i++) {
+				const res = sliderH({
+					gui: gui!,
+					layout,
+					id: ctx.widgetID + i,
+					value: value[i],
+					min: min[i],
+					max: max[i],
+					step: step[i],
+					label: labels[i],
+					info,
+					fmt: formatValuePrec(step[i]),
+				});
+				if (res != null) {
+					value[i] = res;
+					edited = true;
+				}
+			}
+			return edited ? value : undefined;
+		},
+
 		weighted: (ctx, param) => {
 			const $param = <WeightedChoiceParam<any>>param;
 			const idx = dropdown({
@@ -297,7 +333,11 @@ const createWidgets = (params: NestedParamSpecs, ctx: WidgetContext) => {
 		textLabel(gui!, ctx.layout.next([COLS, 1]), param.desc ?? "");
 		const res = paramWidget(ctx, param, id);
 		const key =
-			res && ctx.changedKey ? ctx.changedKey : ctx.root ? id : undefined;
+			res != null && ctx.changedKey
+				? ctx.changedKey
+				: ctx.root
+				? id
+				: undefined;
 		const paramID = ctx.root?.id || id;
 		if (param.randomize !== false) {
 			const rnd = buttonH({
@@ -346,7 +386,7 @@ const updateGUI = () => {
 
 const emitChange = (id: string, value: any, key?: string) => {
 	console.log("emit", id, value, key);
-	if (params.deref()![id].value !== value) {
+	if (!equiv(params.deref()![id].value, value)) {
 		sendMessage<SetParamValueMessage>({
 			type: "genart:set-param-value",
 			paramID: id,
@@ -421,6 +461,9 @@ export const launchEditorImgui = () => {
 	window.addEventListener("keyup", (e) => {
 		gui!.setKey(e);
 	});
+
+	updateParamsOnChange(true);
+	params.subscribe({ next: updateGUI });
 
 	updateGUI();
 };

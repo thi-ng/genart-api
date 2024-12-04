@@ -31,6 +31,7 @@ import {
 	type FormItem,
 } from "@thi.ng/rdom-forms";
 import {
+	fromObject,
 	merge,
 	reactive,
 	stream,
@@ -38,7 +39,7 @@ import {
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
-import { reduce } from "@thi.ng/transducers";
+import { reduce, repeatedly } from "@thi.ng/transducers";
 import type {
 	APIMessage,
 	ChoiceParam,
@@ -48,6 +49,7 @@ import type {
 	RangeParam,
 	SetParamValueMessage,
 	TextParam,
+	VectorParam,
 	WeightedChoiceParam,
 } from "../../../src/api.js";
 import { canvasColorPicker } from "./color-picker.js";
@@ -110,6 +112,7 @@ const createParamControls = (params: ParamSpecs) => {
 					);
 				}
 				break;
+
 			case "color": {
 				let width = window.innerWidth;
 				width =
@@ -130,6 +133,7 @@ const createParamControls = (params: ParamSpecs) => {
 				);
 				break;
 			}
+
 			case "datetime":
 				{
 					value = value.map((x) =>
@@ -141,6 +145,7 @@ const createParamControls = (params: ParamSpecs) => {
 					value = value.map((x) => new Date(Date.parse(x)));
 				}
 				break;
+
 			case "date":
 				{
 					value = value.map((x) =>
@@ -150,6 +155,7 @@ const createParamControls = (params: ParamSpecs) => {
 					value = value.map((x) => new Date(Date.parse(x)));
 				}
 				break;
+
 			case "img": {
 				const $param = <ImageParam>param;
 				const fmt = {
@@ -207,6 +213,7 @@ const createParamControls = (params: ParamSpecs) => {
 				);
 				break;
 			}
+
 			case "range":
 				{
 					const { min, max, step } = <RangeParam>param;
@@ -223,6 +230,7 @@ const createParamControls = (params: ParamSpecs) => {
 					);
 				}
 				break;
+
 			case "text":
 				{
 					const $param = <TextParam>param;
@@ -237,9 +245,47 @@ const createParamControls = (params: ParamSpecs) => {
 					);
 				}
 				break;
+
 			case "toggle":
 				items.push(toggle(base));
 				break;
+
+			case "vector": {
+				const { dim, min, max, step, labels } = <VectorParam>param;
+				const tuple = fromObject(paramCache[id], {
+					keys: [...repeatedly((i) => i, dim)],
+				});
+				value.subscribe({
+					next(vec) {
+						tuple.next(vec);
+					},
+				});
+				const widget =
+					param.widget && param.widget !== "default" ? num : range;
+				for (let i = 0; i < dim; i++) {
+					tuple.streams[i].subscribe({
+						next(x) {
+							const val = tuple.deref()!.slice();
+							val[i] = x;
+							tuple.next(val);
+							value.next(val);
+						},
+					});
+					items.push(
+						widget({
+							...base,
+							min: min[i],
+							max: max[i],
+							step: step[i],
+							value: tuple.streams[i],
+							label: base.label + ` (${labels[i]})`,
+							vlabel: formatValuePrec(step[i] ?? 1),
+						})
+					);
+				}
+				break;
+			}
+
 			case "weighted":
 				{
 					const $param = <WeightedChoiceParam<any>>param;
@@ -254,6 +300,7 @@ const createParamControls = (params: ParamSpecs) => {
 					);
 				}
 				break;
+
 			case "xy":
 				{
 					const x = reactive(value.deref()![0]);
