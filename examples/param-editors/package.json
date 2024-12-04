@@ -17,7 +17,7 @@
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"@thi.ng/meta-css": "^0.17.0",
+		"@thi.ng/meta-css": "^0.17.1",
 		"@types/node": "^22.9.3",
 		"typescript": "^5.7.2",
 		"vite": "^5.4.11",
@@ -42,9 +42,9 @@
 		"@thi.ng/mime": "^2.6.19",
 		"@thi.ng/pixel": "^7.3.8",
 		"@thi.ng/ramp": "^3.3.10",
-		"@thi.ng/rdom": "^1.7.13",
-		"@thi.ng/rdom-forms": "^0.4.7",
-		"@thi.ng/rstream": "^9.0.9",
+		"@thi.ng/rdom": "^1.7.14",
+		"@thi.ng/rdom-forms": "^0.4.8",
+		"@thi.ng/rstream": "^9.1.0",
 		"@thi.ng/strings": "^3.8.11",
 		"@thi.ng/transducers": "^9.2.9"
 	},
