@@ -35,7 +35,6 @@ import {
 	merge,
 	reactive,
 	stream,
-	sync,
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
@@ -250,8 +249,18 @@ const createParamControls = (params: ParamSpecs) => {
 				items.push(toggle(base));
 				break;
 
-			case "vector": {
-				const { dim, min, max, step, labels } = <VectorParam>param;
+			case "vector":
+			case "xy": {
+				const { dim, min, max, step, labels } =
+					param.type === "vector"
+						? <VectorParam>param
+						: {
+								dim: 2,
+								min: [0, 0],
+								max: [1, 1],
+								step: [0.001, 0.001],
+								labels: ["X", "Y"],
+						  };
 				const tuple = fromObject(paramCache[id], {
 					keys: [...repeatedly((i) => i, dim)],
 				});
@@ -296,44 +305,6 @@ const createParamControls = (params: ParamSpecs) => {
 								value: x[1],
 								label: x[2] || `${x[1]} (${x[0]})`,
 							})),
-						})
-					);
-				}
-				break;
-
-			case "xy":
-				{
-					const x = reactive(value.deref()![0]);
-					const y = reactive(value.deref()![1]);
-					value.subscribe({
-						next(xy) {
-							if (x.deref() !== xy[0]) x.next(xy[0]);
-							if (y.deref() !== xy[1]) y.next(xy[1]);
-						},
-					});
-					sync({ src: { x, y } }).subscribe({
-						next({ x, y }) {
-							value.next([x, y]);
-						},
-					});
-					items.push(
-						range({
-							...base,
-							label: base.label + " (x)",
-							min: 0,
-							max: 1,
-							step: 0.001,
-							value: x,
-							vlabel: 3,
-						}),
-						range({
-							...base,
-							label: base.label + " (y)",
-							min: 0,
-							max: 1,
-							step: 0.001,
-							value: y,
-							vlabel: 3,
 						})
 					);
 				}
