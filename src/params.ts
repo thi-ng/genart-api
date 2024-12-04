@@ -13,9 +13,11 @@ import type {
 	TextParam,
 	TimeParam,
 	ToggleParam,
+	VectorParam,
 	WeightedChoiceParam,
 	XYParam,
 } from "./api.js";
+import { ensure, isNumber } from "./utils.js";
 
 const $ = <T extends Param<any>>(
 	type: T["type"],
@@ -108,6 +110,43 @@ export const time = (spec: BaseParam<TimeParam>) => $<TimeParam>("time", spec);
 
 export const toggle = (spec: BaseParam<ToggleParam>) =>
 	$<ToggleParam>("toggle", spec);
+
+export const vector = (
+	spec: BaseParam<VectorParam, "min" | "max" | "step" | "labels"> & {
+		min?: number | number[];
+		max?: number | number[];
+		step?: number | number[];
+		labels?: string[];
+	}
+) => {
+	const $vec = (
+		n: number,
+		value: number | number[] | undefined,
+		defaultValue = 0
+	) =>
+		Array.isArray(value)
+			? (ensure(value.length === n, "wrong vector size"), value)
+			: new Array(n).fill(isNumber(value) ? value : defaultValue);
+
+	if (spec.default) {
+		ensure(
+			spec.default.length == spec.dim,
+			`wrong vector size, expected ${spec.dim} values`
+		);
+	}
+	if (spec.labels) {
+		ensure(spec.labels.length >= spec.dim, `expected ${spec.dim} labels`);
+	} else {
+		ensure(spec.dim <= 4, "missing vector labels");
+	}
+	return $<VectorParam>("vector", {
+		...spec,
+		min: $vec(spec.dim, spec.min, 0),
+		max: $vec(spec.dim, spec.max, 1),
+		step: $vec(spec.dim, spec.step, 0.01),
+		labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.dim),
+	});
+};
 
 export const weighted = <T extends string>(
 	spec: BaseParam<WeightedChoiceParam<T>, "total">

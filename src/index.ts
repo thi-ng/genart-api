@@ -35,6 +35,7 @@ import type {
 	Traits,
 	TraitsMessage,
 	UpdateFn,
+	VectorParam,
 	WeightedChoiceParam,
 } from "./api.js";
 import * as math from "./math.js";
@@ -225,6 +226,34 @@ class API implements GenArtAPI {
 					? false
 					: !!value,
 			randomize: (_, rnd) => rnd() < 0.5,
+		},
+		vector: {
+			validate: (spec, value) => {
+				const { dim, min, max } = <VectorParam>spec;
+				return (
+					isNumericArray(value) &&
+					value.length === dim &&
+					value.every((x, i) => x >= min[i] && x <= max[i])
+				);
+			},
+			coerce: (spec, value) => {
+				const { min, max, step } = <VectorParam>spec;
+				return (<number[]>value).map((x, i) =>
+					clamp(round(x, step[i]), min[i], max[i])
+				);
+			},
+			randomize: (spec, rnd) => {
+				const { dim, min, max, step } = <VectorParam>spec;
+				return new Array(dim)
+					.fill(0)
+					.map((_, i) =>
+						clamp(
+							round(mix(min[i], max[i], rnd()), step[i]),
+							min[i],
+							max[i]
+						)
+					);
+			},
 		},
 		weighted: {
 			validate: (spec, value) =>
