@@ -10,10 +10,10 @@ import type {
 	ResizeMessage,
 	RunMode,
 	ScreenConfig,
-} from "../api.js";
-import { sfc32 } from "../prng/sfc32.js";
+} from "@genart-api/core";
 import { base64Decode, base64Encode } from "./base64.js";
 import { compressBytes, decompressBytes } from "./compress.js";
+import { sfc32 } from "./prng/sfc32.js";
 
 const {
 	math: { clamp01, parseNum },

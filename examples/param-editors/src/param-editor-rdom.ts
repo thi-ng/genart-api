@@ -1,3 +1,15 @@
+import type {
+	APIMessage,
+	ChoiceParam,
+	ImageParam,
+	ParamSpecs,
+	RandomizeParamMessage,
+	RangeParam,
+	SetParamValueMessage,
+	TextParam,
+	VectorParam,
+	WeightedChoiceParam,
+} from "@genart-api/core";
 import { FMT_HHmm, FMT_yyyyMMdd } from "@thi.ng/date";
 import { equiv } from "@thi.ng/equiv";
 import { div } from "@thi.ng/hiccup-html";
@@ -39,18 +51,6 @@ import {
 	type ISubscription,
 } from "@thi.ng/rstream";
 import { reduce } from "@thi.ng/transducers";
-import type {
-	APIMessage,
-	ChoiceParam,
-	ImageParam,
-	ParamSpecs,
-	RandomizeParamMessage,
-	RangeParam,
-	SetParamValueMessage,
-	TextParam,
-	VectorParam,
-	WeightedChoiceParam,
-} from "../../../src/api.js";
 import { canvasColorPicker } from "./color-picker.js";
 import {
 	apiState,

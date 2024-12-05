@@ -6,7 +6,7 @@ import { __array, __instanceArray, __slice32, __primslice32 } from "@thi.ng/wasm
 // @ts-ignore possibly unused
 const __str = (mem: IWasmMemoryAccess, base: number, isConst = true) => new WasmStringPtr(mem, base, isConst);
 
-import type { ParamOpts } from "../../../../dist/api.js";
+import type { ParamOpts } from "@genart-api/core";
 
 export enum UpdateBehavior {
 	event,

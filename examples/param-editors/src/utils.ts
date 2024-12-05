@@ -1,7 +1,7 @@
+import type { Param, ParamSpecs } from "@genart-api/core";
 import { sortByCachedKey } from "@thi.ng/arrays";
 import { compare, compareByKeys2, compareNumAsc } from "@thi.ng/compare";
-import { groupByObj, pushKeys, vals } from "@thi.ng/transducers";
-import type { Param, ParamSpecs } from "../../../src/api";
+import { groupByObj, pushKeys } from "@thi.ng/transducers";
 
 export const valuePrec = (step: number) => {
 	const str = step.toString();

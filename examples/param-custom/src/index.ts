@@ -1,4 +1,4 @@
-import type { GenArtAPI, Param } from "../../../src/api.js";
+import type { GenArtAPI, Param } from "@genart-api/core";
 
 declare var $genart: GenArtAPI;
 

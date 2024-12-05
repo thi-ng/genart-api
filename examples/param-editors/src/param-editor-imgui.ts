@@ -1,3 +1,16 @@
+import type {
+	ChoiceParam,
+	Maybe,
+	NestedParam,
+	NestedParamSpecs,
+	Param,
+	RampParam,
+	RandomizeParamMessage,
+	RangeParam,
+	SetParamValueMessage,
+	VectorParam,
+	WeightedChoiceParam,
+} from "@genart-api/core";
 import { adaptiveCanvas2d } from "@thi.ng/canvas";
 import { isString } from "@thi.ng/checks";
 import { DEFAULT, defmulti } from "@thi.ng/defmulti";
@@ -22,19 +35,6 @@ import {
 import { GridLayout, gridLayout } from "@thi.ng/layout";
 import { EASING_N, HERMITE_N, LINEAR_N, ramp } from "@thi.ng/ramp";
 import { partition, range } from "@thi.ng/transducers";
-import type {
-	ChoiceParam,
-	Maybe,
-	NestedParam,
-	NestedParamSpecs,
-	Param,
-	RampParam,
-	RandomizeParamMessage,
-	RangeParam,
-	SetParamValueMessage,
-	VectorParam,
-	WeightedChoiceParam,
-} from "../../../src/api.js";
 import {
 	params,
 	selfUpdate,

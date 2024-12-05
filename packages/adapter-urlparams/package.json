@@ -1,0 +1,38 @@
+{
+	"name": "@genart-api/adapter-urlparams",
+	"version": "0.15.0",
+	"description": "GenArtAPI reference platform adapter, using URL search params for artwork parameter configuration & serialization",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thi-ng/genart-api.git"
+	},
+	"homepage": "https://thi.ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build": "node ../../tools/build.js src/index.ts adapter-urlparams",
+		"build:dist": "node ../../tools/build-dist.js"
+	},
+	"dependencies": {
+		"@genart-api/core": "workspace:^"
+	},
+	"devDependencies": {
+		"esbuild": "^0.24.0",
+		"typedoc": "^0.27.3",
+		"typescript": "^5.7.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"adapter",
+		"art",
+		"genart",
+		"generative",
+		"genart-api",
+		"layer.com",
+		"parameters",
+		"platform"
+	]
+}

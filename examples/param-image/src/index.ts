@@ -1,7 +1,3 @@
-import type { GenArtAPI } from "../../../src/api.js";
-
-declare var $genart: GenArtAPI;
-
 const RES = 64;
 const TAU = 2 * Math.PI;
 

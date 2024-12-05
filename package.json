@@ -1,28 +1,19 @@
 {
-	"name": "@thi.ng/genart-api",
-	"version": "0.15.0",
-	"description": "Platform-independent extensible API for browser-based generative art",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/thi-ng/genart-api.git"
-	},
-	"homepage": "https://thi.ng/genart-api",
-	"author": "Karsten Schmidt (https://thi.ng)",
-	"license": "MIT",
+	"private": true,
 	"type": "module",
-	"private": "true",
+	"workspaces": [
+		"packages/*",
+		"examples/*"
+	],
+	"packageManager": "yarn@4.5.3",
 	"scripts": {
-		"build": "tsc && bun build.js && yarn build:types",
-		"build:examples": "node build-examples.js",
-		"build:types": "tsc -d --emitDeclarationOnly -t esnext -m esnext -outDir dist src/api.ts",
-		"deploy:examples": "node deploy-examples.js",
-		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
-	},
-	"devDependencies": {
-		"esbuild": "^0.24.0",
-		"typedoc": "^0.26.10",
-		"typescript": "^5.6.3"
-	},
-	"sideEffects": false,
-	"dependencies": {}
+		"@genart-api": "yarn workspaces foreach -pv --all --include '@genart-api/*'",
+		"@example": "yarn workspaces foreach -pv --all --include '@example/*'",
+		"build": "yarn @genart-api -t run build",
+		"build:dist": "yarn @genart-api -t run build:dist",
+		"build:types": "yarn @genart-api -t run build:types",
+		"build:examples": "yarn @example run build",
+		"clean": "yarn @genart-api run clean",
+		"doc": "yarn @genart-api run doc"
+	}
 }

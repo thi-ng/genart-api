@@ -1,7 +1,7 @@
 # Platform independent API for generative art
 
-[![npm version](https://img.shields.io/npm/v/@thi.ng/genart-api.svg)](https://www.npmjs.com/package/@thi.ng/genart-api)
-![npm downloads](https://img.shields.io/npm/dm/@thi.ng/genart-api.svg)
+[![npm version](https://img.shields.io/npm/v/@genart-api/core.svg)](https://www.npmjs.com/package/@genart-api/core)
+![npm downloads](https://img.shields.io/npm/dm/@genart-api/core.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
 -   [Status](#status)
@@ -339,22 +339,22 @@ simplicity values are always strings, but optionally can also define labels
 ```ts
 // options
 $genart.params.choice({
-    name: "Test param",
-    desc: "Shape size preset",
-    options: ["s", "m", "l"],
-    default: "m",
+	name: "Test param",
+	desc: "Shape size preset",
+	options: ["s", "m", "l"],
+	default: "m",
 });
 
 // ...or using options with labels
 $genart.params.choice({
-    name: "Test param",
-    desc: "Shape size preset",
-    options: [
-        ["s", "Small"],
-        ["m", "Medium"],
-        ["l", "Large"],
-    ],
-    options: "m",
+	name: "Test param",
+	desc: "Shape size preset",
+	options: [
+		["s", "Small"],
+		["m", "Medium"],
+		["l", "Large"],
+	],
+	options: "m",
 });
 ```
 
@@ -374,9 +374,9 @@ widgets for editing these colors...
 
 ```ts
 $genart.params.color({
-    name: "Test param",
-    desc: "Background color",
-    default: "#aabbcc",
+	name: "Test param",
+	desc: "Background color",
+	default: "#aabbcc",
 });
 ```
 
@@ -393,9 +393,9 @@ JS `Date` value in precision of full days only (UTC midnight).
 
 ```ts
 $genart.params.date({
-    name: "Test param",
-    desc: "Best before date",
-    default: new Date("2024-09-05"),
+	name: "Test param",
+	desc: "Best before date",
+	default: new Date("2024-09-05"),
 });
 ```
 
@@ -413,9 +413,9 @@ JS `Date` value (in UTC).
 
 ```ts
 $genart.params.datetime({
-    name: "Test param",
-    desc: "Date and time (in UTC)",
-    default: new Date("2024-09-05T12:34:56+02:00"),
+	name: "Test param",
+	desc: "Date and time (in UTC)",
+	default: new Date("2024-09-05T12:34:56+02:00"),
 });
 ```
 
@@ -475,9 +475,9 @@ For simplicity, only lists of numeric or string values are supported by default:
 
 ```ts
 $genart.params.numlist({
-    name: "test",
-    desc: "List of numbers",
-    default: [1, 2, 3],
+	name: "test",
+	desc: "List of numbers",
+	default: [1, 2, 3],
 });
 ```
 
@@ -488,9 +488,9 @@ $genart.params.numlist({
 
 ```ts
 $genart.params.strlist({
-    name: "test",
-    desc: "List of strings",
-    default: ["a", "b", "c"],
+	name: "test",
+	desc: "List of strings",
+	default: ["a", "b", "c"],
 });
 ```
 
@@ -505,11 +505,11 @@ to [0, 100]). If `step` is given, the value will be rounded to multiples of
 
 ```ts
 $genart.params.range({
-    name: "Test param",
-    desc: "Pick a number between 0-100",
-    min: 0,
-    max: 100,
-    step: 5,
+	name: "Test param",
+	desc: "Pick a number between 0-100",
+	min: 0,
+	max: 100,
+	step: 5,
 });
 ```
 
@@ -528,11 +528,11 @@ pattern validation.
 
 ```ts
 $genart.params.text({
-    name: "Test param",
-    desc: "Seed phrase",
-    max: 256,
-    match: "^[a-z ]+$",
-    multiline: true,
+	name: "Test param",
+	desc: "Seed phrase",
+	max: 256,
+	match: "^[a-z ]+$",
+	multiline: true,
 });
 ```
 
@@ -580,14 +580,14 @@ If `step` is given, each vector component value will be rounded to multiples of
 
 ```ts
 $genart.params.vector({
-    name: "Test param",
-    desc: "3D vector",
-    dim: 3, // dimensions, mandatory
-    min: 0,
-    max: 1,
-    step: 0.01,
-    labels: ["X", "Y", "Z"],
-    default: [0.1, 0.2, 0.3],
+	name: "Test param",
+	desc: "3D vector",
+	dim: 3, // dimensions, mandatory
+	min: 0,
+	max: 1,
+	step: 0.01,
+	labels: ["X", "Y", "Z"],
+	default: [0.1, 0.2, 0.3],
 });
 ```
 
@@ -620,28 +620,28 @@ described above).
 // - magenta: 2/15th (13%)
 // - yellow:  1/15th (7%)
 $genart.params.weighted({
-    name: "Test param",
-    desc: "Controlled randomness",
-    options: [
-        // format: [weight, value]
-        [8, "black"],
-        [4, "cyan"],
-        [2, "magenta"],
-        [1, "yellow"],
-    ],
+	name: "Test param",
+	desc: "Controlled randomness",
+	options: [
+		// format: [weight, value]
+		[8, "black"],
+		[4, "cyan"],
+		[2, "magenta"],
+		[1, "yellow"],
+	],
 });
 
 // optionally, labels can be provided for each option
 $genart.params.weighted({
-    name: "Test param",
-    desc: "With labels",
-    options: [
-        // format: [weight, value, label]
-        [8, "#000", "black"],
-        [4, "#0ff", "cyan"],
-        [2, "#f0f", "magenta"],
-        [1, "#ff0", "yellow"],
-    ],
+	name: "Test param",
+	desc: "With labels",
+	options: [
+		// format: [weight, value, label]
+		[8, "#000", "black"],
+		[4, "#0ff", "cyan"],
+		[2, "#f0f", "magenta"],
+		[1, "#ff0", "yellow"],
+	],
 });
 ```
 
@@ -660,9 +660,9 @@ two co-dependent parameters using an XY controller/touchpad...
 
 ```ts
 $genart.params.xy({
-    name: "Test param",
-    desc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
-    default: [0.5, 0.5],
+	name: "Test param",
+	desc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
+	default: [0.5, 0.5],
 });
 ```
 
@@ -704,14 +704,14 @@ and by default the API supports the following interpolation modes:
 
 ```ts
 $genart.params.ramp({
-    name: "Test param",
-    desc: "Brightness over time",
-    stops: [
-        [0, 0.1],
-        [0.9, 1],
-        [1, 0],
-    ],
-    mode: "smooth",
+	name: "Test param",
+	desc: "Brightness over time",
+	stops: [
+		[0, 0.1],
+		[0.9, 1],
+		[1, 0],
+	],
+	mode: "smooth",
 });
 ```
 
@@ -742,43 +742,43 @@ example](https://github.com/thi-ng/genart-api/blob/main/examples/param-custom).
 ```ts
 // define a new param type with given name and implementation.
 interface OscParam extends Param<number> {
-    type: "user:sinosc";
-    freq: number;
-    amp: number;
-    offset: number;
+	type: "user:sinosc";
+	freq: number;
+	amp: number;
+	offset: number;
 }
 
 // this implementation does not allow any customizations or value randomization
 // (the latter is common to all dynamic params, since the value is ALWAYS computed)
 $genart.registerParamType("user:sinosc", {
-    // for brevity we decide this param cannot be customized (once defined)
-    valid: (spec, key, value) => false,
-    // the read function is called each time this param is evaluated,
-    // here to provide a time-based value
-    read: (spec, t) => {
-        const { freq, amp, offset } = <OscParam>spec;
-        return Math.sin(t * freq * Math.PI * 2) * amp + offset;
-    },
+	// for brevity we decide this param cannot be customized (once defined)
+	valid: (spec, key, value) => false,
+	// the read function is called each time this param is evaluated,
+	// here to provide a time-based value
+	read: (spec, t) => {
+		const { freq, amp, offset } = <OscParam>spec;
+		return Math.sin(t * freq * Math.PI * 2) * amp + offset;
+	},
 });
 
 // register parameter
 const param = $genart.setParams({
-    sine: {
-        type: "user:sinosc", // param type (should be unique)
-        freq: 0.25, // frequency in Hz
-        amp: 5, // amplitude
-        offset: 5, // center offset
-        default: 0, // ignored
-    },
+	sine: {
+		type: "user:sinosc", // param type (should be unique)
+		freq: 0.25, // frequency in Hz
+		amp: 5, // amplitude
+		offset: 5, // center offset
+		default: 0, // ignored
+	},
 });
 
 $genart.setUpdate((t) => {
-    // current time in seconds
-    t *= 0.001;
-    // evaluate param
-    console.log(t, param("sine", t));
-    // keep on animating
-    return true;
+	// current time in seconds
+	t *= 0.001;
+	// evaluate param
+	console.log(t, param("sine", t));
+	// keep on animating
+	return true;
 });
 ```
 
@@ -819,12 +819,12 @@ The value of a single trait can be a number, string or boolean.
 ```ts
 // declare a single param
 const param = await $genart.setParams({
-    bright: $genart.params.range({
-        name: "brightness",
-        desc: "overall brightness",
-        min: 0,
-        max: 100,
-    }),
+	bright: $genart.params.range({
+		name: "brightness",
+		desc: "overall brightness",
+		min: 0,
+		max: 100,
+	}),
 });
 
 // internal random param
@@ -832,8 +832,8 @@ const density = $genart.random.rnd();
 
 // declare traits to outside world
 $genart.setTraits({
-    brightness: param("bright") < 50 ? "dark" : "light",
-    density: Math.floor(density * 100) + "%",
+	brightness: param("bright") < 50 ? "dark" : "light",
+	density: Math.floor(density * 100) + "%",
 });
 ```
 
@@ -849,8 +849,7 @@ providing (deployment) platform-specific functionality and interop features.
 **Please refer or contribute to issue [#2: List of art platforms we should
 provide adapters for](https://github.com/thi-ng/genart-api/issues/2)**
 
--   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts) : Reference implementation
--   [/src/adapters/dummy.ts](https://github.com/thi-ng/genart-api/blob/main/src/adapters/dummy.ts) : Absolute barebones, scaffolding only
+-   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts) : Reference implementation
 
 ### Parameter sourcing
 
@@ -873,13 +872,13 @@ Usually, the adapter just has to return the PRNG provided by the respective
 platform.
 
 -   [PRNG interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PRNG.html)
--   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/17cbe7df708601d40ee353e77605525822f27ab1/src/adapters/urlparams.ts#L56-L73)
+-   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/index.ts)
 
 For cases where a platform does not provide its own PRNG, this repo contains two
 implementations which can be used by an adapter:
 
--   [SFC32](https://github.com/thi-ng/genart-api/blob/main/src/prng/sfc32.ts)
--   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/src/prng/xorshift128.ts)
+-   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/prng/sfc32.ts)
+-   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/prng/xorshift128.ts)
 
 ### Screen configuration
 
@@ -903,7 +902,7 @@ a listener for `genart:resize` messages, like so:
 ```ts
 // resize events contain the new screen config
 $genart.on("genart:resize", ({ screen }) => {
-    console.log("new screen info:", screen.width, screen.height, screen.dpr);
+	console.log("new screen info:", screen.width, screen.height, screen.dpr);
 });
 ```
 
@@ -944,7 +943,7 @@ this one can be replaced by loading an alternative implementation via another
     IMPORTANT: MUST be loaded AFTER the main genart script!
 -->
 <script>
-    $genart.setTimeProvider($genart.time.offline(250, 60));
+	$genart.setTimeProvider($genart.time.offline(250, 60));
 </script>
 ```
 
@@ -989,7 +988,7 @@ This repo contains several examples used for testing and evaluating the
 reference API implementation. These are all separate projects/packages located
 in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
 directory. Please ensure you read their README instructions, since a certain
-build order must be used:
+build order must be used in some situations:
 
 | **Project**                                                                            | **Live demo w/ editor**                                                                                | **Description**                                        |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ |
@@ -1002,10 +1001,10 @@ build order must be used:
 
 ### Project template
 
-This repo contains an empty project template which can be used as starting point
-for new projects. The template uses TypeScript & Vite, but can be _very_ easily
-adapted to other tooling (eg. there's hardly any code, so switching to
-JavaScript requires just renaming the source file).
+This repo contains an empty project template as starting point for new projects.
+The template uses TypeScript & Vite, but can be _very_ easily adapted to other
+tooling (eg. there's hardly any code, so switching to JavaScript requires just
+renaming the source file).
 
 -   TODO move template to own repo for easier use
 
@@ -1022,42 +1021,46 @@ yarn install
 
 ### Installion as package
 
-The [@thi.ng/genart-api package](https://www.npmjs.com/@thi.ng/genart-api)
-contains the pre-built release files & type declarations, but is **not** an ESM
-module which can (or even should) be imported via `import` syntax. The API is
-always provided as singleton via the global `$genart` variable.
+The [@genart-api/core package](https://www.npmjs.com/@genart-api/core) contains
+the pre-built release files & type declarations, but it's **not** an ESM module
+which can (or even should) be imported via `import` syntax. The API is always
+provided as singleton via the global `$genart` variable.
 
 Instead, the JS file(s) should be copied to your project's `/lib` dir (or
-similar) to be referenced by `<script>` tag in your HTML wrapper (see below):
+similar) to be referenced by a `<script>` tag in your HTML wrapper (see below):
 
 ```bash
-yarn add @thi.ng/genart-api
+yarn add @genart-api/core
+
+# you'll also need a platform adapter, for example
+yarn add @genart-api/adpater-urlparams
 
 # create dest dir
 mkdir -p lib
 
 # copy files
-cp node_modules/@thi.ng/genart-api/*.js lib
+cp node_modules/@genart-api/core/*.js lib
+cp node_modules/@genart-api/adapter-urlparams/*.js lib
 ```
 
-If you're a TypeScript user, you'll also want to add the package to your
-`tsconfig.json` types field OR add a declaration file with the following content
-to your `/src` directory:
+If you're a TypeScript user, you'll also want to add the `@genart-api/core`
+package to the `types` field in your `tsconfig.json` OR add a declaration file
+with the following content to your `/src` directory:
 
-tsconfig.json
+tsconfig.json:
 
 ```json
 {
-    "compilerOptions": {
-        "types": ["@thi.ng/genart-api"]
-    }
+	"compilerOptions": {
+		"types": ["@genart-api/core"]
+	}
 }
 ```
 
 /src/types.d.ts:
 
 ```ts
-/// <reference types="@thi.ng/genart-api" />
+/// <reference types="@genart-api/core" />
 ```
 
 Then you should be ready to go to [the next
@@ -1088,7 +1091,7 @@ described above.
 <script src="./lib/genart.min.js"></script>
 ```
 
--   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/index.ts)
+-   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/index.ts)
 
 #### Reference platform adapter
 
@@ -1102,7 +1105,7 @@ use cases:
 <script src="./lib/adapter-urlparams.min.js"></script>
 ```
 
--   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts)
+-   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts)
 
 #### Example files
 
@@ -1111,31 +1114,31 @@ use cases:
 ```html
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Hello GenArtAPI</title>
-        <!-- main GenArtAPI script -->
-        <script src="./lib/genart.js"></script>
-        <!-- platform adapter -->
-        <script src="./lib/adapter-urlparams.js"></script>
-        <style>
-            body {
-                margin: 0;
-                overflow: hidden;
-            }
-        </style>
-    </head>
-    <body>
-        <!--
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Hello GenArtAPI</title>
+		<!-- main GenArtAPI script -->
+		<script src="./lib/genart.js"></script>
+		<!-- platform adapter -->
+		<script src="./lib/adapter-urlparams.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<!--
             optional: use custom time provider (e.g. for non-realtime rendering of image sequences)
             configure API to use offline time (new frame every 250 ms, time base: 60 fps)
         -->
-        <script>
-            // $genart.setTimeProvider($genart.time.offline(250, 60));
-        </script>
-        <!-- User artwork script -->
-        <script type="module" src="/src/index.js"></script>
-    </body>
+		<script>
+			// $genart.setTimeProvider($genart.time.offline(250, 60));
+		</script>
+		<!-- User artwork script -->
+		<script type="module" src="/src/index.js"></script>
+	</body>
 </html>
 ```
 
@@ -1146,67 +1149,67 @@ use cases:
 ```js
 // index.js
 (async () => {
-    // ensure platform adapter is ready
-    await $genart.waitForAdapter();
+	// ensure platform adapter is ready
+	await $genart.waitForAdapter();
 
-    // declare parameters
-    const param = await $genart.setParams({
-        bgColor: $genart.params.color({
-            name: "Bg color", // mandatory human readable name
-            desc: "Canvas background color", // mandatory brief description
-            doc: "Optional extended documentation or usage hints",
-            default: "#0000ff", // default value (if omitted, will be initialized to random...)
-            update: "reload", // trigger reload on value change
-        }),
+	// declare parameters
+	const param = await $genart.setParams({
+		bgColor: $genart.params.color({
+			name: "Bg color", // mandatory human readable name
+			desc: "Canvas background color", // mandatory brief description
+			doc: "Optional extended documentation or usage hints",
+			default: "#0000ff", // default value (if omitted, will be initialized to random...)
+			update: "reload", // trigger reload on value change
+		}),
 
-        // this param has no default, so will be initialized to random value
-        // (unless the platform provides a customized value)
-        maxR: $genart.params.range({
-            name: "Max radius",
-            desc: "Maximum brush size",
-            min: 10,
-            max: 100,
-            step: 5,
-        }),
-    });
+		// this param has no default, so will be initialized to random value
+		// (unless the platform provides a customized value)
+		maxR: $genart.params.range({
+			name: "Max radius",
+			desc: "Maximum brush size",
+			min: 10,
+			max: 100,
+			step: 5,
+		}),
+	});
 
-    // obtain screen config
-    const { width, height, dpr } = $genart.screen;
+	// obtain screen config
+	const { width, height, dpr } = $genart.screen;
 
-    // alias PRNG function (for convenience)
-    const random = $genart.random.rnd;
+	// alias PRNG function (for convenience)
+	const random = $genart.random.rnd;
 
-    // create canvas
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    document.body.appendChild(canvas);
+	// create canvas
+	const canvas = document.createElement("canvas");
+	canvas.width = width;
+	canvas.height = height;
+	document.body.appendChild(canvas);
 
-    const ctx = canvas.getContext("2d");
+	const ctx = canvas.getContext("2d");
 
-    // use param (in TS param value types will be inferred automatically)
-    ctx.fillStyle = param("bgColor");
-    // clear canvas
-    ctx.fillRect(0, 0, width, height);
+	// use param (in TS param value types will be inferred automatically)
+	ctx.fillStyle = param("bgColor");
+	// clear canvas
+	ctx.fillRect(0, 0, width, height);
 
-    // main update/draw function
-    // time (in milliseconds) and frame number supplied by GenArtAPI & time provider
-    const update = (time, frame) => {
-        const radius = random() * param("maxR");
-        ctx.strokeStyle = "#000";
-        ctx.beginPath();
-        ctx.arc(random() * width, random() * height, radius, 0, Math.PI * 2);
-        ctx.stroke();
-        console.log(time, frame);
+	// main update/draw function
+	// time (in milliseconds) and frame number supplied by GenArtAPI & time provider
+	const update = (time, frame) => {
+		const radius = random() * param("maxR");
+		ctx.strokeStyle = "#000";
+		ctx.beginPath();
+		ctx.arc(random() * width, random() * height, radius, 0, Math.PI * 2);
+		ctx.stroke();
+		console.log(time, frame);
 
-        // function must return true for animation to continue
-        return true;
-    };
+		// function must return true for animation to continue
+		return true;
+	};
 
-    // register update function
-    // depending on platform adapter/specifics, in most cases
-    // this will also auto-start animation...
-    $genart.setUpdate(update);
+	// register update function
+	// depending on platform adapter/specifics, in most cases
+	// this will also auto-start animation...
+	$genart.setUpdate(update);
 })();
 ```
 

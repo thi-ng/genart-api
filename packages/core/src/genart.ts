@@ -765,4 +765,15 @@ const ensureValidID = (id: string, kind = "ID") =>
 /** @internal */
 const ensureValidType = (type: string) => ensureValidID(type, "type");
 
+// @ts-nocheck
 globalThis.$genart = new API();
+
+export * from "./api.js";
+
+// @ts-ignore
+declare global {
+	/**
+	 * Globally exposed singleton instance of {@link GenArtAPI}
+	 */
+	var $genart: GenArtAPI;
+}

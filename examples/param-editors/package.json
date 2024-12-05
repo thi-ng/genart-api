@@ -7,9 +7,8 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"clean": "rm -rf public/*",
-		"css:watch": "node_modules/.bin/metacss develop --bundle --watch --pretty --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
-		"css:build": "node_modules/.bin/metacss develop --bundle --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
+		"css:watch": "../../node_modules/.bin/metacss develop --bundle --watch --pretty --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt ../../node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
+		"css:build": "../../node_modules/.bin/metacss develop --bundle --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt ../../node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
 		"start": "yarn css:build && yarn start:only",
 		"start:only": "vite --host --port 8080 --open",
 		"dev": "mprocs 'yarn css:watch' 'yarn start:only'",
@@ -18,12 +17,12 @@
 	},
 	"devDependencies": {
 		"@thi.ng/meta-css": "^0.17.2",
-		"@types/node": "^22.9.3",
 		"typescript": "^5.7.2",
 		"vite": "^5.4.11",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
+		"@genart-api/core": "workspace:^",
 		"@thi.ng/api": "^8.11.13",
 		"@thi.ng/arrays": "^2.10.6",
 		"@thi.ng/canvas": "^0.5.6",
@@ -47,6 +46,5 @@
 		"@thi.ng/rstream": "^9.2.0",
 		"@thi.ng/strings": "^3.8.11",
 		"@thi.ng/transducers": "^9.2.9"
-	},
-	"sideEffects": false
+	}
 }

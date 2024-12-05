@@ -372,7 +372,7 @@
     };
   };
 
-  // src/index.ts
+  // src/genart.ts
   var { ensure: ensure2, isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
   var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, round: round2, parseNum: parseNum2 } = math_exports;
   var PARAM_DEFAULTS = {

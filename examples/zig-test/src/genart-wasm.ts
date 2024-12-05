@@ -1,3 +1,4 @@
+import type { ParamSpecs, RandomFn } from "@genart-api/core";
 import type {
 	IWasmAPI,
 	WasmBridge,
@@ -5,7 +6,6 @@ import type {
 	WasmModuleSpec,
 	WasmTypeBase,
 } from "@thi.ng/wasm-api";
-import type { ParamSpecs, RandomFn } from "../../../dist/api.js";
 import { $Param, type ParamBody } from "./generated/api.js";
 
 export * from "./generated/api.js";

@@ -1,5 +1,21 @@
 "use strict";
 (() => {
+  // src/base64.ts
+  var base64Encode = (src) => {
+    const buf = Array.isArray(src) ? src : new Uint8Array(src.buffer, src.byteOffset, src.byteLength);
+    return btoa(String.fromCharCode(...buf));
+  };
+  var base64Decode = (src) => new Uint8Array([...atob(src)].map((x) => x.charCodeAt(0)));
+
+  // src/compress.ts
+  var pipe = async (buf, stream) => new Uint8Array(
+    await new Response(
+      new Blob([buf]).stream().pipeThrough(stream)
+    ).arrayBuffer()
+  );
+  var compressBytes = (buf, fmt = "gzip") => pipe(buf, new CompressionStream(fmt));
+  var decompressBytes = (buf, fmt = "gzip") => pipe(buf, new DecompressionStream(fmt));
+
   // src/prng/sfc32.ts
   var sfc32 = (seed) => {
     const buf = new Uint32Array(4);
@@ -14,23 +30,7 @@
     };
   };
 
-  // src/adapters/base64.ts
-  var base64Encode = (src) => {
-    const buf = Array.isArray(src) ? src : new Uint8Array(src.buffer, src.byteOffset, src.byteLength);
-    return btoa(String.fromCharCode(...buf));
-  };
-  var base64Decode = (src) => new Uint8Array([...atob(src)].map((x) => x.charCodeAt(0)));
-
-  // src/adapters/compress.ts
-  var pipe = async (buf, stream) => new Uint8Array(
-    await new Response(
-      new Blob([buf]).stream().pipeThrough(stream)
-    ).arrayBuffer()
-  );
-  var compressBytes = (buf, fmt = "gzip") => pipe(buf, new CompressionStream(fmt));
-  var decompressBytes = (buf, fmt = "gzip") => pipe(buf, new DecompressionStream(fmt));
-
-  // src/adapters/urlparams.ts
+  // src/index.ts
   var {
     math: { clamp01, parseNum },
     utils: { formatValuePrec }

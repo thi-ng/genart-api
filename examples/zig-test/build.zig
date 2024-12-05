@@ -2,7 +2,9 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     // Please consult the thi.ng/wasm-api README for details!
-    const lib = @import("node_modules/@thi.ng/wasm-api/zig/build.zig").wasmLib(b, .{
+    const lib = @import("wasm-api-build.zig").wasmLib(b, .{
+        // Only needed for this monorepo!!
+        .base = "../../node_modules",
         // Declare extra WASM API packages to use
         .modules = &.{
             .{ .name = "wasm-api-canvas", .path = "@thi.ng/wasm-api-canvas/zig/lib.zig" },

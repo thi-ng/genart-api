@@ -129,7 +129,11 @@ export interface ResizeMessage extends APIMessage {
  * Message type emitted by the {@link GenArtAPI.start} update/animation loop for
  * each single frame update. The message contains the time & frame information
  * of the currently rendered frame and is intended for 3rd party tooling (i.e.
- * editors, players, sequencers).
+ * editors, players, sequencers). Messages are only sent if the
+ * {@link GenArtAPIOpts.notifyFrameUpdate} option is enabled.
+ *
+ * @remarks
+ * Also see: {@link GenArtAPI.configure} and {@link ConfigureMessage}.
  */
 export interface AnimFrameMessage extends APIMessage {
     type: "genart:frame";

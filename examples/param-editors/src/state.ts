@@ -1,13 +1,3 @@
-import type { Maybe } from "@thi.ng/api";
-import { isPlainObject, isString } from "@thi.ng/checks";
-import { defTimecode } from "@thi.ng/date";
-import {
-	reactive,
-	stream,
-	type ISubscription,
-	type WithErrorHandlerOpts,
-} from "@thi.ng/rstream";
-import { padLeft } from "@thi.ng/strings";
 import type {
 	AnimFrameMessage,
 	APIMessage,
@@ -18,7 +8,17 @@ import type {
 	ParamsMessage,
 	StateChangeMessage,
 	TraitsMessage,
-} from "../../../src/api";
+} from "@genart-api/core";
+import type { Maybe } from "@thi.ng/api";
+import { isPlainObject, isString } from "@thi.ng/checks";
+import { defTimecode } from "@thi.ng/date";
+import {
+	reactive,
+	stream,
+	type ISubscription,
+	type WithErrorHandlerOpts,
+} from "@thi.ng/rstream";
+import { padLeft } from "@thi.ng/strings";
 
 const INF: Partial<WithErrorHandlerOpts> = { closeOut: "never" };
 

@@ -1,7 +1,3 @@
-import type { GenArtAPI } from "../../../src/api.js";
-
-declare var $genart: GenArtAPI;
-
 (async () => {
 	// log API version
 	console.log("$genart version:", $genart.version);

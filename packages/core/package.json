@@ -1,0 +1,47 @@
+{
+	"name": "@genart-api/core",
+	"version": "0.15.0",
+	"description": "Platform-independent extensible API for browser-based generative art",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thi-ng/genart-api.git"
+	},
+	"homepage": "https://thi.ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"typings": "./genart.d.ts",
+	"scripts": {
+		"build": "node ../../tools/build.js src/genart.ts genart && yarn build:types",
+		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
+		"build:dist": "node ../../tools/build-dist.js",
+		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts"
+	},
+	"devDependencies": {
+		"esbuild": "^0.24.0",
+		"typedoc": "^0.27.3",
+		"typescript": "^5.7.2"
+	},
+	"files": [
+		"api",
+		"time",
+		"./*.js",
+		"./*.d.ts"
+	],
+	"keywords": [
+		"animation",
+		"art",
+		"cross-platform",
+		"genart",
+		"generative",
+		"interop",
+		"ipc",
+		"messages",
+		"parameters",
+		"platform",
+		"time"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}

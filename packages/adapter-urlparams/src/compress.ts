@@ -1,4 +1,4 @@
-import type { TypedArray } from "../api.js";
+import type { TypedArray } from "@genart-api/core";
 
 const pipe = async (
 	buf: TypedArray,

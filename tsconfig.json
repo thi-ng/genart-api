@@ -1,22 +1,22 @@
 {
-	"include": ["src/**/*.ts"],
-	"exclude": ["./**/node_modules"],
 	"compilerOptions": {
-		"module": "esnext",
-		"target": "esnext",
-		"moduleResolution": "node",
-		"allowSyntheticDefaultImports": true,
-		"verbatimModuleSyntax": true,
-		"noEmit": true,
-		"strict": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": false,
-		"useDefineForClassFields": true,
-		"experimentalDecorators": true,
-		"outDir": ".",
+		"declaration": true,
+		"declarationMap": false,
 		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"isolatedModules": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
 		"noUnusedLocals": true,
-		"noUnusedParameters": true
-	}
+		"noUnusedParameters": true,
+		"preserveConstEnums": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"target": "es2022",
+		"useDefineForClassFields": true,
+		"verbatimModuleSyntax": true
+	},
+	"exclude": ["**/node_modules"]
 }

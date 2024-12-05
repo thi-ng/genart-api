@@ -1,11 +1,22 @@
-/build
-/doc
-/examples/*/dist
-/examples/*/public
-/node_modules
-/public
+/.yarn
 
+css/framework.json
+dev
+doc
+dist
+node_modules
+public
 .zig-cache
 zig-out
 
+examples/layer-test
+packages/adapter-layer
+
+wasm-api-build.zig
+
+*.css
 *.js
+*.d.ts
+*.map
+*.wasm
+*.wast

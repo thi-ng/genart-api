@@ -7,15 +7,16 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build:prepare": "cp ../../dist/*.js public/lib",
+		"build:prepare": "node ../../tools/copy-lib.js",
 		"start": "yarn build:prepare && vite --host --open",
-		"build": "yarn build:prepare && vite build --base='./'",
+		"build": "yarn build:prepare && vite build --base='./' && cp -R lib dist",
 		"preview": "vite preview --host --open"
 	},
-	"devDependencies": {
-		"vite": "^5.4.10",
-		"vite-plugin-html": "^3.2.2"
+	"dependencies": {
+		"@genart-api/core": "workspace:^"
 	},
-	"dependencies": {},
-	"sideEffects": false
+	"devDependencies": {
+		"vite": "^5.4.11",
+		"vite-plugin-html": "^3.2.2"
+	}
 }
