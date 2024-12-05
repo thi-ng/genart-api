@@ -31,14 +31,14 @@ import {
 	type FormItem,
 } from "@thi.ng/rdom-forms";
 import {
-	fromObject,
+	fromTuple,
 	merge,
 	reactive,
 	stream,
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
-import { reduce, repeatedly } from "@thi.ng/transducers";
+import { reduce } from "@thi.ng/transducers";
 import type {
 	APIMessage,
 	ChoiceParam,
@@ -261,14 +261,8 @@ const createParamControls = (params: ParamSpecs) => {
 								step: [0.001, 0.001],
 								labels: ["X", "Y"],
 						  };
-				const tuple = fromObject(paramCache[id], {
-					keys: [...repeatedly((i) => i, dim)],
-				});
-				value.subscribe({
-					next(vec) {
-						tuple.next(vec);
-					},
-				});
+				const tuple = fromTuple<number[]>(paramCache[id]);
+				value.subscribe(tuple);
 				const widget =
 					param.widget && param.widget !== "default" ? num : range;
 				for (let i = 0; i < dim; i++) {

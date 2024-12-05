@@ -9,7 +9,7 @@ import {
 } from "@thi.ng/rdom-forms";
 import { reactive } from "@thi.ng/rstream";
 import { launchEditorImgui } from "./param-editor-imgui.js";
-import { launchEditorForms } from "./param-editor.js";
+import { launchEditorForms } from "./param-editor-rdom.js";
 
 const urlParams = new URLSearchParams(location.search);
 const initialURL = urlParams.get("url");
@@ -98,6 +98,7 @@ $compile(
 	anchor(
 		{
 			href: "#",
+			title: "Press Esc to toggle",
 			onclick: (e: Event) => {
 				collapse.next(!collapse.deref());
 				e.preventDefault();
