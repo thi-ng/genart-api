@@ -55,9 +55,49 @@
     text: () => text,
     time: () => time,
     toggle: () => toggle,
+    vector: () => vector,
     weighted: () => weighted,
     xy: () => xy
   });
+
+  // src/utils.ts
+  var utils_exports = {};
+  __export(utils_exports, {
+    ensure: () => ensure,
+    formatValuePrec: () => formatValuePrec,
+    isNumber: () => isNumber,
+    isNumericArray: () => isNumericArray,
+    isString: () => isString,
+    isTypedArray: () => isTypedArray,
+    u16: () => u16,
+    u24: () => u24,
+    u32: () => u32,
+    u8: () => u8,
+    valuePrec: () => valuePrec
+  });
+  var ensure = (x, msg) => {
+    if (!x) throw new Error(msg);
+    return x;
+  };
+  var isNumber = (x) => typeof x === "number" && !isNaN(x);
+  var isString = (x) => typeof x === "string";
+  var isNumericArray = (x) => isTypedArray(x) || Array.isArray(x) && x.every(isNumber);
+  var isTypedArray = (x) => !!x && (x instanceof Float32Array || x instanceof Float64Array || x instanceof Uint32Array || x instanceof Int32Array || x instanceof Uint8Array || x instanceof Int8Array || x instanceof Uint16Array || x instanceof Int16Array || x instanceof Uint8ClampedArray);
+  var u8 = (x) => (x &= 255, (x < 16 ? "0" : "") + x.toString(16));
+  var u16 = (x) => u8(x >>> 8) + u8(x);
+  var u24 = (x) => u16(x >>> 8) + u8(x & 255);
+  var u32 = (x) => u16(x >>> 16) + u16(x);
+  var valuePrec = (step) => {
+    const str = step.toString();
+    const i = str.indexOf(".");
+    return i > 0 ? str.length - i - 1 : 0;
+  };
+  var formatValuePrec = (step) => {
+    const prec = valuePrec(step);
+    return (x) => x.toFixed(prec);
+  };
+
+  // src/params.ts
   var $ = (type, spec, randomize = true) => ({
     type,
     state: "void",
@@ -113,6 +153,27 @@
   var text = (spec) => $("text", spec, false);
   var time = (spec) => $("time", spec);
   var toggle = (spec) => $("toggle", spec);
+  var vector = (spec) => {
+    const $vec = (n, value, defaultValue = 0) => Array.isArray(value) ? (ensure(value.length === n, "wrong vector size"), value) : new Array(n).fill(isNumber(value) ? value : defaultValue);
+    if (spec.default) {
+      ensure(
+        spec.default.length == spec.dim,
+        `wrong vector size, expected ${spec.dim} values`
+      );
+    }
+    if (spec.labels) {
+      ensure(spec.labels.length >= spec.dim, `expected ${spec.dim} labels`);
+    } else {
+      ensure(spec.dim <= 4, "missing vector labels");
+    }
+    return $("vector", {
+      ...spec,
+      min: $vec(spec.dim, spec.min, 0),
+      max: $vec(spec.dim, spec.max, 1),
+      step: $vec(spec.dim, spec.step, 0.01),
+      labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.dim)
+    });
+  };
   var weighted = (spec) => $("weighted", {
     ...spec,
     options: spec.options.sort((a, b) => b[0] - a[0]),
@@ -311,40 +372,8 @@
     };
   };
 
-  // src/utils.ts
-  var utils_exports = {};
-  __export(utils_exports, {
-    formatValuePrec: () => formatValuePrec,
-    isNumber: () => isNumber,
-    isNumericArray: () => isNumericArray,
-    isString: () => isString,
-    isTypedArray: () => isTypedArray,
-    u16: () => u16,
-    u24: () => u24,
-    u32: () => u32,
-    u8: () => u8,
-    valuePrec: () => valuePrec
-  });
-  var isNumber = (x) => typeof x === "number" && !isNaN(x);
-  var isString = (x) => typeof x === "string";
-  var isNumericArray = (x) => isTypedArray(x) || Array.isArray(x) && x.every(isNumber);
-  var isTypedArray = (x) => !!x && (x instanceof Float32Array || x instanceof Float64Array || x instanceof Uint32Array || x instanceof Int32Array || x instanceof Uint8Array || x instanceof Int8Array || x instanceof Uint16Array || x instanceof Int16Array || x instanceof Uint8ClampedArray);
-  var u8 = (x) => (x &= 255, (x < 16 ? "0" : "") + x.toString(16));
-  var u16 = (x) => u8(x >>> 8) + u8(x);
-  var u24 = (x) => u16(x >>> 8) + u8(x & 255);
-  var u32 = (x) => u16(x >>> 16) + u16(x);
-  var valuePrec = (step) => {
-    const str = step.toString();
-    const i = str.indexOf(".");
-    return i > 0 ? str.length - i - 1 : 0;
-  };
-  var formatValuePrec = (step) => {
-    const prec = valuePrec(step);
-    return (x) => x.toFixed(prec);
-  };
-
   // src/index.ts
-  var { isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
+  var { ensure: ensure2, isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
   var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, round: round2, parseNum: parseNum2 } = math_exports;
   var PARAM_DEFAULTS = {
     edit: "protected",
@@ -482,6 +511,28 @@
         coerce: (_, value) => value === "true" || value === "1" ? true : value === "false" || value === "0" ? false : !!value,
         randomize: (_, rnd) => rnd() < 0.5
       },
+      vector: {
+        validate: (spec, value) => {
+          const { dim, min, max } = spec;
+          return isNumericArray2(value) && value.length === dim && value.every((x, i) => x >= min[i] && x <= max[i]);
+        },
+        coerce: (spec, value) => {
+          const { min, max, step } = spec;
+          return value.map(
+            (x, i) => clamp2(round2(x, step[i]), min[i], max[i])
+          );
+        },
+        randomize: (spec, rnd) => {
+          const { dim, min, max, step } = spec;
+          return new Array(dim).fill(0).map(
+            (_, i) => clamp2(
+              round2(mix2(min[i], max[i], rnd()), step[i]),
+              min[i],
+              max[i]
+            )
+          );
+        }
+      },
       weighted: {
         validate: (spec, value) => !!spec.options.find(
           (x) => x[1] === value
@@ -548,7 +599,7 @@
       });
     }
     get version() {
-      return "0.14.0";
+      return "0.15.0";
     }
     get id() {
       return this._opts.id;
@@ -565,7 +616,7 @@
     }
     get random() {
       if (this._prng) return this._prng;
-      return this._prng = ensure(
+      return this._prng = ensure2(
         this._adapter,
         "missing platform adapter"
       ).prng;
@@ -807,18 +858,18 @@
     }
     ensureParam(id) {
       ensureValidID(id);
-      const spec = ensure(
-        ensure(this._params, "no params defined")[id],
+      const spec = ensure2(
+        ensure2(this._params, "no params defined")[id],
         `unknown param: ${id}`
       );
       return { spec, impl: this.ensureParamImpl(spec.type) };
     }
     ensureParamImpl(type) {
       ensureValidType(type);
-      return ensure(this._paramTypes[type], `unknown param type: ${type}`);
+      return ensure2(this._paramTypes[type], `unknown param type: ${type}`);
     }
     ensureNestedParam(param, key) {
-      const spec = ensure(
+      const spec = ensure2(
         this.ensureParamImpl(param.type).params?.[key],
         `param type '${param.type}' has no nested: ${key}`
       );
@@ -888,11 +939,7 @@
       return dest;
     }
   };
-  var ensure = (x, msg) => {
-    if (!x) throw new Error(msg);
-    return x;
-  };
-  var ensureValidID = (id, kind = "ID") => ensure(
+  var ensureValidID = (id, kind = "ID") => ensure2(
     !(id === "__proto__" || id === "prototype" || id === "constructor"),
     `illegal param ${kind}: ${id}`
   );

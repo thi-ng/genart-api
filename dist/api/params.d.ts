@@ -233,6 +233,43 @@ export interface TimeParam extends Param<[number, number, number]> {
 export interface ToggleParam extends Param<boolean> {
     type: "toggle";
 }
+export interface VectorParam extends Param<number[]> {
+    type: "vector";
+    /**
+     * Vector dimensions/size. Required.
+     */
+    dim: number;
+    /**
+     * Minimum vector value. Each vector component should be a multiple of
+     * {@link VectorParam.step}.
+     *
+     * @defaultValue 0
+     */
+    min: number[];
+    /**
+     * Maximum vector value. Each vector component should be a multiple of
+     * {@link VectorParam.step}.
+     *
+     * @defaultValue 1
+     */
+    max: number[];
+    /**
+     * Step vector value.
+     *
+     * @defaultValue 0.01
+     */
+    step: number[];
+    /**
+     * Semi-optional array of labels for the different vector components. If not
+     * given, the following label sets are used:
+     *
+     * - 2d: ["X", "Y"]
+     * - 3d: ["X", "Y", "Z"]
+     * - 4d: ["X", "Y", "Z", "W"]
+     * - nd: must be defined by artist (error, if missing)
+     */
+    labels: string[];
+}
 export interface WeightedChoiceParam<T extends string> extends Param<T> {
     type: "weighted";
     options: [number, T, string?][];
@@ -478,6 +515,17 @@ export interface ParamFactories {
      * @param spec
      */
     toggle(spec: BaseParam<ToggleParam>): ToggleParam;
+    /**
+     * Defines an n-dimensional vector param. Randomizable.
+     *
+     * @param spec
+     */
+    vector(spec: BaseParam<VectorParam, "min" | "max" | "step" | "labels"> & {
+        min?: number | number[];
+        max?: number | number[];
+        step?: number | number[];
+        labels?: string[];
+    }): VectorParam;
     /**
      * Similar to the {@link ChoiceParam} param type, but here each option also
      * has an associated weight. Randomizable.

@@ -1,6 +1,13 @@
 export type TypedArray = Float32Array | Float64Array | Int8Array | Int16Array | Int32Array | Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array;
 export interface Utils {
     /**
+     * Throws an error if `x` is non-truthy, otherwise returns `x`.
+     *
+     * @param x
+     * @param msg
+     */
+    ensure<T>(x: T, msg: string): T;
+    /**
      * Returns true if `x` is a number and not NaN.
      *
      * @param x

@@ -285,8 +285,8 @@ TODO — for now please also see the following links for more messaging related 
 
 ### API documentation
 
-Full API docs are actively being worked on. For now, this readme, the source
-code and the [example projects](#example-projects) are the best reference.
+In addition to the detailed API docs, this readme, the source code and the
+[example projects](#example-projects) are the best reference.
 
 [Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
 
@@ -329,6 +329,9 @@ This section describes the set of _static_ param types:
 
 #### Choice parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ChoiceParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#choice)
+
 This enum-like param can only take on values from a fixed list of options. For
 simplicity values are always strings, but optionally can also define labels
 (only used for display purposes by external tooling).
@@ -362,6 +365,9 @@ $genart.params.choice({
 
 #### Color parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ColorParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#color)
+
 CSS hex color value (6 digits only). Other/newer color types (e.g. `oklch()`)
 might be supported later, but currently omitted due to lack of native browser
 widgets for editing these colors...
@@ -380,6 +386,9 @@ $genart.params.color({
 
 #### Date parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/DateParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#date)
+
 JS `Date` value in precision of full days only (UTC midnight).
 
 ```ts
@@ -397,6 +406,9 @@ $genart.params.date({
 
 #### Datetime parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/DateTimeParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#datetime)
+
 JS `Date` value (in UTC).
 
 ```ts
@@ -413,6 +425,9 @@ $genart.params.datetime({
 -   Numeric range slider (UNIX epoch)
 
 #### Image parameter
+
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ImageParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#image)
 
 Image parameters are used to provide spatially varied param values (e.g.
 gradient maps, masks etc.) by allowing the artwork to read pixel values from
@@ -446,9 +461,17 @@ compression and base64 encoding.
 
 #### List parameter
 
-TODO
+For simplicity, only lists of numeric or string values are supported by default:
+
+> ![IMPORTANT]
+> These param types are fully functioning, but please see [editor
+> support](#parameter-editors) for implementation progress to allow user
+> customizations.
 
 ##### Numeric list
+
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/NumListParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#numlist)
 
 ```ts
 $genart.params.numlist({
@@ -460,6 +483,9 @@ $genart.params.numlist({
 
 ##### String list
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/StringListParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#strlist)
+
 ```ts
 $genart.params.strlist({
     name: "test",
@@ -469,6 +495,9 @@ $genart.params.strlist({
 ```
 
 #### Range parameter
+
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/RangeParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#range)
 
 Numeric value from a closed range/interval (defined by `min`/`max`, defaulting
 to [0, 100]). If `step` is given, the value will be rounded to multiples of
@@ -491,6 +520,9 @@ $genart.params.range({
 
 #### Text parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/TextParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#text)
+
 Single or multi-line text, optionally with `min`/`max` length and/or regexp
 pattern validation.
 
@@ -498,9 +530,9 @@ pattern validation.
 $genart.params.text({
     name: "Test param",
     desc: "Seed phrase",
-    max: 256
-    match: "^[a-z ]+$"
-    multiline: true
+    max: 256,
+    match: "^[a-z ]+$",
+    multiline: true,
 });
 ```
 
@@ -509,6 +541,9 @@ $genart.params.text({
 -   Single or multiline text input field
 
 #### Time parameter
+
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/TimeParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#time)
 
 Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h format.
 
@@ -520,6 +555,9 @@ Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h form
 
 #### Toggle parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ToggleParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#toggle)
+
 On/off switch (boolean) parameter.
 
 ##### Recommended GUI widget
@@ -528,22 +566,28 @@ On/off switch (boolean) parameter.
 
 #### Vector parameter
 
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/VectorParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#vector)
+
 n-dimensional vector parameter.
 
 -   `dim` defines number of dimensions
 -   `min` / `max` / `step` can be given as scalars or vectors
 -   `labels` are only mandatory for `dim > 4`, otherwise default to XYZW
 
+If `step` is given, each vector component value will be rounded to multiples of
+`step` (always clamped to min/max).
+
 ```ts
 $genart.params.vector({
     name: "Test param",
     desc: "3D vector",
     dim: 3, // dimensions, mandatory
-    min: 0
-    max: 1
+    min: 0,
+    max: 1,
     step: 0.01,
     labels: ["X", "Y", "Z"],
-    default: [0.1, 0.2, 0.3]
+    default: [0.1, 0.2, 0.3],
 });
 ```
 
@@ -552,6 +596,9 @@ $genart.params.vector({
 -   per-component slider/dial
 
 #### Weighted choice parameter
+
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/WeightedChoiceParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#weighted)
 
 Similar to the [Choice parameter type](#choice), but here each option also
 has an associated weight/importance. When randomizing this parameter, a new
@@ -573,6 +620,7 @@ described above).
 // - magenta: 2/15th (13%)
 // - yellow:  1/15th (7%)
 $genart.params.weighted({
+    name: "Test param",
     desc: "Controlled randomness",
     options: [
         // format: [weight, value]
@@ -585,6 +633,7 @@ $genart.params.weighted({
 
 // optionally, labels can be provided for each option
 $genart.params.weighted({
+    name: "Test param",
     desc: "With labels",
     options: [
         // format: [weight, value, label]
@@ -603,8 +652,11 @@ $genart.params.weighted({
 
 #### XY parameter
 
-A 2D dimensional tuple which produces values in the [0,0] .. [1,1] range. Useful
-to control two co-dependent parameters using an XY controller/touchpad...
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/XYParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#xy)
+
+A 2D dimensional tuple for values in the [0,0] .. [1,1] range. Useful to control
+two co-dependent parameters using an XY controller/touchpad...
 
 ```ts
 $genart.params.xy({
@@ -629,6 +681,9 @@ Unlike [static param types](#static-parameter-types), these parameters have **no
 default value** and their actual value is always computed.
 
 #### Ramp parameter
+
+-   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/RampParam.html)
+-   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#ramp)
 
 A ramp defines a one-dimensional curve/gradient via a number of stops/keyframes,
 from which then an actual value will be derived by sampling the curve at a
