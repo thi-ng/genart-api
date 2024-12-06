@@ -7,17 +7,18 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build:prepare": "cp node_modules/@thi.ng/genart-api/*.js lib",
+		"build:prepare": "cp node_modules/@genart-api/core/*.js lib && cp node_modules/@genart-api/adapter-urlparams/*.js lib",
 		"start": "yarn build:prepare && vite --host --open",
 		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"typescript": "^5.6.3",
+		"typescript": "^5.7.2",
 		"vite": "^5.4.11",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
-		"@thi.ng/genart-api": "^0.15.0"
+		"@genart-api/core": "^0.15.0",
+		"@genart-api/adpater-urlparams": "^0.15.0"
 	}
 }

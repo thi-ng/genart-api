@@ -1,4 +1,4 @@
-// import type { GenArtAPI } from "@thi.ng/genart-api";
+// import type { GenArtAPI } from "@genart-api/core";
 
 const param = await $genart.setParams({
 	color: $genart.params.color({

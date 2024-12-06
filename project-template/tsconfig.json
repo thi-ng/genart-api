@@ -2,7 +2,7 @@
 	"include": ["src/**/*.ts"],
 	"exclude": ["./**/node_modules"],
 	"compilerOptions": {
-		"types": ["@thi.ng/genart-api"],
+		"types": ["@genart-api/core"],
 		"module": "esnext",
 		"target": "esnext",
 		"moduleResolution": "node",
