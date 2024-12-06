@@ -88,7 +88,7 @@ window.addEventListener("message", (e) => {
 			currentTime.next($msg.time);
 			currentFrame.next($msg.frame);
 			break;
-		case "paramadapter:update":
+		case "urlparamsadapter:set-params":
 			iframeParams.next(e.data.params);
 			break;
 	}
