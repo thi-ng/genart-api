@@ -10,6 +10,7 @@ import type {
 	ResizeMessage,
 	RunMode,
 	ScreenConfig,
+	VectorParam,
 } from "@genart-api/core";
 import { base64Decode, base64Encode } from "./base64.js";
 import { compressBytes, decompressBytes } from "./compress.js";
@@ -44,7 +45,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			// (optional) send updated params to parent GUI for param editing
 			parent.postMessage(
 				{
-					type: "paramadapter:update",
+					type: "urlparamsadapter:set-params",
 					params: this.params.toString(),
 				},
 				"*"
@@ -77,7 +78,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		// broadcast initial set of parameters (e.g. for editors)
 		parent.postMessage(
 			{
-				type: "paramadapter:update",
+				type: "urlparamsadapter:set-params",
 				params: this.params.toString(),
 			},
 			"*"
@@ -206,6 +207,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				return { value: value.split(",") };
 			case "toggle":
 				return { value: value === "1" };
+			case "vector":
 			case "xy":
 				return { value: value.split(",").map((x) => +x) };
 		}
@@ -231,7 +233,10 @@ class URLParamsAdapter implements PlatformAdapter {
 				return (
 					$spec.mode![0] +
 					"," +
-					$spec.stops.flatMap((x) => x).join(",")
+					$spec.stops
+						.flat()
+						.map((x) => x.toFixed(3))
+						.join(",")
 				);
 			}
 			case "range":
@@ -240,10 +245,12 @@ class URLParamsAdapter implements PlatformAdapter {
 				return spec.value.join(":");
 			case "toggle":
 				return spec.value ? 1 : 0;
-			case "xy":
-				return (<number[]>spec.value)
-					.map((x) => x.toFixed(3))
-					.join(",");
+			case "vector":
+			case "xy": {
+				const $spec = <VectorParam>spec;
+				const step = Array.isArray($spec.step) ? $spec.step[0] : 0.001;
+				return $spec.value!.map(formatValuePrec(step)).join(",");
+			}
 			default:
 				return spec.value;
 		}
