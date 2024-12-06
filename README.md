@@ -222,13 +222,14 @@ The API implements a finite state machine with the following possible states:
 #### Message types
 
 > [!IMPORTANT]
-> Message names have been updated in v0.14.0 and are partially incompatible with
-> older versions. Please see [commit
+> Message names have been updated in recent versions and are partially
+> incompatible with older versions. Please see [commit
 > details](https://github.com/thi-ng/genart-api/commit/35b627d7380bad75d280cc1e051ec7ed23aa8995)
-> for what has changed and why, and what (might) need to be changed in your projects.
+> for what has changed and why, and what (might) need to be changed in your
+> projects.
 >
-> **The [parameter editors](#parameter-editors) are only compatible with
-> artworks using (at minimum) the above stated version of the GenArtAPI
+> **At this stage of the project, the [parameter editors](#parameter-editors)
+> are only compatible with artworks using the current version of the GenArtAPI
 > reference implementation.**
 
 The API also defines and uses a message protocol to communicate certain
@@ -1243,6 +1244,12 @@ yarn build:examples
 ```
 
 ## Parameter editors
+
+> [!IMPORTANT]
+>
+> **At this stage of the project, the parameter editors are only compatible with
+> artworks using the current version of the GenArtAPI reference
+> implementation.**
 
 The repo contains two reference implementations of GUI parameter editors to
 modify param values exposed by an artwork running in an embedded `<iframe>`.

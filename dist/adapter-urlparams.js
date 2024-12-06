@@ -55,7 +55,7 @@
         this.params.set(e.paramID, value);
         parent.postMessage(
           {
-            type: "paramadapter:update",
+            type: "urlparamsadapter:set-params",
             params: this.params.toString()
           },
           "*"
@@ -83,7 +83,7 @@
       });
       parent.postMessage(
         {
-          type: "paramadapter:update",
+          type: "urlparamsadapter:set-params",
           params: this.params.toString()
         },
         "*"
@@ -204,6 +204,7 @@
           return { value: value.split(",") };
         case "toggle":
           return { value: value === "1" };
+        case "vector":
         case "xy":
           return { value: value.split(",").map((x) => +x) };
       }
@@ -225,7 +226,7 @@
           return spec.value.join(",");
         case "ramp": {
           const $spec = spec;
-          return $spec.mode[0] + "," + $spec.stops.flatMap((x) => x).join(",");
+          return $spec.mode[0] + "," + $spec.stops.flat().map((x) => x.toFixed(3)).join(",");
         }
         case "range":
           return formatValuePrec(spec.step)(spec.value);
@@ -233,8 +234,12 @@
           return spec.value.join(":");
         case "toggle":
           return spec.value ? 1 : 0;
-        case "xy":
-          return spec.value.map((x) => x.toFixed(3)).join(",");
+        case "vector":
+        case "xy": {
+          const $spec = spec;
+          const step = Array.isArray($spec.step) ? $spec.step[0] : 1e-3;
+          return $spec.value.map(formatValuePrec(step)).join(",");
+        }
         default:
           return spec.value;
       }
