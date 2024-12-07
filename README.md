@@ -236,22 +236,22 @@ The API also defines and uses a message protocol to communicate certain
 lifecycle events, state changes and requests to both internal & external
 participants. Please see links for descriptions of each message type.
 
--   `genart:capture`: [CaptureMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/CaptureMessage.html)
--   `genart:configure`: [ConfigureMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ConfigureMessage.html)
--   `genart:frame`: [AnimFrameMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/AnimFrameMessage.html)
--   `genart:get-info`: [GetInfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/GetInfoMessage.html)
--   `genart:info`: [InfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/InfoMessage.html)
--   `genart:params`: [ParamsMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamsMessage.html)
--   `genart:param-change`: [ParamChangeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamChangeMessage.html)
--   `genart:param-error`: [ParamErrorMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamErrorMessage.html)
--   `genart:randomize-param`: [RandomizeParamMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/RandomizeParamMessage.html)
--   `genart:resize`: [ResizeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ResizeMessage.html)
--   `genart:resume`: [ResumeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/ResumeMessage.html)
--   `genart:set-param-value`: [SetParamValueMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/SetParamValueMessage.html)
--   `genart:start`: [StartMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StartMessage.html)
--   `genart:state-change`: [StateChangeMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StateChangeMessage.html)
--   `genart:stop`: [StopMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/StopMessage.html)
--   `genart:traits`: [TraitsMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/TraitsMessage.html)
+-   `genart:capture`: [CaptureMessage](https://docs.thi.ng/genart-api/core/interfaces/CaptureMessage.html)
+-   `genart:configure`: [ConfigureMessage](https://docs.thi.ng/genart-api/core/interfaces/ConfigureMessage.html)
+-   `genart:frame`: [AnimFrameMessage](https://docs.thi.ng/genart-api/core/interfaces/AnimFrameMessage.html)
+-   `genart:get-info`: [GetInfoMessage](https://docs.thi.ng/genart-api/core/interfaces/GetInfoMessage.html)
+-   `genart:info`: [InfoMessage](https://docs.thi.ng/genart-api/core/interfaces/InfoMessage.html)
+-   `genart:params`: [ParamsMessage](https://docs.thi.ng/genart-api/core/interfaces/ParamsMessage.html)
+-   `genart:param-change`: [ParamChangeMessage](https://docs.thi.ng/genart-api/core/interfaces/ParamChangeMessage.html)
+-   `genart:param-error`: [ParamErrorMessage](https://docs.thi.ng/genart-api/core/interfaces/ParamErrorMessage.html)
+-   `genart:randomize-param`: [RandomizeParamMessage](https://docs.thi.ng/genart-api/core/interfaces/RandomizeParamMessage.html)
+-   `genart:resize`: [ResizeMessage](https://docs.thi.ng/genart-api/core/interfaces/ResizeMessage.html)
+-   `genart:resume`: [ResumeMessage](https://docs.thi.ng/genart-api/core/interfaces/ResumeMessage.html)
+-   `genart:set-param-value`: [SetParamValueMessage](https://docs.thi.ng/genart-api/core/interfaces/SetParamValueMessage.html)
+-   `genart:start`: [StartMessage](https://docs.thi.ng/genart-api/core/interfaces/StartMessage.html)
+-   `genart:state-change`: [StateChangeMessage](https://docs.thi.ng/genart-api/core/interfaces/StateChangeMessage.html)
+-   `genart:stop`: [StopMessage](https://docs.thi.ng/genart-api/core/interfaces/StopMessage.html)
+-   `genart:traits`: [TraitsMessage](https://docs.thi.ng/genart-api/core/interfaces/TraitsMessage.html)
 
 #### Message handling
 
@@ -266,30 +266,30 @@ running in multiple iframes, for example:
 
 -   Detection/registration of all currently running `GenArtAPI` instances by
     broadcasting a
-    [GetInfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/GetInfoMessage.html),
+    [GetInfoMessage](https://docs.thi.ng/genart-api/core/interfaces/GetInfoMessage.html),
     to which each instance then responds with a
-    [InfoMessage](https://docs.thi.ng/umbrella/genart-api/interfaces/InfoMessage.html)
+    [InfoMessage](https://docs.thi.ng/genart-api/core/interfaces/InfoMessage.html)
     (which then also includes each instance's actual configured `id`)
 -   Starting/stopping all currently running `GenArtAPI` instances via single
     message, e.g. `postMessage({ type: "genart:start", apiID: "*"}, "*")`.
 
 TODO — for now please also see the following links for more messaging related information:
 
--   [.emit()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#emit)
--   [.on()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#on)
--   [.id](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#id)
--   [.setParams()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#setParams)
--   [.setTraits()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#setTraits)
--   [.setUpdate()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#setUpdate)
--   [.start()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#start)
--   [.stop()](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#stop)
+-   [.emit()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#emit)
+-   [.on()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#on)
+-   [.id](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#id)
+-   [.setParams()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setParams)
+-   [.setTraits()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setTraits)
+-   [.setUpdate()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setUpdate)
+-   [.start()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#start)
+-   [.stop()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#stop)
 
 ### API documentation
 
 In addition to the detailed API docs, this readme, the source code and the
 [example projects](#example-projects) are the best reference.
 
-[Generated API documentation](https://docs.thi.ng/umbrella/genart-api/)
+[Generated API documentation](https://docs.thi.ng/genart-api/core/)
 
 ## Parameters
 
@@ -304,7 +304,7 @@ commonly used types supplied as built-ins (described below).
 Each parameter declared by the artwork is a simple vanilla JS object and any
 param value changes are being handled by the API and the param type’s
 [registered
-implementation](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
+implementation](https://docs.thi.ng/genart-api/core/interfaces/ParamImpl.html)
 (a set of functions dealing with validation, coercion, updating and reading
 param values). For convenience & type safety, the API provides factory functions
 for all built-in parameter types.
@@ -330,8 +330,8 @@ This section describes the set of _static_ param types:
 
 #### Choice parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ChoiceParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#choice)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/ChoiceParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#choice)
 
 This enum-like param can only take on values from a fixed list of options. For
 simplicity values are always strings, but optionally can also define labels
@@ -366,8 +366,8 @@ $genart.params.choice({
 
 #### Color parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ColorParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#color)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/ColorParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#color)
 
 CSS hex color value (6 digits only). Other/newer color types (e.g. `oklch()`)
 might be supported later, but currently omitted due to lack of native browser
@@ -387,8 +387,8 @@ $genart.params.color({
 
 #### Date parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/DateParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#date)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/DateParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#date)
 
 JS `Date` value in precision of full days only (UTC midnight).
 
@@ -407,8 +407,8 @@ $genart.params.date({
 
 #### Datetime parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/DateTimeParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#datetime)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/DateTimeParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#datetime)
 
 JS `Date` value (in UTC).
 
@@ -427,8 +427,8 @@ $genart.params.datetime({
 
 #### Image parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ImageParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#image)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/ImageParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#image)
 
 Image parameters are used to provide spatially varied param values (e.g.
 gradient maps, masks etc.) by allowing the artwork to read pixel values from
@@ -471,8 +471,8 @@ For simplicity, only lists of numeric or string values are supported by default:
 
 ##### Numeric list
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/NumListParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#numlist)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/NumListParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#numlist)
 
 ```ts
 $genart.params.numlist({
@@ -484,8 +484,8 @@ $genart.params.numlist({
 
 ##### String list
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/StringListParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#strlist)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/StringListParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#strlist)
 
 ```ts
 $genart.params.strlist({
@@ -497,8 +497,8 @@ $genart.params.strlist({
 
 #### Range parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/RangeParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#range)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/RangeParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#range)
 
 Numeric value from a closed range/interval (defined by `min`/`max`, defaulting
 to [0, 100]). If `step` is given, the value will be rounded to multiples of
@@ -521,8 +521,8 @@ $genart.params.range({
 
 #### Text parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/TextParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#text)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/TextParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#text)
 
 Single or multi-line text, optionally with `min`/`max` length and/or regexp
 pattern validation.
@@ -543,8 +543,8 @@ $genart.params.text({
 
 #### Time parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/TimeParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#time)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/TimeParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#time)
 
 Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h format.
 
@@ -556,8 +556,8 @@ Time-of-day parameter with values as `[hour, minute, second]`-tuples in 24h form
 
 #### Toggle parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/ToggleParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#toggle)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/ToggleParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#toggle)
 
 On/off switch (boolean) parameter.
 
@@ -567,8 +567,8 @@ On/off switch (boolean) parameter.
 
 #### Vector parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/VectorParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#vector)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/VectorParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#vector)
 
 n-dimensional vector parameter.
 
@@ -598,8 +598,8 @@ $genart.params.vector({
 
 #### Weighted choice parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/WeightedChoiceParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#weighted)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/WeightedChoiceParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#weighted)
 
 Similar to the [Choice parameter type](#choice), but here each option also
 has an associated weight/importance. When randomizing this parameter, a new
@@ -653,8 +653,8 @@ $genart.params.weighted({
 
 #### XY parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/XYParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#xy)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/XYParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#xy)
 
 A 2D dimensional tuple for values in the [0,0] .. [1,1] range. Useful to control
 two co-dependent parameters using an XY controller/touchpad...
@@ -683,8 +683,8 @@ default value** and their actual value is always computed.
 
 #### Ramp parameter
 
--   [API docs](https://docs.thi.ng/umbrella/genart-api/interfaces/RampParam.html)
--   [Factory function](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamFactories.html#ramp)
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/RampParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#ramp)
 
 A ramp defines a one-dimensional curve/gradient via a number of stops/keyframes,
 from which then an actual value will be derived by sampling the curve at a
@@ -720,13 +720,13 @@ $genart.params.ramp({
 
 The system supports registering custom parameter types and their implementation
 via
-[`$genart.registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType).
+[`$genart.registerParamType()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#registerParamType).
 These can be useful to provide additional app-specific or platform-specific
 parameters (e.g. values obtained from arbitrary hardware sensors to which an
 artwork might respond dynamically).
 
--   [`ParamImpl` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html)
--   [`registerParamType()`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#registerParamType)
+-   [`ParamImpl` interface definition](https://docs.thi.ng/genart-api/core/interfaces/ParamImpl.html)
+-   [`registerParamType()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#registerParamType)
 
 The `registerParamType()` allows overriding of existing param type
 implementations, but doing so will print a warning. When an artwork or platform
@@ -788,7 +788,7 @@ $genart.setUpdate((t) => {
 Composite parameter types contain child parameters to allow the main param be
 configured in more detailed/complex ways. Usually, a composite parameter type
 will define a
-[`.read()`](https://docs.thi.ng/umbrella/genart-api/interfaces/ParamImpl.html#read)
+[`.read()`](https://docs.thi.ng/genart-api/core/interfaces/ParamImpl.html#read)
 method to dynamically produce values, based on the current configuration
 of its child params.
 
@@ -843,14 +843,14 @@ $genart.setTraits({
 TODO This section will describe the role(s) of adapters responsible for
 providing (deployment) platform-specific functionality and interop features.
 
--   [`PlatformAdapter` interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PlatformAdapter.html)
+-   [`PlatformAdapter` interface definition](https://docs.thi.ng/genart-api/core/interfaces/PlatformAdapter.html)
 
 ### Existing adapter implementations
 
 **Please refer or contribute to issue [#2: List of art platforms we should
 provide adapters for](https://github.com/thi-ng/genart-api/issues/2)**
 
--   [/src/adapters/urlparams.ts](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts) : Reference implementation
+-   [/packages/adapter-urlparams/src/index.ts](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts) : Reference implementation
 
 ### Parameter sourcing
 
@@ -868,11 +868,11 @@ Related issues/RFCs:
 
 Platform adapters are responsible to provide a seedable and resettable,
 deterministic pseudo-random number generator which the artwork can access via
-[`$genart.random`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#random).
+[`$genart.random`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#random).
 Usually, the adapter just has to return the PRNG provided by the respective
 platform.
 
--   [PRNG interface definition](https://docs.thi.ng/umbrella/genart-api/interfaces/PRNG.html)
+-   [PRNG interface definition](https://docs.thi.ng/genart-api/core/interfaces/PRNG.html)
 -   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/index.ts)
 
 For cases where a platform does not provide its own PRNG, this repo contains two
@@ -885,10 +885,10 @@ implementations which can be used by an adapter:
 
 Platform adapters are responsible to provide screen/canvas dimensions (and pixel
 density information) to the artwork, and the latter MUST use the
-[`$genart.screen`](https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPI.html#screen)
+[`$genart.screen`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#screen)
 accessor to obtain this information (rather than directly querying
 `window.innerWidth` etc.). This accessor returns a [`ScreenConfig`
-object](https://docs.thi.ng/umbrella/genart-api/interfaces/ScreenConfig.html).
+object](https://docs.thi.ng/genart-api/core/interfaces/ScreenConfig.html).
 
 This approach gives the platform full control to define fixed dimensions,
 irrespective of actual window dimensions and also be in charge of resizing
@@ -951,7 +951,7 @@ this one can be replaced by loading an alternative implementation via another
 ### Existing time provider implementations
 
 The following [time providers are
-included](https://docs.thi.ng/umbrella/genart-api/interfaces/TimeProviders.html)
+included](https://docs.thi.ng/genart-api/core/interfaces/TimeProviders.html)
 in the API reference implementation:
 
 #### RAF
@@ -974,7 +974,7 @@ cases, e.g. recording image sequences. Supports arbitrary delays between frames
 Similar to the [RAF time provider](#raf), but also collects FPS samples and
 injects a canvas overlay to visualize recent frame rates and compute moving min,
 max and average. Visualization can be configured via provided
-[options](https://docs.thi.ng/umbrella/genart-api/interfaces/DebugTimeProviderOpts.html).
+[options](https://docs.thi.ng/genart-api/core/interfaces/DebugTimeProviderOpts.html).
 
 [Source](https://github.com/thi-ng/genart-api/blob/main/src/time/debug.ts)
 
@@ -1045,8 +1045,7 @@ cp node_modules/@genart-api/adapter-urlparams/*.js lib
 ```
 
 If you're a TypeScript user, you'll also want to add the `@genart-api/core`
-package to the `types` field in your `tsconfig.json` OR add a declaration file
-with the following content to your `/src` directory:
+package to the `types` field in your `tsconfig.json`:
 
 tsconfig.json:
 
@@ -1057,6 +1056,9 @@ tsconfig.json:
 	}
 }
 ```
+
+...or add a type declaration file with the following content to your `/src`
+directory...
 
 /src/types.d.ts:
 
