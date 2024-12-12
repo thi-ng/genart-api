@@ -720,6 +720,7 @@ class API implements GenArtAPI {
 			opts: this._opts,
 			state: this._state,
 			version: this.version,
+			adapter: this._adapter?.id,
 			seed: this.random.seed,
 			time,
 			frame,
