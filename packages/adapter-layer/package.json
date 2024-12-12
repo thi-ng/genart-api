@@ -1,0 +1,44 @@
+{
+	"name": "@genart-api/adapter-layer",
+	"version": "0.17.0",
+	"description": "GenArtAPI platform adapter for layer.com",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thi-ng/genart-api.git"
+	},
+	"homepage": "https://thi.ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"typings": "./index.d.ts",
+	"scripts": {
+		"build": "node ../../tools/build.js src/index.ts adapter-layer && yarn build:types",
+		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
+		"publish": "yarn npm publish --access public"
+	},
+	"dependencies": {
+		"@genart-api/core": "workspace:^"
+	},
+	"devDependencies": {
+		"esbuild": "^0.24.0",
+		"typedoc": "^0.27.3",
+		"typescript": "^5.7.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"./*.js",
+		"./*.d.ts"
+	],
+	"keywords": [
+		"adapter",
+		"art",
+		"genart",
+		"generative",
+		"genart-api",
+		"layer.com",
+		"parameters",
+		"platform"
+	]
+}
