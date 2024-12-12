@@ -8,5 +8,5 @@ for (const src of [
 	"../../packages/core/genart.js",
 	`../../packages/adapter-${adapter}/adapter-${adapter}.js`,
 ]) {
-	copyFileSync(resolve(src), resolve("lib/" + basename(src)));
+	copyFileSync(resolve(src), resolve("public/lib/" + basename(src)));
 }

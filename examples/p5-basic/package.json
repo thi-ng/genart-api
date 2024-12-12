@@ -9,7 +9,7 @@
 	"scripts": {
 		"build:prepare": "node ../../tools/copy-lib.js",
 		"start": "yarn build:prepare && vite --host --open",
-		"build": "yarn build:prepare && vite build --base='./' && cp -R lib dist",
+		"build": "yarn build:prepare && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"dependencies": {

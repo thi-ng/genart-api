@@ -9,8 +9,9 @@ polyglot bindings code generation for both Zig & TypeScript.
 
 ## Launching & building
 
-Please ensure you have Zig v0.13.x installed, which is required for building
-this project.
+Please ensure you have Zig v0.13.x and the
+[Binaryen](https://github.com/WebAssembly/binaryen) WASM toolchain installed,
+both of which are required for building this project.
 
 > [!IMPORTANT]
 > Before running this example, make sure you first build the actual GenArt API

@@ -9,7 +9,7 @@
 	"scripts": {
 		"build:prepare": "node ../../tools/copy-lib.js && cp ../../node_modules/@thi.ng/wasm-api/zig/build.zig wasm-api-build.zig && yarn build:zig",
 		"start": "yarn build:prepare && vite --host --open",
-		"build": "yarn build:prepare && tsc && vite build --base='./' && cp -R lib dist",
+		"build": "yarn build:prepare && tsc && vite build --base='./'",
 		"build:types": "npx wasm-api-bindgen --config src/typedefs-config.json --lang ts -o src/generated/api.ts --lang zig -o zig/api.zig src/typedefs.json",
 		"build:zig": "zig build && wasm-opt zig-out/bin/main.wasm -o src/main.wasm -O3 && wasm-dis -o src/main.wast src/main.wasm",
 		"preview": "vite preview --host --open"
