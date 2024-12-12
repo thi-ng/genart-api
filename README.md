@@ -850,7 +850,8 @@ providing (deployment) platform-specific functionality and interop features.
 **Please refer or contribute to issue [#2: List of art platforms we should
 provide adapters for](https://github.com/thi-ng/genart-api/issues/2)**
 
--   [/packages/adapter-urlparams/src/index.ts](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts) : Reference implementation
+-   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts) : Reference implementation
+-   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/src/index.ts) : Adapter for the Layer.com art platform
 
 ### Parameter sourcing
 
@@ -869,17 +870,19 @@ Related issues/RFCs:
 Platform adapters are responsible to provide a seedable and resettable,
 deterministic pseudo-random number generator which the artwork can access via
 [`$genart.random`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#random).
-Usually, the adapter just has to return the PRNG provided by the respective
+Usually, the adapter just has to wrap the PRNG provided by the respective
 platform.
 
 -   [PRNG interface definition](https://docs.thi.ng/genart-api/core/interfaces/PRNG.html)
 -   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/index.ts)
 
-For cases where a platform does not provide its own PRNG, this repo contains two
-implementations which can be used by an adapter:
+For cases where a platform does not provide its own PRNG, the API core package
+provides these widely used PRNG implementations, which can be used by an adapter
+(or artwork):
 
--   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/prng/sfc32.ts)
--   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/prng/xorshift128.ts)
+-   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
+-   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
+-   [XsAdd](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
 
 ### Screen configuration
 
