@@ -39,12 +39,14 @@ export interface ParamOpts {
 	 */
 	order?: number;
 	/**
-	 * Update mode/behavior when this param is being updated.
+	 * Update mode/behavior when this param is being updated. Platform providers
+	 * are responsible to honor & implement this setting.
 	 *
 	 * - `reload`: the piece should be reloaded/relaunched with new param value
-	 *   (platform providers are responsible to honor & implement this)
+	 *   (a manual or externally triggered reload might be required for some
+	 *   platforms).
 	 * - `event`: the API will trigger a {@link ParamChangeMessage} via
-	 *   {@link GenArtAPI.emit}
+	 *   {@link GenArtAPI.emit}.
 	 *
 	 * @defaultValue "event"
 	 */
