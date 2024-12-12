@@ -14,10 +14,10 @@ import type {
 } from "@genart-api/core";
 import { base64Decode, base64Encode } from "./base64.js";
 import { compressBytes, decompressBytes } from "./compress.js";
-import { sfc32 } from "./prng/sfc32.js";
 
 const {
 	math: { clamp01, parseNum },
+	prng: { sfc32 },
 	utils: { formatValuePrec },
 } = $genart;
 
