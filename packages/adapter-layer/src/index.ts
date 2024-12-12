@@ -57,7 +57,7 @@ class LayerAdapter implements PlatformAdapter {
 		window.addEventListener("layer:paramchange", (e) => {
 			const { id, value } = (<CustomEvent>e).detail;
 			// only update param if no reload required
-			if (this.params && this.params[id].update !== "reload") {
+			if (this.params?.[id]?.update !== "reload") {
 				$genart.setParamValue(id, value);
 			}
 		});
@@ -67,6 +67,10 @@ class LayerAdapter implements PlatformAdapter {
 				screen: { ...(<CustomEvent>e).detail, dpr: 1 },
 			});
 		});
+	}
+
+	get id() {
+		return "@genart-api/adapter-layer";
 	}
 
 	get screen() {
@@ -90,14 +94,14 @@ class LayerAdapter implements PlatformAdapter {
 		if (param.type === "color") {
 			if (!isString(value)) value = value.hex;
 		}
-		console.log(
-			"layeradapter:",
-			id,
-			"new value",
-			value,
-			"cached",
-			this.cache[id]
-		);
+		// console.log(
+		// 	"layeradapter:",
+		// 	id,
+		// 	"new value",
+		// 	value,
+		// 	"cached",
+		// 	this.cache[id]
+		// );
 		if (value == null || this.cache[id] === value) return;
 		this.cache[id] = value;
 		return { value };
@@ -111,7 +115,7 @@ class LayerAdapter implements PlatformAdapter {
 			const src = params[id];
 			const kind = TYPE_MAP[src.type];
 			if (!kind) {
-				console.log("layeradapter: unsupported ptype:", src.type);
+				console.warn("layeradapter: unsupported ptype:", src.type);
 				continue;
 			}
 			const dest = <Parameter>{

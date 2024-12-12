@@ -25,6 +25,16 @@ export interface PlatformAdapter {
 	readonly prng: PRNG;
 
 	/**
+	 * Human-readable but unique identifier for this platform adapter
+	 * implementation.
+	 *
+	 * @remarks
+	 * This ID should be derrived from the target art platform's name or domain
+	 * name and can also include version info.
+	 */
+	readonly id: string;
+
+	/**
 	 * Called by {@link GenArtAPI.setParams} to receive parameter specs provided
 	 * by the artwork and to allow the adapter to inject additional platform
 	 * specific parameters into the given {@link ParamSpecs} object.

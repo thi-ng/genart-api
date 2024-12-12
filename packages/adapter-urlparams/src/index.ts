@@ -27,8 +27,6 @@ const HEIGHT = "__height";
 const DPR = "__dpr";
 const SEED = "__seed";
 
-const GROUP = "platform";
-
 class URLParamsAdapter implements PlatformAdapter {
 	protected params: URLSearchParams;
 	protected cache: Record<string, string> = {};
@@ -85,6 +83,10 @@ class URLParamsAdapter implements PlatformAdapter {
 		);
 	}
 
+	get id() {
+		return "@genart-api/adapter-urlparams";
+	}
+
 	get mode() {
 		return <RunMode>this.params.get("__mode") || "play";
 	}
@@ -102,9 +104,10 @@ class URLParamsAdapter implements PlatformAdapter {
 	}
 
 	augmentParams(params: ParamSpecs) {
+		const group = this.id;
 		return Object.assign(params, {
 			[SEED]: $genart.params.range({
-				group: GROUP,
+				group,
 				order: 0,
 				name: "PRNG seed",
 				desc: "Manually defined seed value",
@@ -115,7 +118,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[WIDTH]: $genart.params.range({
-				group: GROUP,
+				group,
 				order: 1,
 				name: "Width",
 				desc: "Canvas width",
@@ -127,7 +130,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[HEIGHT]: $genart.params.range({
-				group: GROUP,
+				group,
 				order: 2,
 				name: "Height",
 				desc: "Canvas height",
@@ -139,7 +142,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[DPR]: $genart.params.range({
-				group: GROUP,
+				group,
 				order: 3,
 				name: "DPR",
 				desc: "Device pixel ratio",
@@ -151,7 +154,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				widget: "precise",
 			}),
 			[AUTO]: $genart.params.toggle({
-				group: GROUP,
+				group,
 				order: 4,
 				name: "Autostart",
 				desc: "If enabled, artwork will start playing automatically",
