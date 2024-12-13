@@ -10,6 +10,7 @@
 		"@genart-api": "yarn workspaces foreach -pv --all --include '@genart-api/*'",
 		"@example": "yarn workspaces foreach -pv --all --include '@example/*'",
 		"build": "yarn @genart-api -t run build && ls -l packages/*/*.js",
+		"build:all": "yarn build && yarn build:types && yarn build:dist && yarn build:examples && yarn tool:update-tpl",
 		"build:dist": "yarn @genart-api -t run build:dist",
 		"build:types": "yarn @genart-api -t run build:types",
 		"build:examples": "yarn @example run build",
