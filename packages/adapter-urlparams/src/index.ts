@@ -43,7 +43,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			// (optional) send updated params to parent GUI for param editing
 			parent.postMessage(
 				{
-					type: "urlparamsadapter:set-params",
+					type: `${this.id}:set-params`,
 					params: this.params.toString(),
 				},
 				"*"
@@ -76,7 +76,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		// broadcast initial set of parameters (e.g. for editors)
 		parent.postMessage(
 			{
-				type: "urlparamsadapter:set-params",
+				type: `${this.id}:set-params`,
 				params: this.params.toString(),
 			},
 			"*"
