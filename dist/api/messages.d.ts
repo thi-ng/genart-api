@@ -179,8 +179,12 @@ export interface StopMessage extends APIMessage {
 export interface InfoMessage extends APIMessage {
     type: "genart:info";
     opts: GenArtAPIOpts;
+    /** Same as {@link GenArtAPI.state}. */
     state: APIState;
+    /** Same as {@link GenArtAPI.version}. */
     version: string;
+    /** Same as {@link PlatformAdapter.id}. */
+    adapter?: string;
     /**
      * Current animation time (in milliseconds). See {@link TimeProvider.now}.
      */

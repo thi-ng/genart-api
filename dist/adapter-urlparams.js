@@ -16,23 +16,10 @@
   var compressBytes = (buf, fmt = "gzip") => pipe(buf, new CompressionStream(fmt));
   var decompressBytes = (buf, fmt = "gzip") => pipe(buf, new DecompressionStream(fmt));
 
-  // src/prng/sfc32.ts
-  var sfc32 = (seed) => {
-    const buf = new Uint32Array(4);
-    buf.set(seed);
-    return () => {
-      const t = (buf[0] + buf[1] >>> 0) + buf[3] >>> 0;
-      buf[3] = buf[3] + 1 >>> 0;
-      buf[0] = buf[1] ^ buf[1] >>> 9;
-      buf[1] = buf[2] + (buf[2] << 3) >>> 0;
-      buf[2] = (buf[2] << 21 | buf[2] >>> 11) + t >>> 0;
-      return t / 4294967296;
-    };
-  };
-
   // src/index.ts
   var {
     math: { clamp01, parseNum },
+    prng: { sfc32 },
     utils: { formatValuePrec }
   } = $genart;
   var AUTO = "__autostart";
@@ -40,7 +27,6 @@
   var HEIGHT = "__height";
   var DPR = "__dpr";
   var SEED = "__seed";
-  var GROUP = "platform";
   var URLParamsAdapter = class {
     params;
     cache = {};
@@ -55,7 +41,7 @@
         this.params.set(e.paramID, value);
         parent.postMessage(
           {
-            type: "urlparamsadapter:set-params",
+            type: `${this.id}:set-params`,
             params: this.params.toString()
           },
           "*"
@@ -83,11 +69,14 @@
       });
       parent.postMessage(
         {
-          type: "urlparamsadapter:set-params",
+          type: `${this.id}:set-params`,
           params: this.params.toString()
         },
         "*"
       );
+    }
+    get id() {
+      return "@genart-api/adapter-urlparams";
     }
     get mode() {
       return this.params.get("__mode") || "play";
@@ -103,9 +92,10 @@
       return this._prng;
     }
     augmentParams(params) {
+      const group = this.id;
       return Object.assign(params, {
         [SEED]: $genart.params.range({
-          group: GROUP,
+          group,
           order: 0,
           name: "PRNG seed",
           desc: "Manually defined seed value",
@@ -116,7 +106,7 @@
           widget: "precise"
         }),
         [WIDTH]: $genart.params.range({
-          group: GROUP,
+          group,
           order: 1,
           name: "Width",
           desc: "Canvas width",
@@ -128,7 +118,7 @@
           widget: "precise"
         }),
         [HEIGHT]: $genart.params.range({
-          group: GROUP,
+          group,
           order: 2,
           name: "Height",
           desc: "Canvas height",
@@ -140,7 +130,7 @@
           widget: "precise"
         }),
         [DPR]: $genart.params.range({
-          group: GROUP,
+          group,
           order: 3,
           name: "DPR",
           desc: "Device pixel ratio",
@@ -152,7 +142,7 @@
           widget: "precise"
         }),
         [AUTO]: $genart.params.toggle({
-          group: GROUP,
+          group,
           order: 4,
           name: "Autostart",
           desc: "If enabled, artwork will start playing automatically",

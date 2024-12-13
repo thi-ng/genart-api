@@ -181,6 +181,59 @@
   });
   var xy = (spec) => $("xy", spec);
 
+  // src/prng.ts
+  var prng_exports = {};
+  __export(prng_exports, {
+    sfc32: () => sfc32,
+    xorshift128: () => xorshift128,
+    xsadd: () => xsadd
+  });
+  var sfc32 = (seed) => {
+    const buf = new Uint32Array(4);
+    buf.set(seed);
+    return () => {
+      const t = (buf[0] + buf[1] >>> 0) + buf[3] >>> 0;
+      buf[3] = buf[3] + 1 >>> 0;
+      buf[0] = buf[1] ^ buf[1] >>> 9;
+      buf[1] = buf[2] + (buf[2] << 3) >>> 0;
+      buf[2] = (buf[2] << 21 | buf[2] >>> 11) + t >>> 0;
+      return t / 4294967296;
+    };
+  };
+  var xorshift128 = (seed) => {
+    const buf = new Uint32Array(4);
+    buf.set(seed);
+    return () => {
+      let t = buf[3], w;
+      t ^= t << 11;
+      t ^= t >>> 8;
+      buf[3] = buf[2];
+      buf[2] = buf[1];
+      w = buf[1] = buf[0];
+      return buf[0] = (t ^ w ^ w >>> 19) >>> 0;
+    };
+  };
+  var xsadd = (seed) => {
+    const buf = new Uint32Array(4);
+    buf.set([seed, 0, 0, 0]);
+    for (let j = 0, i = 1; i < 8; j = i++) {
+      let x = (buf[j & 3] ^ buf[j & 3] >>> 30) >>> 0;
+      x = 35173 * x + ((27655 * x & 65535) << 16) >>> 0;
+      buf[i & 3] ^= i + x >>> 0;
+    }
+    return () => {
+      let t = buf[0];
+      t ^= t << 15;
+      t ^= t >>> 18;
+      t ^= buf[3] << 11;
+      buf[0] = buf[1];
+      buf[1] = buf[2];
+      buf[2] = buf[3];
+      buf[3] = t;
+      return t + buf[2] >>> 0;
+    };
+  };
+
   // src/time/debug.ts
   var deque = (samples, pred, index = []) => ({
     head: () => samples[index[0]],
@@ -559,6 +612,7 @@
     };
     math = math_exports;
     params = params_exports;
+    prng = prng_exports;
     utils = utils_exports;
     time = {
       debug: debugTimeProvider,
@@ -599,7 +653,7 @@
       });
     }
     get version() {
-      return "0.16.0";
+      return "0.17.0";
     }
     get id() {
       return this._opts.id;
@@ -910,6 +964,7 @@
         opts: this._opts,
         state: this._state,
         version: this.version,
+        adapter: this._adapter?.id,
         seed: this.random.seed,
         time: time2,
         frame

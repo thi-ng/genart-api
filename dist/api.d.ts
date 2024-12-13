@@ -2,7 +2,7 @@ import type { MathOps } from "./api/math.js";
 import type { APIMessage, MessageType, MessageTypeMap, NotifyType } from "./api/messages.js";
 import type { ParamFactories, ParamImpl, ParamSpecs, ParamValue } from "./api/params.js";
 import type { PlatformAdapter, RunMode } from "./api/platform.js";
-import type { PRNG, RandomFn } from "./api/random.js";
+import type { PRNG, PRNGBuiltins, RandomFn } from "./api/random.js";
 import type { ScreenConfig } from "./api/screen.js";
 import type { APIState } from "./api/state.js";
 import type { TimeProvider, TimeProviders } from "./api/time.js";
@@ -141,6 +141,8 @@ export interface GenArtAPI {
     readonly math: MathOps;
     /** Built-in parameter declaration functions */
     readonly params: ParamFactories;
+    /** Built-in PRNG implementations */
+    readonly prng: PRNGBuiltins;
     /** Built-in utilities */
     readonly utils: Utils;
     /** Built-in time provider factory functions */
