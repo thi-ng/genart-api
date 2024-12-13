@@ -196,7 +196,7 @@ export interface InfoMessage extends APIMessage {
 	opts: GenArtAPIOpts;
 	/** Same as {@link GenArtAPI.state}. */
 	state: APIState;
-	/** Same as {@link GenartAPI.version}. */
+	/** Same as {@link GenArtAPI.version}. */
 	version: string;
 	/** Same as {@link PlatformAdapter.id}. */
 	adapter?: string;
