@@ -9,7 +9,7 @@
 	"scripts": {
 		"@genart-api": "yarn workspaces foreach -pv --all --include '@genart-api/*'",
 		"@example": "yarn workspaces foreach -pv --all --include '@example/*'",
-		"build": "yarn @genart-api -t run build",
+		"build": "yarn @genart-api -t run build && ls -l packages/*/*.js",
 		"build:dist": "yarn @genart-api -t run build:dist",
 		"build:types": "yarn @genart-api -t run build:types",
 		"build:examples": "yarn @example run build",
