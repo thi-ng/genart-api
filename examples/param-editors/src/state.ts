@@ -3,6 +3,7 @@ import type {
 	APIMessage,
 	APIState,
 	ConfigureMessage,
+	InfoMessage,
 	NestedParamSpecs,
 	ParamChangeMessage,
 	ParamsMessage,
@@ -19,6 +20,10 @@ import {
 	type WithErrorHandlerOpts,
 } from "@thi.ng/rstream";
 import { padLeft } from "@thi.ng/strings";
+import { isCompatibleVersion } from "./utils.js";
+import { MIN_API_VERSION } from "./version.js";
+
+const ADAPTER_ID = "@genart-api/adapter-urlparams";
 
 const INF: Partial<WithErrorHandlerOpts> = { closeOut: "never" };
 
@@ -46,6 +51,7 @@ export const formattedFrame = currentFrame.map(padLeft(6, "0"), INF);
 
 export let selfUpdate = false;
 let doUpdateParamsOnChange = false;
+let infoRequested = false;
 
 window.addEventListener("message", (e) => {
 	if (!(isPlainObject(e.data) && isString(e.data.type))) return;
@@ -60,10 +66,6 @@ window.addEventListener("message", (e) => {
 			const $msg = <ParamsMessage>e.data;
 			apiID.next($msg.apiID);
 			if (Object.keys($msg.params).length) params.next($msg.params);
-			sendMessage<ConfigureMessage>({
-				type: "genart:configure",
-				opts: { notifyFrameUpdate: true },
-			});
 			console.log("set-params", $msg.params);
 			break;
 		}
@@ -83,12 +85,41 @@ window.addEventListener("message", (e) => {
 			if ($msg.state === "error") apiError.next($msg.info);
 			break;
 		}
-		case "genart:frame":
+		case "genart:frame": {
 			const $msg = <AnimFrameMessage>e.data;
 			currentTime.next($msg.time);
 			currentFrame.next($msg.frame);
 			break;
-		case "urlparamsadapter:set-params":
+		}
+		case "genart:info": {
+			if (!infoRequested) return;
+			infoRequested = false;
+			const $msg = <InfoMessage>e.data;
+			if ($msg.adapter !== ADAPTER_ID) {
+				alert(
+					`Incompatible platform adapter detected.\n\nThis editor requires your artwork to use this adapter:\n${ADAPTER_ID}`
+				);
+				return;
+			}
+			if (
+				!(
+					$msg.version &&
+					isCompatibleVersion($msg.version, MIN_API_VERSION)
+				)
+			) {
+				alert(
+					`Outdated GenArtAPI detected.\n\nPlease upgrade to version: ${MIN_API_VERSION}`
+				);
+				return;
+			}
+			apiID.next($msg.apiID);
+			sendMessage<ConfigureMessage>({
+				type: "genart:configure",
+				opts: { notifyFrameUpdate: true },
+			});
+			break;
+		}
+		case `${ADAPTER_ID}:set-params`:
 			iframeParams.next(e.data.params);
 			break;
 	}
@@ -100,3 +131,9 @@ export const sendMessage = <T extends APIMessage>(msg: Omit<T, "apiID">) => {
 
 export const updateParamsOnChange = (state: boolean) =>
 	(doUpdateParamsOnChange = state);
+
+export const reloadArt = (url: string) => {
+	infoRequested = true;
+	setTimeout(() => sendMessage({ type: "genart:get-info" }), 500);
+	iframe.src = url;
+};

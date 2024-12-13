@@ -15,7 +15,7 @@ a:link, a:visited { color(text-color) b }
 
 header { mb3 }
 
-h1 { ls--1 mb2 { small { color-gray } } }
+h1 { ls--1 mb2 { small { ml3 color-gray } } }
 
 label { db b ttc mb2 l:mb0 }
 

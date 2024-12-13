@@ -10,9 +10,10 @@
 		"css:watch": "../../node_modules/.bin/metacss develop --bundle --watch --pretty --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt ../../node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
 		"css:build": "../../node_modules/.bin/metacss develop --bundle --out-specs css/framework.json --out-css css/style.css --force @css/includes.txt ../../node_modules/@thi.ng/meta-css/specs/*.mcss.json css/*.mcss.json css/*.mcss",
 		"start": "yarn css:build && yarn start:only",
-		"start:only": "vite --host --port 8080 --open",
+		"start:only": "yarn build:prepare && vite --host --port 8080 --open",
 		"dev": "mprocs 'yarn css:watch' 'yarn start:only'",
-		"build": "yarn css:build && tsc && vite build --base='./'",
+		"build:prepare": "node tools/inject-version.js",
+		"build": "yarn css:build && yarn build:prepare && tsc && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {

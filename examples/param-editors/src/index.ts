@@ -1,5 +1,5 @@
-import { anchor, div } from "@thi.ng/hiccup-html";
-import { $attribs, $compile } from "@thi.ng/rdom";
+import { anchor, div, small } from "@thi.ng/hiccup-html";
+import { $attribs, $compile, $tree } from "@thi.ng/rdom";
 import {
 	compileForm,
 	container,
@@ -10,17 +10,19 @@ import {
 import { reactive } from "@thi.ng/rstream";
 import { launchEditorImgui } from "./param-editor-imgui.js";
 import { launchEditorForms } from "./param-editor-rdom.js";
+import { reloadArt } from "./state.js";
+import { MIN_API_VERSION } from "./version.js";
 
 const urlParams = new URLSearchParams(location.search);
 const initialURL = urlParams.get("url");
 
 const app = document.getElementById("editor")!;
 const iframe = <HTMLIFrameElement>document.getElementById("art");
-const iframeURL = reactive(initialURL ?? iframe.src);
+const iframeURL = reactive(initialURL ?? "http://localhost:5173");
 const editorID = reactive(-1);
 const collapse = reactive(false);
 
-if (initialURL) iframe.src = initialURL;
+if (initialURL) reloadArt(initialURL);
 
 editorID.subscribe({
 	async next(id) {
@@ -53,7 +55,7 @@ const root = $compile(
 						value: iframeURL,
 						attribs: {
 							onchange: (e) => {
-								iframe.src = (<HTMLInputElement>e.target).value;
+								reloadArt((<HTMLInputElement>e.target).value);
 							},
 						},
 					}),
@@ -62,9 +64,11 @@ const root = $compile(
 						title: "Reload",
 						attribs: {
 							onclick: () => {
-								iframe.src = (<HTMLInputElement>(
-									document.getElementById("url")
-								)).value;
+								reloadArt(
+									(<HTMLInputElement>(
+										document.getElementById("url")
+									)).value
+								);
 							},
 						},
 					}),
@@ -94,6 +98,9 @@ collapse.subscribe({
 	},
 });
 
+// inject API version in title
+$tree(small(null, MIN_API_VERSION), document.getElementById("title")!);
+
 $compile(
 	anchor(
 		{
@@ -104,7 +111,7 @@ $compile(
 				e.preventDefault();
 			},
 		},
-		collapse.map((x) => (x ? "Show" : "Hide") + " sidebar")
+		collapse.map((x) => (x ? "Show" : "Hide") + " overlay")
 	)
 ).mount(document.getElementById("collapse")!);
 

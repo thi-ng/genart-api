@@ -1,6 +1,7 @@
 import type { Param, ParamSpecs } from "@genart-api/core";
 import { sortByCachedKey } from "@thi.ng/arrays";
 import { compare, compareByKeys2, compareNumAsc } from "@thi.ng/compare";
+import { maybeParseInt } from "@thi.ng/strings";
 import { groupByObj, pushKeys } from "@thi.ng/transducers";
 
 export const valuePrec = (step: number) => {
@@ -30,4 +31,17 @@ export const sortedParamGroups = (specs: ParamSpecs) => {
 		);
 	}
 	return groups;
+};
+
+const parseVersion = (version: string) =>
+	version
+		.substring(1)
+		.split(".")
+		.map((x) => maybeParseInt(x));
+
+export const isCompatibleVersion = (version: string, expected: string) => {
+	const partsA = parseVersion(version);
+	const partsB = parseVersion(expected);
+	if (partsA.length !== partsB.length) return false;
+	return partsA.every((x, i) => x >= partsB[i]);
 };
