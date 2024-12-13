@@ -29,8 +29,12 @@ export interface PlatformAdapter {
 	 * implementation.
 	 *
 	 * @remarks
-	 * This ID should be derrived from the target art platform's name or domain
-	 * name and can also include version info.
+	 * This ID should be derrived from the target art platform's name, domain
+	 * name or package name, and can also include version info.
+	 *
+	 * External tooling (e.g. parameter editors) can utilize this information to
+	 * inform/warn about compatibility. Also see {@link InfoMessage} for related
+	 * use cases.
 	 */
 	readonly id: string;
 
