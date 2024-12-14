@@ -1,6 +1,5 @@
 /.yarn
 
-css/framework.json
 dev
 doc
 dist
@@ -10,8 +9,7 @@ public
 zig-out
 
 examples/layer-test
-packages/adapter-layer
-
+framework.json
 wasm-api-build.zig
 
 *.css
