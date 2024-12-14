@@ -8,6 +8,7 @@ import type {
 	ResizeMessage,
 } from "@genart-api/core";
 import type {
+	ColorResult,
 	LayerSDK,
 	ListParameter,
 	NumberParameter,
@@ -55,9 +56,11 @@ class LayerAdapter implements PlatformAdapter {
 		});
 		window.addEventListener("layer:pause", () => $genart.stop());
 		window.addEventListener("layer:paramchange", (e) => {
-			const { id, value } = (<CustomEvent>e).detail;
+			let { id, value } = (<CustomEvent>e).detail;
+			const param = this.params?.[id];
 			// only update param if no reload required
-			if (this.params?.[id]?.update !== "reload") {
+			if (param && param.update !== "reload") {
+				if (param.type === "color") value = (<ColorResult>value).hex;
 				$genart.setParamValue(id, value);
 			}
 		});
