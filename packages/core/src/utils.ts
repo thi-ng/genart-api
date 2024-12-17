@@ -45,3 +45,27 @@ export const formatValuePrec = (step: number) => {
 	const prec = valuePrec(step);
 	return (x: number) => x.toFixed(prec);
 };
+
+export const equiv = (a: any, b: any) => {
+	if (a === b) return true;
+	if (a == null) return b == null;
+	if (b == null) return a == null;
+	if (isString(a) || isNumber(a)) return a === b;
+	if (a instanceof Date && b instanceof Date) {
+		return a.getTime() === b.getTime();
+	}
+	if (a instanceof RegExp && b instanceof RegExp) {
+		return a.toString() === b.toString();
+	}
+	if (a.length != null && b.length != null) {
+		return equivArrayLike(a, b);
+	}
+	return a === b || (a !== a && b !== b);
+};
+
+export const equivArrayLike = (a: ArrayLike<any>, b: ArrayLike<any>) => {
+	if (a.length !== b.length) return false;
+	let i = a.length;
+	while (i-- > 0 && equiv(a[i], b[i]));
+	return i < 0;
+};
