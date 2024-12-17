@@ -16,6 +16,7 @@
 		"build:examples": "yarn @example run build",
 		"clean": "yarn @genart-api run clean",
 		"doc": "yarn @genart-api run doc",
+		"test": "(cd packages && bun test)",
 		"tool:update-tpl": "node tools/update-tpl.js"
 	}
 }

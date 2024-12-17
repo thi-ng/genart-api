@@ -16,9 +16,11 @@
 		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
 		"build:dist": "node ../../tools/build-dist.js && cp ../../README.md .",
 		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts",
-		"publish": "yarn npm publish --access public"
+		"publish": "yarn npm publish --access public",
+		"test": "bun test"
 	},
 	"devDependencies": {
+		"bun-types": "^1.1.39",
 		"esbuild": "^0.24.0",
 		"typedoc": "^0.27.3",
 		"typescript": "^5.7.2"
