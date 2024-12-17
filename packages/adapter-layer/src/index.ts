@@ -6,9 +6,11 @@ import type {
 	PlatformAdapter,
 	RangeParam,
 	ResizeMessage,
+	TextParam,
 } from "@genart-api/core";
 import type {
 	ColorResult,
+	HashParameter,
 	LayerSDK,
 	ListParameter,
 	NumberParameter,
@@ -118,7 +120,13 @@ class LayerAdapter implements PlatformAdapter {
 			const src = params[id];
 			const kind = TYPE_MAP[src.type];
 			if (!kind) {
-				console.warn("layeradapter: unsupported ptype:", src.type);
+				console.warn(
+					`${this.id}: unsupported type:`,
+					src.type,
+					" for param:",
+					id,
+					", skipping..."
+				);
 				continue;
 			}
 			const dest = <Parameter>{
@@ -153,6 +161,38 @@ class LayerAdapter implements PlatformAdapter {
 					$dest.max = $src.max;
 					$dest.step = $src.step;
 					break;
+				}
+				case "text": {
+					const $src = <TextParam>src;
+					const $dest = <HashParameter>dest;
+					$dest.minLength = $src.min;
+					$dest.maxLength = $src.max;
+					const pattern =
+						$src.match instanceof RegExp
+							? $src.match.source
+							: $src.match;
+					switch (pattern) {
+						case "^[0-9a-f]+$":
+						case "^[0-9a-fA-F]+$":
+							$dest.pattern = "HEX";
+							break;
+						case "^[a-zA-Z0-9-_=]+$":
+							$dest.pattern = "BASE64";
+							break;
+						case "^[a-zA-Z ]+$":
+							$dest.pattern = "ALPHABETICAL";
+							break;
+						case "^[a-zA-Z0-9-_ ]+$":
+							$dest.pattern = "ALPHANUMERIC";
+							break;
+						default:
+							console.warn(
+								`${this.id}: couldn't determine pattern type for param:`,
+								id,
+								", using 'ALPHANUMERIC'..."
+							);
+							$dest.pattern = "ALPHANUMERIC";
+					}
 				}
 			}
 			layerParams.push(dest);
