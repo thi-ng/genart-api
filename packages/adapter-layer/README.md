@@ -6,10 +6,47 @@
 See main [README](https://github.com/thi-ng/genart-api/blob/main/README.md) for
 details.
 
+## Usage
+
+```bash
+yarn add @genart-api/core @genart-api/adpater-layer
+
+# create dest dir
+mkdir -p lib
+
+# copy files
+cp node_modules/@genart-api/core/*.min.js lib
+cp node_modules/@genart-api/adapter-layer/*.min.js lib
+```
+
+If you're a TypeScript user, you'll also want to add the `@genart-api/core`
+package to the `types` field in your `tsconfig.json`:
+
+tsconfig.json:
+
+```json
+{
+	"compilerOptions": {
+		"types": ["@genart-api/core", "@genart-api/adapter-layer"]
+	}
+}
+```
+
+In your HTML wrapper, add the following script tags to the `<head>` to load the
+core `GenArtAPI` and the Layer platform adapter:
+
+```html
+<script src="./lib/genart.min.js"></script>
+<script src="./lib/adapter-layer.min.js"></script>
+```
+
+See [related
+section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
+in main project README for more details...
+
 ## Parameter type adaptations & conversions
 
 > [!IMPORTANT]
-
 > Parameter adaptation for different platforms is fully transparent to the
 > artwork and no code changes need to be done in the artwork (which is the
 > entire purpose of platform adapters in this system).
