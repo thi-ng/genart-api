@@ -5,3 +5,87 @@
 
 See main [README](https://github.com/thi-ng/genart-api/blob/main/README.md) for
 details.
+
+## Parameter type adaptations & conversions
+
+> [!IMPORTANT]
+
+> Parameter adaptation for different platforms is fully transparent to the
+> artwork and no code changes need to be done in the artwork (which is the
+> entire purpose of platform adapters in this system).
+
+Because Layer only supports a small subset of the parameter types available in
+`GenArtAPI`, only the following types can be used for projects intended for this
+platform. Params using other types will be skipped (i.e. will only ever evaluate
+to their default values) and trigger a warning message in the browser console.
+
+### Choice
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
+
+Will be represented to a Layer `ListParameter`.
+
+### Color
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#color-parameter)
+
+Will be represented to a Layer `ColorParameter`.
+
+### Range
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#range-parameter)
+
+Will be represented to a Layer `NumberParameter`.
+
+### Text
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#text-parameter)
+
+Will be represented to a Layer `HashParameter`. If a
+[`.match`](https://docs.thi.ng/genart-api/core/interfaces/TextParam.html#match)
+option is defined in the original param spec, it will be converted as follows:
+
+| **Regexp**          | **Layer Pattern ID** |
+| ------------------- | -------------------- |
+| `^[a-zA-Z ]+$`      | `"ALPHABETICAL"`     |
+| `^[a-zA-Z0-9-_ ]+$` | `"ALPHANUMERIC"`     |
+| `^[a-zA-Z0-9-_=]+$` | `"BASE64"`           |
+| `^[0-9a-f]+$`       | `"HEX"`              |
+| `^[0-9a-fA-F]+$`    | `"HEX"`              |
+
+Any other patterns (or if unspecified) will default to the Layer target
+`"ALPHANUMERIC"` pattern.
+
+### Toggle
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
+
+Will be represented to a Layer `BooleanParameter`.
+
+### Vector
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#vector-parameter)
+
+Will be represented as multiple Layer `NumberParameter`s, one per vector
+component.
+
+> [!IMPORTANT]
+> Your artwork will still use vectors as param value and the adapter
+> automatically reconciles any changes done to any of the adapted params on the
+> Layer side.
+
+For example a 3D vector param will be represented (on Layer's side) as three
+separate number params. When either of them are modified, this platform adapter
+will apply the changes to the correct vector component/index and propagate the
+changed vector via the main `GenArtAPI` system.
+
+### XY
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#xy-parameter)
+
+Similar to [vector params](#vector), XY params will also be represented as two
+Layer `NumberParameter`s.
+
+## License
+
+&copy; 2024 Karsten Schmidt // MIT License
