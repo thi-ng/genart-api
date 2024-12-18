@@ -1,6 +1,28 @@
 export type TypedArray = Float32Array | Float64Array | Int8Array | Int16Array | Int32Array | Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array;
 export interface Utils {
     /**
+     * Checks given arguments for value-based equality. Supports the following
+     * types:
+     *
+     * - JS primitives (boolean, number, string)
+     * - Arrays (incl. nested)
+     * - TypedArrays
+     * - Date
+     * - RegExp
+     *
+     * @param a
+     * @param b
+     */
+    equiv(a: any, b: any): boolean;
+    /**
+     * Pairwise applies {@link Utils.equiv} to all items of the two given
+     * arraylike arguments and returns true if it successful.
+     *
+     * @param a
+     * @param b
+     */
+    equivArrayLike(a: ArrayLike<any>, b: ArrayLike<any>): boolean;
+    /**
      * Throws an error if `x` is non-truthy, otherwise returns `x`.
      *
      * @param x

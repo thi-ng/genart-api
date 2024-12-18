@@ -93,7 +93,8 @@
     }
     augmentParams(params) {
       const group = this.id;
-      return Object.assign(params, {
+      return {
+        ...params,
         [SEED]: $genart.params.range({
           group,
           order: 0,
@@ -150,7 +151,7 @@
           randomize: false,
           update: "reload"
         })
-      });
+      };
     }
     async updateParam(id, spec) {
       let value = this.params.get(id);

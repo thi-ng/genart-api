@@ -64,6 +64,8 @@
   var utils_exports = {};
   __export(utils_exports, {
     ensure: () => ensure,
+    equiv: () => equiv,
+    equivArrayLike: () => equivArrayLike,
     formatValuePrec: () => formatValuePrec,
     isNumber: () => isNumber,
     isNumericArray: () => isNumericArray,
@@ -95,6 +97,28 @@
   var formatValuePrec = (step) => {
     const prec = valuePrec(step);
     return (x) => x.toFixed(prec);
+  };
+  var equiv = (a, b) => {
+    if (a === b) return true;
+    if (a == null) return b == null;
+    if (b == null) return a == null;
+    if (isString(a) || isNumber(a)) return a === b;
+    if (a instanceof Date && b instanceof Date) {
+      return a.getTime() === b.getTime();
+    }
+    if (a instanceof RegExp && b instanceof RegExp) {
+      return a.toString() === b.toString();
+    }
+    if (a.length != null && b.length != null) {
+      return equivArrayLike(a, b);
+    }
+    return a === b || a !== a && b !== b;
+  };
+  var equivArrayLike = (a, b) => {
+    if (a.length !== b.length) return false;
+    let i = a.length;
+    while (i-- > 0 && equiv(a[i], b[i])) ;
+    return i < 0;
   };
 
   // src/params.ts
@@ -426,8 +450,8 @@
   };
 
   // src/genart.ts
-  var { ensure: ensure2, isNumber: isNumber2, isString: isString2, isNumericArray: isNumericArray2 } = utils_exports;
-  var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, round: round2, parseNum: parseNum2 } = math_exports;
+  var { ensure: ensure2, isNumber: isNumber2, isNumericArray: isNumericArray2, isString: isString2 } = utils_exports;
+  var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, parseNum: parseNum2, round: round2 } = math_exports;
   var PARAM_DEFAULTS = {
     edit: "protected",
     group: "main",
@@ -653,7 +677,7 @@
       });
     }
     get version() {
-      return "0.17.0";
+      return "0.18.0";
     }
     get id() {
       return this._opts.id;
