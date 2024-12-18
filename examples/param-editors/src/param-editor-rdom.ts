@@ -2,6 +2,7 @@ import type {
 	APIMessage,
 	ChoiceParam,
 	ImageParam,
+	Param,
 	ParamSpecs,
 	RandomizeParamMessage,
 	RangeParam,
@@ -11,6 +12,7 @@ import type {
 	WeightedChoiceParam,
 } from "@genart-api/core";
 import { FMT_HHmm, FMT_yyyyMMdd } from "@thi.ng/date";
+import { compareByKey, compareNumAsc } from "@thi.ng/compare";
 import { equiv } from "@thi.ng/equiv";
 import { div } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
@@ -50,7 +52,8 @@ import {
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
-import { reduce } from "@thi.ng/transducers";
+import { capitalize } from "@thi.ng/strings";
+import { groupByObj } from "@thi.ng/transducers";
 import { canvasColorPicker } from "./color-picker.js";
 import {
 	apiState,
@@ -70,293 +73,303 @@ import { formatValuePrec } from "./utils.js";
 // ROOT.set(new ConsoleLogger());
 
 const createParamControls = (params: ParamSpecs) => {
-	let items: FormItem[] = [];
-	const ids = reduce<string, string[][]>(
-		[
-			() => [[], []],
-			(acc) => acc,
-			(acc, x) => (acc[x.startsWith("__") ? 1 : 0].push(x), acc),
-		],
-		Object.keys(params)
+	const groups = groupByObj<[string, Param<any>], [string, Param<any>][]>(
+		{ key: ([_, { group }]) => group?.toLowerCase() || "main" },
+		Object.entries(params)
 	);
-	for (let id of [...ids[0], ...ids[1]]) {
-		const param = params[id];
-		let value: ISubscription<any, any> = reactive(
-			(paramCache[id] = param.value ?? param.default)
-		);
-		const base = {
-			id,
-			label: param.name || id,
-			desc:
-				param.desc +
-				(param.update === "reload" ? " (change forces reload)" : ""),
-			labelAttribs: { title: param.doc },
-			attribs: { title: param.doc },
-			value,
-		};
-		paramValues[id] = value;
-		switch (param.type) {
-			case "choice":
-				{
-					const $param = <ChoiceParam<any>>param;
-					items.push(
-						selectStr({
+	const items: FormItem[] = [];
+	for (let [groupID, groupParams] of Object.entries(groups)) {
+		const groupItems: FormItem[] = [];
+		for (let [id, param] of groupParams.sort(
+			compareByKey((x) => x[1].order!, compareNumAsc)
+		)) {
+			let value: ISubscription<any, any> = reactive(
+				(paramCache[id] = param.value ?? param.default)
+			);
+			const base = {
+				id,
+				label: capitalize(param.name || id),
+				desc:
+					param.desc +
+					(param.update === "reload"
+						? " (change forces reload)"
+						: ""),
+				labelAttribs: { title: param.doc },
+				attribs: { title: param.doc },
+				value,
+			};
+			paramValues[id] = value;
+			switch (param.type) {
+				case "choice":
+					{
+						const $param = <ChoiceParam<any>>param;
+						groupItems.push(
+							selectStr({
+								...base,
+								items: $param.options.map((x) =>
+									Array.isArray(x)
+										? { value: x[0], label: x[1] }
+										: x
+								),
+							})
+						);
+					}
+					break;
+
+				case "color": {
+					let width = window.innerWidth;
+					width =
+						width >= 1024
+							? (width * 0.4 - 48) >> 1
+							: width >= 768
+							? width * 0.4 - 32
+							: width - 32;
+					groupItems.push(
+						canvasColorPicker({
 							...base,
-							items: $param.options.map((x) =>
-								Array.isArray(x)
-									? { value: x[0], label: x[1] }
-									: x
-							),
+							attribs: {
+								width,
+								height: Math.min(width, 256),
+								title: param.doc,
+							},
 						})
 					);
+					break;
 				}
-				break;
 
-			case "color": {
-				let width = window.innerWidth;
-				width =
-					width >= 1024
-						? (width * 0.4 - 48) >> 1
-						: width >= 768
-						? width * 0.4 - 32
-						: width - 32;
-				items.push(
-					canvasColorPicker({
-						...base,
-						attribs: {
-							width,
-							height: Math.min(width, 256),
-							title: param.doc,
-						},
-					})
-				);
-				break;
-			}
+				case "datetime":
+					{
+						value = value.map((x) =>
+							x instanceof Date
+								? FMT_yyyyMMdd(x) + "T" + FMT_HHmm(x)
+								: x
+						);
+						groupItems.push(dateTime({ ...base, value }));
+						value = value.map((x) => new Date(Date.parse(x)));
+					}
+					break;
 
-			case "datetime":
-				{
-					value = value.map((x) =>
-						x instanceof Date
-							? FMT_yyyyMMdd(x) + "T" + FMT_HHmm(x)
-							: x
-					);
-					items.push(dateTime({ ...base, value }));
-					value = value.map((x) => new Date(Date.parse(x)));
-				}
-				break;
+				case "date":
+					{
+						value = value.map((x) =>
+							x instanceof Date ? FMT_yyyyMMdd(x) : x
+						);
+						groupItems.push(date({ ...base, value }));
+						value = value.map((x) => new Date(Date.parse(x)));
+					}
+					break;
 
-			case "date":
-				{
-					value = value.map((x) =>
-						x instanceof Date ? FMT_yyyyMMdd(x) : x
-					);
-					items.push(date({ ...base, value }));
-					value = value.map((x) => new Date(Date.parse(x)));
-				}
-				break;
-
-			case "img": {
-				const $param = <ImageParam>param;
-				const fmt = {
-					gray: GRAY8,
-					rgb: RGB888,
-					rgba: ARGB8888,
-				}[$param.format];
-				const fileSel = stream<File>();
-				items.push(
-					file({
-						...base,
-						accept: MIME_IMAGE_COMMON,
-						value: fileSel,
-					}),
-					custom(
-						div(
-							".imgpreview",
-							{},
-							div(),
-							$refresh(
-								merge<Promise<IntBuffer>, Promise<IntBuffer>>({
-									src: [
-										fileSel.map(async (f) =>
-											intBufferFromImage(
-												await imageFromFile(f)
-											)
-										),
-										reactive(
-											Promise.resolve(
-												intBuffer(
-													$param.width,
-													$param.height,
-													fmt,
-													<any>$param.value
+				case "img": {
+					const $param = <ImageParam>param;
+					const fmt = {
+						gray: GRAY8,
+						rgb: RGB888,
+						rgba: ARGB8888,
+					}[$param.format];
+					const fileSel = stream<File>();
+					groupItems.push(
+						file({
+							...base,
+							accept: MIME_IMAGE_COMMON,
+							value: fileSel,
+						}),
+						custom(
+							div(
+								".imgpreview",
+								{},
+								div(),
+								$refresh(
+									merge<
+										Promise<IntBuffer>,
+										Promise<IntBuffer>
+									>({
+										src: [
+											fileSel.map(async (f) =>
+												intBufferFromImage(
+													await imageFromFile(f)
 												)
 											),
-											{ closeIn: "first" }
-										),
-									],
-								}),
-								async ($img) => {
-									const img = (await $img)
-										.as(fmt)
-										.resize(
-											$param.width,
-											$param.height,
-											"cubic"
+											reactive(
+												Promise.resolve(
+													intBuffer(
+														$param.width,
+														$param.height,
+														fmt,
+														<any>$param.value
+													)
+												),
+												{ closeIn: "first" }
+											),
+										],
+									}),
+									async ($img) => {
+										const img = (await $img)
+											.as(fmt)
+											.resize(
+												$param.width,
+												$param.height,
+												"cubic"
+											);
+										value.next(img.data.slice());
+										return $wrapEl(
+											canvasFromPixelBuffer(img)
 										);
-									value.next(img.data.slice());
-									return $wrapEl(canvasFromPixelBuffer(img));
-								}
+									}
+								)
 							)
 						)
-					)
-				);
-				break;
-			}
+					);
+					break;
+				}
 
-			case "range":
-				{
-					const { min, max, step } = <RangeParam>param;
-					items.push(
-						(param.widget && param.widget !== "default"
+				case "range":
+					{
+						const { min, max, step } = <RangeParam>param;
+						groupItems.push(
+							(param.widget && param.widget !== "default"
+								? num
+								: range)({
+								...base,
+								min,
+								max,
+								step,
+								vlabel: formatValuePrec(step ?? 1),
+							})
+						);
+					}
+					break;
+
+				case "text":
+					{
+						const $param = <TextParam>param;
+						groupItems.push(
+							$param.multiline
+								? text({ ...base, rows: 5 })
+								: str({
+										...base,
+										min: $param.min,
+										max: $param.max,
+								  })
+						);
+					}
+					break;
+
+				case "toggle":
+					groupItems.push(toggle(base));
+					break;
+
+				case "vector":
+				case "xy": {
+					const { dim, min, max, step, labels } =
+						param.type === "vector"
+							? <VectorParam>param
+							: {
+									dim: 2,
+									min: [0, 0],
+									max: [1, 1],
+									step: [0.001, 0.001],
+									labels: ["X", "Y"],
+							  };
+					const tuple = fromTuple<number[]>(paramCache[id]);
+					value.subscribe(tuple);
+					const widget =
+						param.widget && param.widget !== "default"
 							? num
-							: range)({
-							...base,
-							min,
-							max,
-							step,
-							vlabel: formatValuePrec(step ?? 1),
-						})
-					);
+							: range;
+					for (let i = 0; i < dim; i++) {
+						tuple.streams[i].subscribe({
+							next(x) {
+								const val = tuple.deref()!.slice();
+								val[i] = x;
+								tuple.next(val);
+								value.next(val);
+							},
+						});
+						groupItems.push(
+							widget({
+								...base,
+								min: min[i],
+								max: max[i],
+								step: step[i],
+								value: tuple.streams[i],
+								label: base.label + ` (${labels[i]})`,
+								vlabel: formatValuePrec(step[i] ?? 1),
+							})
+						);
+					}
+					break;
 				}
-				break;
 
-			case "text":
-				{
-					const $param = <TextParam>param;
-					items.push(
-						$param.multiline
-							? text({ ...base, rows: 5 })
-							: str({
-									...base,
-									min: $param.min,
-									max: $param.max,
-							  })
-					);
-				}
-				break;
-
-			case "toggle":
-				items.push(toggle(base));
-				break;
-
-			case "vector":
-			case "xy": {
-				const { dim, min, max, step, labels } =
-					param.type === "vector"
-						? <VectorParam>param
-						: {
-								dim: 2,
-								min: [0, 0],
-								max: [1, 1],
-								step: [0.001, 0.001],
-								labels: ["X", "Y"],
-						  };
-				const tuple = fromTuple<number[]>(paramCache[id]);
-				value.subscribe(tuple);
-				const widget =
-					param.widget && param.widget !== "default" ? num : range;
-				for (let i = 0; i < dim; i++) {
-					tuple.streams[i].subscribe({
-						next(x) {
-							const val = tuple.deref()!.slice();
-							val[i] = x;
-							tuple.next(val);
-							value.next(val);
-						},
-					});
-					items.push(
-						widget({
-							...base,
-							min: min[i],
-							max: max[i],
-							step: step[i],
-							value: tuple.streams[i],
-							label: base.label + ` (${labels[i]})`,
-							vlabel: formatValuePrec(step[i] ?? 1),
-						})
-					);
-				}
-				break;
+				case "weighted":
+					{
+						const $param = <WeightedChoiceParam<any>>param;
+						groupItems.push(
+							selectStr({
+								...base,
+								items: $param.options.map((x) => ({
+									value: x[1],
+									label: x[2] || `${x[1]} (${x[0]})`,
+								})),
+							})
+						);
+					}
+					break;
 			}
-
-			case "weighted":
-				{
-					const $param = <WeightedChoiceParam<any>>param;
-					items.push(
-						selectStr({
-							...base,
-							items: $param.options.map((x) => ({
-								value: x[1],
-								label: x[2] || `${x[1]} (${x[0]})`,
-							})),
+			if (param.randomize !== false) {
+				if (param.state === "random") {
+					groupItems.push(
+						trigger({
+							label: "",
+							title: "apply",
+							attribs: {
+								id: id + "-apply",
+								title: "Click to apply the current value (randomized default)",
+								onclick: () => {
+									$attribs(
+										document.getElementById(id + "-apply")!,
+										{ style: { display: "none" } }
+									);
+									sendMessage<SetParamValueMessage>({
+										type: "genart:set-param-value",
+										paramID: id,
+										value: value.deref(),
+									});
+								},
+							},
+							readonly: true,
 						})
 					);
 				}
-				break;
-		}
-		if (param.randomize !== false) {
-			if (param.state === "random") {
-				items.push(
+				groupItems.push(
 					trigger({
 						label: "",
-						title: "apply",
+						title: "randomize",
 						attribs: {
-							id: id + "-apply",
-							title: "Click to apply the current value (randomized default)",
-							onclick: () => {
-								$attribs(
-									document.getElementById(id + "-apply")!,
-									{ style: { display: "none" } }
-								);
-								sendMessage<SetParamValueMessage>({
-									type: "genart:set-param-value",
+							title: "Click to randomize this param",
+							onclick: () =>
+								sendMessage<RandomizeParamMessage>({
+									type: "genart:randomize-param",
 									paramID: id,
-									value: value.deref(),
-								});
-							},
+								}),
 						},
 						readonly: true,
 					})
 				);
 			}
-			items.push(
-				trigger({
-					label: "",
-					title: "randomize",
-					attribs: {
-						title: "Click to randomize this param",
-						onclick: () =>
-							sendMessage<RandomizeParamMessage>({
-								type: "genart:randomize-param",
-								paramID: id,
-							}),
-					},
-					readonly: true,
-				})
-			);
+			value.subscribe({
+				next(value) {
+					if (!selfUpdate && !equiv(paramCache[id], value)) {
+						paramCache[id] = value;
+						sendMessage<SetParamValueMessage>({
+							type: "genart:set-param-value",
+							paramID: id,
+							value,
+						});
+					}
+				},
+			});
 		}
-		value.subscribe({
-			next(value) {
-				if (!selfUpdate && !equiv(paramCache[id], value)) {
-					paramCache[id] = value;
-					sendMessage<SetParamValueMessage>({
-						type: "genart:set-param-value",
-						paramID: id,
-						value,
-					});
-				}
-			},
-		});
+		items.push(group({ label: capitalize(groupID) }, ...groupItems));
 	}
 
 	const copy = reactive(false);

@@ -17,7 +17,7 @@ header { mb3 }
 
 h1 { ls--1 mb2 { small { ml3 color-gray } } }
 
-label { db b ttc mb2 l:mb0 }
+label { db b mb2 l:mb0 }
 
 fieldset { mh0 mv3 pa0 bw0 }
 
