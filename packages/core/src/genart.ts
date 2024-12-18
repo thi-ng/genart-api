@@ -46,8 +46,8 @@ import { timeProviderOffline } from "./time/offline.js";
 import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
 
-const { ensure, isNumber, isString, isNumericArray } = utils;
-const { clamp, clamp01, mix, norm, round, parseNum } = math;
+const { ensure, isNumber, isNumericArray, isString } = utils;
+const { clamp, clamp01, mix, norm, parseNum, round } = math;
 
 const PARAM_DEFAULTS: Partial<Param<any>> = {
 	edit: "protected",
