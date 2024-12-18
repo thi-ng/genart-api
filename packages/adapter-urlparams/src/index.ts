@@ -105,7 +105,8 @@ class URLParamsAdapter implements PlatformAdapter {
 
 	augmentParams(params: ParamSpecs) {
 		const group = this.id;
-		return Object.assign(params, {
+		return {
+			...params,
 			[SEED]: $genart.params.range({
 				group,
 				order: 0,
@@ -162,7 +163,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				randomize: false,
 				update: "reload",
 			}),
-		});
+		};
 	}
 
 	async updateParam(id: string, spec: Param<any>) {
