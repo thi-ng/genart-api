@@ -7,6 +7,8 @@ import type {
 	RangeParam,
 	ResizeMessage,
 	TextParam,
+	VectorParam,
+	XYParam,
 } from "@genart-api/core";
 import type {
 	ColorResult,
@@ -33,16 +35,32 @@ const TYPE_MAP: Record<
 	range: "NUMBER",
 	toggle: "BOOLEAN",
 	text: "HASH",
+	vector: "NUMBER",
+	xy: "NUMBER",
 };
 
-const { isString } = $genart.utils;
+const { equiv, isString } = $genart.utils;
+
+interface AdaptedParam {
+	/**
+	 * Original param ID
+	 */
+	id: string;
+	/**
+	 * Function to convert adapted param value to original type.
+	 *
+	 * @param value
+	 */
+	adapt(value: any): any;
+}
 
 class LayerAdapter implements PlatformAdapter {
 	readonly mode = "play";
 
 	protected params: ParamSpecs | undefined;
 	protected cache: Record<string, any> = {};
-	// protected layerParams!: Record<string, Parameter> | undefined;
+	protected adaptations: Record<string, AdaptedParam> = {};
+	protected timeoutID?: ReturnType<typeof setTimeout>;
 
 	constructor() {
 		$layer.debug = true;
@@ -59,10 +77,22 @@ class LayerAdapter implements PlatformAdapter {
 		window.addEventListener("layer:pause", () => $genart.stop());
 		window.addEventListener("layer:paramchange", (e) => {
 			let { id, value } = (<CustomEvent>e).detail;
+			const adaptedParam = this.adaptations[id];
+			if (adaptedParam) {
+				id = adaptedParam.id;
+				value = adaptedParam.adapt(value);
+			}
 			const param = this.params?.[id];
-			// only update param if no reload required
-			if (param && param.update !== "reload") {
-				if (param.type === "color") value = (<ColorResult>value).hex;
+			if (!param) {
+				console.warn(
+					`${this.id}: ignoring change for unknown param: ${id}...`
+				);
+				return;
+			}
+			if (equiv(this.cache[id], value)) return;
+			this.cache[id] = value;
+			if (param.update !== "reload") {
+				// only update param if no reload required
 				$genart.setParamValue(id, value);
 			}
 		});
@@ -94,20 +124,23 @@ class LayerAdapter implements PlatformAdapter {
 		};
 	}
 
-	async updateParam(id: string, param: Param<any>) {
-		let value: any = $layer.parameters[id];
-		if (param.type === "color") {
-			if (!isString(value)) value = value.hex;
+	async updateParam(id: string, _: Param<any>) {
+		let value: any;
+		if (Object.values(this.adaptations).find((x) => x.id === id)) {
+			value = this.cache[id];
+			return { value };
+		} else {
+			value = $layer.parameters[id];
 		}
 		// console.log(
-		// 	"layeradapter:",
+		// 	`${this.id}:`,
 		// 	id,
 		// 	"new value",
 		// 	value,
 		// 	"cached",
 		// 	this.cache[id]
 		// );
-		if (value == null || this.cache[id] === value) return;
+		if (value == null || equiv(this.cache[id], value)) return;
 		this.cache[id] = value;
 		return { value };
 	}
@@ -133,7 +166,9 @@ class LayerAdapter implements PlatformAdapter {
 				id,
 				kind,
 				name: src.name || id,
-				description: src.desc,
+				description:
+					src.desc +
+					(src.update === "reload" ? " (requires reload)" : ""),
 				default: src.default,
 				customization_level:
 					src.edit === "private"
@@ -142,6 +177,7 @@ class LayerAdapter implements PlatformAdapter {
 						? "VIEWER"
 						: "CURATOR",
 			};
+			layerParams.push(dest);
 			this.cache[id] = src.default;
 			switch (src.type) {
 				case "choice": {
@@ -152,6 +188,13 @@ class LayerAdapter implements PlatformAdapter {
 							? { value: x[0], label: x[1] }
 							: { value: x, label: x }
 					);
+					break;
+				}
+				case "color": {
+					this.adaptations[id] = {
+						id,
+						adapt: (x) => (isString(x) ? x : (<ColorResult>x).hex),
+					};
 					break;
 				}
 				case "range": {
@@ -193,17 +236,78 @@ class LayerAdapter implements PlatformAdapter {
 							);
 							$dest.pattern = "ALPHANUMERIC";
 					}
+					break;
+				}
+				case "vector": {
+					// replace vector param with multiple number params
+					layerParams.pop();
+					const $src = <VectorParam>src;
+					const dim = $src.dim;
+					const labels = $src.labels;
+					for (let j = 0; j < dim; j++) {
+						const $dest = <NumberParameter>{ ...dest };
+						$dest.id = id + "__" + labels[j];
+						$dest.name = $src.name + ` (${labels[j]})`;
+						$dest.min = $src.min[j];
+						$dest.max = $src.max[j];
+						$dest.step = $src.step[j];
+						if ($src.default) $dest.default = $src.default[j];
+						layerParams.push($dest);
+						this.adaptations[$dest.id] = this.adaptVectorParam(
+							id,
+							j
+						);
+					}
+					break;
+				}
+				case "xy": {
+					// replace XY param with two number params
+					layerParams.pop();
+					const labels = "xy";
+					const $src = <XYParam>src;
+					for (let j = 0; j < 2; j++) {
+						const $dest = <NumberParameter>{ ...dest };
+						$dest.id = id + "__" + labels[j];
+						$dest.name = $src.name + ` (${labels[j]})`;
+						$dest.min = 0;
+						$dest.max = 1;
+						$dest.step = 0.001;
+						if ($src.default) $dest.default = $src.default[j];
+						layerParams.push($dest);
+						this.adaptations[$dest.id] = this.adaptVectorParam(
+							id,
+							j
+						);
+					}
 				}
 			}
-			layerParams.push(dest);
 		}
-		await $layer.params(...layerParams);
+		const paramValues = await $layer.params(...layerParams);
+		for (let [id, value] of Object.entries(paramValues)) {
+			const adaptedParam = this.adaptations[id];
+			if (adaptedParam) {
+				// only cache adapted param values here
+				// other param types will be cached via .updateParam() above...
+				this.cache[adaptedParam.id] = adaptedParam.adapt(value);
+			}
+		}
 	}
 
 	setTraits() {}
 
 	capture(canvas: HTMLCanvasElement) {
 		$layer.registerCanvas(canvas);
+	}
+
+	protected adaptVectorParam(id: string, idx: number): AdaptedParam {
+		return {
+			id,
+			adapt: (x) => {
+				const value = this.cache[id].slice();
+				value[idx] = x;
+				return value;
+			},
+		};
 	}
 }
 
