@@ -19,8 +19,8 @@ cp node_modules/@genart-api/core/*.min.js lib
 cp node_modules/@genart-api/adapter-layer/*.min.js lib
 ```
 
-If you're a TypeScript user, you'll also want to add the `@genart-api/core`
-package to the `types` field in your `tsconfig.json`:
+If you're a TypeScript user, you'll also want to add the `types` field in your
+`tsconfig.json`:
 
 tsconfig.json:
 
@@ -53,32 +53,34 @@ in main project README for more details...
 
 Because Layer only supports a small subset of the parameter types available in
 `GenArtAPI`, only the following types can be used for projects intended for this
-platform. Params using other types will be skipped (i.e. will only ever evaluate
-to their default values) and trigger a warning message in the browser console.
+platform (types will be adapted where possible). Params using other types will
+be skipped (i.e. not exposed to Layer) and will only ever evaluate to their
+default values. When using such unsupported types, the platform adapter will log
+a warning message in the browser console.
 
 ### Choice
 
 [Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
 
-Will be represented to a Layer `ListParameter`.
+Will be represented as a Layer `ListParameter`.
 
 ### Color
 
 [Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#color-parameter)
 
-Will be represented to a Layer `ColorParameter`.
+Will be represented as a Layer `ColorParameter`.
 
 ### Range
 
 [Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#range-parameter)
 
-Will be represented to a Layer `NumberParameter`.
+Will be represented as a Layer `NumberParameter`.
 
 ### Text
 
 [Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#text-parameter)
 
-Will be represented to a Layer `HashParameter`. If a
+Will be represented as a Layer `HashParameter`. If a
 [`.match`](https://docs.thi.ng/genart-api/core/interfaces/TextParam.html#match)
 option is defined in the original param spec, it will be converted as follows:
 
@@ -97,7 +99,7 @@ Any other patterns (or if unspecified) will default to the Layer target
 
 [Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
 
-Will be represented to a Layer `BooleanParameter`.
+Will be represented as a Layer `BooleanParameter`.
 
 ### Vector
 
@@ -115,6 +117,13 @@ For example a 3D vector param will be represented (on Layer's side) as three
 separate number params. When either of them are modified, this platform adapter
 will apply the changes to the correct vector component/index and propagate the
 changed vector via the main `GenArtAPI` system.
+
+### Weighted choice
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#weighted-choice-parameter)
+
+Will be represented as a Layer `ListParameter`. Weights will be ignored when
+randomizing the param in the Layer GenStudio UI.
 
 ### XY
 
