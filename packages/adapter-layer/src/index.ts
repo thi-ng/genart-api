@@ -8,6 +8,7 @@ import type {
 	ResizeMessage,
 	TextParam,
 	VectorParam,
+	WeightedChoiceParam,
 	XYParam,
 } from "@genart-api/core";
 import type {
@@ -258,6 +259,15 @@ class LayerAdapter implements PlatformAdapter {
 							j
 						);
 					}
+					break;
+				}
+				case "weighted": {
+					const $src = <WeightedChoiceParam<string>>src;
+					const $dest = <ListParameter>dest;
+					$dest.options = $src.options.map((x) => ({
+						value: x[1],
+						label: x[2],
+					}));
 					break;
 				}
 				case "xy": {
