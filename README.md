@@ -847,11 +847,19 @@ providing (deployment) platform-specific functionality and interop features.
 
 ### Existing adapter implementations
 
-**Please refer or contribute to issue [#2: List of art platforms we should
-provide adapters for](https://github.com/thi-ng/genart-api/issues/2)**
+> [!NOTE]
+> Please refer or contribute to issue [#2: List of art platforms we should
+> provide adapters for](https://github.com/thi-ng/genart-api/issues/2)
 
--   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts) : Reference implementation
--   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/src/index.ts) : Adapter for the Layer.com art platform
+Please refer to the readme's of the individual adapter packages for further
+details about handling any platform specifics:
+
+-   [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/src/index.ts)
+    : Adapter for the [EditArt](https://editart.xyz) art platform
+-   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/src/index.ts)
+    : Adapter for the Layer.com art platform
+-   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts)
+    : Reference implementation
 
 ### Parameter sourcing
 
