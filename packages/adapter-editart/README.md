@@ -44,7 +44,9 @@ See [related
 section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
 in main project README for more details...
 
-## Parameter type adaptations & conversions
+## Parameter handling
+
+### Type adaptations & conversions
 
 > [!IMPORTANT]
 > Parameter adaptation for different platforms is fully invisible to the artwork
@@ -68,7 +70,26 @@ platform adapter will log a warning message in the browser console.
 -   [Toggle](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
 -   [Weighted choice](https://github.com/thi-ng/genart-api/blob/main/README.md#weighted-choice-parameter)
 
-## Parameter update behavior
+### Selection
+
+This platform adapter only considers parameters with [non-private `.edit`
+permissions](https://docs.thi.ng/genart-api/core/interfaces/ParamOpts.html#edit).
+
+### Ordering
+
+To ensure deterministic mapping between the 5 param values exposed by the
+**EditArt** platform and the params defined by the artwork, the platform adpater
+uses the following approach:
+
+-   All non-eligible params (with unsupported types) are ignored (see [earlier
+    section](#type-adaptations--conversions))
+-   Declared params are sorted by their specified
+    [`.order`](https://docs.thi.ng/genart-api/core/interfaces/ParamOpts.html#order)
+    as primary sort key and then by their ID as secondary sort key
+-   Only the first max. 5 of the sorted parameters are used (mapped to
+    **EditArt**'s `m0`...`m4` params).
+
+### Update behavior
 
 **EditArt** doesn't support the concept of live adjustable params and any param
 change always triggers a full restart of the artwork.
