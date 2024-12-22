@@ -24,7 +24,7 @@ const MAX_PARAMS = 5;
 const SUPPORTED_TYPES = ["choice", "range", "toggle", "weighted"];
 
 const {
-	math: { clamp, round, fit },
+	math: { clamp, round, fit, mix },
 	prng: { sfc32 },
 	utils: { isString },
 } = $genart;
@@ -108,30 +108,30 @@ class EditArtAdapter implements PlatformAdapter {
 			}
 			return;
 		}
-		const value = this.searchParams.get("m" + index);
-		if (value == null || this.cache[id] === value) return;
-		this.cache[id] = value;
+		const paramVal = this.searchParams.get("m" + index);
+		if (paramVal == null || this.cache[id] === paramVal) return;
+		this.cache[id] = paramVal;
+		// replicate value clamping (as done in editart SDK)
+		const value = clamp(+paramVal, 0, 0.999999);
 		switch (param.type) {
 			case "choice": {
 				const options = (<ChoiceParam<string>>param).options;
-				const selected = options[(+value * options.length) | 0];
+				const selected = options[(value * options.length) | 0];
 				return { value: isString(selected) ? selected : selected[0] };
 			}
 			case "range": {
 				const { min, max, step } = <RangeParam>param;
 				return {
-					value: clamp(
-						round(fit(+value, 0, 1, min, max), step),
-						min,
-						max
-					),
+					value: clamp(round(mix(min, max, value), step), min, max),
 				};
 			}
 			case "toggle":
-				return { value: +value >= 0.5 };
+				return { value: value >= 0.5 };
 			case "weighted": {
 				const options = (<WeightedChoiceParam<string>>param).options;
-				return { value: options[(+value * options.length) | 0][1] };
+				return {
+					value: options[(value * options.length) | 0][1],
+				};
 			}
 		}
 	}
