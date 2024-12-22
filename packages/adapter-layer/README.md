@@ -47,13 +47,13 @@ in main project README for more details...
 ## Parameter type adaptations & conversions
 
 > [!IMPORTANT]
-> Parameter adaptation for different platforms is fully transparent to the
-> artwork and no code changes need to be done in the artwork (which is the
-> entire purpose of platform adapters in this system).
+> Parameter adaptation for different platforms is fully invisible to the artwork
+> and no code changes need to be done in the artwork (which is the entire
+> purpose of platform adapters in this system).
 
 Because Layer only supports a small subset of the parameter types available in
 `GenArtAPI`, only the following types can be used for projects intended for this
-platform (types will be adapted where possible). Params using other types will
+platform. Some param types will be adapted where possible. Params using other types will
 be skipped (i.e. not exposed to Layer) and will only ever evaluate to their
 default values. When using such unsupported types, the platform adapter will log
 a warning message in the browser console.
@@ -113,7 +113,7 @@ component.
 > automatically reconciles any changes done to any of the adapted params on the
 > Layer side.
 
-For example a 3D vector param will be represented (on Layer's side) as three
+For example, a 3D vector param will be represented (on Layer's side) as three
 separate number params. When either of them are modified, this platform adapter
 will apply the changes to the correct vector component/index and propagate the
 changed vector via the main `GenArtAPI` system.
