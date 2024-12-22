@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild";
-import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const buildAll = async (minify) => {
