@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/adapter-layer",
-	"version": "0.18.0",
+	"version": "0.19.0",
 	"description": "GenArtAPI platform adapter for layer.com",
 	"repository": {
 		"type": "git",
