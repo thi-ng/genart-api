@@ -854,11 +854,11 @@ providing (deployment) platform-specific functionality and interop features.
 Please refer to the readme's of the individual adapter packages for further
 details about handling any platform specifics:
 
--   [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/src/index.ts)
+-   [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/README.md)
     : Adapter for the [EditArt](https://editart.xyz) art platform
--   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/src/index.ts)
+-   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/README.md)
     : Adapter for the Layer.com art platform
--   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts)
+-   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/README.md)
     : Reference implementation
 
 ### Parameter sourcing
