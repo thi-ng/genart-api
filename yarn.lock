@@ -441,6 +441,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@genart-api/adapter-editart@workspace:packages/adapter-editart":
+  version: 0.0.0-use.local
+  resolution: "@genart-api/adapter-editart@workspace:packages/adapter-editart"
+  dependencies:
+    "@genart-api/core": "workspace:^"
+    esbuild: "npm:^0.24.0"
+    typedoc: "npm:^0.27.3"
+    typescript: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
 "@genart-api/adapter-layer@workspace:^, @genart-api/adapter-layer@workspace:packages/adapter-layer":
   version: 0.0.0-use.local
   resolution: "@genart-api/adapter-layer@workspace:packages/adapter-layer"
