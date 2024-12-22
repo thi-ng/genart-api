@@ -32,8 +32,14 @@ export interface ParamOpts {
 	 * (e.g. editor UIs) to sort parameters (in ascending order).
 	 *
 	 * @remarks
-	 * If {@link ParamOpts.group} is used, the ordering given here only
-	 * applies to establish the param order in that group.
+	 * If {@link ParamOpts.group} is used, the ordering given here only applies
+	 * to establish the param order in that group.
+	 *
+	 * **IMPORTANT**: It's highly recommended to specify this value to avoid
+	 * later confusion when an artwork is published on platforms which don't
+	 * support param names and/or not display their labels (e.g.
+	 * [editart.xyz](https://editart.xyz)). In these cases, the order of
+	 * parameters can only be deduced from the ordering specified here.
 	 *
 	 * @defaultValue 0
 	 */
