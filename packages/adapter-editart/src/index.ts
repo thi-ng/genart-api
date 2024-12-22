@@ -138,7 +138,11 @@ class EditArtAdapter implements PlatformAdapter {
 
 	async initParams(params: ParamSpecs) {
 		const filtered = Object.entries(params)
-			.filter((x) => SUPPORTED_TYPES.includes(x[1].type))
+			.filter(
+				([_, param]) =>
+					param.edit !== "private" &&
+					SUPPORTED_TYPES.includes(param.type)
+			)
 			.sort((a, b) => {
 				const ao = a[1].order!;
 				const bo = b[1].order!;
