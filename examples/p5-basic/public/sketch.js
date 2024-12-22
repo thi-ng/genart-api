@@ -14,7 +14,7 @@ async function setup() {
 		bg: $genart.params.color({
 			name: "Background",
 			desc: "Baackground color",
-			default: "#c0c0c0",
+			default: "#303030",
 		}),
 		fill: $genart.params.color({
 			name: "Fill",
@@ -46,11 +46,13 @@ async function setup() {
 			step: 0.0001,
 		}),
 	});
+
 	// create canvas using the dimensions defined by the platform
-	createCanvas($genart.screen.width, $genart.screen.height);
+	createCanvas($genart.screen.width, $genart.screen.height, WEBGL);
 
 	// disable normal p5.js animation loop
 	noLoop();
+
 	// register draw function with GenArt API to enable transport control (play/pause)
 	$genart.setUpdate(draw);
 }
@@ -61,13 +63,14 @@ function draw(time) {
 	const maxRadius = param("radius") * min(width, height) * 0.8;
 	const scaleX = param("scaleX");
 	const scaleT = param("scaleT");
+	time *= scaleT;
 	stroke(param("stroke"));
 	// draw circles
 	for (let x = 0; x < width + maxRadius; x += 10) {
-		const r = noise(x * scaleX + (time * scaleT) / 10);
-		const y = ((noise(x * scaleX + time * scaleT) - 0.5) * 2 * height) / 3;
-		fill(lerpColor(color(0, 0, 0), color(param("fill")), r ** 0.5));
-		circle(x, height / 2 + y, r * maxRadius);
+		const r = noise(x * scaleX + time / 10);
+		const y = ((noise(x * scaleX + time) - 0.5) * 2 * height) / 3;
+		fill(lerpColor(color(0, 0, 0), color(param("fill")), r ** 0.8));
+		ellipse(x - width / 2, y, r * maxRadius, r * maxRadius, 40);
 	}
 	// MUST return true to continue animating
 	return true;
