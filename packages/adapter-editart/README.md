@@ -44,6 +44,10 @@ See [related
 section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
 in main project README for more details...
 
+Once running, you can then test your example in the EditArt sandbox:
+
+https://www.editart.xyz/sandbox
+
 ## Parameter handling
 
 ### Type adaptations & conversions
