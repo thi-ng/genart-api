@@ -10,6 +10,9 @@ export const isNumber = (x: any): x is number =>
 
 export const isString = (x: any): x is string => typeof x === "string";
 
+export const isFunction = <T extends Function>(x: any): x is T =>
+	typeof x === "function";
+
 export const isNumericArray = (x: any): x is number[] =>
 	isTypedArray(x) || (Array.isArray(x) && x.every(isNumber));
 
