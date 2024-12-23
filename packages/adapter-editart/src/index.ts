@@ -29,34 +29,48 @@ const {
 	utils: { isString },
 } = $genart;
 
-class EditArtAdapter implements PlatformAdapter {
-	protected paramIndex: Record<string, number> = {};
-	protected searchParams: URLSearchParams;
-	protected cache: Record<string, string> = {};
+/**
+ * Adapter configuration options. To be used with
+ * {@link EditArtAdapter.configure}.
+ */
+export interface EditArtAdapterOpts {
+	/**
+	 * List of param IDs to adapt. If given, only these (max. 5) given
+	 * parameters will be considered for adaptation (instead of auto-selecting
+	 * them).
+	 */
+	params: string[];
+}
+
+export class EditArtAdapter implements PlatformAdapter {
+	protected _paramIndex: Record<string, number> = {};
+	protected _searchParams: URLSearchParams;
+	protected _selectedParamIDs?: string[];
+	protected _cache: Record<string, string> = {};
 	protected _prng!: PRNG;
 	protected _screen: ScreenConfig;
 
 	constructor() {
-		this.searchParams = new URLSearchParams(location.search);
+		this._searchParams = new URLSearchParams(location.search);
 		this._screen = this.screen;
 		this.initPRNG();
 		$genart.on("genart:param-change", ({ paramID, param }) => {
-			const index = this.paramIndex[paramID];
+			const index = this._paramIndex[paramID];
 			if (index == null) return;
 			const value = this.serializeParam(param);
-			if (value == null || this.cache[paramID] === value) return;
-			this.cache[paramID] = value;
-			this.searchParams.set("m" + index, value);
+			if (value == null || this._cache[paramID] === value) return;
+			this._cache[paramID] = value;
+			this._searchParams.set("m" + index, value);
 			this.reload();
 		});
 		$genart.on("genart:state-change", ({ state }) => {
 			if (state === "ready") $genart.start();
 		});
+		// react to editart param changes (see editart SDK)
 		window.addEventListener("message", (e) => {
-			var data = e.data;
-			if (data.hasOwnProperty("editartQueryString")) {
-				this.searchParams = new URLSearchParams(
-					data["editartQueryString"]
+			if (e.data.hasOwnProperty("editartQueryString")) {
+				this._searchParams = new URLSearchParams(
+					e.data["editartQueryString"]
 				);
 				this.reload();
 			}
@@ -98,19 +112,30 @@ class EditArtAdapter implements PlatformAdapter {
 		return this._prng;
 	}
 
+	configure(opts: Partial<EditArtAdapterOpts>) {
+		if (opts.params) {
+			if (opts.params.length > MAX_PARAMS) {
+				throw new Error(
+					`${this.id}: only max. ${MAX_PARAMS} can be selected`
+				);
+			}
+			this._selectedParamIDs = opts.params;
+		}
+	}
+
 	async updateParam(id: string, param: Param<any>) {
-		const index = this.paramIndex[id];
+		const index = this._paramIndex[id];
 		if (index == null) {
 			if (!SUPPORTED_TYPES.includes(param.type)) {
-				console.warn(
-					`${this.id}: ignoring unsupported param: ${id} (type: ${param.type})`
+				this.warn(
+					`ignoring unsupported param: ${id} (type: ${param.type})`
 				);
 			}
 			return;
 		}
-		const paramVal = this.searchParams.get("m" + index);
-		if (paramVal == null || this.cache[id] === paramVal) return;
-		this.cache[id] = paramVal;
+		const paramVal = this._searchParams.get("m" + index) || "0.5";
+		if (this._cache[id] === paramVal) return;
+		this._cache[id] = paramVal;
 		// replicate value clamping (as done in editart SDK)
 		const value = clamp(+paramVal, 0, 0.999999);
 		switch (param.type) {
@@ -137,31 +162,44 @@ class EditArtAdapter implements PlatformAdapter {
 	}
 
 	async initParams(params: ParamSpecs) {
-		const filtered = Object.entries(params)
-			.filter(
-				([_, param]) =>
-					param.edit !== "private" &&
-					SUPPORTED_TYPES.includes(param.type)
-			)
-			.sort((a, b) => {
-				const ao = a[1].order!;
-				const bo = b[1].order!;
+		let filtered: [string, Param<any>][] = [];
+		if (this._selectedParamIDs) {
+			for (let id of this._selectedParamIDs) {
+				const param = params[id];
+				if (param) {
+					filtered.push([id, param]);
+				} else {
+					this.warn(`can't select unknown param: ${id}, skipping...`);
+				}
+			}
+		} else {
+			for (let pair of Object.entries(params)) {
+				if (
+					pair[1].edit !== "private" &&
+					SUPPORTED_TYPES.includes(pair[1].type)
+				) {
+					filtered.push(pair);
+				}
+			}
+			if (filtered.length > MAX_PARAMS) {
+				this.warn(
+					`found ${filtered.length} eligible params, but platform only supports max. ${MAX_PARAMS} params`
+				);
+				filtered = filtered.slice(0, MAX_PARAMS);
+				this.warn(
+					`only using these params (in order):`,
+					filtered.map((x) => x[0])
+				);
+			}
+			filtered.sort((a, b) => {
+				const ao = a[1].order;
+				const bo = b[1].order;
 				if (ao === bo) return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0;
 				return ao - bo;
 			});
-		let num = filtered.length;
-		if (num > MAX_PARAMS) {
-			console.warn(
-				`${this.id}: found ${num} eligible params, but platform only supports max. ${MAX_PARAMS} params`
-			);
-			console.warn(
-				"using these params only (in order):",
-				filtered.map((x) => x[0])
-			);
 		}
-		num = Math.min(MAX_PARAMS, num);
-		for (let i = 0; i < num; i++) {
-			this.paramIndex[filtered[i][0]] = i;
+		for (let i = 0, num = filtered.length; i < num; i++) {
+			this._paramIndex[filtered[i][0]] = i;
 		}
 	}
 
@@ -172,15 +210,15 @@ class EditArtAdapter implements PlatformAdapter {
 	protected reload() {
 		console.log(
 			`${this.id} reloading with new params:`,
-			this.searchParams.toString()
+			this._searchParams.toString()
 		);
-		location.search = this.searchParams.toString();
+		location.search = this._searchParams.toString();
 	}
 
 	protected initPRNG() {
 		let seedStr = randomSeedEditArt;
 		for (let i = 0; i < MAX_PARAMS; i++) {
-			seedStr += this.searchParams.get("m" + i) || "0.5";
+			seedStr += this._searchParams.get("m" + i) || "0.5";
 		}
 		const seed = cyrb128(seedStr);
 		const reset = () => sfc32(seed);
@@ -218,6 +256,10 @@ class EditArtAdapter implements PlatformAdapter {
 			default:
 				return String(spec.value);
 		}
+	}
+
+	protected warn(msg: string, ...args: any[]) {
+		console.warn(`${this.id}:`, msg, ...args);
 	}
 }
 
