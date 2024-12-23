@@ -314,9 +314,9 @@ registered, making the entire system extensible. Each declared param spec is a
 simple JS object, and the API provides factory functions for all built-in types,
 helping to fill in any default options.
 
-**IMPORTANT**: All param declarations must include a `desc` (brief description)
-and have the option to define `default` values for most parameter types. If no
-default value is provided, a randomized value will be chosen within the
+**IMPORTANT**: All param declarations must include a `desc` (brief description).
+There's also the option to define `default` values for most parameter types. If
+no default value is provided, a randomized value will be chosen within the
 constraints of the param.
 
 ### Static parameter types
@@ -572,9 +572,9 @@ On/off switch (boolean) parameter.
 
 n-dimensional vector parameter.
 
--   `dim` defines number of dimensions
+-   `size` defines vector size (number of dimensions)
 -   `min` / `max` / `step` can be given as scalars or vectors
--   `labels` are only mandatory for `dim > 4`, otherwise default to XYZW
+-   `labels` are only mandatory for `size > 4`, otherwise default to XYZW
 
 If `step` is given, each vector component value will be rounded to multiples of
 `step` (always clamped to min/max).
@@ -583,7 +583,7 @@ If `step` is given, each vector component value will be rounded to multiples of
 $genart.params.vector({
 	name: "Test param",
 	desc: "3D vector",
-	dim: 3, // dimensions, mandatory
+	size: 3, // dimensions, mandatory
 	min: 0,
 	max: 1,
 	step: 0.01,
