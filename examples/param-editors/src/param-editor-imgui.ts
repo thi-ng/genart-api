@@ -259,14 +259,14 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 		},
 
 		vector: (ctx, param) => {
-			const { dim, min, max, step, labels } = <VectorParam>param;
+			const { size, min, max, step, labels } = <VectorParam>param;
 			const info =
 				param.desc +
 				(param.update === "reload" ? " (change forces reload) " : "");
-			const layout = ctx.layout.nest(1, [COLS - 1, dim]);
+			const layout = ctx.layout.nest(1, [COLS - 1, size]);
 			let edited = false;
 			const value = [...ctx.value];
-			for (let i = 0; i < dim; i++) {
+			for (let i = 0; i < size; i++) {
 				const res = sliderH({
 					gui: gui!,
 					layout,

@@ -81,7 +81,7 @@ const createParamControls = (params: ParamSpecs) => {
 	for (let [groupID, groupParams] of Object.entries(groups)) {
 		const groupItems: FormItem[] = [];
 		for (let [id, param] of groupParams.sort(
-			compareByKey((x) => x[1].order!, compareNumAsc)
+			compareByKey((x) => x[1].order, compareNumAsc)
 		)) {
 			let value: ISubscription<any, any> = reactive(
 				(paramCache[id] = param.value ?? param.default)
@@ -260,11 +260,11 @@ const createParamControls = (params: ParamSpecs) => {
 
 				case "vector":
 				case "xy": {
-					const { dim, min, max, step, labels } =
+					const { size, min, max, step, labels } =
 						param.type === "vector"
 							? <VectorParam>param
 							: {
-									dim: 2,
+									size: 2,
 									min: [0, 0],
 									max: [1, 1],
 									step: [0.001, 0.001],
@@ -276,7 +276,7 @@ const createParamControls = (params: ParamSpecs) => {
 						param.widget && param.widget !== "default"
 							? num
 							: range;
-					for (let i = 0; i < dim; i++) {
+					for (let i = 0; i < size; i++) {
 						tuple.streams[i].subscribe({
 							next(x) {
 								const val = tuple.deref()!.slice();
