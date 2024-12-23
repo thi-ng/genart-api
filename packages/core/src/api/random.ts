@@ -23,11 +23,11 @@ export interface PRNG {
 	/**
 	 * Re-initializes the PRNG to the configured seed state.
 	 */
-	reset: () => PRNG["rnd"];
+	reset: () => RandomFn;
 	/**
 	 * Returns a pseudo-random number in the semi-open [0,1) interval.
 	 */
-	rnd: () => number;
+	rnd: RandomFn;
 }
 
 export interface PRNGBuiltins {

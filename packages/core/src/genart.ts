@@ -48,7 +48,7 @@ import { timeProviderOffline } from "./time/offline.js";
 import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
 
-const { ensure, isNumber, isNumericArray, isString } = utils;
+const { ensure, isFunction, isNumber, isNumericArray, isString } = utils;
 const { clamp, clamp01, mix, norm, parseNum, round } = math;
 
 const PARAM_DEFAULTS: Partial<Param<any>> = {
@@ -448,8 +448,7 @@ class API implements GenArtAPI {
 				await this.updateParams();
 			}
 			this.notifySetParams();
-			return <K extends keyof P>(id: K, t?: number, rnd?: PRNG["rnd"]) =>
-				this.getParamValue<P, K>(id, t, rnd);
+			return this.getParamValue.bind(this);
 		} catch (e) {
 			this.setState("error", (<Error>e).message);
 			// rethrow to propagate to artwork
@@ -573,18 +572,25 @@ class API implements GenArtAPI {
 
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
-		t = 0,
-		rnd?: PRNG["rnd"]
+		opt?: number | RandomFn
 	): ParamValue<T[K]> {
+		return this.paramValueGetter<T, K>(id)(opt);
+	}
+
+	paramValueGetter<T extends ParamSpecs, K extends keyof T>(
+		id: K
+	): (opt?: number | RandomFn) => ParamValue<T[K]> {
 		const {
 			spec,
 			impl: { randomize, read },
 		} = this.ensureParam(<string>id);
-		return rnd && randomize
-			? randomize(spec, rnd)
-			: read
-			? read(spec, t)
-			: spec.value ?? spec.default;
+		return (t = 0) => {
+			if (isFunction(t)) {
+				if (randomize) return randomize(spec, t);
+				t = 0;
+			}
+			return read ? read(spec, t) : spec.value ?? spec.default;
+		};
 	}
 
 	paramError(paramID: string) {
@@ -783,7 +789,11 @@ class API implements GenArtAPI {
 	}
 }
 
-/** @internal */
+/**
+ * Returns true if the given `id` is legal (i.e. not `__proto__` etc.).
+ *
+ * @internal
+ */
 const ensureValidID = (id: string, kind = "ID") =>
 	ensure(
 		!(id === "__proto__" || id === "prototype" || id === "constructor"),

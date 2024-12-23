@@ -268,11 +268,7 @@ export interface GenArtAPI {
 	setParams<P extends ParamSpecs>(
 		params: P
 	): Promise<
-		<K extends keyof P>(
-			id: K,
-			t?: number,
-			rnd?: PRNG["rnd"]
-		) => ParamValue<P[K]>
+		<K extends keyof P>(id: K, opt?: number | RandomFn) => ParamValue<P[K]>
 	>;
 
 	/**
@@ -372,30 +368,28 @@ export interface GenArtAPI {
 
 	/**
 	 * Returns the value for previously registered parameter `id`, possibly
-	 * time-based (if the param type supports such) or randomized (if `rnd` is
-	 * given and iff the param type supports randomization). A type-safe wrapper
-	 * of this function (based on declared params) is returned by
-	 * {@link GenArtAPI.setParams}.
+	 * time-based (if the param type supports such) or randomized (if a
+	 * {@link RandomFn} is given and iff the param type supports randomization).
+	 * A type-safe wrapper of this function (based on declared params) is
+	 * returned by {@link GenArtAPI.setParams}.
 	 *
 	 * @remarks
 	 * The following logic is used to produce a param's value:
 	 *
 	 * For non-randomized uses of `getParamValue()`, if a param type defines a
 	 * {@link ParamImpl.read} function, it will take precedent and is called
-	 * with given `t`. Otherwise, the param's currently defined
+	 * with given `time` (default: 0). Otherwise, the param's currently defined
 	 * {@link Param.value} or {@link Param.default} will be returned.
 	 *
-	 * The `t` arg defaults to zero and is only used if the param type supports
-	 * time-based values, otherwise ignored. Of the built-in param types only
-	 * {@link RampParam} uses time-based values.
+	 * The the `timeOrRnd` arg defaults to zero and is only used if the param
+	 * type supports time-based values, otherwise ignored. Of the built-in param
+	 * types only {@link RampParam} uses time-based values.
 	 *
-	 * The `rnd` arg is only used if the param type supports randomization. If
-	 * that's the case and `rnd` is given, `getParamValue()` will produce a
-	 * randomized value using {@link ParamImpl.randomize}, but this value is
-	 * ephemeral and will NOT modify the param spec's `.value` or trigger a
-	 * {@link RandomizeParamMessage} message being broadcast. If `rnd` is given
-	 * but the param type does NOT support randomization, the param's value is
-	 * produced normally (see above).
+	 * If the `timeOrRnd` arg is a {@link RandomFn}, it's only used if the param
+	 * type also supports randomization. In that case `getParamValue()` will
+	 * produce a randomized value using {@link ParamImpl.randomize}, but this
+	 * value is ephemeral and will NOT modify the param's {@link Param.value}
+	 * nor trigger a {@link RandomizeParamMessage} message being broadcast.
 	 *
 	 * **Important: It's the artist's responsibility to ensure deterministic
 	 * behavior of an artwork/variation and if the `rnd` arg is used, most
@@ -403,14 +397,39 @@ export interface GenArtAPI {
 	 * `$genart.random.rnd`) SHOULD be used!**
 	 *
 	 * @param id
-	 * @param t
-	 * @param rnd
+	 * @param timeOrRnd
 	 */
 	getParamValue<T extends ParamSpecs, K extends keyof T>(
 		id: K,
-		t?: number,
-		rnd?: PRNG["rnd"]
+		timeOrRnd?: number | RandomFn
 	): ParamValue<T[K]>;
+
+	/**
+	 * Higher order version of {@link GenArtAPI.getParamValue}. Returns a
+	 * pre-defined function to access the param for given `id` and is faster
+	 * than `getParamValue()`, since internal validations will only be performed
+	 * once.
+	 *
+	 * @example
+	 * ```ts
+	 * const paramA = $genart.paramValueGetter("A");
+	 *
+	 * // get A's current value
+	 * const valueA = paramA();
+	 *
+	 * // get A's value at time = 1000 (only for time-based params)
+	 * const valueA = paramA(1000);
+	 *
+	 * // get a randomized value of A (without changing it's stored value)
+	 * const valueA = paramA($genart.random.rnd);
+	 * ```
+	 *
+	 * @param id
+	 * @param opt
+	 */
+	paramValueGetter<T extends ParamSpecs, K extends keyof T>(
+		id: K
+	): (opt?: number | RandomFn) => ParamValue<T[K]>;
 
 	/**
 	 * Emits a {@link ParamErrorMessage} message (called from
