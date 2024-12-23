@@ -230,10 +230,10 @@ class API implements GenArtAPI {
 		},
 		vector: {
 			validate: (spec, value) => {
-				const { dim, min, max } = <VectorParam>spec;
+				const { min, max, size } = <VectorParam>spec;
 				return (
 					isNumericArray(value) &&
-					value.length === dim &&
+					value.length === size &&
 					value.every((x, i) => x >= min[i] && x <= max[i])
 				);
 			},
@@ -244,8 +244,8 @@ class API implements GenArtAPI {
 				);
 			},
 			randomize: (spec, rnd) => {
-				const { dim, min, max, step } = <VectorParam>spec;
-				return new Array(dim)
+				const { min, max, size, step } = <VectorParam>spec;
+				return new Array(size)
 					.fill(0)
 					.map((_, i) =>
 						clamp(

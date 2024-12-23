@@ -393,7 +393,7 @@ export interface VectorParam extends Param<number[]> {
 	/**
 	 * Vector dimensions/size. Required.
 	 */
-	dim: number;
+	size: number;
 	/**
 	 * Minimum vector value. Each vector component should be a multiple of
 	 * {@link VectorParam.step}.

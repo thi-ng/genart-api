@@ -130,21 +130,21 @@ export const vector = (
 
 	if (spec.default) {
 		ensure(
-			spec.default.length == spec.dim,
-			`wrong vector size, expected ${spec.dim} values`
+			spec.default.length == spec.size,
+			`wrong vector size, expected ${spec.size} values`
 		);
 	}
 	if (spec.labels) {
-		ensure(spec.labels.length >= spec.dim, `expected ${spec.dim} labels`);
+		ensure(spec.labels.length >= spec.size, `expected ${spec.size} labels`);
 	} else {
-		ensure(spec.dim <= 4, "missing vector labels");
+		ensure(spec.size <= 4, "missing vector labels");
 	}
 	return $<VectorParam>("vector", {
 		...spec,
-		min: $vec(spec.dim, spec.min, 0),
-		max: $vec(spec.dim, spec.max, 1),
-		step: $vec(spec.dim, spec.step, 0.01),
-		labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.dim),
+		min: $vec(spec.size, spec.min, 0),
+		max: $vec(spec.size, spec.max, 1),
+		step: $vec(spec.size, spec.step, 0.01),
+		labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.size),
 	});
 };
 
