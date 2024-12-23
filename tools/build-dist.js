@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
+const args = process.argv.slice(2);
+
 const DEST = "../../dist";
 
 const include = (f) =>
@@ -25,4 +27,4 @@ const copyFiles = (ext) => {
 };
 
 copyFiles("js");
-copyFiles("d.ts");
+if (args.includes("--decl")) copyFiles("d.ts");
