@@ -243,9 +243,9 @@ class LayerAdapter implements PlatformAdapter {
 					// replace vector param with multiple number params
 					layerParams.pop();
 					const $src = <VectorParam>src;
-					const dim = $src.dim;
+					const size = $src.size;
 					const labels = $src.labels;
-					for (let j = 0; j < dim; j++) {
+					for (let j = 0; j < size; j++) {
 						const $dest = <NumberParameter>{ ...dest };
 						$dest.id = id + "__" + labels[j];
 						$dest.name = $src.name + ` (${labels[j]})`;
