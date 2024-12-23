@@ -25,6 +25,12 @@
 		"values": ["linear", "smooth", "exp"]
 	},
 	{
+		"name": "ParamWidgetType",
+		"type": "enum",
+		"tag": "u8",
+		"values": ["default", "alt", "precise"]
+	},
+	{
 		"name": "Param",
 		"type": "struct",
 		"fields": [
@@ -44,6 +50,12 @@
 				"default": { "zig": "null" }
 			},
 			{
+				"name": "group",
+				"type": "string",
+				"setter": false,
+				"default": { "zig": "\"main\"" }
+			},
+			{
 				"name": "update",
 				"type": "UpdateBehavior",
 				"setter": false,
@@ -56,10 +68,22 @@
 				"default": { "zig": ".protected" }
 			},
 			{
+				"name": "widget",
+				"type": "ParamWidgetType",
+				"setter": false,
+				"default": { "zig": ".default" }
+			},
+			{
 				"name": "randomize",
 				"type": "u8",
 				"setter": false,
 				"default": 1
+			},
+			{
+				"name": "order",
+				"type": "i8",
+				"setter": false,
+				"default": 0
 			},
 			{ "name": "body", "type": "ParamBody", "setter": false }
 		],
@@ -72,9 +96,12 @@
 					"name: this.name.deref(),",
 					"desc: this.desc.deref(),",
 					"doc: this.doc.deref() || undefined,",
+					"group: this.group.deref(),",
 					"update: <any>UpdateBehavior[this.update],",
 					"edit: <any>EditPermission[this.edit],",
-					"randomize: !!this.randomize",
+					"widget: <any>ParamWidgetType[this.widget],",
+					"randomize: !!this.randomize,",
+					"order: this.order,",
 					"};",
 					"}"
 				]

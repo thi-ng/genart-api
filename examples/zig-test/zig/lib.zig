@@ -59,7 +59,10 @@ pub inline fn choice(spec: anytype) api.Param {
         .name = spec.name,
         .desc = spec.desc,
         .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
+        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
         .body = .{
             .choice = .{
                 .options = api.ConstOptionSlice.wrap(spec.options),
@@ -76,7 +79,10 @@ pub inline fn color(spec: anytype) api.Param {
         .name = spec.name,
         .desc = spec.desc,
         .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
+        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
         .body = .{
             .color = .{
                 .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
@@ -92,7 +98,10 @@ pub inline fn ramp(spec: anytype) api.Param {
         .name = spec.name,
         .desc = spec.desc,
         .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
+        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
         .body = .{
             .ramp = .{
                 .stops = api.ConstF64Slice.wrap(spec.stops),
@@ -109,7 +118,10 @@ pub inline fn range(spec: anytype) api.Param {
         .name = spec.name,
         .desc = spec.desc,
         .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
+        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
         .body = .{
             .range = .{
                 .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
@@ -129,7 +141,10 @@ pub inline fn text(spec: anytype) api.Param {
         .name = spec.name,
         .desc = spec.desc,
         .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
+        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
+        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
+        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
         .body = .{
             .text = .{
                 .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),

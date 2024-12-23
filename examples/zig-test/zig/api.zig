@@ -34,15 +34,24 @@ pub const RampMode = enum(u8) {
     exp,
 };
 
+pub const ParamWidgetType = enum(u8) {
+    default,
+    alt,
+    precise,
+};
+
 pub const Param = extern struct {
     type: bindgen.ConstStringPtr,
     id: bindgen.ConstStringPtr,
     name: bindgen.ConstStringPtr,
     desc: bindgen.ConstStringPtr,
     doc: ?bindgen.ConstStringPtr = null,
+    group: bindgen.ConstStringPtr = "main",
     update: UpdateBehavior = .event,
     edit: EditPermission = .protected,
+    widget: ParamWidgetType = .default,
     randomize: u8 = 1,
+    order: i8 = 0,
     body: ParamBody,
 };
 

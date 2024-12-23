@@ -34,18 +34,30 @@ export enum RampMode {
 	exp,
 }
 
+export enum ParamWidgetType {
+	default,
+	alt,
+	precise,
+}
+
 export interface Param extends WasmTypeBase {
 	readonly type: WasmStringPtr;
 	readonly id: WasmStringPtr;
 	readonly name: WasmStringPtr;
 	readonly desc: WasmStringPtr;
 	readonly doc: WasmStringPtr;
+	readonly group: WasmStringPtr;
 	readonly update: UpdateBehavior;
 	readonly edit: EditPermission;
+	readonly widget: ParamWidgetType;
 	/**
 	 * Zig type: `u8`
 	 */
 	readonly randomize: number;
+	/**
+	 * Zig type: `i8`
+	 */
+	readonly order: number;
 	readonly body: ParamBody;
 	
 	asParam(): ParamOpts;
@@ -53,8 +65,8 @@ export interface Param extends WasmTypeBase {
 }
 
 // @ts-ignore possibly unused args
-export const $Param = defType<Param>(8, 64, (mem, base) => {
-	let $type: WasmStringPtr, $id: WasmStringPtr, $name: WasmStringPtr, $desc: WasmStringPtr, $doc: WasmStringPtr;
+export const $Param = defType<Param>(8, 72, (mem, base) => {
+	let $type: WasmStringPtr, $id: WasmStringPtr, $name: WasmStringPtr, $desc: WasmStringPtr, $doc: WasmStringPtr, $group: WasmStringPtr;
 	return {
 		get type(): WasmStringPtr {
 			return $type || ($type = __str(mem, base));
@@ -71,17 +83,26 @@ export const $Param = defType<Param>(8, 64, (mem, base) => {
 		get doc(): WasmStringPtr {
 			return $doc || ($doc = __str(mem, (base + 16)));
 		},
+		get group(): WasmStringPtr {
+			return $group || ($group = __str(mem, (base + 20)));
+		},
 		get update(): UpdateBehavior {
-			return mem.u8[(base + 20)];
+			return mem.u8[(base + 24)];
 		},
 		get edit(): EditPermission {
-			return mem.u8[(base + 21)];
+			return mem.u8[(base + 25)];
+		},
+		get widget(): ParamWidgetType {
+			return mem.u8[(base + 26)];
 		},
 		get randomize(): number {
-			return mem.u8[(base + 22)];
+			return mem.u8[(base + 27)];
+		},
+		get order(): number {
+			return mem.i8[(base + 28)];
 		},
 		get body(): ParamBody {
-			return $ParamBody(mem).instance((base + 24));
+			return $ParamBody(mem).instance((base + 32));
 		},
 		
 		asParam(): ParamOpts {
@@ -89,9 +110,12 @@ export const $Param = defType<Param>(8, 64, (mem, base) => {
 				name: this.name.deref(),
 				desc: this.desc.deref(),
 				doc: this.doc.deref() || undefined,
+				group: this.group.deref(),
 				update: <any>UpdateBehavior[this.update],
 				edit: <any>EditPermission[this.edit],
-				randomize: !!this.randomize
+				widget: <any>ParamWidgetType[this.widget],
+				randomize: !!this.randomize,
+				order: this.order,
 			};
 		}
 		
