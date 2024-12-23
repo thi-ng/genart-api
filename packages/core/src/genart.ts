@@ -14,6 +14,7 @@ import type {
 	NestedParam,
 	NestedParamSpecs,
 	NotifyType,
+	NumListParam,
 	Param,
 	ParamChangeMessage,
 	ParamErrorMessage,
@@ -30,6 +31,7 @@ import type {
 	StartMessage,
 	StateChangeMessage,
 	StopMessage,
+	StringListParam,
 	TextParam,
 	TimeProvider,
 	Traits,
@@ -125,7 +127,11 @@ class API implements GenArtAPI {
 			},
 		},
 		numlist: {
-			validate: (_, value) => isNumericArray(value),
+			validate: (spec, value) => {
+				if (!isNumericArray(value)) return false;
+				const { min = 0, max = Infinity } = <NumListParam>spec;
+				return value.length >= min && value.length <= max;
+			},
 		},
 		ramp: {
 			validate: () => false,
@@ -185,8 +191,27 @@ class API implements GenArtAPI {
 			},
 		},
 		strlist: {
-			validate: (_, value) =>
-				Array.isArray(value) && value.every(isString),
+			validate: (spec, value) => {
+				const {
+					min = 0,
+					max = Infinity,
+					match,
+				} = <StringListParam<any>>spec;
+				if (
+					!(
+						Array.isArray(value) &&
+						value.length >= min &&
+						value.length <= max &&
+						value.every(isString)
+					)
+				)
+					return false;
+				if (match) {
+					const regExp = isString(match) ? new RegExp(match) : match;
+					return value.every((x) => regExp.test(x));
+				}
+				return true;
+			},
 		},
 		text: {
 			validate: (spec, value) => {
