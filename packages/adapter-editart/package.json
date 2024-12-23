@@ -12,6 +12,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node ../../tools/build.js src/index.ts adapter-editart",
+		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
 		"build:dist": "node ../../tools/build-dist.js",
 		"publish": "yarn npm publish --access public"
 	},
