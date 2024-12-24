@@ -220,9 +220,8 @@ export interface GenArtAPI {
 	 *
 	 * The function returns a promise of a typesafe getter function (based on
 	 * the declared param specs) to obtain param values (wraps
-	 * {@link GenArtAPI.getParamValue}). For some param types (e.g.
-	 * {@link RampParam}), these value lookups can be time-based or randomized
-	 * (for param types which support randomization).
+	 * {@link GenArtAPI.getParamValue}). See that function's documentation for
+	 * optional uses like obtaining randomized or time-based values.
 	 *
 	 * **Parameter IDs declared by the artwork MUST not start with `__`, which
 	 * is a reserved prefix!**
@@ -254,8 +253,9 @@ export interface GenArtAPI {
 	 * const color = param("color"); // inferred as string
 	 * const size = param("size"); // inferred as number
 	 *
-	 * // get a randomized value (within defined constraints)
-	 * const randomSize = param("size", 0, $genart.random.rnd);
+	 * // get a randomized value
+	 * // (within constraints & rules defined by the param)
+	 * const randomSize = param("size", $genart.random.rnd);
 	 *
 	 * // some param types (e.g. ramp) can produce time-based values
 	 * // (here `t` is in [0,1] range). the time arg defaults to 0 and
@@ -268,7 +268,10 @@ export interface GenArtAPI {
 	setParams<P extends ParamSpecs>(
 		params: P
 	): Promise<
-		<K extends keyof P>(id: K, opt?: number | RandomFn) => ParamValue<P[K]>
+		<K extends keyof P>(
+			id: K,
+			timeOrRnd?: number | RandomFn
+		) => ParamValue<P[K]>
 	>;
 
 	/**
@@ -374,6 +377,8 @@ export interface GenArtAPI {
 	 * returned by {@link GenArtAPI.setParams}.
 	 *
 	 * @remarks
+	 * Also see {@link GenArtAPI.paramValueGetter} for an alternative.
+	 *
 	 * The following logic is used to produce a param's value:
 	 *
 	 * For non-randomized uses of `getParamValue()`, if a param type defines a
@@ -412,6 +417,9 @@ export interface GenArtAPI {
 	 *
 	 * @example
 	 * ```ts
+	 * // (assuming a prior call to $genart.setParams() already happened...)
+	 *
+	 * // create a pre-validated getter for param "A"
 	 * const paramA = $genart.paramValueGetter("A");
 	 *
 	 * // get A's current value
@@ -425,7 +433,6 @@ export interface GenArtAPI {
 	 * ```
 	 *
 	 * @param id
-	 * @param opt
 	 */
 	paramValueGetter<T extends ParamSpecs, K extends keyof T>(
 		id: K
