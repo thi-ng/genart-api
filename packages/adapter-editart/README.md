@@ -65,19 +65,33 @@ remain independent from these platform constraints and can still use the
 original param type intended (e.g. a [choice
 param](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)).
 
-Params using other types will be ignored and will only ever evaluate to their
-assigned (or randomized) default values. When using such unsupported types, the
-platform adapter will log a warning message in the browser console.
-
 -   [Choice](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
 -   [Range](https://github.com/thi-ng/genart-api/blob/main/README.md#range-parameter)
 -   [Toggle](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
 -   [Weighted choice](https://github.com/thi-ng/genart-api/blob/main/README.md#weighted-choice-parameter)
 
+Params using other types will be ignored and will only ever evaluate to their
+assigned (or randomized) default values. When using such unsupported types, the
+platform adapter will log a warning message in the browser console.
+
 ### Selection
 
 This platform adapter only considers parameters with [non-private `.edit`
 permissions](https://docs.thi.ng/genart-api/core/interfaces/ParamOpts.html#edit).
+By default the adapter auto-selects eligible parameters (using fixed [ordering
+rules](#ordering)). However, artists can manually select specific params (as
+long as they're supported) via an extra configuration step, e.g. by adding
+another `<script>` tag to yor HTML wrapper:
+
+```html
+<script>
+	// optional: manually specify which params (max. 5) should be exposed
+	$genart.adapter.configure({ params: ["a", "b", "c"] });
+</script>
+```
+
+If params are specified via this mechanism, no others will be considered. An
+error to be thrown if attempting to list more than 5 params this way.
 
 ### Ordering
 
