@@ -1,6 +1,13 @@
 export type TypedArray = Float32Array | Float64Array | Int8Array | Int16Array | Int32Array | Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array;
 export interface Utils {
     /**
+     * Throws an error if `x` is non-truthy, otherwise returns `x`.
+     *
+     * @param x
+     * @param msg
+     */
+    ensure<T>(x: T, msg: string): T;
+    /**
      * Checks given arguments for value-based equality. Supports the following
      * types:
      *
@@ -23,12 +30,11 @@ export interface Utils {
      */
     equivArrayLike(a: ArrayLike<any>, b: ArrayLike<any>): boolean;
     /**
-     * Throws an error if `x` is non-truthy, otherwise returns `x`.
+     * Returns true if `x` is a function.
      *
      * @param x
-     * @param msg
      */
-    ensure<T>(x: T, msg: string): T;
+    isFunction<T extends Function>(x: any): x is T;
     /**
      * Returns true if `x` is a number and not NaN.
      *

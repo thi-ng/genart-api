@@ -25,7 +25,7 @@ export interface ParamOpts {
      *
      * @defaultValue "main"
      */
-    group?: string;
+    group: string;
     /**
      * Optional param ordering index provided as hint for 3rd party tooling
      * (e.g. editor UIs) to sort parameters (in ascending order).
@@ -42,7 +42,7 @@ export interface ParamOpts {
      *
      * @defaultValue 0
      */
-    order?: number;
+    order: number;
     /**
      * Update mode/behavior when this param is being updated. Platform providers
      * are responsible to honor & implement this setting.
@@ -55,7 +55,7 @@ export interface ParamOpts {
      *
      * @defaultValue "event"
      */
-    update?: "reload" | "event";
+    update: "reload" | "event";
     /**
      * Defines which party or agent should be able to edit this parameter.
      *
@@ -69,14 +69,14 @@ export interface ParamOpts {
      *
      * @defaultValue "protected"
      */
-    edit?: "private" | "protected" | "public";
+    edit: "private" | "protected" | "public";
     /**
      * If true (default), this param's value can be randomized (but also needs
      * to be supported by corresponding {@link ParamImpl})
      *
      * @defaultValue true
      */
-    randomize?: boolean;
+    randomize: boolean;
     /**
      * Optional, non-binding hint for param editors to customize which GUI
      * widget to use for this param. (e.g. a {@link RangeParam} might be
@@ -86,7 +86,7 @@ export interface ParamOpts {
      *
      * @defaultValue "default"
      */
-    widget?: ParamWidgetType;
+    widget: ParamWidgetType;
 }
 /**
  * Declarative data-only description of a single parameter declared by the art
@@ -141,33 +141,119 @@ export type ParamState = "custom" | "default" | "dynamic" | "random" | "void";
  * Value type for {@link ParamOpts.widget}.
  */
 export type ParamWidgetType = "default" | "alt" | "precise";
-export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<T, "type" | "state" | EXCLUDE>;
+/**
+ * {@link ParamOpts} field names which are optional in {@link BaseParam} and
+ * param factory functions.
+ */
+export type BaseParamOptionals = "edit" | "group" | "order" | "randomize" | "update" | "widget";
+export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<T, "type" | "state" | BaseParamOptionals | EXCLUDE> & Partial<Pick<ParamOpts, BaseParamOptionals>>;
+/**
+ * Choice/enum parameter for string-based values/options. Randomizable by
+ * default. Factory function: {@link ParamFactories.choice}.
+ *
+ * @remarks
+ * Also see {@link WeightedChoiceParam} for alternative.
+ */
 export interface ChoiceParam<T extends string> extends Param<T> {
     type: "choice";
+    /**
+     * List of possible choices/options, each given either as string or as
+     * 2-tuple of `[value, label]`. If no label is specified for an option, it's
+     * value will be used instead.
+     */
     options: (T | [T, string])[];
 }
+/**
+ * CSS hex color parameter. Randomizable. Factory function:
+ * {@link ParamFactories.color}
+ *
+ * @remarks
+ * CSS hex color value (6 digits only). Other/newer color types (e.g. `oklch()`)
+ * might be supported later, but currently omitted due to lack of native browser
+ * widgets for editing these colors...
+ */
 export interface ColorParam extends Param<string> {
     type: "color";
-    options?: string[];
 }
+/**
+ * Date parameter providing JS `Date` values at the resolution of full days. Not
+ * randomizable by default. Factory function: {@link ParamFactories.date}
+ *
+ * @remarks
+ * Intended for long running artworks to configure an important date for state
+ * or behavior changes etc.
+ *
+ * Also see {@link DateTimeParam} and {@link TimeParam}.
+ */
 export interface DateParam extends Param<Date> {
     type: "date";
 }
+/**
+ * Date-time parameter providing JS `Date` values. Not randomizable by default.
+ * Factory function: {@link ParamFactories.datetime}
+ *
+ * @remarks
+ * Intended for long running artworks to configure an important moments for
+ * state or behavior changes etc.
+ *
+ * Also see {@link DateParam} and {@link TimeParam}.
+ */
 export interface DateTimeParam extends Param<Date> {
     type: "datetime";
 }
+/**
+ * Image parameter, i.e. an integer based pixel buffer (in different formats),
+ * intended for obtaining spatially varied parameters (e.g. gradient maps).
+ */
 export interface ImageParam extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
     type: "img";
+    /** Image width */
     width: number;
+    /** Height width */
     height: number;
-    format: "gray" | "rgb" | "rgba";
+    /**
+     * Image mode:
+     *
+     * - `gray` (requires `Uint8Array` or `Uint8ClampedArray`)
+     * - `rgba` (requires `Uint32Array`)
+     */
+    format: "gray" | "rgba";
 }
+/**
+ * List parameter, holding a number of string-based values and optionally
+ * supports min/max list sizes. Not randomizable by default.
+ */
 export interface StringListParam<T extends string> extends Param<T[]> {
     type: "strlist";
+    /** Minimum list size */
+    min?: number;
+    /** Maximum list size */
+    max?: number;
+    /** Regexp or string-encoded regexp pattern */
+    match?: string | RegExp;
 }
+/**
+ * List parameter, holding a number of numeric values and optionally supports
+ * min/max list sizes. Not randomizable by default.
+ */
 export interface NumListParam extends Param<number[]> {
     type: "numlist";
+    /** Minimum list size */
+    min?: number;
+    /** Maximum list size */
+    max?: number;
 }
+/**
+ * Ramp parameter, a curve defined by stops/keyframes in the closed [0,1]
+ * interval (each a `[pos,value]`-tuple). Unlike other built-in param types, the
+ * actual value of a ramp will be dynamically sampled from its curve by
+ * providing a `time` arg (clamped to the [0,1] range) to the getter function
+ * returned by {@link GenArtAPI.setParams}) (or when calling
+ * {@link GenArtAPI.getParamValue} or {@link GenArtAPI.paramValueGetter}
+ * directly). Not randomizable by default.
+ *
+ * Factory function: {@link ParamFactories.ramp}
+ */
 export interface RampParam extends Param<number> {
     type: "ramp";
     /**
@@ -176,12 +262,16 @@ export interface RampParam extends Param<number> {
      */
     stops: number[];
     /**
-     * Ramp interpolation mode.
+     * Ramp interpolation mode to obtain curve values between stops/keyframes.
      *
      * @defaultValue "linear"
      */
     mode?: "linear" | "smooth" | "exp";
 }
+/**
+ * Numeric param within a defined min/max range and optional step size.
+ * Randomizable by default. Factory function: {@link ParamFactories.range}
+ */
 export interface RangeParam extends Param<number> {
     type: "range";
     /**
@@ -208,8 +298,9 @@ export interface RangeParam extends Param<number> {
      * slider/controller (if available) to adjust the param value.
      *
      * @remarks
-     * If used, a GUI controller should internally operate in the [0,1] range
-     * and use the following formula to compute the actual param value:
+     * If this option is respected, a GUI controller should internally model its
+     * value in the [0,1] range and then use the following formula to compute
+     * the actual param value:
      *
      * ```
      * paramValue = min + (max - min) * (sliderValue ** exponent)
@@ -224,6 +315,11 @@ export interface RangeParam extends Param<number> {
      */
     exponent?: number;
 }
+/**
+ * Text/string param with optional min/max length and/or regexp validation
+ * pattern. Not randomizable by default. Factory function:
+ * {@link ParamFactories.text}
+ */
 export interface TextParam extends Param<string> {
     type: "text";
     /** Minimum length */
@@ -235,18 +331,39 @@ export interface TextParam extends Param<string> {
     /** Regexp or string-encoded regexp pattern */
     match?: RegExp | string;
 }
+/**
+ * Time parameter providing time-of-day values (in UTC) in the form of 3-tuples:
+ * `[hour,minute,second]` (24h format only). Randomizable by default.
+ *
+ * @remarks
+ * Intended for long running artworks to configure an important time in the day
+ * for state or behavior changes etc. (e.g. triggering daily sleep mode)
+ *
+ * Also see {@link DateParam} and {@link DateTimeParam}.
+ */
 export interface TimeParam extends Param<[number, number, number]> {
     type: "time";
 }
+/**
+ * On/off switch/toggle (boolean) parameter type. Randomizable by default.
+ * Factory function: {@link ParamFactories.toggle}
+ */
 export interface ToggleParam extends Param<boolean> {
     type: "toggle";
 }
+/**
+ * n-dimensional vector parameter type. Randomizable by default. Factory
+ * function: {@link ParamFactories.vector}
+ *
+ * @remarks
+ * Also see {@link XYParam} for alternative.
+ */
 export interface VectorParam extends Param<number[]> {
     type: "vector";
     /**
      * Vector dimensions/size. Required.
      */
-    dim: number;
+    size: number;
     /**
      * Minimum vector value. Each vector component should be a multiple of
      * {@link VectorParam.step}.
@@ -278,11 +395,42 @@ export interface VectorParam extends Param<number[]> {
      */
     labels: string[];
 }
+/**
+ * Choice/enum parameter for string-based values/options with associated weights
+ * to control randomization behavior. Randomizable by default. Factory function:
+ * {@link ParamFactories.weighted}
+ *
+ * @remarks
+ * Also see {@link ChoiceParam} for alternative.
+ *
+ * This param type is identical to {@link ChoiceParam} excluding the case when
+ * this param is evaluated with an optional {@link RandomFn} given to
+ * {@link GenArtAPI.getParamValue} (aka the param accessor function returned by
+ * {@link GenArtAPI.setParams}). In that case a random parameter value is
+ * produced with a probability distribution defined by the relative weights
+ * given to each option.
+ */
 export interface WeightedChoiceParam<T extends string> extends Param<T> {
     type: "weighted";
+    /**
+     * List of possible choices/options, each with associated weight. Each
+     * option is defined as 3-tuple of `[weight, value, label]` (labels are
+     * optional).
+     */
     options: [number, T, string?][];
+    /**
+     * Total sum of weights (will be precomputed by factory function).
+     *
+     * @internal
+     */
     total: number;
 }
+/**
+ * 2D dimensional vector param with values in the closed [0,1] interval. Useful
+ * to control two co-dependent parameters using an XY controller/touchpad (the
+ * recommended UI widget for this param type). Randomizable by default. Factory
+ * function: {@link ParamFactories.xy}
+ */
 export interface XYParam extends Param<[number, number]> {
     type: "xy";
 }
@@ -358,7 +506,7 @@ export interface ParamImpl<T = any> {
      *
      * @remarks
      * For example, conceptually, a {@link RampParam} is a composite of
-     * {@link RampParam.stops} (a {@link StringListParam}) and
+     * {@link RampParam.stops} (a {@link NumListParam}) and
      * {@link RampParam.mode} (a {@link ChoiceParam}).
      *
      * These param specs can be used to delegate {@link ParamImpl} tasks to the
@@ -368,32 +516,53 @@ export interface ParamImpl<T = any> {
 }
 export interface ParamFactories {
     /**
-     * Defines a new choice/enum parameter. Only supports string values/options.
-     * Randomizable.
+     * Factory function to define a {@link ChoiceParam}.
+     *
+     * @remarks
+     * Also see {@link ParamFactories.weighted} for alternative.
+     *
+     * @example
+     * ```ts
+     * $genart.params.choice({
+     *     name: "Test",
+     *     desc: "Color theme",
+     *     default: "dark",
+     *     options: ["dark", "light", "radiant"]
+     * });
+     * ```
      *
      * @param spec
      */
     choice<T extends string>(spec: BaseParam<ChoiceParam<T>>): ChoiceParam<T>;
     /**
-     * Defines a new CSS hex color parameter. Randomizable.
+     * Factory function to define a {@link ColorParam}.
      *
-     * @remarks
-     * CSS hex color value (6 digits only). Other/newer color types (e.g. `oklch()`)
-     * might be supported later, but currently omitted due to lack of native browser
-     * widgets for editing these colors...
+     * @example
+     * ```ts
+     * $genart.params.color({
+     *     name: "Test",
+     *     desc: "Base color",
+     *     default: "#aabbcc",
+     * });
+     * ```
      *
      * @param spec
      */
     color(spec: BaseParam<ColorParam>): ColorParam;
     /**
-     * Defines a new date parameter providing `Date` values (in UTC) at the
-     * resolution of full days. Not randomizable.
+     * Factory function to define a {@link DateParam}.
      *
      * @remarks
-     * Intended for long running artworks to configure an important date for
-     * state or behavior changes etc.
-     *
      * Also see {@link ParamFactories.datetime} and {@link ParamFactories.time}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.date({
+     *     name: "Test",
+     *     desc: "End of license date",
+     *     default: new Date(Date.UTC(2025, 0, 1)),
+     * });
+     * ```
      *
      * @param spec
      */
@@ -401,14 +570,19 @@ export interface ParamFactories {
         default: Date;
     }): DateParam;
     /**
-     * Defines a new date-time parameter providing UNIX epoch timestamps (in
-     * UTC). Not randomizable.
+     * Factory function to define a {@link DateTimeParam}.
      *
      * @remarks
-     * Intended for long running artworks to configure an important moments for
-     * state or behavior changes etc.
-     *
      * Also see {@link ParamFactories.date} and {@link ParamFactories.time}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.datetime({
+     *     name: "Test",
+     *     desc: "End of license date",
+     *     default: new Date(Date.UTC(2025, 0, 1)),
+     * });
+     * ```
      *
      * @param spec
      */
@@ -416,39 +590,60 @@ export interface ParamFactories {
         default: string;
     }): DateTimeParam;
     /**
-     * Defines a new image parameter, i.e. an integer based pixel buffer (in
-     * different formats), intended for obtaining spatially varied parameters
-     * (e.g. gradient maps).
+     * Factory function to define a {@link ImageParam}.
+     *
+     * $genart.params.image({
+     *     name: "Test",
+     *     desc: "Test gradient",
+     *     width: 6,
+     *     height: 1,
+     *     default: new Uint8Array([0x00, 0x33, 0x66, 0x99, 0xcc, 0xff]),
+     * });
+     * ```
      *
      * @param spec
      */
     image(spec: BaseParam<ImageParam>): ImageParam;
     /**
-     * Defines a new number list parameter. Not randomizable.
+     * Factory function to define a {@link NumListParam}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.numlist({
+     *     name: "Test",
+     *     desc: "Numbers",
+     *     default: [23, 42, 66],
+     * });
+     * ```
      *
      * @param spec
      */
     numlist(spec: BaseParam<NumListParam>): NumListParam;
     /**
-     * Defines a new string list parameter. Not randomizable.
+     * Factory function to define a {@link StringListParam}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.strlist({
+     *     name: "Test",
+     *     desc: "Names",
+     *     default: ["alice", "bob", "charlie"],
+     * });
+     * ```
      *
      * @param spec
      */
     strlist<T extends string>(spec: BaseParam<StringListParam<T>>): StringListParam<T>;
     /**
-     * Defines a new ramp parameter, a curve defined by stops/keyframes in the [0,1]
-     * interval (each a `[pos,value]`-tuple). Unlike other param types the actual
-     * value of this ramp will be sampled from the curve by providing a `time` arg
-     * (also in [0,1] range) to getter function returned by
-     * {@link GenArtAPI.setParams}) (or when calling {@link GenArtAPI.getParamValue}
-     * directly). Not randomizable.
+     * Factory function to define a {@link RampParam}.
      *
      * @example
      * ```ts
      * // ramp parameter defining a triangular shape "/\"
      * const param = $genart.setParams({
      *     test: $genart.params.ramp({
-     *         desc: "test",
+     *         name: "Test",
+     *         desc: "A simple curve",
      *         stops: [[0, 0], [0.5, 1], [1, 0]]
      *     })
      * });
@@ -468,12 +663,12 @@ export interface ParamFactories {
         stops?: [number, number][];
     }): RampParam;
     /**
-     * Defines a numeric param within a defined `min`/`max` range and optional
-     * `step` size. Randomizable.
+     * Factory function to define a {@link RangeParam}.
      *
      * @example
      * ```ts
      * $genart.params.range({
+     *     name: "Test",
      *     desc: "Pick a number between 0-100",
      *     min: 0,
      *     max: 100,
@@ -485,19 +680,16 @@ export interface ParamFactories {
      */
     range(spec: BaseParam<RangeParam, "min" | "max" | "step"> & Partial<Pick<RangeParam, "min" | "max" | "step">>): RangeParam;
     /**
-     * Defines a text/string param with optional `min`/`max` length and/or regexp
-     * validation pattern. Not randomizable.
-     *
-     * @remarks
-     * The `multiline` option is only used as hint for 3rd party tooling.
+     * Factory function to define a {@link TextParam}.
      *
      * @example
      * ```ts
      * $genart.params.text({
-     *     doc: "Seed phrase",
-     *     max: 256
-     *     match: "^[a-z ]+$"
-     *     multiline: true
+     *     name: "Test",
+     *     desc: "Seed phrase",
+     *     max: 256,
+     *     match: "^[a-z ]+$",
+     *     multiline: true,
      * });
      * ```
      *
@@ -505,26 +697,53 @@ export interface ParamFactories {
      */
     text(spec: BaseParam<TextParam>): TextParam;
     /**
-     * Defines a new time parameter providing time-of-day values (in UTC) in the
-     * form of 3-tuples: `[hour,minute,second]`. Randomizable.
+     * Factory function to define a {@link TimeParam}.
      *
      * @remarks
-     * Intended for long running artworks to configure an important times in the
-     * day for state or behavior changes etc. (e.g. triggering sleep mode)
-     *
      * Also see {@link ParamFactories.datetime} and {@link ParamFactories.date}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.time({
+     *     name: "Test",
+     *     desc: "Sleep mode time",
+     *     default: [22, 30, 0],
+     * });
+     * ```
      *
      * @param spec
      */
     time(spec: BaseParam<TimeParam>): TimeParam;
     /**
-     * Defines a on/off switch (boolean) param. Randomizable.
+     * Factory function to define a {@link ToggleParam}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.toggle({
+     *     name: "Test",
+     *     desc: "Switch",
+     *     default: true,
+     * });
+     * ```
      *
      * @param spec
      */
     toggle(spec: BaseParam<ToggleParam>): ToggleParam;
     /**
-     * Defines an n-dimensional vector param. Randomizable.
+     * Factory function to define an n-dimensional {@link VectorParam}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.vector({
+     *     name: "Test",
+     *     desc: "3D vector",
+     *     size: 3,
+     *     min: -1,
+     *     max: 1,
+     *     step: [0.1, 0.2, 0.5],
+     *     default: [0, 0, 0]
+     * });
+     * ```
      *
      * @param spec
      */
@@ -535,35 +754,30 @@ export interface ParamFactories {
         labels?: string[];
     }): VectorParam;
     /**
-     * Similar to the {@link ChoiceParam} param type, but here each option also
-     * has an associated weight. Randomizable.
-     *
-     * @remarks
-     * Along with {@link RampParam}, this is another non-static parameter type,
-     * intended for time-based works, here producing a new random value each
-     * time the parameter is read and yielding a probability distribution
-     * defined by the relative weights given to each option.
+     * Factory function to define a {@link WeightedChoiceParam}.
      *
      * @example
      * ```ts
      * $genart.params.weighted({
-     *     doc: "Controlled randomness",
+     *     name: "Test",
+     *     desc: "Weighted color options",
      *     options: [
-     *         ["black", 8],
-     *         ["cyan", 4],
-     *         ["magenta", 2],
-     *         ["yellow", 1],
+     *         [8, "black"],
+     *         [4, "cyan"],
+     *         [2, "magenta"],
+     *         [1, "yellow"],
      *     ],
      * });
      *
      * // optionally, labels can be provided for each option
      * $genart.params.weighted({
-     *     doc: "With labels",
+     *     name: "Test",
+     *     desc: "Weighted color options with labels",
      *     options: [
-     *         ["#000", 8, "black"],
-     *         ["#0ff", 4, "cyan"],
-     *         ["#f0f", 2, "magenta"],
-     *         ["#ff0", 1, "yellow"],
+     *         [8, "#000", "black"],
+     *         [4, "#0ff", "cyan"],
+     *         [2, "#f0f", "magenta"],
+     *         [1, "#ff0", "yellow"],
      *     ],
      * });
      * ```
@@ -572,13 +786,13 @@ export interface ParamFactories {
      */
     weighted<T extends string>(spec: BaseParam<WeightedChoiceParam<T>, "total">): WeightedChoiceParam<T>;
     /**
-     * Defines a 2D dimensional tuple param which with values in the [0,0] .. [1,1]
-     * range. Useful to control two co-dependent parameters using an XY
-     * controller/touchpad. Randomizable.
+     * Factory function to define a {@link XYParam}.
      *
+     * @example
      * ```ts
      * $genart.params.xy({
-     *     doc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
+     *     name: "Test",
+     *     desc: "Bottom-left: [dark,dry] / Top-right: [bright,wet]",
      *     default: [0.5, 0.5],
      * });
      * ```

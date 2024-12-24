@@ -67,6 +67,7 @@
     equiv: () => equiv,
     equivArrayLike: () => equivArrayLike,
     formatValuePrec: () => formatValuePrec,
+    isFunction: () => isFunction,
     isNumber: () => isNumber,
     isNumericArray: () => isNumericArray,
     isString: () => isString,
@@ -83,6 +84,7 @@
   };
   var isNumber = (x) => typeof x === "number" && !isNaN(x);
   var isString = (x) => typeof x === "string";
+  var isFunction = (x) => typeof x === "function";
   var isNumericArray = (x) => isTypedArray(x) || Array.isArray(x) && x.every(isNumber);
   var isTypedArray = (x) => !!x && (x instanceof Float32Array || x instanceof Float64Array || x instanceof Uint32Array || x instanceof Int32Array || x instanceof Uint8Array || x instanceof Int8Array || x instanceof Uint16Array || x instanceof Int16Array || x instanceof Uint8ClampedArray);
   var u8 = (x) => (x &= 255, (x < 16 ? "0" : "") + x.toString(16));
@@ -181,21 +183,21 @@
     const $vec = (n, value, defaultValue = 0) => Array.isArray(value) ? (ensure(value.length === n, "wrong vector size"), value) : new Array(n).fill(isNumber(value) ? value : defaultValue);
     if (spec.default) {
       ensure(
-        spec.default.length == spec.dim,
-        `wrong vector size, expected ${spec.dim} values`
+        spec.default.length == spec.size,
+        `wrong vector size, expected ${spec.size} values`
       );
     }
     if (spec.labels) {
-      ensure(spec.labels.length >= spec.dim, `expected ${spec.dim} labels`);
+      ensure(spec.labels.length >= spec.size, `expected ${spec.size} labels`);
     } else {
-      ensure(spec.dim <= 4, "missing vector labels");
+      ensure(spec.size <= 4, "missing vector labels");
     }
     return $("vector", {
       ...spec,
-      min: $vec(spec.dim, spec.min, 0),
-      max: $vec(spec.dim, spec.max, 1),
-      step: $vec(spec.dim, spec.step, 0.01),
-      labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.dim)
+      min: $vec(spec.size, spec.min, 0),
+      max: $vec(spec.size, spec.max, 1),
+      step: $vec(spec.size, spec.step, 0.01),
+      labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.size)
     });
   };
   var weighted = (spec) => $("weighted", {
@@ -450,7 +452,7 @@
   };
 
   // src/genart.ts
-  var { ensure: ensure2, isNumber: isNumber2, isNumericArray: isNumericArray2, isString: isString2 } = utils_exports;
+  var { ensure: ensure2, isFunction: isFunction2, isNumber: isNumber2, isNumericArray: isNumericArray2, isString: isString2 } = utils_exports;
   var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, parseNum: parseNum2, round: round2 } = math_exports;
   var PARAM_DEFAULTS = {
     edit: "protected",
@@ -507,7 +509,11 @@
         }
       },
       numlist: {
-        validate: (_, value) => isNumericArray2(value)
+        validate: (spec, value) => {
+          if (!isNumericArray2(value)) return false;
+          const { min = 0, max = Infinity } = spec;
+          return value.length >= min && value.length <= max;
+        }
       },
       ramp: {
         validate: () => false,
@@ -561,7 +567,20 @@
         }
       },
       strlist: {
-        validate: (_, value) => Array.isArray(value) && value.every(isString2)
+        validate: (spec, value) => {
+          const {
+            min = 0,
+            max = Infinity,
+            match
+          } = spec;
+          if (!(Array.isArray(value) && value.length >= min && value.length <= max && value.every(isString2)))
+            return false;
+          if (match) {
+            const regExp = isString2(match) ? new RegExp(match) : match;
+            return value.every((x) => regExp.test(x));
+          }
+          return true;
+        }
       },
       text: {
         validate: (spec, value) => {
@@ -590,8 +609,8 @@
       },
       vector: {
         validate: (spec, value) => {
-          const { dim, min, max } = spec;
-          return isNumericArray2(value) && value.length === dim && value.every((x, i) => x >= min[i] && x <= max[i]);
+          const { min, max, size } = spec;
+          return isNumericArray2(value) && value.length === size && value.every((x, i) => x >= min[i] && x <= max[i]);
         },
         coerce: (spec, value) => {
           const { min, max, step } = spec;
@@ -600,8 +619,8 @@
           );
         },
         randomize: (spec, rnd) => {
-          const { dim, min, max, step } = spec;
-          return new Array(dim).fill(0).map(
+          const { min, max, size, step } = spec;
+          return new Array(size).fill(0).map(
             (_, i) => clamp2(
               round2(mix2(min[i], max[i], rnd()), step[i]),
               min[i],
@@ -677,7 +696,7 @@
       });
     }
     get version() {
-      return "0.19.0";
+      return "0.20.0";
     }
     get id() {
       return this._opts.id;
@@ -755,7 +774,7 @@
           await this.updateParams();
         }
         this.notifySetParams();
-        return (id, t, rnd) => this.getParamValue(id, t, rnd);
+        return this.getParamValue.bind(this);
       } catch (e) {
         this.setState("error", e.message);
         throw e;
@@ -852,12 +871,21 @@
         this.setParamValue(id, randomize(spec, rnd), void 0, notify);
       }
     }
-    getParamValue(id, t = 0, rnd) {
+    getParamValue(id, opt) {
+      return this.paramValueGetter(id)(opt);
+    }
+    paramValueGetter(id) {
       const {
         spec,
         impl: { randomize, read }
       } = this.ensureParam(id);
-      return rnd && randomize ? randomize(spec, rnd) : read ? read(spec, t) : spec.value ?? spec.default;
+      return (t = 0) => {
+        if (isFunction2(t)) {
+          if (randomize) return randomize(spec, t);
+          t = 0;
+        }
+        return read ? read(spec, t) : spec.value ?? spec.default;
+      };
     }
     paramError(paramID) {
       this.emit({ type: "genart:param-error", paramID });

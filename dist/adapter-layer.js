@@ -168,9 +168,9 @@
           case "vector": {
             layerParams.pop();
             const $src = src;
-            const dim = $src.dim;
+            const size = $src.size;
             const labels = $src.labels;
-            for (let j = 0; j < dim; j++) {
+            for (let j = 0; j < size; j++) {
               const $dest = { ...dest };
               $dest.id = id + "__" + labels[j];
               $dest.name = $src.name + ` (${labels[j]})`;
@@ -184,6 +184,15 @@
                 j
               );
             }
+            break;
+          }
+          case "weighted": {
+            const $src = src;
+            const $dest = dest;
+            $dest.options = $src.options.map((x) => ({
+              value: x[1],
+              label: x[2]
+            }));
             break;
           }
           case "xy": {
