@@ -11,8 +11,8 @@ import type {
 	VectorParam,
 	WeightedChoiceParam,
 } from "@genart-api/core";
-import { FMT_HHmm, FMT_yyyyMMdd } from "@thi.ng/date";
 import { compareByKey, compareNumAsc } from "@thi.ng/compare";
+import { FMT_HHmm, FMT_yyyyMMdd } from "@thi.ng/date";
 import { equiv } from "@thi.ng/equiv";
 import { div } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
@@ -49,17 +49,19 @@ import {
 	merge,
 	reactive,
 	stream,
+	sync,
 	syncRAF,
 	type ISubscription,
 } from "@thi.ng/rstream";
 import { capitalize } from "@thi.ng/strings";
-import { groupByObj } from "@thi.ng/transducers";
+import { groupByObj, map } from "@thi.ng/transducers";
 import { canvasColorPicker } from "./color-picker.js";
 import {
 	apiState,
 	artURL,
 	formattedFrame,
 	formattedTime,
+	frameRate,
 	iframeParams,
 	paramCache,
 	params,
@@ -436,7 +438,15 @@ const createParamControls = (params: ParamSpecs) => {
 			}),
 			trigger({
 				label: "Current frame",
-				desc: formattedFrame,
+				desc: syncRAF(
+					sync({
+						src: { frame: formattedFrame, fps: frameRate },
+						xform: map(
+							({ frame, fps }) =>
+								`${frame} (${fps.toFixed(1)} fps)`
+						),
+					})
+				),
 				title: "Pause",
 				attribs: {
 					onclick: () =>

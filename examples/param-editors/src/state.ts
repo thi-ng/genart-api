@@ -20,6 +20,8 @@ import {
 	type WithErrorHandlerOpts,
 } from "@thi.ng/rstream";
 import { padLeft } from "@thi.ng/strings";
+import { compR, type Reducer } from "@thi.ng/transducers";
+import { sma } from "@thi.ng/transducers-stats";
 import { isCompatibleVersion } from "./utils.js";
 import { MIN_API_VERSION } from "./version.js";
 
@@ -44,10 +46,26 @@ export const paramCache: Record<string, any> = {};
 export const paramValues: Record<string, ISubscription<any, any>> = {};
 
 export const traits = reactive({});
-const currentTime = reactive(0);
-const currentFrame = reactive(0);
+
+const currentTime = stream<number>();
+const currentFrame = stream<number>();
 export const formattedTime = currentTime.map(defTimecode(60), INF);
 export const formattedFrame = currentFrame.map(padLeft(6, "0"), INF);
+export const frameRate = currentTime.transform(
+	// measure frame delta time
+	(rfn: Reducer<number, any>) => {
+		let prev = performance.now();
+		return compR(rfn, (acc, _) => {
+			const t = performance.now();
+			const x = t - prev;
+			prev = t;
+			return isFinite(x) && x > 0 ? rfn[2](acc, 1000 / x) : acc;
+		});
+	},
+	// compute simple moving average over period (in frames)
+	sma(3 * 60),
+	INF
+);
 
 export let selfUpdate = false;
 let doUpdateParamsOnChange = false;
@@ -77,6 +95,15 @@ window.addEventListener("message", (e) => {
 				params.next({ ...params.deref(), [$msg.paramID]: $msg.param });
 			}
 			selfUpdate = false;
+			break;
+		}
+		case "genart:resize": {
+			// re-request info in case artwork reloads itself
+			// (in which case the sandbox would lose `genart:frame` data)
+			if (!infoRequested) {
+				infoRequested = true;
+				setTimeout(() => sendMessage({ type: "genart:get-info" }), 500);
+			}
 			break;
 		}
 		case "genart:state-change": {
