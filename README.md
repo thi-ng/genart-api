@@ -1123,7 +1123,7 @@ use cases:
 
 #### Example files
 
-<details><summary>HTML example wrapper</summary>
+<details><summary>HTML example wrapper (click to expand)</summary>
 
 ```html
 <!DOCTYPE html>
@@ -1158,7 +1158,7 @@ use cases:
 
 </details>
 
-<details><summary>Minimal example artwork script</summary>
+<details><summary>Minimal example artwork script (click to expand)</summary>
 
 ```js
 // index.js
