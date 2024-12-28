@@ -33,6 +33,9 @@ export const isTypedArray = (x: any): x is TypedArray =>
 		x instanceof Int16Array ||
 		x instanceof Uint8ClampedArray);
 
+export const isInRange = (x: number, min: number, max: number) =>
+	x >= min && x <= max;
+
 export const u8 = (x: number) => (
 	(x &= 0xff), (x < 16 ? "0" : "") + x.toString(16)
 );

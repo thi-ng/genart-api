@@ -83,6 +83,14 @@ export interface Utils {
 	 */
 	isString(x: any): x is string;
 	/**
+	 * Returns true, iff `x` is in closed `[min,max]` interval.
+	 *
+	 * @param x
+	 * @param min
+	 * @param max
+	 */
+	isInRange(x: number, min: number, max: number): boolean;
+	/**
 	 * Formats a number as unsigned 8bit hex string (2 digits).
 	 *
 	 * @param x
