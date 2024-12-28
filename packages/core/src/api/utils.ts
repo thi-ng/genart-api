@@ -52,12 +52,24 @@ export interface Utils {
 	 */
 	isNumber(x: any): x is number;
 	/**
+	 * Returns true if `x` is a bigint.
+	 *
+	 * @param x
+	 */
+	isBigInt(x: any): x is bigint;
+	/**
 	 * Returns true if `x` is a typedarray or JS array with all of its items
 	 * numbers.
 	 *
 	 * @param x
 	 */
 	isNumericArray(x: any): x is number[];
+	/**
+	 * Returns true if `x` is an array with all of its items strings.
+	 *
+	 * @param x
+	 */
+	isStringArray(x: any): x is string[];
 	/**
 	 * Returns true if `x` is a typedarray.
 	 *
@@ -94,6 +106,44 @@ export interface Utils {
 	 * @param x
 	 */
 	u32(x: number): string;
+	/**
+	 * Stringifies given bigint `x`, optionally using `radix` (default: 10).
+	 *
+	 * @remarks
+	 * Unlike `BigInt.prototype.toString()`, this function stringifies values
+	 * including a radix-based prefix to ensure proper roundtrip functionality
+	 * (e.g. via {@link Utils.parseBigInt}).
+	 *
+	 * @example
+	 * ```ts
+	 * serializeBigInt(-0x1234n, 16) // => "-0x1234"
+	 * BigInt(-0x1234).toString(16) // => "-1234"
+	 *
+	 * serializeBigInt(255n, 2) // => "0b11111111"
+	 * BigInt(255).toString(2) // => "11111111"
+	 *
+	 * // roundtrip
+	 * parseBigInt(serializeBigInt(-255n, 2)) // -255n
+	 * BigInt(BigInt(-255).toString(2)) // -11111111n (WRONG!)
+	 * ``
+	 *
+	 * @param x
+	 * @param radix
+	 */
+	stringifyBigInt(x: bigint, radix?: 2 | 8 | 10 | 16): string;
+	/**
+	 * Parses prevalidated string value as JS bigint, correctly handling sign
+	 * and radix-based prefixes. See {@link Utils.stringifyBigInt} for further
+	 * details.
+	 *
+	 * @example
+	 * ```ts
+	 * parseBigInt("-0x3ff") // -1023
+	 * ```
+	 *
+	 * @param x
+	 */
+	parseBigInt(x: string): bigint;
 	/**
 	 * Returns number of fractional digits for given `step` size. Helper for
 	 * {@link Utils.formatValuePrec}.

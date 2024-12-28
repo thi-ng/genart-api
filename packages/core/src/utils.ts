@@ -5,6 +5,8 @@ export const ensure = <T>(x: T, msg: string) => {
 	return x;
 };
 
+export const isBigInt = (x: any): x is bigint => typeof x === "bigint";
+
 export const isNumber = (x: any): x is number =>
 	typeof x === "number" && !isNaN(x);
 
@@ -15,6 +17,9 @@ export const isFunction = <T extends Function>(x: any): x is T =>
 
 export const isNumericArray = (x: any): x is number[] =>
 	isTypedArray(x) || (Array.isArray(x) && x.every(isNumber));
+
+export const isStringArray = (x: any): x is string[] =>
+	Array.isArray(x) && x.every(isString);
 
 export const isTypedArray = (x: any): x is TypedArray =>
 	!!x &&
@@ -37,6 +42,16 @@ export const u16 = (x: number) => u8(x >>> 8) + u8(x);
 export const u24 = (x: number) => u16(x >>> 8) + u8(x & 0xff);
 
 export const u32 = (x: number) => u16(x >>> 16) + u16(x);
+
+export const stringifyBigInt = (x: bigint, radix = 10) => {
+	const prefix = { 10: "", 2: "0b", 8: "0o", 16: "0x" }[radix];
+	return x < 0n
+		? "-" + prefix + (-x).toString(radix)
+		: prefix + x.toString(radix);
+};
+
+export const parseBigInt = (x: string) =>
+	/^-0[box]/.test(x) ? -BigInt(x.substring(1)) : BigInt(x);
 
 export const valuePrec = (step: number) => {
 	const str = step.toString();
