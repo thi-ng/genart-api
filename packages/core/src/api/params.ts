@@ -151,6 +151,7 @@ export type ParamWidgetType = "default" | "alt" | "precise";
  * param factory functions.
  */
 export type BaseParamOptionals =
+	| "desc"
 	| "edit"
 	| "group"
 	| "order"
@@ -162,7 +163,47 @@ export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<
 	T,
 	"type" | "state" | BaseParamOptionals | EXCLUDE
 > &
-	Partial<Pick<ParamOpts, BaseParamOptionals>>;
+	Partial<Omit<Pick<ParamOpts, BaseParamOptionals>, EXCLUDE>>;
+
+/**
+ * Parameter type for big integer values. Randomizable by default. Factory
+ * function: {@link ParamFactories.bigint}.
+ */
+export interface BigIntParam extends Param<bigint> {
+	type: "bigint";
+	/**
+	 * Min value.
+	 *
+	 * @default 0n
+	 */
+	min: bigint;
+	/**
+	 * Max value.
+	 *
+	 * @default 0xffff_ffff_ffff_ffffn
+	 */
+	max: bigint;
+}
+
+/**
+ * Parameter type for binary data (byte arrays). Non-randomizable. Factory
+ * function: {@link ParamFactories.binary}.
+ */
+export interface BinaryParam extends Param<Uint8Array> {
+	type: "binary";
+	/**
+	 * Min number of bytes.
+	 *
+	 * @defaultValue 0
+	 */
+	minLength: number;
+	/**
+	 * Max number of bytes.
+	 *
+	 * @defaultValue 1024
+	 */
+	maxLength: number;
+}
 
 /**
  * Choice/enum parameter for string-based values/options. Randomizable by
@@ -552,6 +593,44 @@ export interface ParamImpl<T = any> {
 }
 
 export interface ParamFactories {
+	/**
+	 * Factory function to define a {@link BigIntParam}.
+	 *
+	 * @example
+	 * ```ts
+	 * $genart.params.bigint({
+	 *     name: "Test",
+	 *     desc: "Binary data",
+	 *     default: 0x1234_5678_9abc_deffn,
+	 * });
+	 * ```
+	 *
+	 * @param spec
+	 */
+	bigint(
+		spec: BaseParam<BigIntParam, "min" | "max"> &
+			Partial<Pick<BigIntParam, "min" | "max">>
+	): BigIntParam;
+
+	/**
+	 * Factory function to define a {@link BinaryParam}.
+	 *
+	 * @example
+	 * ```ts
+	 * $genart.params.binary({
+	 *     name: "Test",
+	 *     desc: "Binary data",
+	 *     default: new Uint8Array([0xde, 0xca, 0xfb, 0xad]),
+	 * });
+	 * ```
+	 *
+	 * @param spec
+	 */
+	binary(
+		spec: BaseParam<BinaryParam, "minLength" | "maxLength" | "randomize"> &
+			Partial<Pick<BinaryParam, "minLength" | "maxLength">>
+	): BinaryParam;
+
 	/**
 	 * Factory function to define a {@link ChoiceParam}.
 	 *
