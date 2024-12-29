@@ -290,9 +290,9 @@ export interface ImageParam
 export interface StringListParam<T extends string> extends Param<T[]> {
 	type: "strlist";
 	/** Minimum list size */
-	min?: number;
+	minLength: number;
 	/** Maximum list size */
-	max?: number;
+	maxLength: number;
 	/** Regexp or string-encoded regexp pattern */
 	match?: string | RegExp;
 }
@@ -304,9 +304,9 @@ export interface StringListParam<T extends string> extends Param<T[]> {
 export interface NumListParam extends Param<number[]> {
 	type: "numlist";
 	/** Minimum list size */
-	min?: number;
+	minLength: number;
 	/** Maximum list size */
-	max?: number;
+	maxLength: number;
 }
 
 /**
@@ -390,11 +390,23 @@ export interface RangeParam extends Param<number> {
  */
 export interface TextParam extends Param<string> {
 	type: "text";
-	/** Minimum length */
-	min?: number;
-	/** Maximum length */
-	max?: number;
-	/** Hint for param editors to provide multiline input */
+	/**
+	 * Minimum length
+	 *
+	 * @defaultValue 0
+	 */
+	minLength: number;
+	/**
+	 * Maximum length
+	 *
+	 * @defaultValue 1024
+	 */
+	maxLength: number;
+	/**
+	 * Hint for param editors to provide multiline input
+	 *
+	 * @defaultValue false
+	 */
 	multiline?: boolean;
 	/** Regexp or string-encoded regexp pattern */
 	match?: RegExp | string;
@@ -737,7 +749,10 @@ export interface ParamFactories {
 	 *
 	 * @param spec
 	 */
-	numlist(spec: BaseParam<NumListParam>): NumListParam;
+	numlist(
+		spec: BaseParam<NumListParam, "minLength" | "maxLength"> &
+			Partial<Pick<NumListParam, "minLength" | "maxLength">>
+	): NumListParam;
 
 	/**
 	 * Factory function to define a {@link StringListParam}.
@@ -754,7 +769,8 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	strlist<T extends string>(
-		spec: BaseParam<StringListParam<T>>
+		spec: BaseParam<StringListParam<T>, "minLength" | "maxLength"> &
+			Partial<Pick<StringListParam<T>, "minLength" | "maxLength">>
 	): StringListParam<T>;
 
 	/**
@@ -823,7 +839,12 @@ export interface ParamFactories {
 	 *
 	 * @param spec
 	 */
-	text(spec: BaseParam<TextParam>): TextParam;
+	text(
+		spec: BaseParam<TextParam, "minLength" | "maxLength"> &
+			Partial<Pick<TextParam, "minLength" | "maxLength">> & {
+				default: string;
+			}
+	): TextParam;
 
 	/**
 	 * Factory function to define a {@link TimeParam}.
