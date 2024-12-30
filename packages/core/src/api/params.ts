@@ -683,6 +683,8 @@ export interface ParamFactories {
 	 * Factory function to define a {@link DateParam}.
 	 *
 	 * @remarks
+	 * If `default` is given as string, it must be in `yyyy-MM-dd` format.
+	 *
 	 * Also see {@link ParamFactories.datetime} and {@link ParamFactories.time}.
 	 *
 	 * @example
@@ -696,12 +698,15 @@ export interface ParamFactories {
 	 *
 	 * @param spec
 	 */
-	date(spec: BaseParam<DateParam> & { default: Date }): DateParam;
+	date(spec: BaseParam<DateParam> & { default: Date | string }): DateParam;
 
 	/**
 	 * Factory function to define a {@link DateTimeParam}.
 	 *
 	 * @remarks
+	 * If `default` is given as string, it must be in ISO8601 format, e.g.
+	 * `yyyy-MM-ddTHH:mm:ssZ`.
+	 *
 	 * Also see {@link ParamFactories.date} and {@link ParamFactories.time}.
 	 *
 	 * @example
@@ -716,7 +721,7 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	datetime(
-		spec: BaseParam<DateTimeParam> & { default: string }
+		spec: BaseParam<DateTimeParam> & { default: Date | string }
 	): DateTimeParam;
 
 	/**
