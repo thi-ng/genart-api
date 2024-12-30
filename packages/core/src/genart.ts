@@ -3,10 +3,8 @@ import type {
 	APIMessage,
 	APIState,
 	CaptureMessage,
-	ChoiceParam,
 	GenArtAPI,
 	GenArtAPIOpts,
-	ImageParam,
 	InfoMessage,
 	Maybe,
 	MessageType,
@@ -14,7 +12,6 @@ import type {
 	NestedParam,
 	NestedParamSpecs,
 	NotifyType,
-	NumListParam,
 	Param,
 	ParamChangeMessage,
 	ParamErrorMessage,
@@ -24,41 +21,42 @@ import type {
 	ParamValue,
 	PlatformAdapter,
 	PRNG,
-	RampParam,
 	RandomFn,
-	RangeParam,
 	ResumeMessage,
 	StartMessage,
 	StateChangeMessage,
 	StopMessage,
-	StringListParam,
-	TextParam,
 	TimeProvider,
 	Traits,
 	TraitsMessage,
 	UpdateFn,
-	VectorParam,
-	WeightedChoiceParam,
 } from "./api.js";
 import * as math from "./math.js";
-import * as params from "./params.js";
+import * as params from "./params/factories.js";
+import { bigint } from "./params/bigint.js";
+import { binary } from "./params/binary.js";
+import { choice } from "./params/choice.js";
+import { color } from "./params/color.js";
+import { date } from "./params/date.js";
+import { datetime } from "./params/datetime.js";
+import { image } from "./params/image.js";
+import { numlist } from "./params/numlist.js";
+import { ramp } from "./params/ramp.js";
+import { range } from "./params/range.js";
+import { strlist } from "./params/strlist.js";
+import { text } from "./params/text.js";
+import { time } from "./params/time.js";
+import { toggle } from "./params/toggle.js";
+import { vector } from "./params/vector.js";
+import { weighted } from "./params/weighted.js";
+import { xy } from "./params/xy.js";
 import * as prng from "./prng.js";
 import { debugTimeProvider } from "./time/debug.js";
 import { timeProviderOffline } from "./time/offline.js";
 import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
 
-const { ensure, isFunction, isNumber, isNumericArray, isString } = utils;
-const { clamp, clamp01, mix, norm, parseNum, round } = math;
-
-const PARAM_DEFAULTS: Partial<Param<any>> = {
-	edit: "protected",
-	group: "main",
-	order: 0,
-	randomize: true,
-	update: "event",
-	widget: "default",
-};
+const { ensure, isFunction } = utils;
 
 class API implements GenArtAPI {
 	protected _opts: GenArtAPIOpts = {
@@ -76,235 +74,23 @@ class API implements GenArtAPI {
 	protected _traits?: Traits;
 	protected _params: Maybe<ParamSpecs>;
 	protected _paramTypes: Record<string, ParamImpl> = {
-		choice: {
-			validate: (spec, value) =>
-				!!(<ChoiceParam<any>>spec).options.find(
-					(x) => (Array.isArray(x) ? x[0] : x) === value
-				),
-			randomize: (spec, rnd) => {
-				const opts = (<ChoiceParam<any>>spec).options;
-				const value = opts[(rnd() * opts.length) | 0];
-				return Array.isArray(value) ? value[0] : value;
-			},
-		},
-		color: {
-			validate: (_, value) =>
-				isString(value) && /^#?[0-9a-f]{6}$/.test(value),
-			coerce: (_, value) => (value[0] !== "#" ? "#" + value : value),
-			randomize: (_, rnd) => "#" + utils.u24((rnd() * 0x1_00_00_00) | 0),
-		},
-		date: {
-			validate: (_, value) =>
-				value instanceof Date ||
-				isNumber(value) ||
-				(isString(value) && /^\d{4}-\d{2}-\d{2}$/.test(value)),
-			coerce: (_, value) =>
-				isNumber(value)
-					? new Date(value)
-					: isString(value)
-					? new Date(Date.parse(value))
-					: value,
-		},
-		datetime: {
-			validate: (_, value) =>
-				value instanceof Date ||
-				isNumber(value) ||
-				(isString(value) &&
-					/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[-+]\d{2}:\d{2})$/.test(
-						value
-					)),
-			coerce: (_, value) =>
-				isNumber(value)
-					? new Date(value)
-					: isString(value)
-					? new Date(Date.parse(value))
-					: value,
-		},
-		img: {
-			validate: (spec, value) => {
-				const { width, height } = <ImageParam>spec;
-				return isNumericArray(value) && value.length == width * height;
-			},
-		},
-		numlist: {
-			validate: (spec, value) => {
-				if (!isNumericArray(value)) return false;
-				const { min = 0, max = Infinity } = <NumListParam>spec;
-				return value.length >= min && value.length <= max;
-			},
-		},
-		ramp: {
-			validate: () => false,
-			read: (spec, t) => {
-				const { stops, mode } = <RampParam>spec;
-				let n = stops.length;
-				let i = n;
-				for (; (i -= 2) >= 0; ) {
-					if (t >= stops[i]) break;
-				}
-				n -= 2;
-				const at = stops[i];
-				const av = stops[i + 1];
-				const bt = stops[i + 2];
-				const bv = stops[i + 3];
-				return i < 0
-					? stops[1]
-					: i >= n
-					? stops[n + 1]
-					: {
-							exp: () =>
-								mix(av, bv, math.easeInOut5(norm(t, at, bt))),
-							linear: () => math.fit(t, at, bt, av, bv),
-							smooth: () =>
-								mix(av, bv, math.smoothstep01(norm(t, at, bt))),
-					  }[mode || "linear"]();
-			},
-			params: {
-				stops: params.numlist({
-					name: "Ramp stops",
-					desc: "Control points",
-					default: [],
-				}),
-				mode: params.choice<Exclude<RampParam["mode"], undefined>>({
-					name: "Ramp mode",
-					desc: "Interpolation method",
-					options: ["linear", "smooth", "exp"],
-				}),
-			},
-		},
-		range: {
-			validate: (spec, value) => {
-				const { min, max } = <RangeParam>spec;
-				return isNumber(value) && value >= min && value <= max;
-			},
-			coerce: (spec, value) => {
-				const $spec = <RangeParam>spec;
-				return clamp(
-					round(value ?? $spec.default, $spec.step || 1),
-					$spec.min,
-					$spec.max
-				);
-			},
-			randomize: (spec, rnd) => {
-				const { min, max, step } = <RangeParam>spec;
-				return clamp(round(mix(min, max, rnd()), step || 1), min, max);
-			},
-		},
-		strlist: {
-			validate: (spec, value) => {
-				const {
-					min = 0,
-					max = Infinity,
-					match,
-				} = <StringListParam<any>>spec;
-				if (
-					!(
-						Array.isArray(value) &&
-						value.length >= min &&
-						value.length <= max &&
-						value.every(isString)
-					)
-				)
-					return false;
-				if (match) {
-					const regExp = isString(match) ? new RegExp(match) : match;
-					return value.every((x) => regExp.test(x));
-				}
-				return true;
-			},
-		},
-		text: {
-			validate: (spec, value) => {
-				if (!isString(value)) return false;
-				const { min, max, match } = <TextParam>spec;
-				if (match) {
-					const regexp = isString(match) ? new RegExp(match) : match;
-					if (!regexp.test(value)) return false;
-				}
-				return (
-					(!min || value.length >= min) &&
-					(!max || value.length <= max)
-				);
-			},
-		},
-		time: {
-			validate: (_, value) =>
-				isNumericArray(value) ||
-				(isString(value) &&
-					/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value)),
-			coerce: (_, value) =>
-				isString(value) ? value.split(":").map(parseNum) : value,
-			randomize: (_, rnd) => [
-				(rnd() * 24) | 0,
-				(rnd() * 60) | 0,
-				(rnd() * 60) | 0,
-			],
-		},
-		toggle: {
-			validate: (_, value) =>
-				isString(value)
-					? /^(true|false|0|1)$/.test(value)
-					: isNumber(value) || typeof value === "boolean",
-			coerce: (_, value) =>
-				value === "true" || value === "1"
-					? true
-					: value === "false" || value === "0"
-					? false
-					: !!value,
-			randomize: (_, rnd) => rnd() < 0.5,
-		},
-		vector: {
-			validate: (spec, value) => {
-				const { min, max, size } = <VectorParam>spec;
-				return (
-					isNumericArray(value) &&
-					value.length === size &&
-					value.every((x, i) => x >= min[i] && x <= max[i])
-				);
-			},
-			coerce: (spec, value) => {
-				const { min, max, step } = <VectorParam>spec;
-				return (<number[]>value).map((x, i) =>
-					clamp(round(x, step[i]), min[i], max[i])
-				);
-			},
-			randomize: (spec, rnd) => {
-				const { min, max, size, step } = <VectorParam>spec;
-				return new Array(size)
-					.fill(0)
-					.map((_, i) =>
-						clamp(
-							round(mix(min[i], max[i], rnd()), step[i]),
-							min[i],
-							max[i]
-						)
-					);
-			},
-		},
-		weighted: {
-			validate: (spec, value) =>
-				!!(<WeightedChoiceParam<any>>spec).options.find(
-					(x) => x[1] === value
-				),
-			randomize: (spec, rnd) => {
-				let {
-					options,
-					total,
-					default: fallback,
-				} = <WeightedChoiceParam<any>>spec;
-				const r = rnd() * total;
-				for (let i = 0, n = options.length; i < n; i++) {
-					total -= options[i][0];
-					if (total <= r) return options[i][1];
-				}
-				return fallback;
-			},
-		},
-		xy: {
-			validate: (_, value) => isNumericArray(value) && value.length == 2,
-			coerce: (_, value) => [clamp01(value[0]), clamp01(value[1])],
-			randomize: (_, rnd) => [rnd(), rnd()],
-		},
+		bigint,
+		binary,
+		choice,
+		color,
+		date,
+		datetime,
+		image,
+		numlist,
+		ramp,
+		range,
+		strlist,
+		text,
+		time,
+		toggle,
+		vector,
+		weighted,
+		xy,
 	};
 
 	readonly math = math;
