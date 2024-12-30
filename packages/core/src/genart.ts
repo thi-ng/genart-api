@@ -421,9 +421,12 @@ class API implements GenArtAPI {
 			this._params = {};
 			for (let id in params) {
 				ensureValidID(id);
-				const param: Param<any> = { ...PARAM_DEFAULTS, ...params[id] };
+				const param: Param<any> = {
+					...params.PARAM_DEFAULTS,
+					...params[id],
+				};
+				const impl = this.ensureParamImpl(param.type);
 				if (param.default == null) {
-					const impl = this.ensureParamImpl(param.type);
 					if (impl.randomize) {
 						param.default = impl.randomize(param, this.random.rnd);
 						param.state = "random";
@@ -435,6 +438,11 @@ class API implements GenArtAPI {
 						);
 					}
 				} else {
+					if (!impl.validate(param, param.default)) {
+						throw new Error(
+							`invalid default value for param: ${id} (${param.default})`
+						);
+					}
 					param.state = "default";
 				}
 				this._params[id] = param;
