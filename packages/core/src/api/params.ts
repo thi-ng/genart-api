@@ -236,8 +236,9 @@ export interface ColorParam extends Param<string> {
 }
 
 /**
- * Date parameter providing JS `Date` values at the resolution of full days. Not
- * randomizable by default. Factory function: {@link ParamFactories.date}
+ * Date parameter providing JS `Date` values (UTC) at the resolution of full
+ * days. Not randomizable by default. Factory function:
+ * {@link ParamFactories.date}
  *
  * @remarks
  * Intended for long running artworks to configure an important date for state
@@ -250,8 +251,8 @@ export interface DateParam extends Param<Date> {
 }
 
 /**
- * Date-time parameter providing JS `Date` values. Not randomizable by default.
- * Factory function: {@link ParamFactories.datetime}
+ * Date-time parameter providing JS `Date` values (UTC). Not randomizable by
+ * default. Factory function: {@link ParamFactories.datetime}
  *
  * @remarks
  * Intended for long running artworks to configure an important moments for
@@ -266,6 +267,7 @@ export interface DateTimeParam extends Param<Date> {
 /**
  * Image parameter, i.e. an integer based pixel buffer (in different formats),
  * intended for obtaining spatially varied parameters (e.g. gradient maps).
+ * Non-randomizable.
  */
 export interface ImageParam
 	extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
@@ -413,12 +415,13 @@ export interface TextParam extends Param<string> {
 }
 
 /**
- * Time parameter providing time-of-day values (in UTC) in the form of 3-tuples:
- * `[hour,minute,second]` (24h format only). Randomizable by default.
+ * Parameter providing time-of-day values (local time at the deployment
+ * target/client) in the form of a 3-tuple: `[hour, minute, second]` (24h format
+ * only). Randomizable by default.
  *
  * @remarks
  * Intended for long running artworks to configure an important time in the day
- * for state or behavior changes etc. (e.g. triggering daily sleep mode)
+ * for state or behavior changes etc. (e.g. scheduling daily sleep mode)
  *
  * Also see {@link DateParam} and {@link DateTimeParam}.
  */
@@ -781,13 +784,19 @@ export interface ParamFactories {
 	/**
 	 * Factory function to define a {@link RampParam}.
 	 *
+	 * @remarks
+	 * If `stops` are given, at least 2 pairs need to be provided. Internally,
+	 * these stops are stored flattened (see {@link RampParam.stops} for
+	 * details), but here they must be provided as array of tuples (as shown in
+	 * the example below).
+	 *
 	 * @example
 	 * ```ts
 	 * // ramp parameter defining a triangular shape "/\"
 	 * const param = $genart.setParams({
 	 *     test: $genart.params.ramp({
 	 *         name: "Test",
-	 *         desc: "A simple curve",
+	 *         desc: "A simple triangle curve",
 	 *         stops: [[0, 0], [0.5, 1], [1, 0]]
 	 *     })
 	 * });
@@ -836,7 +845,7 @@ export interface ParamFactories {
 	 * $genart.params.text({
 	 *     name: "Test",
 	 *     desc: "Seed phrase",
-	 *     max: 256,
+	 *     maxLength: 256,
 	 *     match: "^[a-z ]+$",
 	 *     multiline: true,
 	 * });
