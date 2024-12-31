@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import { equiv, equivArrayLike } from "../src/utils.js";
+import {
+	equiv,
+	equivArrayLike,
+	parseBigInt,
+	stringifyBigInt,
+} from "../src/utils.js";
 
 test("equiv", () => {
 	expect(equiv(null, undefined)).toBe(true);
@@ -30,4 +35,18 @@ test("equivArraylike", () => {
 	expect(equivArrayLike(new Uint8Array([1, 2]), new Uint8Array([1, 2]))).toBe(
 		true
 	);
+});
+
+test("stringifyBigInt", () => {
+	expect(stringifyBigInt(-255n, 2)).toBe("-0b11111111");
+	expect(stringifyBigInt(-255n, 8)).toBe("-0o377");
+	expect(stringifyBigInt(-255n, 10)).toBe("-255");
+	expect(stringifyBigInt(-255n, 16)).toBe("-0xff");
+});
+
+test("parseBigInt", () => {
+	expect(parseBigInt("-0b11111111")).toBe(-255n);
+	expect(parseBigInt("-0o377")).toBe(-255n);
+	expect(parseBigInt("-255")).toBe(-255n);
+	expect(parseBigInt("-0xff")).toBe(-255n);
 });
