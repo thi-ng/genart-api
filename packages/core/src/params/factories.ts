@@ -68,7 +68,7 @@ const minMaxLength = (
 		max = spec.maxLength || maxDefault;
 	if (spec.minLength) {
 		min = spec.minLength;
-		if (!spec.maxLength) max = min;
+		if (!spec.maxLength) max = Math.max(min, maxDefault);
 	}
 	ensure(min <= max, `invalid list length constraint`);
 	return [min, max];

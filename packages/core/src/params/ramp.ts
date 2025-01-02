@@ -32,6 +32,7 @@ export const ramp: ParamImpl = {
 			name: "Ramp stops",
 			desc: "Control points",
 			minLength: 4,
+			maxLength: Infinity,
 			default: [],
 		}),
 		mode: choice<Exclude<RampParam["mode"], undefined>>({
