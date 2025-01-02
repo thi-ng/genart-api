@@ -149,8 +149,8 @@ pub inline fn text(spec: anytype) api.Param {
             .text = .{
                 .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
                 .match = if (@hasField(@TypeOf(spec), "match")) spec.match else null,
-                .min = if (@hasField(@TypeOf(spec), "min")) spec.min else 0,
-                .max = if (@hasField(@TypeOf(spec), "max")) spec.max else 0,
+                .minLength = if (@hasField(@TypeOf(spec), "minLength")) spec.minLength else 0,
+                .maxLength = if (@hasField(@TypeOf(spec), "maxLength")) spec.maxLength else 0,
             },
         },
     };

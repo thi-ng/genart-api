@@ -100,7 +100,7 @@ pub const RangeParam = extern struct {
 pub const TextParam = extern struct {
     default: bindgen.ConstStringPtr,
     match: ?bindgen.ConstStringPtr = null,
-    min: u32 = 0,
-    max: u32 = 0,
+    minLength: u32 = 0,
+    maxLength: u32 = 1024,
     multiline: u8 = 0,
 };

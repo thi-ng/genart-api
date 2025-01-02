@@ -318,8 +318,18 @@
 				"setter": false,
 				"default": { "zig": "null" }
 			},
-			{ "name": "min", "type": "usize", "default": 0, "setter": false },
-			{ "name": "max", "type": "usize", "default": 0, "setter": false },
+			{
+				"name": "minLength",
+				"type": "usize",
+				"default": 0,
+				"setter": false
+			},
+			{
+				"name": "maxLength",
+				"type": "usize",
+				"default": 1024,
+				"setter": false
+			},
 			{ "name": "multiline", "type": "u8", "default": 0, "setter": false }
 		],
 		"body": {
@@ -331,8 +341,8 @@
 					"...parent.asParam(),",
 					"default: this.default.deref(),",
 					"match: this.match.deref() || undefined,",
-					"min: this.min || undefined,",
-					"max: this.max || undefined,",
+					"minLength: this.minLength || undefined,",
+					"maxLength: this.maxLength || undefined,",
 					"multiline: !!this.multiline,",
 					"});",
 					"}"

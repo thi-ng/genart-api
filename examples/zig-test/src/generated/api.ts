@@ -372,11 +372,11 @@ export interface TextParam extends WasmTypeBase {
 	/**
 	 * Zig type: `u32`
 	 */
-	readonly min: number;
+	readonly minLength: number;
 	/**
 	 * Zig type: `u32`
 	 */
-	readonly max: number;
+	readonly maxLength: number;
 	/**
 	 * Zig type: `u8`
 	 */
@@ -396,10 +396,10 @@ export const $TextParam = defType<TextParam>(4, 20, (mem, base) => {
 		get match(): WasmStringPtr {
 			return $match || ($match = __str(mem, (base + 4)));
 		},
-		get min(): number {
+		get minLength(): number {
 			return mem.u32[(base + 8) >>> 2];
 		},
-		get max(): number {
+		get maxLength(): number {
 			return mem.u32[(base + 12) >>> 2];
 		},
 		get multiline(): number {
@@ -411,8 +411,8 @@ export const $TextParam = defType<TextParam>(4, 20, (mem, base) => {
 				...parent.asParam(),
 				default: this.default.deref(),
 				match: this.match.deref() || undefined,
-				min: this.min || undefined,
-				max: this.max || undefined,
+				minLength: this.minLength || undefined,
+				maxLength: this.maxLength || undefined,
 				multiline: !!this.multiline,
 			});
 		}
