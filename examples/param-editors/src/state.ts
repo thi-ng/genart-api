@@ -20,7 +20,7 @@ import {
 	type WithErrorHandlerOpts,
 } from "@thi.ng/rstream";
 import { padLeft } from "@thi.ng/strings";
-import { compR, type Reducer } from "@thi.ng/transducers";
+import { benchmark, map, trace } from "@thi.ng/transducers";
 import { sma } from "@thi.ng/transducers-stats";
 import { isCompatibleVersion } from "./utils.js";
 import { MIN_API_VERSION } from "./version.js";
@@ -47,21 +47,15 @@ export const paramValues: Record<string, ISubscription<any, any>> = {};
 
 export const traits = reactive({});
 
-const currentTime = stream<number>();
-const currentFrame = stream<number>();
+const currentTime = stream<number>(INF);
+const currentFrame = stream<number>(INF);
 export const formattedTime = currentTime.map(defTimecode(60), INF);
 export const formattedFrame = currentFrame.map(padLeft(6, "0"), INF);
 export const frameRate = currentTime.transform(
 	// measure frame delta time
-	(rfn: Reducer<number, any>) => {
-		let prev = performance.now();
-		return compR(rfn, (acc, _) => {
-			const t = performance.now();
-			const x = t - prev;
-			prev = t;
-			return isFinite(x) && x > 0 ? rfn[2](acc, 1000 / x) : acc;
-		});
-	},
+	benchmark(),
+	// filter & convert frame deltas
+	map((x) => (isFinite(x) && x > 0 ? 1000 / x : 0)),
 	// compute simple moving average over period (in frames)
 	sma(3 * 60),
 	INF
@@ -85,6 +79,7 @@ window.addEventListener("message", (e) => {
 			apiID.next($msg.apiID);
 			if (Object.keys($msg.params).length) params.next($msg.params);
 			console.log("set-params", $msg.params);
+			requestInfo(0);
 			break;
 		}
 		case "genart:param-change": {
@@ -160,7 +155,11 @@ export const updateParamsOnChange = (state: boolean) =>
 	(doUpdateParamsOnChange = state);
 
 export const reloadArt = (url: string) => {
-	infoRequested = true;
-	setTimeout(() => sendMessage({ type: "genart:get-info" }), 500);
+	requestInfo(500);
 	iframe.src = url;
+};
+
+const requestInfo = (delay = 500) => {
+	infoRequested = true;
+	setTimeout(() => sendMessage({ type: "genart:get-info" }), delay);
 };

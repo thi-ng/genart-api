@@ -8,11 +8,12 @@ import type {
 	RandomizeParamMessage,
 	RangeParam,
 	SetParamValueMessage,
+	TextParam,
 	VectorParam,
 	WeightedChoiceParam,
 } from "@genart-api/core";
 import { adaptiveCanvas2d } from "@thi.ng/canvas";
-import { isString } from "@thi.ng/checks";
+import { isInRange, isString } from "@thi.ng/checks";
 import { DEFAULT, defmulti } from "@thi.ng/defmulti";
 import { equiv } from "@thi.ng/equiv";
 import { U24 } from "@thi.ng/hex";
@@ -238,12 +239,17 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 		},
 
 		text: (ctx, param) => {
+			const { minLength, maxLength, match } = <TextParam>param;
+			const $match = isString(match) ? new RegExp(match) : match;
 			return textField({
 				gui: gui!,
 				layout: ctx.layout.next([COLS, 1]),
 				id: ctx.widgetID,
 				value: ctx.value,
 				info: param.doc,
+				filter: (x) =>
+					isInRange(x.length, minLength, maxLength) &&
+					($match ? $match.test(x) : true),
 			});
 		},
 

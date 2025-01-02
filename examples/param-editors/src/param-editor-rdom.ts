@@ -165,7 +165,6 @@ const createParamControls = (params: ParamSpecs) => {
 					const $param = <ImageParam>param;
 					const fmt = {
 						gray: GRAY8,
-						rgb: RGB888,
 						rgba: ARGB8888,
 					}[$param.format];
 					const fileSel = stream<File>();
@@ -249,8 +248,8 @@ const createParamControls = (params: ParamSpecs) => {
 								? text({ ...base, rows: 5 })
 								: str({
 										...base,
-										min: $param.min,
-										max: $param.max,
+										min: $param.minLength,
+										max: $param.maxLength,
 								  })
 						);
 					}
