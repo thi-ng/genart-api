@@ -209,8 +209,8 @@ class LayerAdapter implements PlatformAdapter {
 				case "text": {
 					const $src = <TextParam>src;
 					const $dest = <HashParameter>dest;
-					$dest.minLength = $src.min;
-					$dest.maxLength = $src.max;
+					$dest.minLength = $src.minLength;
+					$dest.maxLength = $src.maxLength;
 					const pattern =
 						$src.match instanceof RegExp
 							? $src.match.source
