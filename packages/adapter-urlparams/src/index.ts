@@ -18,7 +18,7 @@ import { compressBytes, decompressBytes } from "./compress.js";
 const {
 	math: { clamp01, parseNum },
 	prng: { sfc32 },
-	utils: { formatValuePrec },
+	utils: { formatValuePrec, stringifyBigInt },
 } = $genart;
 
 const AUTO = "__autostart";
@@ -171,6 +171,7 @@ class URLParamsAdapter implements PlatformAdapter {
 		if (value == null || this.cache[id] === value) return;
 		this.cache[id] = value;
 		switch (spec.type) {
+			case "bigint":
 			case "color":
 			case "choice":
 			case "text":
@@ -182,6 +183,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "date":
 			case "datetime":
 				return { value: new Date(Date.parse(value)) };
+			case "binary":
 			case "img":
 				return { value: await decompressBytes(base64Decode(value)) };
 			case "numlist":
@@ -219,16 +221,19 @@ class URLParamsAdapter implements PlatformAdapter {
 
 	async serializeParam(spec: Param<any>) {
 		switch (spec.type) {
+			case "bigint":
+				return stringifyBigInt(spec.value, 16);
+			case "binary":
+			case "img":
+				return base64Encode(
+					await compressBytes((<ImageParam>spec).value!)
+				);
 			case "color":
 				return spec.value.substring(1);
 			case "date":
 				return spec.value.toISOString().substring(0, 10);
 			case "datetime":
 				return spec.value.toISOString();
-			case "img":
-				return base64Encode(
-					await compressBytes((<ImageParam>spec).value!)
-				);
 			case "numlist":
 			case "strlist":
 				return (<NumListParam>spec).value!.join(",");
