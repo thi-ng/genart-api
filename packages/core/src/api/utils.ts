@@ -124,14 +124,14 @@ export interface Utils {
 	 *
 	 * @example
 	 * ```ts
-	 * serializeBigInt(-0x1234n, 16) // => "-0x1234"
+	 * stringifyBigInt(-0x1234n, 16) // => "-0x1234"
 	 * BigInt(-0x1234).toString(16) // => "-1234"
 	 *
-	 * serializeBigInt(255n, 2) // => "0b11111111"
+	 * stringifyBigInt(255n, 2) // => "0b11111111"
 	 * BigInt(255).toString(2) // => "11111111"
 	 *
 	 * // roundtrip
-	 * parseBigInt(serializeBigInt(-255n, 2)) // -255n
+	 * parseBigInt(stringifyBigInt(-255n, 2)) // -255n
 	 * BigInt(BigInt(-255).toString(2)) // -11111111n (WRONG!)
 	 * ``
 	 *

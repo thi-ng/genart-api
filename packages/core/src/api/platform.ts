@@ -7,7 +7,7 @@ import type { Traits } from "./traits.js";
  * Platform defined presentation mode for the artwork:
  *
  * - `play`: default mode
- * - `preview`: capturing, minting, thumbnail, etc.
+ * - `preview`: capturing, thumbnail, etc.
  * - `edit`: platform has param editor active
  */
 export type RunMode = "play" | "preview" | "edit";
