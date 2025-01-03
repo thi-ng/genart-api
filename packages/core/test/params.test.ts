@@ -150,10 +150,11 @@ test("color", () => {
 
 	expect(validate(spec, "#aabbcc")).toBeTrue();
 	expect(validate(spec, "aabbcc")).toBeTrue();
-	expect(validate(spec, "#aabbccdd")).toBeFalse();
+	expect(validate(spec, "#aabbccdd")).toBeTrue();
 
 	expect(coerce!(spec, "#aabbcc")).toBe("#aabbcc");
 	expect(coerce!(spec, "aabbcc")).toBe("#aabbcc");
+	expect(coerce!(spec, "#aabbccdd")).toBe("#aabbcc");
 
 	fuzz(spec, color);
 });
