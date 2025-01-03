@@ -45,18 +45,12 @@ export interface ParamOpts {
 	 */
 	order: number;
 	/**
-	 * Update mode/behavior when this param is being updated. Platform providers
-	 * are responsible to honor & implement this setting.
-	 *
-	 * - `reload`: the piece should be reloaded/relaunched with new param value
-	 *   (a manual or externally triggered reload might be required for some
-	 *   platforms).
-	 * - `event`: the API will trigger a {@link ParamChangeMessage} via
-	 *   {@link GenArtAPI.emit}.
+	 * Update mode/behavior when this param is being updated. See
+	 * {@link ParamUpdateBehavior} for details.
 	 *
 	 * @defaultValue "event"
 	 */
-	update: "reload" | "event";
+	update: ParamUpdateBehavior;
 	/**
 	 * Defines which party or agent should be able to edit this parameter.
 	 *
@@ -145,6 +139,19 @@ export type ParamState = "custom" | "default" | "dynamic" | "random" | "void";
  * Value type for {@link ParamOpts.widget}.
  */
 export type ParamWidgetType = "default" | "alt" | "precise";
+
+/**
+ * Value type for {@link ParamOpts.update}. Defines the update mode/behavior
+ * when a param is being updated. Platform providers are responsible to honor &
+ * implement this setting (if possible).
+ *
+ * - `reload`: the piece should be reloaded/relaunched with new param value (a
+ *   manual or externally triggered reload might be required for some
+ *   platforms).
+ * - `event`: the API will trigger a {@link ParamChangeMessage} via
+ *   {@link GenArtAPI.emit}.
+ */
+export type ParamUpdateBehavior = "reload" | "event";
 
 /**
  * {@link ParamOpts} field names which are optional in {@link BaseParam} and
