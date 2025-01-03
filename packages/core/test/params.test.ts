@@ -138,7 +138,7 @@ test("choice", () => {
 });
 
 test("color", () => {
-	const { validate } = color;
+	const { validate, coerce } = color;
 	const spec = params.color({ name: "test" });
 	expect(spec).toEqual(<ColorParam>{
 		...PARAM_DEFAULTS,
@@ -151,6 +151,9 @@ test("color", () => {
 	expect(validate(spec, "#aabbcc")).toBeTrue();
 	expect(validate(spec, "aabbcc")).toBeTrue();
 	expect(validate(spec, "#aabbccdd")).toBeFalse();
+
+	expect(coerce!(spec, "#aabbcc")).toBe("#aabbcc");
+	expect(coerce!(spec, "aabbcc")).toBe("#aabbcc");
 
 	fuzz(spec, color);
 });
@@ -289,11 +292,14 @@ test("ramp", () => {
 		default: 0,
 	});
 
+	expect(ramp.read!(spec, -1)).toBe(0);
 	expect(ramp.read!(spec, 0.25)).toBe(0.25);
 	expect(ramp.read!(spec, 0.75)).toBe(0.75);
+	expect(ramp.read!(spec, 2)).toBe(1);
 });
 
 test("range", () => {
+	const { validate, coerce } = range;
 	const spec = params.range({ name: "test" });
 	expect(spec).toEqual(<RangeParam>{
 		...PARAM_DEFAULTS,
@@ -306,12 +312,19 @@ test("range", () => {
 		step: 1,
 	});
 
+	expect(validate(spec, 0)).toBeTrue();
+	expect(validate(spec, 100)).toBeTrue();
+	expect(validate(spec, -1)).toBeFalse();
+	expect(validate(spec, 101)).toBeFalse();
+	expect(coerce!(spec, 99.5)).toBe(100);
+
 	fuzz(spec, range);
 });
 
 test("strlist", () => {
 	const { validate } = strlist;
 	const spec = params.strlist({ name: "test" });
+	const spec2 = params.strlist({ name: "test", match: "^[ab]+$" });
 	expect(spec).toEqual(<StringListParam<any>>{
 		...PARAM_DEFAULTS,
 		type: "strlist",
@@ -342,6 +355,9 @@ test("strlist", () => {
 	expect(validate(spec, new Array(10).fill(""))).toBeTrue();
 	expect(validate(spec, new Array(11).fill(""))).toBeFalse();
 	expect(validate(spec, [0])).toBeFalse();
+
+	expect(validate(spec2, ["abba"])).toBeTrue();
+	expect(validate(spec2, ["ab", "abc"])).toBeFalse();
 });
 
 test("text", () => {
@@ -376,6 +392,7 @@ test("time", () => {
 	const { validate } = time;
 	const spec = params.time({
 		name: "test",
+		default: "12:34:56",
 	});
 	expect(spec).toEqual(<TimeParam>{
 		...PARAM_DEFAULTS,
@@ -383,6 +400,7 @@ test("time", () => {
 		name: "test",
 		desc: "TODO description",
 		randomize: true,
+		default: [12, 34, 56],
 	});
 
 	expect(validate(spec, [0, 0, 0])).toBeTrue();
@@ -392,10 +410,12 @@ test("time", () => {
 	expect(validate(spec, [23, 60, 59])).toBeFalse();
 	expect(validate(spec, [23, 59, 60])).toBeFalse();
 	expect(validate(spec, "12:34:66")).toBeFalse();
+
+	fuzz(spec, time);
 });
 
 test("toggle", () => {
-	const { validate } = toggle;
+	const { validate, coerce } = toggle;
 	const spec = params.toggle({
 		name: "test",
 	});
@@ -417,14 +437,22 @@ test("toggle", () => {
 	expect(validate(spec, "a")).toBeFalse();
 	expect(validate(spec, -1)).toBeFalse();
 
+	expect(coerce!(spec, true)).toBeTrue();
+	expect(coerce!(spec, 1)).toBeTrue();
+	expect(coerce!(spec, "1")).toBeTrue();
+	expect(coerce!(spec, false)).toBeFalse();
+	expect(coerce!(spec, 0)).toBeFalse();
+	expect(coerce!(spec, "0")).toBeFalse();
+
 	fuzz(spec, toggle);
 });
 
 test("vector", () => {
-	const { validate } = vector;
+	const { validate, coerce } = vector;
 	const spec = params.vector({
 		name: "test",
 		size: 3,
+		default: [0.11, 0.225, 0.331],
 	});
 	expect(spec).toEqual(<VectorParam>{
 		...PARAM_DEFAULTS,
@@ -437,6 +465,7 @@ test("vector", () => {
 		max: [1, 1, 1],
 		step: [0.01, 0.01, 0.01],
 		labels: ["X", "Y", "Z"],
+		default: [0.11, 0.23, 0.33],
 	});
 
 	expect(validate(spec, [0, 0, 0])).toBeTrue();
@@ -446,6 +475,8 @@ test("vector", () => {
 	expect(validate(spec, [1, 1, 1.01])).toBeFalse();
 	expect(validate(spec, [1, 1])).toBeFalse();
 	expect(validate(spec, "[1,1,1]")).toBeFalse();
+
+	expect(coerce!(spec, [0.011, 0.222, 0.305])).toEqual([0.01, 0.22, 0.31]);
 
 	fuzz(spec, vector);
 });
@@ -483,7 +514,7 @@ test("weighted", () => {
 });
 
 test("xy", () => {
-	const { validate } = xy;
+	const { validate, coerce } = xy;
 	const spec = params.xy({
 		name: "test",
 	});
@@ -496,4 +527,9 @@ test("xy", () => {
 	});
 
 	expect(validate(spec, [0, 0])).toBeTrue();
+	expect(validate(spec, [0, 0, 0])).toBeFalse();
+
+	expect(coerce!(spec, [-1, 2])).toEqual([0, 1]);
+
+	fuzz(spec, xy);
 });
