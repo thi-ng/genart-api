@@ -1,0 +1,44 @@
+{
+	"name": "@genart-api/adapter-fxhash",
+	"version": "0.21.0",
+	"description": "GenArtAPI platform adapter for fxhash.xyz",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thi-ng/genart-api.git"
+	},
+	"homepage": "https://thi.ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"build": "node ../../tools/build.js src/index.ts adapter-fxhash",
+		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
+		"build:dist": "node ../../tools/build-dist.js",
+		"publish": "yarn npm publish --access public"
+	},
+	"dependencies": {
+		"@genart-api/core": "workspace:^"
+	},
+	"devDependencies": {
+		"esbuild": "^0.24.2",
+		"typedoc": "^0.27.6",
+		"typescript": "^5.7.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"./*.js",
+		"./*.d.ts"
+	],
+	"keywords": [
+		"adapter",
+		"art",
+		"fxhash",
+		"genart",
+		"generative",
+		"genart-api",
+		"parameters",
+		"platform"
+	]
+}
