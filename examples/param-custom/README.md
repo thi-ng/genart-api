@@ -63,4 +63,4 @@ dropdown menu to start configuring the parameters...
 
 ## License
 
-&copy; 2024 Karsten Schmidt // MIT license
+&copy; 2024 - 2025 Karsten Schmidt // MIT license

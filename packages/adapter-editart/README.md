@@ -114,4 +114,4 @@ change always triggers a full restart of the artwork.
 
 ## License
 
-&copy; 2024 Karsten Schmidt // MIT License
+&copy; 2024 - 2025 Karsten Schmidt // MIT License

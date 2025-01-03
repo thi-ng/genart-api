@@ -62,4 +62,4 @@ yarn build
 
 ## License
 
-&copy; 2024 Karsten Schmidt // MIT license
+&copy; 2024 - 2025 Karsten Schmidt // MIT license

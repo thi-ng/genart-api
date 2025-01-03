@@ -69,4 +69,4 @@ be customized via URL search params (query string), e.g.
 
 ## License
 
-&copy; 2024 Karsten Schmidt // MIT license
+&copy; 2024 - 2025 Karsten Schmidt // MIT license

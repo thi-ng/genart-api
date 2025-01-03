@@ -134,4 +134,4 @@ Similar to [vector params](#vector), XY params will also be represented as two
 
 ## License
 
-&copy; 2024 Karsten Schmidt // MIT License
+&copy; 2024 - 2025 Karsten Schmidt // MIT License
