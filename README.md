@@ -18,6 +18,8 @@
     -   [API documentation](#api-documentation)
 -   [Parameters](#parameters)
     -   [Static parameter types](#static-parameter-types)
+        -   [BigInt](#bigint-parameter)
+        -   [Binary](#binary-parameter)
         -   [Choice](#choice-parameter)
         -   [Color](#color-parameter)
         -   [Date](#date-parameter)
@@ -38,7 +40,6 @@
     -   [Composite parameter types](#composite-parameter-types)
 -   [Traits](#traits)
 -   [Platform adapters](#platform-adapters)
-    -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Parameter sourcing](#parameter-sourcing)
     -   [Parameter updates](#parameter-updates)
     -   [Determinism & PRNG provision](#determinism--prng-provision)
@@ -51,6 +52,7 @@
         -   [Offline](#offline)
         -   [Debug](#debug)
 -   [Getting started](#getting-started)
+    -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Examples projects](#example-projects)
     -   [Project template](#project-template)
     -   [Installion as package](#installion-as-package)
@@ -328,6 +330,20 @@ sources (e.g. sensors).
 
 This section describes the set of _static_ param types:
 
+#### Bigint parameter
+
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/BigIntParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#bigint)
+
+TODO example
+
+#### Binary parameter
+
+-   [API docs](https://docs.thi.ng/genart-api/core/interfaces/BinaryParam.html)
+-   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#binary)
+
+TODO example
+
 #### Choice parameter
 
 -   [API docs](https://docs.thi.ng/genart-api/core/interfaces/ChoiceParam.html)
@@ -396,7 +412,8 @@ JS `Date` value in precision of full days only (UTC midnight).
 $genart.params.date({
 	name: "Test param",
 	desc: "Best before date",
-	default: new Date("2024-09-05"),
+	// default can be given as Date or string in this format
+	default: "2024-09-05",
 });
 ```
 
@@ -410,13 +427,14 @@ $genart.params.date({
 -   [API docs](https://docs.thi.ng/genart-api/core/interfaces/DateTimeParam.html)
 -   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#datetime)
 
-JS `Date` value (in UTC).
+JS `Date` value.
 
 ```ts
 $genart.params.datetime({
 	name: "Test param",
-	desc: "Date and time (in UTC)",
-	default: new Date("2024-09-05T12:34:56+02:00"),
+	desc: "Date and time",
+	// default can be given as Date or string in ISO8601 format
+	default: "2024-09-05T12:34:56+02:00",
 });
 ```
 
@@ -438,12 +456,11 @@ An image param has a pixel array as `value`, alongside `width`, `height` and
 `format`, which can be:
 
 -   `gray` (8 bits)
--   `rgb` (packed int, 24 bits, channels in MSB order: R,G,B)
--   `argb` (packed int, 32 bits, channels in MSB order: A,R,G,B)
+-   `rgba` (packed int, 32 bits, channels in MSB order: A,R,G,B)
 
 The `format` is only used as hint for platform adapters and external tooling
 (e.g. GUI param editors) to optimize their handling of the image data. I.e. an
-image with mode `gray` can be encoded as byte sequence vs. `argb` requiring 4
+image with mode `gray` can be encoded as byte sequence vs. `rgba` requiring 4
 bytes per pixel. Likewise a param editor allowing image uploads/customizations
 is responsible to resize an image to the expected dimensions and provide its
 data in the expected format.
@@ -507,7 +524,7 @@ to [0, 100]). If `step` is given, the value will be rounded to multiples of
 ```ts
 $genart.params.range({
 	name: "Test param",
-	desc: "Pick a number between 0-100",
+	desc: "Pick a multiple of 5 between 0-100",
 	min: 0,
 	max: 100,
 	step: 5,
@@ -524,14 +541,14 @@ $genart.params.range({
 -   [API docs](https://docs.thi.ng/genart-api/core/interfaces/TextParam.html)
 -   [Factory function](https://docs.thi.ng/genart-api/core/interfaces/ParamFactories.html#text)
 
-Single or multi-line text, optionally with `min`/`max` length and/or regexp
-pattern validation.
+Single or multi-line text, optionally with `minLength`/`maxLength` and/or
+`match` regexp pattern validation.
 
 ```ts
 $genart.params.text({
 	name: "Test param",
 	desc: "Seed phrase",
-	max: 256,
+	maxLength: 256,
 	match: "^[a-z ]+$",
 	multiline: true,
 });
@@ -843,25 +860,7 @@ $genart.setTraits({
 TODO This section will describe the role(s) of adapters responsible for
 providing (deployment) platform-specific functionality and interop features.
 
--   [`PlatformAdapter` interface definition](https://docs.thi.ng/genart-api/core/interfaces/PlatformAdapter.html)
-
-### Existing adapter implementations
-
-> [!NOTE]
-> Please refer or contribute to issue [#2: List of art platforms we should
-> provide adapters for](https://github.com/thi-ng/genart-api/issues/2)
-
-Please refer to the readme's of the individual adapter packages for further
-details about handling any platform specifics:
-
--   [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/README.md)
-    : Adapter for the [EditArt](https://editart.xyz) art platform
--   [@genart-api/adapter-fxhash](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-fxhash/README.md)
-    : Adapter for the [fx(hash)](https://fxhash.xyz) art platform
--   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/README.md)
-    : Adapter for the Layer.com art platform
--   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/README.md)
-    : Reference implementation
+-   [`PlatformAdapter` interface documentation](https://docs.thi.ng/genart-api/core/interfaces/PlatformAdapter.html)
 
 ### Parameter sourcing
 
@@ -1013,6 +1012,25 @@ build order must be used in some situations:
 | [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/) | [Demo](https://demo.thi.ng/genart-api/param-editors/)                                                  | Reference [editor implementations](#parameter-editors) |
 | [zig-test](https://github.com/thi-ng/genart-api/tree/main/examples/zig-test/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/)     | Zig/WebAssembly API wrapper example (WIP)              |
 
+### Existing adapter implementations
+
+> [!NOTE]
+> Please refer or contribute to issue [#2: List of art platforms we should
+> provide adapters for](https://github.com/thi-ng/genart-api/issues/2)
+
+The following art platforms are already supported and projects can be easily
+adapted by merely installing and switching to a different platform adapter.
+
+Please refer to the readme's of the individual adapter packages for further
+details about handling any platform specifics:
+
+| **Package**                                                                                                          | **Art platform**               | **Description**                                                                                  |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/README.md)     | [EditArt](https://editart.xyz) | Adapter for the EditArt platform                                                                 |
+| [@genart-api/adapter-fxhash](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-fxhash/README.md)       | [fx(hash)](https://fxhash.xyz) | Adapter for the fx(hash) art platform                                                            |
+| [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/README.md)         | Layer.com                      | Adapter for the Layer art platform                                                               |
+| [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/README.md) |                                | Reference implementation (used for the [param editors](#parameter-editors) bundled in this repo) |
+
 ### Project template
 
 This repo contains an empty project template as starting point for new projects.
@@ -1084,9 +1102,10 @@ step](#use-in-your-own-projects-an-artists-hello-world)...
 
 ### Manual installation
 
-The [/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory
-contains all pre-built release files and type declarations which you should copy
-to your project directory (e.g. in a `/lib` dir or similar).
+If you don't want to use a package manager, the
+[/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory contains
+all pre-built release files and type declarations which you should copy to your
+project directory (e.g. in a `/lib` dir or similar).
 
 If you're a TypeScript user, you'll also want to add a declaration file with the
 following content to your `/src` directory:
@@ -1106,8 +1125,6 @@ described above.
 ```html
 <script src="./lib/genart.min.js"></script>
 ```
-
--   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/index.ts)
 
 #### Reference platform adapter
 
@@ -1231,10 +1248,6 @@ use cases:
 
 </details>
 
-### Creating a basic PlatformAdapter
-
-TODO for now see [existing adapter implementations](#existing-adapter-implementations)...
-
 ## Build information
 
 ### Building core API files
@@ -1275,21 +1288,23 @@ supplied [reference platform adapter](#reference-platform-adapter)). See the
 readme](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/)
 for details.
 
-The following table provides an overview of the **current** parameter types
-support in both editors:
+The following table provides an overview of the **current (WIP)** support of
+parameter types in both editors:
 
 | Param type       | thi.ng/rdom editor | thi.ng/imgui editor |
 | ---------------- | ------------------ | ------------------- |
+| Bigint           | ❌                 | ❌                  |
+| Binary           | ❌                 | ❌                  |
 | Choice           | ✅                 | ✅                  |
 | Color            | ✅                 | ✅ (1)              |
 | Composite params | ❌                 | ✅ (2)              |
 | Date             | ✅                 | ✅                  |
 | Datetime         | ✅                 | ❌                  |
 | Image            | ✅                 | ❌                  |
-| List             | ❌                 | ❌                  |
+| List (3)         | ❌                 | ❌                  |
 | Range            | ✅                 | ✅                  |
 | Ramp             | ❌                 | ✅                  |
-| Text             | ✅                 | ✅ (3)              |
+| Text             | ✅                 | ✅ (4)              |
 | Time             | ✅                 | ❌                  |
 | Toggle           | ✅                 | ✅                  |
 | Vector           | ✅                 | ✅                  |
@@ -1298,8 +1313,9 @@ support in both editors:
 
 -   (1) No dedicated widget yet, using fallback only
 -   (2) See [composite parameter types](#composite-parameter-types)
--   (3) Only single line, not mobile friendly
+-   (3) Both [number](#numeric-list) or [string](#string-list)
+-   (4) Only single line, not mobile friendly
 
 ## License
 
-&copy; 2024 Karsten Schmidt and contributors // MIT License
+&copy; 2024 - 2025 Karsten Schmidt and contributors // MIT License
