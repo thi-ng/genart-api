@@ -28,6 +28,10 @@ pub extern "genart" fn numberParamValue(id: [*:0]const u8) f64;
 
 pub extern "genart" fn rampParamValue(id: [*:0]const u8, t: f64) f64;
 
+pub extern "genart" fn toggleParamValue(id: [*:0]const u8) u8;
+
+pub extern "genart" fn _xyParamValue(id: [*:0]const u8, val: [*]f32) void;
+
 pub const SetParamsCallback = *const fn () void;
 
 pub const UpdateCallback = *const fn (t: f64, frame: f64) bool;
@@ -52,9 +56,13 @@ pub fn stringParamValue(name: [*:0]const u8, val: [:0]u8) []u8 {
     return val[0.._stringParamValue(name, val.ptr, val.len + 1)];
 }
 
-pub inline fn choice(spec: anytype) api.Param {
+pub fn xyParamValue(name: [*:0]const u8, val: *[2]f32) void {
+    _xyParamValue(name, val);
+}
+
+inline fn defParam(typeID: [*:0]const u8, spec: anytype, body: anytype) api.Param {
     return .{
-        .type = "choice",
+        .type = typeID,
         .id = spec.id,
         .name = spec.name,
         .desc = spec.desc,
@@ -63,95 +71,71 @@ pub inline fn choice(spec: anytype) api.Param {
         .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
         .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
         .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
-        .body = .{
-            .choice = .{
-                .options = api.ConstOptionSlice.wrap(spec.options),
-                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
-            },
-        },
+        .body = body,
     };
+}
+
+pub inline fn choice(spec: anytype) api.Param {
+    return defParam("choice", spec, .{
+        .choice = .{
+            .options = api.ConstOptionSlice.wrap(spec.options),
+            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
+        },
+    });
 }
 
 pub inline fn color(spec: anytype) api.Param {
-    return .{
-        .type = "color",
-        .id = spec.id,
-        .name = spec.name,
-        .desc = spec.desc,
-        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
-        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
-        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
-        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
-        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
-        .body = .{
-            .color = .{
-                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
-            },
+    return defParam("color", spec, .{
+        .color = .{
+            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
         },
-    };
+    });
 }
 
 pub inline fn ramp(spec: anytype) api.Param {
-    return .{
-        .type = "ramp",
-        .id = spec.id,
-        .name = spec.name,
-        .desc = spec.desc,
-        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
-        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
-        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
-        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
-        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
-        .body = .{
-            .ramp = .{
-                .stops = api.ConstF64Slice.wrap(spec.stops),
-                .mode = if (@hasField(@TypeOf(spec), "mode")) spec.mode else .linear,
-            },
+    return defParam("ramp", spec, .{
+        .ramp = .{
+            .stops = api.ConstF64Slice.wrap(spec.stops),
+            .mode = if (@hasField(@TypeOf(spec), "mode")) spec.mode else .linear,
         },
-    };
+    });
 }
 
 pub inline fn range(spec: anytype) api.Param {
-    return .{
-        .type = "range",
-        .id = spec.id,
-        .name = spec.name,
-        .desc = spec.desc,
-        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
-        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
-        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
-        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
-        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
-        .body = .{
-            .range = .{
-                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
-                .min = if (@hasField(@TypeOf(spec), "min")) spec.min else 0,
-                .max = if (@hasField(@TypeOf(spec), "max")) spec.max else 100,
-                .step = if (@hasField(@TypeOf(spec), "step")) spec.step else 1,
-                .exponent = if (@hasField(@TypeOf(spec), "exponent")) spec.exponent else 1,
-            },
+    return defParam("range", spec, .{
+        .range = .{
+            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
+            .min = if (@hasField(@TypeOf(spec), "min")) spec.min else 0,
+            .max = if (@hasField(@TypeOf(spec), "max")) spec.max else 100,
+            .step = if (@hasField(@TypeOf(spec), "step")) spec.step else 1,
+            .exponent = if (@hasField(@TypeOf(spec), "exponent")) spec.exponent else 1,
         },
-    };
+    });
 }
 
 pub inline fn text(spec: anytype) api.Param {
-    return .{
-        .type = "text",
-        .id = spec.id,
-        .name = spec.name,
-        .desc = spec.desc,
-        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
-        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
-        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
-        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
-        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
-        .body = .{
-            .text = .{
-                .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
-                .match = if (@hasField(@TypeOf(spec), "match")) spec.match else null,
-                .minLength = if (@hasField(@TypeOf(spec), "minLength")) spec.minLength else 0,
-                .maxLength = if (@hasField(@TypeOf(spec), "maxLength")) spec.maxLength else 0,
-            },
+    return defParam("text", spec, .{
+        .text = .{
+            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
+            .match = if (@hasField(@TypeOf(spec), "match")) spec.match else null,
+            .minLength = if (@hasField(@TypeOf(spec), "minLength")) spec.minLength else 0,
+            .maxLength = if (@hasField(@TypeOf(spec), "maxLength")) spec.maxLength else 0,
         },
-    };
+    });
+}
+
+pub inline fn toggle(spec: anytype) api.Param {
+    return defParam("toggle", spec, .{
+        .toggle = .{
+            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else 255,
+        },
+    });
+}
+
+pub inline fn xy(spec: anytype) api.Param {
+    return defParam("xy", spec, .{
+        .xy = .{
+            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else [2]f32{ 0.5, 0.5 },
+        },
+    });
 }

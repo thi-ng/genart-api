@@ -116,7 +116,9 @@
 			{ "name": "color", "type": "ColorParam", "setter": false },
 			{ "name": "ramp", "type": "RampParam", "setter": false },
 			{ "name": "range", "type": "RangeParam", "setter": false },
-			{ "name": "text", "type": "TextParam", "setter": false }
+			{ "name": "text", "type": "TextParam", "setter": false },
+			{ "name": "toggle", "type": "ToggleParam", "setter": false },
+			{ "name": "xy", "type": "XYParam", "setter": false }
 		]
 	},
 	{
@@ -344,6 +346,60 @@
 					"minLength: this.minLength || undefined,",
 					"maxLength: this.maxLength || undefined,",
 					"multiline: !!this.multiline,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "ToggleParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "default",
+				"type": "u8",
+				"doc": "0 = false, 1 = true, 255 = undefined",
+				"setter": false,
+				"default": { "zig": "255" }
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.toggle>;",
+				"impl": [
+					"asParam(parent: Param) {",
+					"return $genart.params.toggle({",
+					"...parent.asParam(),",
+					"default: this.default === 255 ? undefined : this.default !== 0,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "XYParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "default",
+				"type": "f32",
+				"tag": "array",
+				"len": 2,
+				"setter": false,
+				"default": { "zig": "[2]f32{ 0.5, 0.5 }" }
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.xy>;",
+				"impl": [
+					"asParam(parent: Param) {",
+					"const [x, y] = this.default;",
+					"return $genart.params.xy({",
+					"...parent.asParam(),",
+					"default: [x, y],",
 					"});",
 					"}"
 				]

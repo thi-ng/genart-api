@@ -128,6 +128,8 @@ export interface ParamBody extends WasmTypeBase {
 	readonly ramp: RampParam;
 	readonly range: RangeParam;
 	readonly text: TextParam;
+	readonly toggle: ToggleParam;
+	readonly xy: XYParam;
 }
 
 // @ts-ignore possibly unused args
@@ -147,6 +149,12 @@ export const $ParamBody = defType<ParamBody>(8, 40, (mem, base) => {
 		},
 		get text(): TextParam {
 			return $TextParam(mem).instance(base);
+		},
+		get toggle(): ToggleParam {
+			return $ToggleParam(mem).instance(base);
+		},
+		get xy(): XYParam {
+			return $XYParam(mem).instance(base);
 		},
 	};
 });
@@ -414,6 +422,65 @@ export const $TextParam = defType<TextParam>(4, 20, (mem, base) => {
 				minLength: this.minLength || undefined,
 				maxLength: this.maxLength || undefined,
 				multiline: !!this.multiline,
+			});
+		}
+		
+	};
+});
+
+export interface ToggleParam extends WasmTypeBase {
+	/**
+	 * 0 = false, 1 = true, 255 = undefined
+	 * 
+	 * @remarks
+	 * Zig type: `u8`
+	 */
+	readonly default: number;
+	
+	asParam(parent: Param): ReturnType<typeof $genart.params.toggle>;
+	
+}
+
+// @ts-ignore possibly unused args
+export const $ToggleParam = defType<ToggleParam>(1, 1, (mem, base) => {
+	return {
+		get default(): number {
+			return mem.u8[base];
+		},
+		
+		asParam(parent: Param) {
+			return $genart.params.toggle({
+				...parent.asParam(),
+				default: this.default === 255 ? undefined : this.default !== 0,
+			});
+		}
+		
+	};
+});
+
+export interface XYParam extends WasmTypeBase {
+	/**
+	 * Zig type: `[2]f32`
+	 */
+	readonly default: Float32Array;
+	
+	asParam(parent: Param): ReturnType<typeof $genart.params.xy>;
+	
+}
+
+// @ts-ignore possibly unused args
+export const $XYParam = defType<XYParam>(4, 8, (mem, base) => {
+	return {
+		get default(): Float32Array {
+			const addr = base >>> 2;
+			return mem.f32.subarray(addr, addr + 2);
+		},
+		
+		asParam(parent: Param) {
+			const [x, y] = this.default;
+			return $genart.params.xy({
+				...parent.asParam(),
+				default: [x, y],
 			});
 		}
 		

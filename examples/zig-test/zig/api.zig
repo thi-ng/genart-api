@@ -61,6 +61,8 @@ pub const ParamBody = extern union {
     ramp: RampParam,
     range: RangeParam,
     text: TextParam,
+    toggle: ToggleParam,
+    xy: XYParam,
 };
 
 pub const ChoiceParam = extern struct {
@@ -103,4 +105,13 @@ pub const TextParam = extern struct {
     minLength: u32 = 0,
     maxLength: u32 = 1024,
     multiline: u8 = 0,
+};
+
+pub const ToggleParam = extern struct {
+    /// 0 = false, 1 = true, 255 = undefined
+    default: u8 = 255,
+};
+
+pub const XYParam = extern struct {
+    default: [2]f32 = [2]f32{ 0.5, 0.5 },
 };

@@ -55,6 +55,16 @@ export fn start() void {
                 .max = 1,
                 .step = 0.01,
             }),
+            genart.toggle(.{
+                .id = "filled",
+                .name = "Filled dot",
+                .desc = "Demo only",
+            }),
+            genart.xy(.{
+                .id = "dotshape",
+                .name = "Dot shape/radius",
+                .desc = "Demo only",
+            }),
         },
         // $genart.setParams() is an async function on the JS side.
         // to simplify mechanics, we pass the setup() function (below) as callback
@@ -99,17 +109,32 @@ fn update(t: f64, frame: f64) bool {
     // draw circle at ramp position
     var tnorm = t * 0.001 * 0.25;
     tnorm -= std.math.floor(tnorm);
-    canvas.setFill("#ff0");
+
+    const isFilled = genart.toggleParamValue("filled") > 0;
+    if (isFilled) {
+        canvas.setFill("#ff0");
+    } else {
+        canvas.setStroke("#ff0");
+    }
+
+    var dotShape: [2]f32 = undefined;
+    genart.xyParamValue("dotshape", &dotShape);
     canvas.beginPath();
-    canvas.arc(
+    canvas.ellipse(
         @floatCast(tnorm * w),
         @floatCast((1.0 - genart.rampParamValue("ramp", tnorm)) * h),
-        20,
+        dotShape[0] * 50,
+        dotShape[1] * 50,
+        0,
         0,
         std.math.tau,
         false,
     );
-    canvas.fill();
+    if (isFilled) {
+        canvas.fill();
+    } else {
+        canvas.stroke();
+    }
 
     // format & write timing info to canvas
     var buf: [256:0]u8 = undefined;
@@ -118,9 +143,10 @@ fn update(t: f64, frame: f64) bool {
     canvas.fillText(@ptrCast(txt.ptr), w - 20, h - 36, 0);
 
     // same for current values of other params...
-    txt = std.fmt.bufPrintZ(&buf, "choice: {s}, bg: {s}, density: {d:.2}", .{
+    txt = std.fmt.bufPrintZ(&buf, "choice: {s}, bg: {s}, shape: {d:.2} density: {d:.2}", .{
         genart.stringParamValue("choice", &choice),
         genart.stringParamValue("bgcol", &color),
+        dotShape,
         genart.numberParamValue("density"),
     }) catch return false;
     canvas.fillText(@as([*:0]const u8, @ptrCast(txt.ptr)), w - 20, h - 2 * 36, 0);
