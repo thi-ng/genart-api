@@ -24,6 +24,7 @@ import { ensure, isNumber } from "../utils.js";
 import { date as dateImpl } from "./date.js";
 import { datetime as datetimeImpl } from "./datetime.js";
 import { time as timeImpl } from "./time.js";
+import { vector as vecImpl } from "./vector.js";
 
 export const PARAM_DEFAULTS: Partial<Param<any>> = {
 	desc: "TODO description",
@@ -241,6 +242,11 @@ export const vector = (
 		labels?: string[];
 	}
 ) => {
+	if (spec.labels) {
+		ensure(spec.labels.length >= spec.size, `expected ${spec.size} labels`);
+	} else {
+		ensure(spec.size <= 4, "missing vector labels");
+	}
 	const $vec = (
 		n: number,
 		value: number | number[] | undefined,
@@ -248,24 +254,21 @@ export const vector = (
 	) =>
 		Array.isArray(value)
 			? (ensure(value.length === n, "wrong vector size"), value)
-			: new Array(n).fill(isNumber(value) ? value : defaultValue);
-
-	if (spec.default) {
-		ensure(
-			spec.default.length == spec.size,
-			`wrong vector size, expected ${spec.size} values`
-		);
-	}
-	if (spec.labels) {
-		ensure(spec.labels.length >= spec.size, `expected ${spec.size} labels`);
-	} else {
-		ensure(spec.size <= 4, "missing vector labels");
-	}
-	return $<VectorParam>("vector", {
-		...spec,
+			: new Array<number>(n).fill(isNumber(value) ? value : defaultValue);
+	const limits = {
 		min: $vec(spec.size, spec.min, 0),
 		max: $vec(spec.size, spec.max, 1),
 		step: $vec(spec.size, spec.step, 0.01),
+	};
+	return $<VectorParam>("vector", {
+		...spec,
+		...limits,
+		default: spec.default
+			? ensure(
+					spec.default.length == spec.size,
+					`wrong vector size, expected ${spec.size} values`
+			  ) && vecImpl.coerce!(<any>limits, spec.default)
+			: spec.default,
 		labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.size),
 	});
 };
