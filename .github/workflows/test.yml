@@ -9,6 +9,7 @@ on:
             - "packages/**"
             - "tools/**"
             - ".github/workflows/**"
+            - ".yarn/releases/**"
             - "package.json"
             - "yarn.lock"
             - "!**.md"
