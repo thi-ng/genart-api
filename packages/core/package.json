@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/core",
-	"version": "0.20.0",
+	"version": "0.21.0",
 	"description": "Platform-independent extensible API for browser-based generative art",
 	"repository": {
 		"type": "git",

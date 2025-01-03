@@ -44,18 +44,12 @@ export interface ParamOpts {
      */
     order: number;
     /**
-     * Update mode/behavior when this param is being updated. Platform providers
-     * are responsible to honor & implement this setting.
-     *
-     * - `reload`: the piece should be reloaded/relaunched with new param value
-     *   (a manual or externally triggered reload might be required for some
-     *   platforms).
-     * - `event`: the API will trigger a {@link ParamChangeMessage} via
-     *   {@link GenArtAPI.emit}.
+     * Update mode/behavior when this param is being updated. See
+     * {@link ParamUpdateBehavior} for details.
      *
      * @defaultValue "event"
      */
-    update: "reload" | "event";
+    update: ParamUpdateBehavior;
     /**
      * Defines which party or agent should be able to edit this parameter.
      *
@@ -142,11 +136,61 @@ export type ParamState = "custom" | "default" | "dynamic" | "random" | "void";
  */
 export type ParamWidgetType = "default" | "alt" | "precise";
 /**
+ * Value type for {@link ParamOpts.update}. Defines the update mode/behavior
+ * when a param is being updated. Platform providers are responsible to honor &
+ * implement this setting (if possible).
+ *
+ * - `reload`: the piece should be reloaded/relaunched with new param value (a
+ *   manual or externally triggered reload might be required for some
+ *   platforms).
+ * - `event`: the API will trigger a {@link ParamChangeMessage} via
+ *   {@link GenArtAPI.emit}.
+ */
+export type ParamUpdateBehavior = "reload" | "event";
+/**
  * {@link ParamOpts} field names which are optional in {@link BaseParam} and
  * param factory functions.
  */
-export type BaseParamOptionals = "edit" | "group" | "order" | "randomize" | "update" | "widget";
-export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<T, "type" | "state" | BaseParamOptionals | EXCLUDE> & Partial<Pick<ParamOpts, BaseParamOptionals>>;
+export type BaseParamOptionals = "desc" | "edit" | "group" | "order" | "randomize" | "update" | "widget";
+export type BaseParam<T extends Param<any>, EXCLUDE extends string = ""> = Omit<T, "type" | "state" | BaseParamOptionals | EXCLUDE> & Partial<Omit<Pick<ParamOpts, BaseParamOptionals>, EXCLUDE>>;
+/**
+ * Parameter type for big integer values. Randomizable by default. Factory
+ * function: {@link ParamFactories.bigint}.
+ */
+export interface BigIntParam extends Param<bigint> {
+    type: "bigint";
+    /**
+     * Min value.
+     *
+     * @default 0n
+     */
+    min: bigint;
+    /**
+     * Max value.
+     *
+     * @default 0xffff_ffff_ffff_ffffn
+     */
+    max: bigint;
+}
+/**
+ * Parameter type for binary data (byte arrays). Non-randomizable. Factory
+ * function: {@link ParamFactories.binary}.
+ */
+export interface BinaryParam extends Param<Uint8Array> {
+    type: "binary";
+    /**
+     * Min number of bytes.
+     *
+     * @defaultValue 0
+     */
+    minLength: number;
+    /**
+     * Max number of bytes.
+     *
+     * @defaultValue 1024
+     */
+    maxLength: number;
+}
 /**
  * Choice/enum parameter for string-based values/options. Randomizable by
  * default. Factory function: {@link ParamFactories.choice}.
@@ -176,8 +220,9 @@ export interface ColorParam extends Param<string> {
     type: "color";
 }
 /**
- * Date parameter providing JS `Date` values at the resolution of full days. Not
- * randomizable by default. Factory function: {@link ParamFactories.date}
+ * Date parameter providing JS `Date` values (UTC) at the resolution of full
+ * days. Not randomizable by default. Factory function:
+ * {@link ParamFactories.date}
  *
  * @remarks
  * Intended for long running artworks to configure an important date for state
@@ -189,8 +234,8 @@ export interface DateParam extends Param<Date> {
     type: "date";
 }
 /**
- * Date-time parameter providing JS `Date` values. Not randomizable by default.
- * Factory function: {@link ParamFactories.datetime}
+ * Date-time parameter providing JS `Date` values (UTC). Not randomizable by
+ * default. Factory function: {@link ParamFactories.datetime}
  *
  * @remarks
  * Intended for long running artworks to configure an important moments for
@@ -204,6 +249,7 @@ export interface DateTimeParam extends Param<Date> {
 /**
  * Image parameter, i.e. an integer based pixel buffer (in different formats),
  * intended for obtaining spatially varied parameters (e.g. gradient maps).
+ * Non-randomizable.
  */
 export interface ImageParam extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
     type: "img";
@@ -226,9 +272,9 @@ export interface ImageParam extends Param<Uint8Array | Uint8ClampedArray | Uint3
 export interface StringListParam<T extends string> extends Param<T[]> {
     type: "strlist";
     /** Minimum list size */
-    min?: number;
+    minLength: number;
     /** Maximum list size */
-    max?: number;
+    maxLength: number;
     /** Regexp or string-encoded regexp pattern */
     match?: string | RegExp;
 }
@@ -239,9 +285,9 @@ export interface StringListParam<T extends string> extends Param<T[]> {
 export interface NumListParam extends Param<number[]> {
     type: "numlist";
     /** Minimum list size */
-    min?: number;
+    minLength: number;
     /** Maximum list size */
-    max?: number;
+    maxLength: number;
 }
 /**
  * Ramp parameter, a curve defined by stops/keyframes in the closed [0,1]
@@ -322,22 +368,35 @@ export interface RangeParam extends Param<number> {
  */
 export interface TextParam extends Param<string> {
     type: "text";
-    /** Minimum length */
-    min?: number;
-    /** Maximum length */
-    max?: number;
-    /** Hint for param editors to provide multiline input */
+    /**
+     * Minimum length
+     *
+     * @defaultValue 0
+     */
+    minLength: number;
+    /**
+     * Maximum length
+     *
+     * @defaultValue 1024
+     */
+    maxLength: number;
+    /**
+     * Hint for param editors to provide multiline input
+     *
+     * @defaultValue false
+     */
     multiline?: boolean;
     /** Regexp or string-encoded regexp pattern */
     match?: RegExp | string;
 }
 /**
- * Time parameter providing time-of-day values (in UTC) in the form of 3-tuples:
- * `[hour,minute,second]` (24h format only). Randomizable by default.
+ * Parameter providing time-of-day values (local time at the deployment
+ * target/client) in the form of a 3-tuple: `[hour, minute, second]` (24h format
+ * only). Randomizable by default.
  *
  * @remarks
  * Intended for long running artworks to configure an important time in the day
- * for state or behavior changes etc. (e.g. triggering daily sleep mode)
+ * for state or behavior changes etc. (e.g. scheduling daily sleep mode)
  *
  * Also see {@link DateParam} and {@link DateTimeParam}.
  */
@@ -516,6 +575,36 @@ export interface ParamImpl<T = any> {
 }
 export interface ParamFactories {
     /**
+     * Factory function to define a {@link BigIntParam}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.bigint({
+     *     name: "Test",
+     *     desc: "Binary data",
+     *     default: 0x1234_5678_9abc_deffn,
+     * });
+     * ```
+     *
+     * @param spec
+     */
+    bigint(spec: BaseParam<BigIntParam, "min" | "max"> & Partial<Pick<BigIntParam, "min" | "max">>): BigIntParam;
+    /**
+     * Factory function to define a {@link BinaryParam}.
+     *
+     * @example
+     * ```ts
+     * $genart.params.binary({
+     *     name: "Test",
+     *     desc: "Binary data",
+     *     default: new Uint8Array([0xde, 0xca, 0xfb, 0xad]),
+     * });
+     * ```
+     *
+     * @param spec
+     */
+    binary(spec: BaseParam<BinaryParam, "minLength" | "maxLength" | "randomize"> & Partial<Pick<BinaryParam, "minLength" | "maxLength">>): BinaryParam;
+    /**
      * Factory function to define a {@link ChoiceParam}.
      *
      * @remarks
@@ -553,6 +642,8 @@ export interface ParamFactories {
      * Factory function to define a {@link DateParam}.
      *
      * @remarks
+     * If `default` is given as string, it must be in `yyyy-MM-dd` format.
+     *
      * Also see {@link ParamFactories.datetime} and {@link ParamFactories.time}.
      *
      * @example
@@ -567,12 +658,15 @@ export interface ParamFactories {
      * @param spec
      */
     date(spec: BaseParam<DateParam> & {
-        default: Date;
+        default: Date | string;
     }): DateParam;
     /**
      * Factory function to define a {@link DateTimeParam}.
      *
      * @remarks
+     * If `default` is given as string, it must be in ISO8601 format, e.g.
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     *
      * Also see {@link ParamFactories.date} and {@link ParamFactories.time}.
      *
      * @example
@@ -587,7 +681,7 @@ export interface ParamFactories {
      * @param spec
      */
     datetime(spec: BaseParam<DateTimeParam> & {
-        default: string;
+        default: Date | string;
     }): DateTimeParam;
     /**
      * Factory function to define a {@link ImageParam}.
@@ -618,7 +712,7 @@ export interface ParamFactories {
      *
      * @param spec
      */
-    numlist(spec: BaseParam<NumListParam>): NumListParam;
+    numlist(spec: BaseParam<NumListParam, "minLength" | "maxLength"> & Partial<Pick<NumListParam, "minLength" | "maxLength">>): NumListParam;
     /**
      * Factory function to define a {@link StringListParam}.
      *
@@ -633,9 +727,15 @@ export interface ParamFactories {
      *
      * @param spec
      */
-    strlist<T extends string>(spec: BaseParam<StringListParam<T>>): StringListParam<T>;
+    strlist<T extends string>(spec: BaseParam<StringListParam<T>, "minLength" | "maxLength"> & Partial<Pick<StringListParam<T>, "minLength" | "maxLength">>): StringListParam<T>;
     /**
      * Factory function to define a {@link RampParam}.
+     *
+     * @remarks
+     * If `stops` are given, at least 2 pairs need to be provided. Internally,
+     * these stops are stored flattened (see {@link RampParam.stops} for
+     * details), but here they must be provided as array of tuples (as shown in
+     * the example below).
      *
      * @example
      * ```ts
@@ -643,7 +743,7 @@ export interface ParamFactories {
      * const param = $genart.setParams({
      *     test: $genart.params.ramp({
      *         name: "Test",
-     *         desc: "A simple curve",
+     *         desc: "A simple triangle curve",
      *         stops: [[0, 0], [0.5, 1], [1, 0]]
      *     })
      * });
@@ -687,7 +787,7 @@ export interface ParamFactories {
      * $genart.params.text({
      *     name: "Test",
      *     desc: "Seed phrase",
-     *     max: 256,
+     *     maxLength: 256,
      *     match: "^[a-z ]+$",
      *     multiline: true,
      * });
@@ -695,7 +795,9 @@ export interface ParamFactories {
      *
      * @param spec
      */
-    text(spec: BaseParam<TextParam>): TextParam;
+    text(spec: BaseParam<TextParam, "minLength" | "maxLength"> & Partial<Pick<TextParam, "minLength" | "maxLength">> & {
+        default: string;
+    }): TextParam;
     /**
      * Factory function to define a {@link TimeParam}.
      *

@@ -40,22 +40,25 @@
   };
   var easeInOut5 = __easeInOut(5);
 
-  // src/params.ts
-  var params_exports = {};
-  __export(params_exports, {
+  // src/params/factories.ts
+  var factories_exports = {};
+  __export(factories_exports, {
+    PARAM_DEFAULTS: () => PARAM_DEFAULTS,
+    bigint: () => bigint,
+    binary: () => binary,
     choice: () => choice,
     color: () => color,
-    date: () => date,
-    datetime: () => datetime,
+    date: () => date2,
+    datetime: () => datetime2,
     image: () => image,
     numlist: () => numlist,
     ramp: () => ramp,
     range: () => range,
     strlist: () => strlist,
     text: () => text,
-    time: () => time,
+    time: () => time2,
     toggle: () => toggle,
-    vector: () => vector,
+    vector: () => vector2,
     weighted: () => weighted,
     xy: () => xy
   });
@@ -67,11 +70,19 @@
     equiv: () => equiv,
     equivArrayLike: () => equivArrayLike,
     formatValuePrec: () => formatValuePrec,
+    hashBytes: () => hashBytes,
+    hashString: () => hashString,
+    isBigInt: () => isBigInt,
     isFunction: () => isFunction,
+    isInRange: () => isInRange,
     isNumber: () => isNumber,
     isNumericArray: () => isNumericArray,
     isString: () => isString,
+    isStringArray: () => isStringArray,
     isTypedArray: () => isTypedArray,
+    parseBigInt: () => parseBigInt,
+    parseUUID: () => parseUUID,
+    stringifyBigInt: () => stringifyBigInt,
     u16: () => u16,
     u24: () => u24,
     u32: () => u32,
@@ -82,15 +93,23 @@
     if (!x) throw new Error(msg);
     return x;
   };
+  var isBigInt = (x) => typeof x === "bigint";
   var isNumber = (x) => typeof x === "number" && !isNaN(x);
   var isString = (x) => typeof x === "string";
   var isFunction = (x) => typeof x === "function";
   var isNumericArray = (x) => isTypedArray(x) || Array.isArray(x) && x.every(isNumber);
+  var isStringArray = (x) => Array.isArray(x) && x.every(isString);
   var isTypedArray = (x) => !!x && (x instanceof Float32Array || x instanceof Float64Array || x instanceof Uint32Array || x instanceof Int32Array || x instanceof Uint8Array || x instanceof Int8Array || x instanceof Uint16Array || x instanceof Int16Array || x instanceof Uint8ClampedArray);
+  var isInRange = (x, min, max) => x >= min && x <= max;
   var u8 = (x) => (x &= 255, (x < 16 ? "0" : "") + x.toString(16));
   var u16 = (x) => u8(x >>> 8) + u8(x);
   var u24 = (x) => u16(x >>> 8) + u8(x & 255);
   var u32 = (x) => u16(x >>> 16) + u16(x);
+  var stringifyBigInt = (x, radix = 10) => {
+    const prefix = { 10: "", 2: "0b", 8: "0o", 16: "0x" }[radix];
+    return x < 0n ? "-" + prefix + (-x).toString(radix) : prefix + x.toString(radix);
+  };
+  var parseBigInt = (x) => /^-0[box]/.test(x) ? -BigInt(x.substring(1)) : BigInt(x);
   var valuePrec = (step) => {
     const str = step.toString();
     const i = str.indexOf(".");
@@ -122,40 +141,205 @@
     while (i-- > 0 && equiv(a[i], b[i])) ;
     return i < 0;
   };
+  var M = 0xfffffffffn;
+  var imul = Math.imul;
+  var parseUUID = (uuid) => {
+    const id = BigInt("0x" + uuid.replace(/-/g, "").substring(0, 32));
+    return new Uint32Array([
+      Number(id >> 96n & M),
+      Number(id >> 64n & M),
+      Number(id >> 32n & M),
+      Number(id & M)
+    ]);
+  };
+  var hashBytes = (buf, seed = 0) => {
+    const u322 = (i2) => buf[i2 + 3] << 24 | buf[i2 + 2] << 16 | buf[i2 + 1] << 8 | buf[i2];
+    const rotate = (x, r) => x << r | x >>> 32 - r;
+    const update = (i2, p) => {
+      const q = p + 1 & 3;
+      H[p] = imul(rotate(H[p] ^ imul(rotate(imul(u322(i2), P[p]), 15 + p), P[q]), 19 - (p << 1)) + H[q], 5) + K[p];
+    };
+    const sum = (h) => {
+      const h0 = h[0] += h[1] + h[2] + h[3];
+      h[1] += h0;
+      h[2] += h0;
+      h[3] += h0;
+      return h;
+    };
+    const fmix = (h) => {
+      h ^= h >>> 16;
+      h = imul(h, 2246822507);
+      h ^= h >>> 13;
+      h = imul(h, 3266489909);
+      return h ^= h >>> 16;
+    };
+    const N = buf.length;
+    const K = new Uint32Array([1444728091, 197830471, 2530024501, 850148119]);
+    const P = new Uint32Array([597399067, 2869860233, 951274213, 2716044179]);
+    const H = P.map((x) => x ^ seed);
+    let i = 0;
+    for (const blockLimit = N & -16; i < blockLimit; i += 16) {
+      update(i, 0);
+      update(i + 4, 1);
+      update(i + 8, 2);
+      update(i + 12, 3);
+    }
+    K.fill(0);
+    for (let j = N & 15; j > 0; j--) {
+      const j1 = j - 1;
+      if ((j & 3) === 1) {
+        const bin = j >> 2;
+        K[bin] = rotate(imul(K[bin] ^ buf[i + j1], P[bin]), 15 + bin);
+        H[bin] ^= imul(K[bin], P[bin + 1 & 3]);
+      } else {
+        K[j1 >> 2] ^= buf[i + j1] << (j1 << 3);
+      }
+    }
+    return sum(sum(H.map((x) => x ^ N)).map(fmix));
+  };
+  var hashString = (x, seed) => hashBytes(new TextEncoder().encode(x), seed);
 
-  // src/params.ts
-  var $ = (type, spec, randomize = true) => ({
-    type,
+  // src/params/date.ts
+  var RE_DATE = /^\d{4}-\d{2}-\d{2}$/;
+  var date = {
+    validate: (_, value) => value instanceof Date || isNumber(value) || isString(value) && RE_DATE.test(value),
+    coerce: (_, value) => isNumber(value) ? new Date(value) : isString(value) ? new Date(Date.parse(value)) : value
+  };
+
+  // src/params/datetime.ts
+  var RE_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[-+]\d{2}:\d{2})$/;
+  var datetime = {
+    validate: (_, value) => value instanceof Date || isNumber(value) || isString(value) && RE_DATETIME.test(value),
+    coerce: (_, value) => isNumber(value) ? new Date(value) : isString(value) ? new Date(Date.parse(value)) : value
+  };
+
+  // src/params/time.ts
+  var time = {
+    validate: (_, value) => isNumericArray(value) && value.length === 3 && isInRange(value[0], 0, 23) && isInRange(value[1], 0, 59) && isInRange(value[2], 0, 59) || isString(value) && /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value),
+    coerce: (_, value) => isString(value) ? value.split(":").map(parseNum) : value,
+    randomize: (_, rnd) => [
+      rnd() * 24 | 0,
+      rnd() * 60 | 0,
+      rnd() * 60 | 0
+    ]
+  };
+
+  // src/params/vector.ts
+  var vector = {
+    validate: (spec, value) => {
+      const { min, max, size } = spec;
+      return isNumericArray(value) && value.length === size && value.every((x, i) => isInRange(x, min[i], max[i]));
+    },
+    coerce: (spec, value) => {
+      const { min, max, step } = spec;
+      return value.map(
+        (x, i) => clamp(round(x, step[i]), min[i], max[i])
+      );
+    },
+    randomize: (spec, rnd) => {
+      const { min, max, size, step } = spec;
+      return new Array(size).fill(0).map(
+        (_, i) => clamp(
+          round(mix(min[i], max[i], rnd()), step[i]),
+          min[i],
+          max[i]
+        )
+      );
+    }
+  };
+
+  // src/params/factories.ts
+  var PARAM_DEFAULTS = {
+    desc: "TODO description",
+    edit: "protected",
+    group: "main",
+    order: 0,
+    randomize: true,
     state: "void",
-    randomize,
+    update: "event",
+    widget: "default"
+  };
+  var $ = (type, spec, randomize = true) => {
+    ensure(spec.name, "missing param `name`");
+    return {
+      ...PARAM_DEFAULTS,
+      type,
+      randomize,
+      ...spec
+    };
+  };
+  var $default = (impl, value) => value != null ? ensure(
+    impl.validate(null, value),
+    `invalid default value: ${value}`
+  ) && impl.coerce(null, value) : value;
+  var minMaxLength = (spec, maxDefault = 10) => {
+    let min = 0, max = spec.maxLength || maxDefault;
+    if (spec.minLength) {
+      min = spec.minLength;
+      if (!spec.maxLength) max = Math.max(min, maxDefault);
+    }
+    ensure(min <= max, `invalid list length constraint`);
+    return [min, max];
+  };
+  var bigint = (spec) => $("bigint", {
+    min: 0n,
+    max: 0xffffffffffffffffn,
     ...spec
   });
+  var binary = (spec) => $(
+    "binary",
+    {
+      minLength: 0,
+      maxLength: 1024,
+      ...spec
+    },
+    false
+  );
   var choice = (spec) => $("choice", spec);
   var color = (spec) => $("color", spec);
-  var datetime = (spec) => $("datetime", spec, false);
-  var date = (spec) => $("date", spec, false);
+  var date2 = (spec) => $(
+    "date",
+    {
+      ...spec,
+      default: $default(date, spec.default)
+    },
+    false
+  );
+  var datetime2 = (spec) => $(
+    "datetime",
+    {
+      ...spec,
+      default: $default(datetime, spec.default)
+    },
+    false
+  );
   var image = (spec) => $(
     "img",
     {
-      default: spec.default || new Uint8Array(spec.width * spec.height),
+      default: spec.default || new (spec.format === "gray" ? Uint8Array : Uint32Array)(
+        spec.width * spec.height
+      ),
       ...spec
     },
     false
   );
-  var numlist = (spec) => $(
-    "numlist",
-    {
-      default: [],
-      ...spec
-    },
-    false
-  );
+  var numlist = (spec) => {
+    const [minLength, maxLength] = minMaxLength(spec, 10);
+    return $(
+      "numlist",
+      {
+        default: spec.default || new Array(minLength).fill(0),
+        minLength,
+        maxLength,
+        ...spec
+      },
+      false
+    );
+  };
   var ramp = (spec) => $(
     "ramp",
     {
-      name: spec.name,
-      desc: spec.desc,
-      doc: spec.doc,
+      ...spec,
       stops: spec.stops ? spec.stops.flat() : [0, 0, 1, 1],
       mode: spec.mode || "linear",
       default: 0
@@ -168,35 +352,50 @@
     step: 1,
     ...spec
   });
-  var strlist = (spec) => $(
-    "strlist",
-    {
-      default: [],
-      ...spec
-    },
+  var strlist = (spec) => {
+    const [minLength, maxLength] = minMaxLength(spec, 10);
+    return $(
+      "strlist",
+      {
+        default: spec.default || new Array(minLength).fill(""),
+        minLength,
+        maxLength,
+        ...spec
+      },
+      false
+    );
+  };
+  var text = (spec) => $(
+    "text",
+    { minLength: 0, maxLength: 1024, multiline: false, ...spec },
     false
   );
-  var text = (spec) => $("text", spec, false);
-  var time = (spec) => $("time", spec);
+  var time2 = (spec) => {
+    return $("time", {
+      ...spec,
+      default: spec.default != null ? ensure(time.validate(null, spec.default), ``) && time.coerce(null, spec.default) : spec.default
+    });
+  };
   var toggle = (spec) => $("toggle", spec);
-  var vector = (spec) => {
-    const $vec = (n, value, defaultValue = 0) => Array.isArray(value) ? (ensure(value.length === n, "wrong vector size"), value) : new Array(n).fill(isNumber(value) ? value : defaultValue);
-    if (spec.default) {
-      ensure(
-        spec.default.length == spec.size,
-        `wrong vector size, expected ${spec.size} values`
-      );
-    }
+  var vector2 = (spec) => {
     if (spec.labels) {
       ensure(spec.labels.length >= spec.size, `expected ${spec.size} labels`);
     } else {
       ensure(spec.size <= 4, "missing vector labels");
     }
-    return $("vector", {
-      ...spec,
+    const $vec = (n, value, defaultValue = 0) => Array.isArray(value) ? (ensure(value.length === n, "wrong vector size"), value) : new Array(n).fill(isNumber(value) ? value : defaultValue);
+    const limits = {
       min: $vec(spec.size, spec.min, 0),
       max: $vec(spec.size, spec.max, 1),
-      step: $vec(spec.size, spec.step, 0.01),
+      step: $vec(spec.size, spec.step, 0.01)
+    };
+    return $("vector", {
+      ...spec,
+      ...limits,
+      default: spec.default ? ensure(
+        spec.default.length == spec.size,
+        `wrong vector size, expected ${spec.size} values`
+      ) && vector.coerce(limits, spec.default) : spec.default,
       labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.size)
     });
   };
@@ -206,6 +405,188 @@
     total: spec.options.reduce((acc, x) => acc + x[0], 0)
   });
   var xy = (spec) => $("xy", spec);
+
+  // src/params/bigint.ts
+  var bigint2 = {
+    validate: (spec, value) => {
+      const { min, max } = spec;
+      if (isString(value)) {
+        if (!/^-?([0-9]+|0x[0-9a-f]+|0b[01]+|0o[0-7]+)$/.test(value)) {
+          return false;
+        }
+        value = parseBigInt(value);
+      } else if (isNumber(value) || isBigInt(value)) {
+        value = BigInt(value);
+      } else {
+        return false;
+      }
+      return value >= min && value <= max;
+    },
+    coerce: (_, value) => isString(value) ? parseBigInt(value) : BigInt(value),
+    randomize: (spec, rnd) => {
+      const { min, max } = spec;
+      return BigInt(fit(rnd(), 0, 1, Number(min), Number(max)));
+    }
+  };
+
+  // src/params/binary.ts
+  var binary2 = {
+    validate: (spec, value) => {
+      const { minLength, maxLength } = spec;
+      return value instanceof Uint8Array && value.length >= minLength && value.length <= maxLength;
+    }
+  };
+
+  // src/params/choice.ts
+  var choice2 = {
+    validate: (spec, value) => !!spec.options.find(
+      (x) => (isString(x) ? x : x[0]) === value
+    ),
+    randomize: (spec, rnd) => {
+      const opts = spec.options;
+      const value = opts[rnd() * opts.length | 0];
+      return isString(value) ? value : value[0];
+    }
+  };
+
+  // src/params/color.ts
+  var color2 = {
+    validate: (_, value) => isString(value) && /^#?[0-9a-f]{6,8}$/i.test(value),
+    coerce: (_, value) => (value[0] !== "#" ? "#" + value : value).substring(0, 7),
+    randomize: (_, rnd) => "#" + u24(rnd() * 16777216 | 0)
+  };
+
+  // src/params/image.ts
+  var image2 = {
+    validate: (spec, value) => {
+      const { width, height, format } = spec;
+      return isTypedArray(value) && value.length == width * height && (format === "gray" ? value instanceof Uint8Array || value instanceof Uint8ClampedArray : value instanceof Uint32Array);
+    }
+  };
+
+  // src/params/numlist.ts
+  var numlist2 = {
+    validate: (spec, value) => {
+      const { minLength, maxLength } = spec;
+      return isNumericArray(value) && isInRange(value.length, minLength, maxLength);
+    }
+  };
+
+  // src/params/ramp.ts
+  var ramp2 = {
+    validate: (_, value) => isNumber(value),
+    read: (spec, t) => {
+      const { stops, mode } = spec;
+      let n = stops.length;
+      let i = n;
+      for (; (i -= 2) >= 0; ) {
+        if (t >= stops[i]) break;
+      }
+      n -= 2;
+      const at = stops[i];
+      const av = stops[i + 1];
+      const bt = stops[i + 2];
+      const bv = stops[i + 3];
+      return i < 0 ? stops[1] : i >= n ? stops[n + 1] : {
+        exp: () => mix(av, bv, easeInOut5(norm(t, at, bt))),
+        linear: () => fit(t, at, bt, av, bv),
+        smooth: () => mix(av, bv, smoothstep01(norm(t, at, bt)))
+      }[mode || "linear"]();
+    },
+    params: {
+      stops: numlist({
+        name: "Ramp stops",
+        desc: "Control points",
+        minLength: 4,
+        maxLength: Infinity,
+        default: []
+      }),
+      mode: choice({
+        name: "Ramp mode",
+        desc: "Interpolation method",
+        options: ["linear", "smooth", "exp"]
+      })
+    }
+  };
+
+  // src/params/range.ts
+  var range2 = {
+    validate: (spec, value) => {
+      const { min, max } = spec;
+      return isNumber(value) && isInRange(value, min, max);
+    },
+    coerce: (spec, value) => {
+      const $spec = spec;
+      return clamp(
+        round(value ?? $spec.default, $spec.step || 1),
+        $spec.min,
+        $spec.max
+      );
+    },
+    randomize: (spec, rnd) => {
+      const { min, max, step } = spec;
+      return clamp(round(mix(min, max, rnd()), step || 1), min, max);
+    }
+  };
+
+  // src/params/strlist.ts
+  var strlist2 = {
+    validate: (spec, value) => {
+      const { minLength, maxLength, match } = spec;
+      if (!(isStringArray(value) && isInRange(value.length, minLength, maxLength)))
+        return false;
+      if (match) {
+        const regExp = isString(match) ? new RegExp(match) : match;
+        return value.every((x) => regExp.test(x));
+      }
+      return true;
+    }
+  };
+
+  // src/params/text.ts
+  var text2 = {
+    validate: (spec, value) => {
+      if (!isString(value)) return false;
+      const { minLength, maxLength, match } = spec;
+      if (match) {
+        const regexp = isString(match) ? new RegExp(match) : match;
+        if (!regexp.test(value)) return false;
+      }
+      return isInRange(value.length, minLength, maxLength);
+    }
+  };
+
+  // src/params/toggle.ts
+  var toggle2 = {
+    validate: (_, value) => isString(value) ? /^(true|false|0|1)$/.test(value) : value === 1 || value === 0 || typeof value === "boolean",
+    coerce: (_, value) => value === "true" || value === "1" ? true : value === "false" || value === "0" ? false : !!value,
+    randomize: (_, rnd) => rnd() < 0.5
+  };
+
+  // src/params/weighted.ts
+  var weighted2 = {
+    validate: (spec, value) => !!spec.options.find((x) => x[1] === value),
+    randomize: (spec, rnd) => {
+      let {
+        options,
+        total,
+        default: fallback
+      } = spec;
+      const r = rnd() * total;
+      for (let i = 0, n = options.length; i < n; i++) {
+        total -= options[i][0];
+        if (total <= r) return options[i][1];
+      }
+      return fallback;
+    }
+  };
+
+  // src/params/xy.ts
+  var xy2 = {
+    validate: (_, value) => isNumericArray(value) && value.length == 2,
+    coerce: (_, value) => [clamp01(value[0]), clamp01(value[1])],
+    randomize: (_, rnd) => [rnd(), rnd()]
+  };
 
   // src/prng.ts
   var prng_exports = {};
@@ -281,7 +662,7 @@
     height = 100,
     style = "position:fixed;z-index:9999;top:0;right:0;",
     bg = "#222",
-    text: text2 = "#fff",
+    text: text3 = "#fff",
     fps = ["#0f0", "#ff0", "#f00", "#306"],
     fill = true
   } = {}) => {
@@ -315,12 +696,12 @@
         max.shift();
       }
       windowSum += $fps;
-      const { clamp01: clamp013, round: round3 } = $genart.math;
+      const { clamp01: clamp012, round: round2 } = $genart.math;
       peak += (max.head() * 1.1 - peak) * 0.1;
       const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      grad.addColorStop(clamp013(1 - targetFPS / peak), fps[0]);
-      grad.addColorStop(clamp013(1 - (targetFPS - 1) / peak), fps[1]);
-      grad.addColorStop(clamp013(1 - targetFPS / 2 / peak), fps[2]);
+      grad.addColorStop(clamp012(1 - targetFPS / peak), fps[0]);
+      grad.addColorStop(clamp012(1 - (targetFPS - 1) / peak), fps[1]);
+      grad.addColorStop(clamp012(1 - targetFPS / 2 / peak), fps[2]);
       grad.addColorStop(1, fps[3]);
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, width, height);
@@ -338,10 +719,10 @@
       } else {
         ctx.stroke();
       }
-      ctx.fillStyle = ctx.strokeStyle = text2;
+      ctx.fillStyle = ctx.strokeStyle = text3;
       ctx.setLineDash([1, 1]);
       ctx.beginPath();
-      for (let step = peak > 90 ? 30 : peak > 30 ? 15 : 5, i = round3(Math.min(targetFPS, peak + step / 2), step); i > 0; i -= step) {
+      for (let step = peak > 90 ? 30 : peak > 30 ? 15 : 5, i = round2(Math.min(targetFPS, peak + step / 2), step); i > 0; i -= step) {
         const y = (1 - i / peak) * height;
         ctx.moveTo(width - 80, y);
         if (showTickLabels) {
@@ -382,7 +763,7 @@
           ctx = canvas.getContext("2d");
           ctx.font = "12px sans-serif";
           ctx.textBaseline = "middle";
-          ctx.strokeStyle = text2;
+          ctx.strokeStyle = text3;
           ctx.setLineDash([1, 1]);
         }
       },
@@ -452,16 +833,7 @@
   };
 
   // src/genart.ts
-  var { ensure: ensure2, isFunction: isFunction2, isNumber: isNumber2, isNumericArray: isNumericArray2, isString: isString2 } = utils_exports;
-  var { clamp: clamp2, clamp01: clamp012, mix: mix2, norm: norm2, parseNum: parseNum2, round: round2 } = math_exports;
-  var PARAM_DEFAULTS = {
-    edit: "protected",
-    group: "main",
-    order: 0,
-    randomize: true,
-    update: "event",
-    widget: "default"
-  };
+  var { ensure: ensure2, isFunction: isFunction2 } = utils_exports;
   var API = class {
     _opts = {
       // auto-generated instance ID
@@ -477,184 +849,26 @@
     _traits;
     _params;
     _paramTypes = {
-      choice: {
-        validate: (spec, value) => !!spec.options.find(
-          (x) => (Array.isArray(x) ? x[0] : x) === value
-        ),
-        randomize: (spec, rnd) => {
-          const opts = spec.options;
-          const value = opts[rnd() * opts.length | 0];
-          return Array.isArray(value) ? value[0] : value;
-        }
-      },
-      color: {
-        validate: (_, value) => isString2(value) && /^#?[0-9a-f]{6}$/.test(value),
-        coerce: (_, value) => value[0] !== "#" ? "#" + value : value,
-        randomize: (_, rnd) => "#" + u24(rnd() * 16777216 | 0)
-      },
-      date: {
-        validate: (_, value) => value instanceof Date || isNumber2(value) || isString2(value) && /^\d{4}-\d{2}-\d{2}$/.test(value),
-        coerce: (_, value) => isNumber2(value) ? new Date(value) : isString2(value) ? new Date(Date.parse(value)) : value
-      },
-      datetime: {
-        validate: (_, value) => value instanceof Date || isNumber2(value) || isString2(value) && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[-+]\d{2}:\d{2})$/.test(
-          value
-        ),
-        coerce: (_, value) => isNumber2(value) ? new Date(value) : isString2(value) ? new Date(Date.parse(value)) : value
-      },
-      img: {
-        validate: (spec, value) => {
-          const { width, height } = spec;
-          return isNumericArray2(value) && value.length == width * height;
-        }
-      },
-      numlist: {
-        validate: (spec, value) => {
-          if (!isNumericArray2(value)) return false;
-          const { min = 0, max = Infinity } = spec;
-          return value.length >= min && value.length <= max;
-        }
-      },
-      ramp: {
-        validate: () => false,
-        read: (spec, t) => {
-          const { stops, mode } = spec;
-          let n = stops.length;
-          let i = n;
-          for (; (i -= 2) >= 0; ) {
-            if (t >= stops[i]) break;
-          }
-          n -= 2;
-          const at = stops[i];
-          const av = stops[i + 1];
-          const bt = stops[i + 2];
-          const bv = stops[i + 3];
-          return i < 0 ? stops[1] : i >= n ? stops[n + 1] : {
-            exp: () => mix2(av, bv, easeInOut5(norm2(t, at, bt))),
-            linear: () => fit(t, at, bt, av, bv),
-            smooth: () => mix2(av, bv, smoothstep01(norm2(t, at, bt)))
-          }[mode || "linear"]();
-        },
-        params: {
-          stops: numlist({
-            name: "Ramp stops",
-            desc: "Control points",
-            default: []
-          }),
-          mode: choice({
-            name: "Ramp mode",
-            desc: "Interpolation method",
-            options: ["linear", "smooth", "exp"]
-          })
-        }
-      },
-      range: {
-        validate: (spec, value) => {
-          const { min, max } = spec;
-          return isNumber2(value) && value >= min && value <= max;
-        },
-        coerce: (spec, value) => {
-          const $spec = spec;
-          return clamp2(
-            round2(value ?? $spec.default, $spec.step || 1),
-            $spec.min,
-            $spec.max
-          );
-        },
-        randomize: (spec, rnd) => {
-          const { min, max, step } = spec;
-          return clamp2(round2(mix2(min, max, rnd()), step || 1), min, max);
-        }
-      },
-      strlist: {
-        validate: (spec, value) => {
-          const {
-            min = 0,
-            max = Infinity,
-            match
-          } = spec;
-          if (!(Array.isArray(value) && value.length >= min && value.length <= max && value.every(isString2)))
-            return false;
-          if (match) {
-            const regExp = isString2(match) ? new RegExp(match) : match;
-            return value.every((x) => regExp.test(x));
-          }
-          return true;
-        }
-      },
-      text: {
-        validate: (spec, value) => {
-          if (!isString2(value)) return false;
-          const { min, max, match } = spec;
-          if (match) {
-            const regexp = isString2(match) ? new RegExp(match) : match;
-            if (!regexp.test(value)) return false;
-          }
-          return (!min || value.length >= min) && (!max || value.length <= max);
-        }
-      },
-      time: {
-        validate: (_, value) => isNumericArray2(value) || isString2(value) && /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(value),
-        coerce: (_, value) => isString2(value) ? value.split(":").map(parseNum2) : value,
-        randomize: (_, rnd) => [
-          rnd() * 24 | 0,
-          rnd() * 60 | 0,
-          rnd() * 60 | 0
-        ]
-      },
-      toggle: {
-        validate: (_, value) => isString2(value) ? /^(true|false|0|1)$/.test(value) : isNumber2(value) || typeof value === "boolean",
-        coerce: (_, value) => value === "true" || value === "1" ? true : value === "false" || value === "0" ? false : !!value,
-        randomize: (_, rnd) => rnd() < 0.5
-      },
-      vector: {
-        validate: (spec, value) => {
-          const { min, max, size } = spec;
-          return isNumericArray2(value) && value.length === size && value.every((x, i) => x >= min[i] && x <= max[i]);
-        },
-        coerce: (spec, value) => {
-          const { min, max, step } = spec;
-          return value.map(
-            (x, i) => clamp2(round2(x, step[i]), min[i], max[i])
-          );
-        },
-        randomize: (spec, rnd) => {
-          const { min, max, size, step } = spec;
-          return new Array(size).fill(0).map(
-            (_, i) => clamp2(
-              round2(mix2(min[i], max[i], rnd()), step[i]),
-              min[i],
-              max[i]
-            )
-          );
-        }
-      },
-      weighted: {
-        validate: (spec, value) => !!spec.options.find(
-          (x) => x[1] === value
-        ),
-        randomize: (spec, rnd) => {
-          let {
-            options,
-            total,
-            default: fallback
-          } = spec;
-          const r = rnd() * total;
-          for (let i = 0, n = options.length; i < n; i++) {
-            total -= options[i][0];
-            if (total <= r) return options[i][1];
-          }
-          return fallback;
-        }
-      },
-      xy: {
-        validate: (_, value) => isNumericArray2(value) && value.length == 2,
-        coerce: (_, value) => [clamp012(value[0]), clamp012(value[1])],
-        randomize: (_, rnd) => [rnd(), rnd()]
-      }
+      bigint: bigint2,
+      binary: binary2,
+      choice: choice2,
+      color: color2,
+      date,
+      datetime,
+      image: image2,
+      numlist: numlist2,
+      ramp: ramp2,
+      range: range2,
+      strlist: strlist2,
+      text: text2,
+      time,
+      toggle: toggle2,
+      vector,
+      weighted: weighted2,
+      xy: xy2
     };
     math = math_exports;
-    params = params_exports;
+    params = factories_exports;
     prng = prng_exports;
     utils = utils_exports;
     time = {
@@ -696,7 +910,7 @@
       });
     }
     get version() {
-      return "0.20.0";
+      return "0.21.0";
     }
     get id() {
       return this._opts.id;
@@ -749,9 +963,12 @@
         this._params = {};
         for (let id in params) {
           ensureValidID(id);
-          const param = { ...PARAM_DEFAULTS, ...params[id] };
+          const param = {
+            ...params.PARAM_DEFAULTS,
+            ...params[id]
+          };
+          const impl = this.ensureParamImpl(param.type);
           if (param.default == null) {
-            const impl = this.ensureParamImpl(param.type);
             if (impl.randomize) {
               param.default = impl.randomize(param, this.random.rnd);
               param.state = "random";
@@ -763,6 +980,11 @@
               );
             }
           } else {
+            if (!impl.validate(param, param.default)) {
+              throw new Error(
+                `invalid default value for param: ${id} (${param.default})`
+              );
+            }
             param.state = "default";
           }
           this._params[id] = param;
@@ -791,8 +1013,8 @@
     waitForAdapter() {
       return this.waitFor("_adapter");
     }
-    setTimeProvider(time2) {
-      this._time = time2;
+    setTimeProvider(time3) {
+      this._time = time3;
       this.notifyReady();
     }
     waitForTimeProvider() {
@@ -921,15 +1143,15 @@
         time: 0,
         frame: 0
       };
-      const update = (time2, frame) => {
+      const update = (time3, frame) => {
         if (this._state != "play") return;
-        if (this._update.call(null, time2, frame)) {
+        if (this._update.call(null, time3, frame)) {
           this._time.next(update);
         } else {
           this.stop();
         }
         if (this._opts.notifyFrameUpdate) {
-          msg.time = time2;
+          msg.time = time3;
           msg.frame = frame;
           this.emit(msg);
         }
@@ -1010,7 +1232,7 @@
         this.setState("ready");
     }
     notifyInfo() {
-      const [time2, frame] = this._time.now();
+      const [time3, frame] = this._time.now();
       this.emit({
         type: "genart:info",
         opts: this._opts,
@@ -1018,7 +1240,7 @@
         version: this.version,
         adapter: this._adapter?.id,
         seed: this.random.seed,
-        time: time2,
+        time: time3,
         frame
       });
     }

@@ -20,7 +20,7 @@
   var {
     math: { clamp01, parseNum },
     prng: { sfc32 },
-    utils: { formatValuePrec }
+    utils: { formatValuePrec, stringifyBigInt }
   } = $genart;
   var AUTO = "__autostart";
   var WIDTH = "__width";
@@ -158,6 +158,7 @@
       if (value == null || this.cache[id] === value) return;
       this.cache[id] = value;
       switch (spec.type) {
+        case "bigint":
         case "color":
         case "choice":
         case "text":
@@ -168,6 +169,7 @@
         case "date":
         case "datetime":
           return { value: new Date(Date.parse(value)) };
+        case "binary":
         case "img":
           return { value: await decompressBytes(base64Decode(value)) };
         case "numlist":
@@ -202,16 +204,19 @@
     }
     async serializeParam(spec) {
       switch (spec.type) {
+        case "bigint":
+          return stringifyBigInt(spec.value, 16);
+        case "binary":
+        case "img":
+          return base64Encode(
+            await compressBytes(spec.value)
+          );
         case "color":
           return spec.value.substring(1);
         case "date":
           return spec.value.toISOString().substring(0, 10);
         case "datetime":
           return spec.value.toISOString();
-        case "img":
-          return base64Encode(
-            await compressBytes(spec.value)
-          );
         case "numlist":
         case "strlist":
           return spec.value.join(",");
