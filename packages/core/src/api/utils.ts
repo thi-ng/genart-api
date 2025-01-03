@@ -164,4 +164,62 @@ export interface Utils {
 	 * fractional digits for given `step` size (using {@link Utils.valuePrec}).
 	 */
 	formatValuePrec(step: number): (x: number) => string;
+	/**
+	 * Parses given UUID string into an `Uint32Array` of four 32bit integers.
+	 *
+	 * @remarks
+	 * Intended to used to compute a PRNG seed value (e.g. from a string) for
+	 * functions in {@link PRNGBuiltins}.
+	 *
+	 * @example
+	 * ```ts
+	 * const rnd = $genart.prng.sfc32(
+	 *   $genart.utils.parseUUID("ab1d2503-46e0-4956-8f44-cca92992c767")
+	 * );
+	 * ```
+	 *
+	 * @param uuid
+	 */
+	parseUUID(uuid: string): Uint32Array;
+	/**
+	 * Computes a 128bit hash of given byte array. Returns `Uint32Array` of four
+	 * 32bit integers.
+	 *
+	 * @remarks
+	 * Intended to used to compute a PRNG seed value (e.g. from a string) for
+	 * functions in {@link PRNGBuiltins}.
+	 *
+	 * The reference implementation uses MurmurHash3 (128bit version).
+	 *
+	 * Also see {@link Utils.hashString}.
+	 *
+	 * @example
+	 * ```ts
+	 * const rnd = $genart.prng.sfc32(
+	 *   $genart.utils.hashBytes(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]))
+	 * );
+	 * ```
+	 *
+	 * @param buf - byte array
+	 * @param seed - optional seed value (default: 0)
+	 */
+	hashBytes(buf: Uint8Array, seed?: number): Uint32Array;
+	/**
+	 * Convenience wrapper for {@link Utils.hashBytes} to compute a 128bit hash
+	 * of given string.
+	 *
+	 * @remarks
+	 * First converts string into UTF-8 byte array.
+	 *
+	 * @example
+	 * ```ts
+	 * const rnd = $genart.prng.sfc32(
+	 *   $genart.utils.hashString("hello world!")
+	 * );
+	 * ```
+	 *
+	 * @param value
+	 * @param seed
+	 */
+	hashString(value: string, seed?: number): Uint32Array;
 }

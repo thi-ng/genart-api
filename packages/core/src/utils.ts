@@ -90,3 +90,91 @@ export const equivArrayLike = (a: ArrayLike<any>, b: ArrayLike<any>) => {
 	while (i-- > 0 && equiv(a[i], b[i]));
 	return i < 0;
 };
+
+const M = 0xfffff_ffffn;
+const imul = Math.imul;
+
+export const parseUUID = (uuid: string) => {
+	const id = BigInt("0x" + uuid.replace(/-/g, "").substring(0, 32));
+	return new Uint32Array([
+		Number((id >> 96n) & M),
+		Number((id >> 64n) & M),
+		Number((id >> 32n) & M),
+		Number(id & M),
+	]);
+};
+
+/**
+ * MurmurHash3 128bit.
+ *
+ * @remarks
+ * Based on this implementation:
+ * https://github.com/bryc/code/blob/master/jshash/hashes/murmurhash3_128.js
+ *
+ * Following modifications:
+ * - Added various helper fns and use u32 arrays instead of sets of individual
+ *   state vars
+ * - Refactored & deduplicate internal state to be more compact
+ * - Replaced large switch statement for processing remaining bytes
+ *
+ * @param buf
+ * @param seed
+ */
+export const hashBytes = (buf: Uint8Array, seed = 0) => {
+	const u32 = (i: number) =>
+		(buf[i + 3] << 24) | (buf[i + 2] << 16) | (buf[i + 1] << 8) | buf[i];
+
+	const rotate = (x: number, r: number) => (x << r) | (x >>> (32 - r));
+
+	const update = (i: number, p: number) => {
+		const q = (p + 1) & 3;
+		// prettier-ignore
+		H[p] = imul(rotate(H[p] ^ imul(rotate(imul(u32(i), P[p]), 15 + p), P[q]), 19 - (p << 1)) + H[q], 5) + K[p];
+	};
+
+	const sum = (h: Uint32Array) => {
+		const h0 = (h[0] += h[1] + h[2] + h[3]);
+		h[1] += h0;
+		h[2] += h0;
+		h[3] += h0;
+		return h;
+	};
+
+	const fmix = (h: number) => {
+		h ^= h >>> 16;
+		h = imul(h, 2246822507);
+		h ^= h >>> 13;
+		h = imul(h, 3266489909);
+		return (h ^= h >>> 16);
+	};
+
+	const N = buf.length;
+	const K = new Uint32Array([1444728091, 197830471, 2530024501, 850148119]);
+	const P = new Uint32Array([597399067, 2869860233, 951274213, 2716044179]);
+	const H = P.map((x) => x ^ seed);
+
+	let i = 0;
+	for (const blockLimit = N & -16; i < blockLimit; i += 16) {
+		update(i, 0);
+		update(i + 4, 1);
+		update(i + 8, 2);
+		update(i + 12, 3);
+	}
+
+	K.fill(0);
+	for (let j = N & 15; j > 0; j--) {
+		const j1 = j - 1;
+		if ((j & 3) === 1) {
+			const bin = j >> 2;
+			K[bin] = rotate(imul(K[bin] ^ buf[i + j1], P[bin]), 15 + bin);
+			H[bin] ^= imul(K[bin], P[(bin + 1) & 3]);
+		} else {
+			K[j1 >> 2] ^= buf[i + j1] << (j1 << 3);
+		}
+	}
+
+	return sum(sum(H.map((x) => x ^ N)).map(fmix));
+};
+
+export const hashString = (x: string, seed?: number) =>
+	hashBytes(new TextEncoder().encode(x), seed);
