@@ -856,6 +856,8 @@ details about handling any platform specifics:
 
 -   [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/README.md)
     : Adapter for the [EditArt](https://editart.xyz) art platform
+-   [@genart-api/adapter-fxhash](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-fxhash/README.md)
+    : Adapter for the [fx(hash)](https://fxhash.xyz) art platform
 -   [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/README.md)
     : Adapter for the Layer.com art platform
 -   [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/README.md)
