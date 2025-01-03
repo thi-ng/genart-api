@@ -58,10 +58,9 @@ interface AdaptedParam {
 class LayerAdapter implements PlatformAdapter {
 	readonly mode = "play";
 
-	protected params: ParamSpecs | undefined;
-	protected cache: Record<string, any> = {};
-	protected adaptations: Record<string, AdaptedParam> = {};
-	protected timeoutID?: ReturnType<typeof setTimeout>;
+	protected _params: ParamSpecs | undefined;
+	protected _cache: Record<string, any> = {};
+	protected _adaptations: Record<string, AdaptedParam> = {};
 
 	constructor() {
 		$layer.debug = true;
@@ -78,20 +77,18 @@ class LayerAdapter implements PlatformAdapter {
 		window.addEventListener("layer:pause", () => $genart.stop());
 		window.addEventListener("layer:paramchange", (e) => {
 			let { id, value } = (<CustomEvent>e).detail;
-			const adaptedParam = this.adaptations[id];
+			const adaptedParam = this._adaptations[id];
 			if (adaptedParam) {
 				id = adaptedParam.id;
 				value = adaptedParam.adapt(value);
 			}
-			const param = this.params?.[id];
+			const param = this._params?.[id];
 			if (!param) {
-				console.warn(
-					`${this.id}: ignoring change for unknown param: ${id}...`
-				);
+				this.warn(`ignoring change for unknown param: ${id}...`);
 				return;
 			}
-			if (equiv(this.cache[id], value)) return;
-			this.cache[id] = value;
+			if (equiv(this._cache[id], value)) return;
+			this._cache[id] = value;
 			if (param.update !== "reload") {
 				// only update param if no reload required
 				$genart.setParamValue(id, value);
@@ -127,8 +124,8 @@ class LayerAdapter implements PlatformAdapter {
 
 	async updateParam(id: string, _: Param<any>) {
 		let value: any;
-		if (Object.values(this.adaptations).find((x) => x.id === id)) {
-			value = this.cache[id];
+		if (Object.values(this._adaptations).find((x) => x.id === id)) {
+			value = this._cache[id];
 			return { value };
 		} else {
 			value = $layer.parameters[id];
@@ -141,25 +138,21 @@ class LayerAdapter implements PlatformAdapter {
 		// 	"cached",
 		// 	this.cache[id]
 		// );
-		if (value == null || equiv(this.cache[id], value)) return;
-		this.cache[id] = value;
+		if (value == null || equiv(this._cache[id], value)) return;
+		this._cache[id] = value;
 		return { value };
 	}
 
 	async initParams(params: ParamSpecs) {
-		this.params = params;
+		this._params = params;
 		// convert params to Layer params
 		const layerParams: Parameter[] = [];
 		for (let id in params) {
 			const src = params[id];
 			const kind = TYPE_MAP[src.type];
 			if (!kind) {
-				console.warn(
-					`${this.id}: unsupported type:`,
-					src.type,
-					" for param:",
-					id,
-					", skipping..."
+				this.warn(
+					`unsupported type '${src.type}' for param id: ${id}, skipping...`
 				);
 				continue;
 			}
@@ -179,7 +172,7 @@ class LayerAdapter implements PlatformAdapter {
 						: "CURATOR",
 			};
 			layerParams.push(dest);
-			this.cache[id] = src.default;
+			this._cache[id] = src.default;
 			switch (src.type) {
 				case "choice": {
 					const $src = <ChoiceParam<any>>src;
@@ -192,7 +185,7 @@ class LayerAdapter implements PlatformAdapter {
 					break;
 				}
 				case "color": {
-					this.adaptations[id] = {
+					this._adaptations[id] = {
 						id,
 						adapt: (x) => (isString(x) ? x : (<ColorResult>x).hex),
 					};
@@ -230,10 +223,8 @@ class LayerAdapter implements PlatformAdapter {
 							$dest.pattern = "ALPHANUMERIC";
 							break;
 						default:
-							console.warn(
-								`${this.id}: couldn't determine pattern type for param:`,
-								id,
-								", using 'ALPHANUMERIC'..."
+							this.warn(
+								`couldn't determine pattern type for text param: ${id}, using 'ALPHANUMERIC'...`
 							);
 							$dest.pattern = "ALPHANUMERIC";
 					}
@@ -254,7 +245,7 @@ class LayerAdapter implements PlatformAdapter {
 						$dest.step = $src.step[j];
 						if ($src.default) $dest.default = $src.default[j];
 						layerParams.push($dest);
-						this.adaptations[$dest.id] = this.adaptVectorParam(
+						this._adaptations[$dest.id] = this.adaptVectorParam(
 							id,
 							j
 						);
@@ -284,7 +275,7 @@ class LayerAdapter implements PlatformAdapter {
 						$dest.step = 0.001;
 						if ($src.default) $dest.default = $src.default[j];
 						layerParams.push($dest);
-						this.adaptations[$dest.id] = this.adaptVectorParam(
+						this._adaptations[$dest.id] = this.adaptVectorParam(
 							id,
 							j
 						);
@@ -293,12 +284,10 @@ class LayerAdapter implements PlatformAdapter {
 			}
 		}
 		const paramValues = await $layer.params(...layerParams);
-		for (let [id, value] of Object.entries(paramValues)) {
-			const adaptedParam = this.adaptations[id];
-			if (adaptedParam) {
-				// only cache adapted param values here
-				// other param types will be cached via .updateParam() above...
-				this.cache[adaptedParam.id] = adaptedParam.adapt(value);
+		for (let [id, adaptedParam] of Object.entries(this._adaptations)) {
+			const value = paramValues[id];
+			if (value != null) {
+				this._cache[adaptedParam.id] = adaptedParam.adapt(value);
 			}
 		}
 	}
@@ -313,11 +302,15 @@ class LayerAdapter implements PlatformAdapter {
 		return {
 			id,
 			adapt: (x) => {
-				const value = this.cache[id].slice();
+				const value = this._cache[id].slice();
 				value[idx] = x;
 				return value;
 			},
 		};
+	}
+
+	protected warn(msg: string, ...args: any[]) {
+		console.warn(`${this.id}:`, msg, ...args);
 	}
 }
 
