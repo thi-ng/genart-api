@@ -341,36 +341,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@example/editart-test@workspace:examples/editart-test":
-  version: 0.0.0-use.local
-  resolution: "@example/editart-test@workspace:examples/editart-test"
-  dependencies:
-    "@genart-api/adapter-layer": "workspace:^"
-    "@genart-api/core": "workspace:^"
-    "@thi.ng/canvas": "npm:^0.5.8"
-    "@thi.ng/color": "npm:^5.7.15"
-    "@types/node": "npm:^22.10.2"
-    typescript: "npm:^5.7.2"
-    vite: "npm:^5.4.11"
-    vite-plugin-html: "npm:^3.2.2"
-  languageName: unknown
-  linkType: soft
-
-"@example/layer-test@workspace:examples/layer-test":
-  version: 0.0.0-use.local
-  resolution: "@example/layer-test@workspace:examples/layer-test"
-  dependencies:
-    "@genart-api/adapter-layer": "workspace:^"
-    "@genart-api/core": "workspace:^"
-    "@thi.ng/canvas": "npm:^0.5.8"
-    "@thi.ng/color": "npm:^5.7.15"
-    "@types/node": "npm:^22.10.2"
-    typescript: "npm:^5.7.2"
-    vite: "npm:^5.4.11"
-    vite-plugin-html: "npm:^3.2.2"
-  languageName: unknown
-  linkType: soft
-
 "@example/p5-basic@workspace:examples/p5-basic":
   version: 0.0.0-use.local
   resolution: "@example/p5-basic@workspace:examples/p5-basic"
@@ -486,7 +456,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@genart-api/adapter-layer@workspace:^, @genart-api/adapter-layer@workspace:packages/adapter-layer":
+"@genart-api/adapter-layer@workspace:packages/adapter-layer":
   version: 0.0.0-use.local
   resolution: "@genart-api/adapter-layer@workspace:packages/adapter-layer"
   dependencies:
@@ -1751,7 +1721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.10.2":
+"@types/node@npm:*":
   version: 22.10.2
   resolution: "@types/node@npm:22.10.2"
   dependencies:
