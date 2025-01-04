@@ -15,6 +15,8 @@
 		"build": "node ../../tools/build.js src/index.ts adapter-layer && yarn build:types",
 		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
 		"build:dist": "node ../../tools/build-dist.js",
+		"clean": "bun ../../tools/clean-package.js",
+		"doc": "typedoc",
 		"publish": "yarn npm publish --access public"
 	},
 	"dependencies": {

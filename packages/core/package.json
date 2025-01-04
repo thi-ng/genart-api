@@ -15,7 +15,8 @@
 		"build": "node ../../tools/build.js src/genart.ts genart && yarn build:types",
 		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
 		"build:dist": "node ../../tools/build-dist.js --decl && cp ../../README.md .",
-		"doc": "typedoc --excludePrivate --excludeInternal --out doc src/api.ts",
+		"clean": "bun ../../tools/clean-package.js api params time",
+		"doc": "typedoc src/api.ts",
 		"publish": "yarn npm publish --access public",
 		"test": "bun test"
 	},
@@ -27,6 +28,7 @@
 	},
 	"files": [
 		"api",
+		"params",
 		"time",
 		"./*.js",
 		"./*.d.ts"
