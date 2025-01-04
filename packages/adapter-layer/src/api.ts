@@ -76,7 +76,7 @@ export type HashParameter = BaseParameter & {
 	pattern?: "BASE64" | "HEX" | "ALPHABETICAL" | "ALPHANUMERIC";
 };
 
-export interface ColorResult extends String {
+export interface ColorResult {
 	readonly rgb: [number, number, number] | null;
 	readonly hsl: [number, number, number] | null;
 	readonly hex: string | null;

@@ -63,7 +63,7 @@ const {
 
 /**
  * Adapter configuration options. To be used with
- * {@link FxhashAdapterOpts.configure}.
+ * {@link FxhashAdapter.configure}.
  */
 export interface FxhashAdapterOpts {}
 

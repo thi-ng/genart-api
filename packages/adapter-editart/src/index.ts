@@ -37,7 +37,7 @@ export interface EditArtAdapterOpts {
 	/**
 	 * List of param IDs to adapt. If given, only these (max. 5) given
 	 * parameters will be considered for adaptation (instead of auto-selecting
-	 * them).
+	 * them), in the order given.
 	 */
 	params: string[];
 }

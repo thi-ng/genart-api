@@ -14,7 +14,7 @@ export interface FPSOverlayOpts {
 	/**
 	 * Canvas width in pixels
 	 *
-	 * @defaultValue same as {@link DebugTimeProviderOpts.period}
+	 * @defaultValue same as {@link FPSOverlayOpts.period}
 	 */
 	width: number;
 	/**
