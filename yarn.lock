@@ -489,6 +489,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@genart-api/time-fps-overlay@workspace:packages/time-fps-overlay":
+  version: 0.0.0-use.local
+  resolution: "@genart-api/time-fps-overlay@workspace:packages/time-fps-overlay"
+  dependencies:
+    "@genart-api/core": "workspace:^"
+    esbuild: "npm:^0.24.2"
+    typedoc: "npm:^0.27.6"
+    typescript: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
 "@gerrit0/mini-shiki@npm:^1.24.0":
   version: 1.24.1
   resolution: "@gerrit0/mini-shiki@npm:1.24.1"

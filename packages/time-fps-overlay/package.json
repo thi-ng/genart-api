@@ -1,0 +1,46 @@
+{
+	"name": "@genart-api/time-fps-overlay",
+	"version": "0.22.0",
+	"description": "GenArtAPI time provider with FPS overlay",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thi-ng/genart-api.git"
+	},
+	"homepage": "https://thi.ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"typings": "./index.d.ts",
+	"scripts": {
+		"build": "node ../../tools/build.js src/index.ts time-fps-overlay && yarn build:types",
+		"build:types": "tsc -d --emitDeclarationOnly --noEmit false",
+		"build:dist": "node ../../tools/build-dist.js",
+		"clean": "bun ../../tools/clean-package.js",
+		"publish": "yarn npm publish --access public"
+	},
+	"dependencies": {
+		"@genart-api/core": "workspace:^"
+	},
+	"devDependencies": {
+		"esbuild": "^0.24.2",
+		"typedoc": "^0.27.6",
+		"typescript": "^5.7.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"./*.js",
+		"./*.d.ts"
+	],
+	"keywords": [
+		"art",
+		"debug",
+		"fps",
+		"genart",
+		"generative",
+		"genart-api",
+		"platform",
+		"time"
+	]
+}
