@@ -1,0 +1,26 @@
+import { execFileSync } from "node:child_process";
+
+for (let pkg of [
+	"adapter-editart",
+	"adapter-fxhash",
+	"adapter-layer",
+	"adapter-urlparams",
+	"core",
+]) {
+	console.log("deploying pkg docs:", pkg);
+	try {
+		console.log(
+			execFileSync("bun", [
+				"../umbrella/tools/src/deploy-docs.ts",
+				"--no-toc",
+				"-b",
+				"packages",
+				"-d",
+				"genart-api",
+				pkg,
+			]).toString()
+		);
+	} catch (e) {
+		console.log(e);
+	}
+}
