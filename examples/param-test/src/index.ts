@@ -200,8 +200,5 @@
 		"genart:info",
 		(msg) => (info.innerText = JSON.stringify(msg, null, 4))
 	);
-	setInterval(
-		() => postMessage({ type: "genart:get-info", apiID: "param-test" }),
-		1000
-	);
+	setInterval(() => $genart.emit({ type: "genart:get-info" }), 1000);
 })();

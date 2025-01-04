@@ -414,6 +414,7 @@ __metadata:
   resolution: "@example/param-test@workspace:examples/param-test"
   dependencies:
     "@genart-api/core": "workspace:^"
+    "@genart-api/time-fps-overlay": "workspace:^"
     typescript: "npm:^5.7.2"
     vite: "npm:^5.4.11"
     vite-plugin-html: "npm:^3.2.2"
@@ -489,7 +490,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@genart-api/time-fps-overlay@workspace:packages/time-fps-overlay":
+"@genart-api/time-fps-overlay@workspace:^, @genart-api/time-fps-overlay@workspace:packages/time-fps-overlay":
   version: 0.0.0-use.local
   resolution: "@genart-api/time-fps-overlay@workspace:packages/time-fps-overlay"
   dependencies:

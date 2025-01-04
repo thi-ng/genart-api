@@ -7,13 +7,14 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build:prepare": "node ../../tools/copy-lib.js",
+		"build:prepare": "node ../../tools/copy-lib.js && cp ../../packages/time-fps-overlay/time-fps-overlay.js public/lib",
 		"start": "yarn build:prepare && vite --host --open",
 		"build": "yarn build:prepare && tsc && vite build --base='./'",
 		"preview": "vite preview --host --open"
 	},
 	"dependencies": {
-		"@genart-api/core": "workspace:^"
+		"@genart-api/core": "workspace:^",
+		"@genart-api/time-fps-overlay": "workspace:^"
 	},
 	"devDependencies": {
 		"typescript": "^5.7.2",
