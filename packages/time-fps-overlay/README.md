@@ -1,5 +1,9 @@
 # @genart-api/time-fps-overlay
 
+[![npm version](https://img.shields.io/npm/v/@genart-api/time-fps-overlay.svg)](https://www.npmjs.com/package/@genart-api/time-fps-overlay)
+![npm downloads](https://img.shields.io/npm/dm/@genart-api/time-fps-overlay.svg)
+[![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
+
 [GenArtAPI](https://github.com/thi-ng/genart-api/) time provider for development
 purposes, which collects FPS samples and injects a canvas overlay to visualize
 recent frame rates and compute moving averages. The visualization can be

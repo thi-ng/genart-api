@@ -1,5 +1,9 @@
 # @genart-api/adapter-layer
 
+[![npm version](https://img.shields.io/npm/v/@genart-api/adapter-layer.svg)](https://www.npmjs.com/package/@genart-api/adapter-layer)
+![npm downloads](https://img.shields.io/npm/dm/@genart-api/adapter-layer.svg)
+[![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
+
 [GenArtAPI](https://github.com/thi-ng/genart-api/) platform adapter for the
 [Layer](https://layer.com) art platform.
 

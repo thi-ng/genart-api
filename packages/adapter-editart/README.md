@@ -1,5 +1,9 @@
 # @genart-api/adapter-editart
 
+[![npm version](https://img.shields.io/npm/v/@genart-api/adapter-editart.svg)](https://www.npmjs.com/package/@genart-api/adapter-editart)
+![npm downloads](https://img.shields.io/npm/dm/@genart-api/adapter-editart.svg)
+[![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
+
 [GenArtAPI](https://github.com/thi-ng/genart-api/) platform adapter for the
 [editart.xyz](https://editart.xyz) art platform.
 
