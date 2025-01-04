@@ -50,7 +50,7 @@
     -   [Existing time provider implementations](#existing-time-provider-implementations)
         -   [RAF](#raf)
         -   [Offline](#offline)
-        -   [Debug](#debug)
+        -   [FPS overlay](#fps-overlay)
 -   [Getting started](#getting-started)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Examples projects](#example-projects)
@@ -981,14 +981,18 @@ cases, e.g. recording image sequences. Supports arbitrary delays between frames
 
 [Source](https://github.com/thi-ng/genart-api/blob/main/src/time/offline.ts)
 
-#### Debug
+#### FPS overlay
+
+> [!IMPORTANT]
+> Since v0.22.0 this time provider is distributed as separate package
+> [`@genart-api/time-fps-overlay`](https://github.com/thi-ng/genart-api/blob/main/packages/time-fps-overlay)
 
 Similar to the [RAF time provider](#raf), but also collects FPS samples and
 injects a canvas overlay to visualize recent frame rates and compute moving min,
-max and average. Visualization can be configured via provided
-[options](https://docs.thi.ng/genart-api/core/interfaces/DebugTimeProviderOpts.html).
+max and average. The visualization can be configured via provided
+[options](https://docs.thi.ng/genart-api/time-fps-overlay/interfaces/FPSOverlayOpts.html).
 
-[Source](https://github.com/thi-ng/genart-api/blob/main/src/time/debug.ts)
+[Source](https://github.com/thi-ng/genart-api/blob/main/packages/time-fps-overlay/src/index.ts)
 
 ## Getting started
 
