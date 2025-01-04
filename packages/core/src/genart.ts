@@ -51,7 +51,6 @@ import { vector } from "./params/vector.js";
 import { weighted } from "./params/weighted.js";
 import { xy } from "./params/xy.js";
 import * as prng from "./prng.js";
-import { debugTimeProvider } from "./time/debug.js";
 import { timeProviderOffline } from "./time/offline.js";
 import { timeProviderRAF } from "./time/raf.js";
 import * as utils from "./utils.js";
@@ -98,7 +97,6 @@ class API implements GenArtAPI {
 	readonly prng = prng;
 	readonly utils = utils;
 	readonly time = {
-		debug: debugTimeProvider,
 		offline: timeProviderOffline,
 		raf: timeProviderRAF,
 	};
@@ -597,12 +595,11 @@ const ensureValidID = (id: string, kind = "ID") =>
 /** @internal */
 const ensureValidType = (type: string) => ensureValidID(type, "type");
 
-// @ts-nocheck
+// @ts-ignore
 globalThis.$genart = new API();
 
 export * from "./api.js";
 
-// @ts-ignore
 declare global {
 	/**
 	 * Globally exposed singleton instance of {@link GenArtAPI}
