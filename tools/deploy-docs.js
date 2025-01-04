@@ -1,11 +1,12 @@
 import { execFileSync } from "node:child_process";
 
 for (let pkg of [
+	"core",
 	"adapter-editart",
 	"adapter-fxhash",
 	"adapter-layer",
 	"adapter-urlparams",
-	"core",
+	"time-fps-overlay",
 ]) {
 	console.log("deploying pkg docs:", pkg);
 	try {

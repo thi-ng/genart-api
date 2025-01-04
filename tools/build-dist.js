@@ -9,7 +9,8 @@ const DEST = "../../dist";
 const include = (f) =>
 	f.startsWith("./api") ||
 	f.startsWith("./genart") ||
-	f.startsWith("./adapter-");
+	f.startsWith("./adapter-") ||
+	f.startsWith("./time-");
 
 const copyFiles = (ext) => {
 	for (let f of execFileSync("find", [".", "-name", "*." + ext])
