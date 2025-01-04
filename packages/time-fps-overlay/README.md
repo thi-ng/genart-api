@@ -4,11 +4,10 @@
 purposes, which collects FPS samples and injects a canvas overlay to visualize
 recent frame rates and compute moving averages. The visualization can be
 configured via [provided
-options](https://github.com/thi-ng/genart-api/blob/main/packages/time-fps-overlay/src/index.ts).
+options](https://docs.thi.ng/genart-api/time-fps-overlay/interfaces/FPSOverlayOpts.html).
 
-See main
-[README](https://github.com/thi-ng/genart-api/blob/main/README.md#time-providers)
-for details.
+See main project README for [further info about GenArtAPI time
+providers](https://github.com/thi-ng/genart-api/blob/main/README.md#time-providers).
 
 ## Usage
 
@@ -29,7 +28,7 @@ core `GenArtAPI` and the **Layer** platform adapter:
 <script src="./lib/genart.min.js"></script>
 <script src="./lib/time-fps-overlay.min.js"></script>
 <script>
-	$genart.setTimeProvider(timeProviderOverlay({}));
+	$genart.setTimeProvider(timeProviderFPSOverlay({}));
 </script>
 ```
 
