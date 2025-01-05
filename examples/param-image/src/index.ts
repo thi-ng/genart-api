@@ -2,7 +2,7 @@ const RES = 64;
 const TAU = 2 * Math.PI;
 
 (async () => {
-	/// Optional (see: https://docs.thi.ng/umbrella/genart-api/interfaces/GenArtAPIOpts)
+	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
 	$genart.configure({ id: "param-image" });
 
 	// ensure platform adapter is ready before starting artwork
