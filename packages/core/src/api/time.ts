@@ -17,8 +17,13 @@ export interface TimeProvider {
 	 */
 	next(fn: (time: number, frame: number) => void): void;
 	/**
-	 * Returns tuple of current `[time, frame]` (where `time` is in
-	 * milliseconds and `frame` the current frame number)
+	 * Returns tuple of current `[time, frame]` (where `time` is the current
+	 * frame's number of milliseconds since start and `frame` the current frame
+	 * number).
+	 *
+	 * @remarks
+	 * Function is idempotent when called during a single frame update. Can also
+	 * be called via `$genart.timeProvider.now()`.
 	 */
 	now(): [number, number];
 }

@@ -39,6 +39,12 @@ export type Maybe<T> = T | undefined;
  * function returns false, the animation loop will be stopped (via
  * {@link GenArtAPI.stop}), otherwise the loop continues until stopped
  * explicitly.
+ *
+ * @remarks
+ * Arguments are information sourced from {@link TimeProvider.now}.
+ *
+ * @param time
+ * @param frame
  */
 export type UpdateFn = (time: number, frame: number) => boolean;
 
