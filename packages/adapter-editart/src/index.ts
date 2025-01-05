@@ -216,7 +216,10 @@ export class EditArtAdapter implements PlatformAdapter {
 	}
 
 	protected initPRNG() {
-		let seedStr = randomSeedEditArt;
+		let seedStr =
+			typeof randomSeedEditArt !== "undefined"
+				? randomSeedEditArt
+				: $genart.id;
 		for (let i = 0; i < MAX_PARAMS; i++) {
 			seedStr += this._searchParams.get("m" + i) || "0.5";
 		}
