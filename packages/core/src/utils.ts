@@ -1,5 +1,8 @@
 import type { TypedArray } from "./api/utils";
 
+const M = 0xfffff_ffffn;
+const imul = Math.imul;
+
 export const ensure = <T>(x: T, msg: string) => {
 	if (!x) throw new Error(msg);
 	return x;
@@ -56,6 +59,14 @@ export const stringifyBigInt = (x: bigint, radix = 10) => {
 export const parseBigInt = (x: string) =>
 	/^-0[box]/.test(x) ? -BigInt(x.substring(1)) : BigInt(x);
 
+export const parseBigInt128 = (x: bigint) =>
+	new Uint32Array([
+		Number((x >> 96n) & M),
+		Number((x >> 64n) & M),
+		Number((x >> 32n) & M),
+		Number(x & M),
+	]);
+
 export const valuePrec = (step: number) => {
 	const str = step.toString();
 	const i = str.indexOf(".");
@@ -91,18 +102,8 @@ export const equivArrayLike = (a: ArrayLike<any>, b: ArrayLike<any>) => {
 	return i < 0;
 };
 
-const M = 0xfffff_ffffn;
-const imul = Math.imul;
-
-export const parseUUID = (uuid: string) => {
-	const id = BigInt("0x" + uuid.replace(/-/g, "").substring(0, 32));
-	return new Uint32Array([
-		Number((id >> 96n) & M),
-		Number((id >> 64n) & M),
-		Number((id >> 32n) & M),
-		Number(id & M),
-	]);
-};
+export const parseUUID = (uuid: string) =>
+	parseBigInt128(BigInt("0x" + uuid.replace(/-/g, "").substring(0, 32)));
 
 /**
  * MurmurHash3 128bit.

@@ -153,6 +153,12 @@ export interface Utils {
 	 */
 	parseBigInt(x: string): bigint;
 	/**
+	 * Converts a 128bit uint into an array of 4x 32bit uints.
+	 *
+	 * @param x
+	 */
+	parseBigInt128(x: bigint): Uint32Array;
+	/**
 	 * Returns number of fractional digits for given `step` size. Helper for
 	 * {@link Utils.formatValuePrec}.
 	 *
@@ -169,7 +175,7 @@ export interface Utils {
 	 *
 	 * @remarks
 	 * Intended to used to compute a PRNG seed value (e.g. from a string) for
-	 * functions in {@link PRNGBuiltins}.
+	 * functions in {@link PRNGBuiltins}. Also see {@link Utils.parseBigInt128}.
 	 *
 	 * @example
 	 * ```ts
