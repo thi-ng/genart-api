@@ -1,4 +1,4 @@
-import type { RandomFn } from "./api/random.js";
+import type { PRNG, RandomFn } from "./api/random.js";
 
 /**
  * SFC32 PRNG. Seed: 4x 32bit int
@@ -74,4 +74,13 @@ export const xsadd = (seed: number): RandomFn => {
 		buf[3] = t;
 		return (t + buf[2]) >>> 0;
 	};
+};
+
+export const defPRNG = <T>(
+	seed: string,
+	parsedSeed: T,
+	impl: (seed: T) => RandomFn
+): PRNG => {
+	const reset = () => impl(parsedSeed);
+	return { seed, reset, rnd: reset() };
 };
