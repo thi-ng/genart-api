@@ -943,9 +943,9 @@ providers which are merely responsible to schedule the next animation frame and
 provide a related timestamp and frame number.
 
 The API defaults to using a [`requestAnimationFrame()`-based
-provider](https://github.com/thi-ng/genart-api/blob/main/src/time/raf.ts), but
-this one can be replaced by loading an alternative implementation via another
-`<script>` tag, like so:
+provider](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/time/raf.ts),
+but this one can be replaced by loading an alternative implementation via
+another `<script>` tag, like so:
 
 ```html
 <!-- main GenArtAPI script -->
@@ -971,7 +971,7 @@ in the API reference implementation:
 Default TimeProvider, requestAnimationFrame()-based. Start time & frame offsets
 can be provided (both defaulting to zero).
 
-[Source](https://github.com/thi-ng/genart-api/blob/main/src/time/raf.ts)
+[Source](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/time/raf.ts)
 
 #### Offline
 
@@ -979,7 +979,7 @@ A time provider for fixed frame rates, offline (aka non-realtime) animation use
 cases, e.g. recording image sequences. Supports arbitrary delays between frames
 (default: 250ms) and reference frame rates (default: 60fps).
 
-[Source](https://github.com/thi-ng/genart-api/blob/main/src/time/offline.ts)
+[Source](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/time/offline.ts)
 
 #### FPS overlay
 

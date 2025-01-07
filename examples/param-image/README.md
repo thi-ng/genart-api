@@ -8,7 +8,7 @@ editor](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors)
 to enable interactive configuration of the image and other parameters used.
 
 Using the [reference implementation platform
-adapter](https://github.com/thi-ng/genart-api/blob/main/src/adapters/urlparams.ts),
+adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts),
 custom image data will be stored as gzipped and base64 encoded URL param.
 
 ## Launching & building
