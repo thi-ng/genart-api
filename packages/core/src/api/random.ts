@@ -10,8 +10,8 @@
 export type RandomFn = () => number;
 
 /**
- * Pseudo-random number generator, obtained from & provided by the currently
- * active {@link PlatformAdapter}.
+ * Seedable & resettable pseudo-random number generator, possibly obtained from
+ * & provided by the currently active {@link PlatformAdapter}.
  */
 export interface PRNG {
 	/**
@@ -29,6 +29,9 @@ export interface PRNG {
 	rnd: RandomFn;
 }
 
+/**
+ * Built-in {@link PRNG}-related functionality.
+ */
 export interface PRNGBuiltins {
 	/**
 	 * SFC32 implementation. Seed: 4x 32bit int
@@ -40,26 +43,7 @@ export interface PRNGBuiltins {
 	 * @param seed
 	 */
 	sfc32(seed: ArrayLike<number>): RandomFn;
-	/**
-	 * XORShift128 PRNG. Seed: 4x 32bit int
-	 *
-	 * @remarks
-	 * Higher order function. Takes `seed` value and returns a {@link RandomFn}.
-	 * Also see {@link PRNGBuiltins.defPRNG}.
-	 *
-	 * @param seed
-	 */
-	xorshift128(seed: ArrayLike<number>): RandomFn;
-	/**
-	 * XsAdd PRNG. Seed: 1x 32bit int
-	 *
-	 * @remarks
-	 * Higher order function. Takes `seed` value and returns a {@link RandomFn}.
-	 * Also see {@link PRNGBuiltins.defPRNG}.
-	 *
-	 * @param seed
-	 */
-	xsadd(seed: number): RandomFn;
+
 	/**
 	 * Helper function to construct a full {@link PRNG} instance from given
 	 * `seed` string, its parsed version (e.g. via {@link hashString}) and

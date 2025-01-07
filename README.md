@@ -886,12 +886,11 @@ platform.
 -   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/index.ts)
 
 For cases where a platform does not provide its own PRNG, the API core package
-provides these widely used PRNG implementations, which can be used by an adapter
-(or artwork):
+provides the widely used SFC32 PRNG implementation, which can be used by an
+adapter (or artwork) — also see the related [`defPRNG()` helper
+function](https://docs.thi.ng/genart-api/core/interfaces/PRNGBuiltins.html#defPRNG):
 
 -   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
--   [XorShift128](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
--   [XsAdd](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
 
 ### Screen configuration
 
