@@ -2,6 +2,7 @@ import type { TypedArray } from "./api/utils";
 
 const M = 0xfffff_ffffn;
 const imul = Math.imul;
+const OBJP = Object.getPrototypeOf({});
 
 export const ensure = <T>(x: T, msg: string) => {
 	if (!x) throw new Error(msg);
@@ -14,6 +15,19 @@ export const isNumber = (x: any): x is number =>
 	typeof x === "number" && !isNaN(x);
 
 export const isString = (x: any): x is string => typeof x === "string";
+
+export const isPrim = (
+	x: any
+): x is bigint | boolean | number | string | symbol => {
+	const type = typeof x;
+	return (
+		type === "bigint" ||
+		type === "boolean" ||
+		type === "number" ||
+		type === "string" ||
+		type === "symbol"
+	);
+};
 
 export const isFunction = <T extends Function>(x: any): x is T =>
 	typeof x === "function";
@@ -78,23 +92,62 @@ export const formatValuePrec = (step: number) => {
 	return (x: number) => x.toFixed(prec);
 };
 
+/**
+ * @remarks
+ * Implementation based on [thi.ng/equiv](https://thi.ng/equiv).
+ *
+ * @param a
+ * @param b
+ */
 export const equiv = (a: any, b: any) => {
+	let proto;
 	if (a === b) return true;
 	if (a == null) return b == null;
 	if (b == null) return a == null;
-	if (isString(a) || isNumber(a)) return a === b;
+	if (isPrim(a) || isPrim(b) || isFunction(a) || isFunction(b))
+		return a === b || (a !== a && b !== b);
+	if (a.length != null && b.length != null) {
+		return equivArrayLike(a, b);
+	}
+	if (
+		((proto = Object.getPrototypeOf(a)), proto == null || proto === OBJP) &&
+		((proto = Object.getPrototypeOf(b)), proto == null || proto === OBJP)
+	) {
+		return equivObject(a, b);
+	}
 	if (a instanceof Date && b instanceof Date) {
 		return a.getTime() === b.getTime();
 	}
 	if (a instanceof RegExp && b instanceof RegExp) {
 		return a.toString() === b.toString();
 	}
-	if (a.length != null && b.length != null) {
-		return equivArrayLike(a, b);
-	}
-	return a === b || (a !== a && b !== b);
+	return a === b;
 };
 
+/**
+ * @remarks
+ * Implementation based on [thi.ng/equiv](https://thi.ng/equiv).
+ *
+ * @param a
+ * @param b
+ */
+export const equivObject = (a: Record<any, any>, b: Record<any, any>) => {
+	if (Object.keys(a).length !== Object.keys(b).length) {
+		return false;
+	}
+	for (let k in a) {
+		if (!(b.hasOwnProperty(k) && equiv(a[k], b[k]))) return false;
+	}
+	return true;
+};
+
+/**
+ * @remarks
+ * Implementation based on [thi.ng/equiv](https://thi.ng/equiv).
+ *
+ * @param a
+ * @param b
+ */
 export const equivArrayLike = (a: ArrayLike<any>, b: ArrayLike<any>) => {
 	if (a.length !== b.length) return false;
 	let i = a.length;

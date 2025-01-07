@@ -34,21 +34,49 @@ test("formatValuePrec", () => {
 });
 
 test("equiv", () => {
+	const FN0 = () => {};
+	const FN1 = (_: any) => {};
 	expect(equiv(null, undefined)).toBe(true);
 	expect(equiv(undefined, null)).toBe(true);
 	expect(equiv(null, 0)).toBe(false);
 	expect(equiv(0, null)).toBe(false);
 	expect(equiv(0, 0)).toBe(true);
+	expect(equiv(0n, 0n)).toBe(true);
+	expect(equiv(0n, 0)).toBe(false);
 	expect(equiv(Number.NaN, Number.NaN)).toBe(true);
 	expect(equiv(Number.NaN, 0)).toBe(false);
+	expect(equiv(0, Number.NaN)).toBe(false);
 	expect(equiv(0, "0")).toBe(false);
+	expect(equiv(0n, "0")).toBe(false);
 	expect(equiv("0", 0)).toBe(false);
+	expect(equiv("0", 0n)).toBe(false);
 	expect(equiv("0", "0")).toBe(true);
 	expect(equiv("0", "")).toBe(false);
+	expect(equiv({}, {})).toBe(true);
+	expect(equiv({ a: 1 }, { a: 1 })).toBe(true);
+	expect(equiv({ a: 1 }, { b: 1 })).toBe(false);
+	expect(equiv({ a: 1 }, { a: 2 })).toBe(false);
+	expect(equiv({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+	expect(equiv({}, [])).toBe(false);
+	expect(equiv({ a: 1 }, [1])).toBe(false);
+	expect(equiv({ a: { b: 1 } }, { a: { b: 1 } })).toBe(true);
+	expect(equiv({ a: { b: [1] } }, { a: { b: [1] } })).toBe(true);
+	expect(equiv(/[a-z]/, /[a-z]/)).toBe(true);
 	expect(equiv(/[a-z]/, /[a-z]/)).toBe(true);
 	expect(equiv(/[a-z]/, /[A-Z]/)).toBe(false);
 	expect(equiv(new Date(1234567), new Date(1234567))).toBe(true);
 	expect(equiv(new Date(1234567), new Date())).toBe(false);
+	expect(equiv([1, 2, 3], [1, 2, 3])).toBe(true);
+	expect(equiv([1, 2, 3], new Uint8Array([1, 2, 3]))).toBe(true);
+	expect(equiv([1, 2, 3], [1, 2])).toBe(false);
+	expect(equiv([1, 2, 3], [1, 2, 4])).toBe(false);
+	expect(equiv(FN0, FN0)).toBe(true);
+	expect(equiv(FN0, () => {})).toBe(false);
+	expect(equiv([], FN0)).toBe(false);
+	expect(equiv(FN0, [])).toBe(false);
+	expect(equiv(FN0, "")).toBe(false);
+	expect(equiv([1], FN1)).toBe(false);
+	expect(equiv(FN1, [1])).toBe(false);
 });
 
 test("equivArraylike", () => {
@@ -59,6 +87,12 @@ test("equivArraylike", () => {
 	expect(equivArrayLike([1, 2], ["1", 2])).toBe(false);
 	expect(equivArrayLike([1, "2"], ["1", 2])).toBe(false);
 	expect(equivArrayLike([[1], [[2]]], [[1], [[2]]])).toBe(true);
+	expect(
+		equivArrayLike(
+			[[{ a: 1 }], [[{ a: { b: [2] } }]]],
+			[[{ a: 1 }], [[{ a: { b: [2] } }]]]
+		)
+	).toBe(true);
 	expect(equivArrayLike(new Uint8Array([1, 2]), new Uint8Array([1, 2]))).toBe(
 		true
 	);
