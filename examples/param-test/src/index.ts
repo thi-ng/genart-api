@@ -96,11 +96,9 @@
 		date: $genart.params.date({
 			name: "Date",
 			desc: "Date from which the background fades to black",
-			default: new Date("2025-01-01"),
+			default: new Date("2026-01-01"),
 		}),
 	});
-
-	console.log(JSON.stringify($genart.paramSpecs, null, 4));
 
 	const setTraits = () =>
 		$genart.setTraits({
