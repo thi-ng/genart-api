@@ -1,4 +1,5 @@
 import type {
+	BigIntParam,
 	ChoiceParam,
 	Maybe,
 	NestedParam,
@@ -42,7 +43,7 @@ import {
 	sendMessage,
 	updateParamsOnChange,
 } from "./state.js";
-import { formatValuePrec } from "./utils.js";
+import { formatValuePrec, numDigits } from "./utils.js";
 
 const DPR = window.devicePixelRatio;
 const APP = document.getElementById("editor")!;
@@ -93,6 +94,23 @@ const paramWidget = defmulti<WidgetContext, NestedParam, string, any>(
 					"(param type not yet supported, try other GUI)"
 				);
 			}
+		},
+
+		bigint: (ctx, param) => {
+			const { min, max } = <BigIntParam>param;
+			const minLength = numDigits(min);
+			const maxLength = numDigits(max);
+			const res = textField({
+				gui: gui!,
+				layout: ctx.layout.next([COLS, 1]),
+				id: ctx.widgetID,
+				value: ctx.value.toString(),
+				info: param.doc,
+				filter: (x) => x >= "0" && x <= "9",
+			});
+			return res && isInRange(minLength, maxLength, res.length)
+				? BigInt(res)
+				: undefined;
 		},
 
 		choice: (ctx, param) => {

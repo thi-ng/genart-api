@@ -1,5 +1,6 @@
 import type {
 	APIMessage,
+	BigIntParam,
 	ChoiceParam,
 	ImageParam,
 	Param,
@@ -24,7 +25,6 @@ import {
 	IntBuffer,
 	intBuffer,
 	intBufferFromImage,
-	RGB888,
 } from "@thi.ng/pixel";
 import { $attribs, $compile, $refresh, $replace, $wrapEl } from "@thi.ng/rdom";
 import {
@@ -70,7 +70,7 @@ import {
 	sendMessage,
 	traits,
 } from "./state.js";
-import { formatValuePrec } from "./utils.js";
+import { formatValuePrec, numDigits } from "./utils.js";
 
 // ROOT.set(new ConsoleLogger());
 
@@ -102,6 +102,23 @@ const createParamControls = (params: ParamSpecs) => {
 			};
 			paramValues[id] = value;
 			switch (param.type) {
+				case "bigint":
+					{
+						const { min, max } = <BigIntParam>param;
+						value = value.map((x) => x.toString());
+						groupItems.push(
+							str({
+								...base,
+								value,
+								min: numDigits(min),
+								max: numDigits(max),
+								attribs: { pattern: "^[0-9]+$" },
+							})
+						);
+						value = value.map(BigInt);
+					}
+					break;
+
 				case "choice":
 					{
 						const $param = <ChoiceParam<any>>param;
@@ -460,6 +477,10 @@ const createParamControls = (params: ParamSpecs) => {
 		descAttribs: { class: "desc" },
 		typeAttribs: {
 			rangeLabel: { class: "rangevalue" },
+		},
+		behaviors: {
+			strOnInput: false,
+			textOnInput: false,
 		},
 	});
 };

@@ -45,3 +45,6 @@ export const isCompatibleVersion = (version: string, expected: string) => {
 	if (partsA.length !== partsB.length) return false;
 	return partsA.every((x, i) => x >= partsB[i]);
 };
+
+export const numDigits = (x: number | bigint) =>
+	Math.max(1, Math.ceil(Math.log10(Number(x))));
