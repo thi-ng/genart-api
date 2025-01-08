@@ -25,7 +25,7 @@ const SUPPORTED_TYPES = ["choice", "range", "toggle", "weighted"];
 
 const {
 	math: { clamp, round, fit, mix },
-	prng: { sfc32 },
+	prng: { defPRNG, sfc32 },
 	utils: { isString, hashString },
 } = $genart;
 
@@ -223,13 +223,7 @@ export class EditArtAdapter implements PlatformAdapter {
 		for (let i = 0; i < MAX_PARAMS; i++) {
 			seedStr += this._searchParams.get("m" + i) || "0.5";
 		}
-		const seed = hashString(seedStr);
-		const reset = () => sfc32(seed);
-		this._prng = {
-			seed: seedStr,
-			rnd: reset(),
-			reset,
-		};
+		this._prng = defPRNG(seedStr, hashString(seedStr), sfc32);
 	}
 
 	protected serializeParam(spec: Param<any>) {
