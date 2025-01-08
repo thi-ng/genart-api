@@ -46,7 +46,7 @@ export interface PRNGBuiltins {
 
 	/**
 	 * Helper function to construct a full {@link PRNG} instance from given
-	 * `seed` string, its parsed version (e.g. via {@link hashString}) and
+	 * `seed` string, its parsed version (e.g. via {@link Utils.hashString}) and
 	 * generator `impl` (e.g. {@link PRNGBuiltins.sfc32}).
 	 *
 	 * @param seed
