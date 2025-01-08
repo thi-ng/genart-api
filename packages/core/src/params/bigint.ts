@@ -1,5 +1,5 @@
 import type { BigIntParam, ParamImpl } from "../api/params.js";
-import { fit } from "../math.js";
+import { randomBigInt } from "../prng.js";
 import { isBigInt, isNumber, isString, parseBigInt } from "../utils.js";
 
 export const bigint: ParamImpl = {
@@ -21,6 +21,6 @@ export const bigint: ParamImpl = {
 		isString(value) ? parseBigInt(value) : BigInt(value),
 	randomize: (spec, rnd) => {
 		const { min, max } = <BigIntParam>spec;
-		return BigInt(fit(rnd(), 0, 1, Number(min), Number(max)));
+		return min + randomBigInt(max - min, rnd);
 	},
 };

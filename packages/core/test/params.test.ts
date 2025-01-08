@@ -60,6 +60,7 @@ test("bigint", () => {
 		name: "test",
 		default: 123n,
 		min: -1n,
+		max: 1n,
 	});
 	expect(spec).toEqual(<BigIntParam>{
 		...PARAM_DEFAULTS,
@@ -91,6 +92,7 @@ test("bigint", () => {
 	expect(coerce!(spec, "0b1")).toBe(1n);
 
 	fuzz(spec, bigint);
+	fuzz(spec2, bigint);
 });
 
 test("binary", () => {
