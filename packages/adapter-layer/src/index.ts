@@ -4,6 +4,7 @@ import type {
 	Param,
 	ParamSpecs,
 	PlatformAdapter,
+	PRNG,
 	RangeParam,
 	ResizeMessage,
 	TextParam,
@@ -40,7 +41,10 @@ const TYPE_MAP: Record<
 	xy: "NUMBER",
 };
 
-const { equiv, isString } = $genart.utils;
+const {
+	prng: { defPRNG, sfc32 },
+	utils: { equiv, isString, parseUUID },
+} = $genart;
 
 interface AdaptedParam {
 	/**
@@ -58,12 +62,12 @@ interface AdaptedParam {
 class LayerAdapter implements PlatformAdapter {
 	readonly mode = "play";
 
+	protected _prng!: PRNG;
 	protected _params: ParamSpecs | undefined;
 	protected _cache: Record<string, any> = {};
 	protected _adaptations: Record<string, AdaptedParam> = {};
 
 	constructor() {
-		$layer.debug = true;
 		$genart.on(
 			"genart:state-change",
 			({ state }) =>
@@ -115,11 +119,10 @@ class LayerAdapter implements PlatformAdapter {
 	}
 
 	get prng() {
-		return {
-			seed: $layer.uuid,
-			rnd: $layer.prng,
-			reset: () => $layer.prng,
-		};
+		return (
+			this._prng ||
+			(this._prng = defPRNG($layer.uuid, parseUUID($layer.uuid), sfc32))
+		);
 	}
 
 	async updateParam(id: string, _: Param<any>) {
