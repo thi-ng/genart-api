@@ -10,14 +10,17 @@
     vector: "NUMBER",
     xy: "NUMBER"
   };
-  var { equiv, isString } = $genart.utils;
+  var {
+    prng: { defPRNG, sfc32 },
+    utils: { equiv, isString, parseUUID }
+  } = $genart;
   var LayerAdapter = class {
     mode = "play";
+    _prng;
     _params;
     _cache = {};
     _adaptations = {};
     constructor() {
-      $layer.debug = true;
       $genart.on(
         "genart:state-change",
         ({ state }) => state === "ready" && !$layer.controlled && $genart.start()
@@ -64,11 +67,7 @@
       };
     }
     get prng() {
-      return {
-        seed: $layer.uuid,
-        rnd: $layer.prng,
-        reset: () => $layer.prng
-      };
+      return this._prng || (this._prng = defPRNG($layer.uuid, parseUUID($layer.uuid), sfc32));
     }
     async updateParam(id, _) {
       let value;
@@ -145,7 +144,7 @@
               case "^[a-zA-Z ]+$":
                 $dest.pattern = "ALPHABETICAL";
                 break;
-              case "^[a-zA-Z0-9-_ ]+$":
+              case "^[a-zA-Z0-9_ ]+$":
                 $dest.pattern = "ALPHANUMERIC";
                 break;
               default:

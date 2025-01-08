@@ -19,14 +19,15 @@
   // src/index.ts
   var {
     math: { clamp01, parseNum },
-    prng: { sfc32 },
-    utils: { formatValuePrec, stringifyBigInt }
+    prng: { defPRNG, sfc32, randomBigInt },
+    utils: { formatValuePrec, parseBigInt128, stringifyBigInt }
   } = $genart;
   var AUTO = "__autostart";
   var WIDTH = "__width";
   var HEIGHT = "__height";
   var DPR = "__dpr";
   var SEED = "__seed";
+  var MAX_SEED = 1n << 128n;
   var URLParamsAdapter = class {
     params;
     cache = {};
@@ -95,16 +96,15 @@
       const group = this.id;
       return {
         ...params,
-        [SEED]: $genart.params.range({
+        [SEED]: $genart.params.bigint({
           group,
           order: 0,
           name: "PRNG seed",
           desc: "Manually defined seed value",
-          min: 0,
-          max: 1e13,
-          default: Number(BigInt(this._prng.seed)),
-          update: "reload",
-          widget: "precise"
+          min: 0n,
+          max: MAX_SEED - 1n,
+          default: BigInt(this._prng.seed),
+          update: "reload"
         }),
         [WIDTH]: $genart.params.range({
           group,
@@ -245,22 +245,12 @@
     }
     initPRNG() {
       const seedParam = this.params.get(SEED);
-      const seed = BigInt(seedParam ?? Math.floor(Math.random() * 1e13));
-      const M = 0xffffffffn;
-      const reset = () => {
-        return impl.rnd = sfc32([
-          Number(seed >> 96n & M) >>> 0,
-          Number(seed >> 64n & M) >>> 0,
-          Number(seed >> 32n & M) >>> 0,
-          Number(seed & M) >>> 0
-        ]);
-      };
-      const impl = {
-        seed: "0x" + seed.toString(16),
-        reset
-      };
-      reset();
-      this._prng = impl;
+      const seed = seedParam ? BigInt(seedParam) : randomBigInt(MAX_SEED);
+      this._prng = defPRNG(
+        stringifyBigInt(seed),
+        parseBigInt128(seed),
+        sfc32
+      );
     }
   };
   $genart.setAdapter(new URLParamsAdapter());

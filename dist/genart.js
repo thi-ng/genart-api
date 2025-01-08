@@ -69,6 +69,7 @@
     ensure: () => ensure,
     equiv: () => equiv,
     equivArrayLike: () => equivArrayLike,
+    equivObject: () => equivObject,
     formatValuePrec: () => formatValuePrec,
     hashBytes: () => hashBytes,
     hashString: () => hashString,
@@ -77,10 +78,12 @@
     isInRange: () => isInRange,
     isNumber: () => isNumber,
     isNumericArray: () => isNumericArray,
+    isPrim: () => isPrim,
     isString: () => isString,
     isStringArray: () => isStringArray,
     isTypedArray: () => isTypedArray,
     parseBigInt: () => parseBigInt,
+    parseBigInt128: () => parseBigInt128,
     parseUUID: () => parseUUID,
     stringifyBigInt: () => stringifyBigInt,
     u16: () => u16,
@@ -89,6 +92,9 @@
     u8: () => u8,
     valuePrec: () => valuePrec
   });
+  var M = 0xfffffffffn;
+  var imul = Math.imul;
+  var OBJP = Object.getPrototypeOf({});
   var ensure = (x, msg) => {
     if (!x) throw new Error(msg);
     return x;
@@ -96,6 +102,10 @@
   var isBigInt = (x) => typeof x === "bigint";
   var isNumber = (x) => typeof x === "number" && !isNaN(x);
   var isString = (x) => typeof x === "string";
+  var isPrim = (x) => {
+    const type = typeof x;
+    return type === "bigint" || type === "boolean" || type === "number" || type === "string" || type === "symbol";
+  };
   var isFunction = (x) => typeof x === "function";
   var isNumericArray = (x) => isTypedArray(x) || Array.isArray(x) && x.every(isNumber);
   var isStringArray = (x) => Array.isArray(x) && x.every(isString);
@@ -110,6 +120,12 @@
     return x < 0n ? "-" + prefix + (-x).toString(radix) : prefix + x.toString(radix);
   };
   var parseBigInt = (x) => /^-0[box]/.test(x) ? -BigInt(x.substring(1)) : BigInt(x);
+  var parseBigInt128 = (x) => new Uint32Array([
+    Number(x >> 96n & M),
+    Number(x >> 64n & M),
+    Number(x >> 32n & M),
+    Number(x & M)
+  ]);
   var valuePrec = (step) => {
     const str = step.toString();
     const i = str.indexOf(".");
@@ -120,20 +136,34 @@
     return (x) => x.toFixed(prec);
   };
   var equiv = (a, b) => {
+    let proto;
     if (a === b) return true;
     if (a == null) return b == null;
     if (b == null) return a == null;
-    if (isString(a) || isNumber(a)) return a === b;
+    if (isPrim(a) || isPrim(b) || isFunction(a) || isFunction(b))
+      return a === b || a !== a && b !== b;
+    if (a.length != null && b.length != null) {
+      return equivArrayLike(a, b);
+    }
+    if ((proto = Object.getPrototypeOf(a), proto == null || proto === OBJP) && (proto = Object.getPrototypeOf(b), proto == null || proto === OBJP)) {
+      return equivObject(a, b);
+    }
     if (a instanceof Date && b instanceof Date) {
       return a.getTime() === b.getTime();
     }
     if (a instanceof RegExp && b instanceof RegExp) {
       return a.toString() === b.toString();
     }
-    if (a.length != null && b.length != null) {
-      return equivArrayLike(a, b);
+    return a === b;
+  };
+  var equivObject = (a, b) => {
+    if (Object.keys(a).length !== Object.keys(b).length) {
+      return false;
     }
-    return a === b || a !== a && b !== b;
+    for (let k in a) {
+      if (!(b.hasOwnProperty(k) && equiv(a[k], b[k]))) return false;
+    }
+    return true;
   };
   var equivArrayLike = (a, b) => {
     if (a.length !== b.length) return false;
@@ -141,17 +171,7 @@
     while (i-- > 0 && equiv(a[i], b[i])) ;
     return i < 0;
   };
-  var M = 0xfffffffffn;
-  var imul = Math.imul;
-  var parseUUID = (uuid) => {
-    const id = BigInt("0x" + uuid.replace(/-/g, "").substring(0, 32));
-    return new Uint32Array([
-      Number(id >> 96n & M),
-      Number(id >> 64n & M),
-      Number(id >> 32n & M),
-      Number(id & M)
-    ]);
-  };
+  var parseUUID = (uuid) => parseBigInt128(BigInt("0x" + uuid.replace(/-/g, "").substring(0, 32)));
   var hashBytes = (buf, seed = 0) => {
     const u322 = (i2) => buf[i2 + 3] << 24 | buf[i2 + 2] << 16 | buf[i2 + 1] << 8 | buf[i2];
     const rotate = (x, r) => x << r | x >>> 32 - r;
@@ -367,7 +387,7 @@
   };
   var text = (spec) => $(
     "text",
-    { minLength: 0, maxLength: 1024, multiline: false, ...spec },
+    { minLength: 0, maxLength: 32, multiline: false, ...spec },
     false
   );
   var time2 = (spec) => {
@@ -406,6 +426,37 @@
   });
   var xy = (spec) => $("xy", spec);
 
+  // src/prng.ts
+  var prng_exports = {};
+  __export(prng_exports, {
+    defPRNG: () => defPRNG,
+    randomBigInt: () => randomBigInt,
+    sfc32: () => sfc32
+  });
+  var MAX = 4294967296;
+  var sfc32 = (seed) => {
+    const buf = new Uint32Array(4);
+    buf.set(seed);
+    return () => {
+      const t = (buf[0] + buf[1] >>> 0) + buf[3] >>> 0;
+      buf[3] = buf[3] + 1 >>> 0;
+      buf[0] = buf[1] ^ buf[1] >>> 9;
+      buf[1] = buf[2] + (buf[2] << 3) >>> 0;
+      buf[2] = (buf[2] << 21 | buf[2] >>> 11) + t >>> 0;
+      return t / MAX;
+    };
+  };
+  var randomBigInt = (max, rnd = Math.random) => {
+    let value = 0n;
+    for (let i = Math.log2(Number(max)) + 31 >> 5; i-- > 0; )
+      value = value << 32n | BigInt(rnd() * MAX >>> 0);
+    return value % max;
+  };
+  var defPRNG = (seed, parsedSeed, impl) => {
+    const reset = () => impl(parsedSeed);
+    return { seed, reset, rnd: reset() };
+  };
+
   // src/params/bigint.ts
   var bigint2 = {
     validate: (spec, value) => {
@@ -425,7 +476,7 @@
     coerce: (_, value) => isString(value) ? parseBigInt(value) : BigInt(value),
     randomize: (spec, rnd) => {
       const { min, max } = spec;
-      return BigInt(fit(rnd(), 0, 1, Number(min), Number(max)));
+      return min + randomBigInt(max - min, rnd);
     }
   };
 
@@ -588,59 +639,6 @@
     randomize: (_, rnd) => [rnd(), rnd()]
   };
 
-  // src/prng.ts
-  var prng_exports = {};
-  __export(prng_exports, {
-    sfc32: () => sfc32,
-    xorshift128: () => xorshift128,
-    xsadd: () => xsadd
-  });
-  var sfc32 = (seed) => {
-    const buf = new Uint32Array(4);
-    buf.set(seed);
-    return () => {
-      const t = (buf[0] + buf[1] >>> 0) + buf[3] >>> 0;
-      buf[3] = buf[3] + 1 >>> 0;
-      buf[0] = buf[1] ^ buf[1] >>> 9;
-      buf[1] = buf[2] + (buf[2] << 3) >>> 0;
-      buf[2] = (buf[2] << 21 | buf[2] >>> 11) + t >>> 0;
-      return t / 4294967296;
-    };
-  };
-  var xorshift128 = (seed) => {
-    const buf = new Uint32Array(4);
-    buf.set(seed);
-    return () => {
-      let t = buf[3], w;
-      t ^= t << 11;
-      t ^= t >>> 8;
-      buf[3] = buf[2];
-      buf[2] = buf[1];
-      w = buf[1] = buf[0];
-      return buf[0] = (t ^ w ^ w >>> 19) >>> 0;
-    };
-  };
-  var xsadd = (seed) => {
-    const buf = new Uint32Array(4);
-    buf.set([seed, 0, 0, 0]);
-    for (let j = 0, i = 1; i < 8; j = i++) {
-      let x = (buf[j & 3] ^ buf[j & 3] >>> 30) >>> 0;
-      x = 35173 * x + ((27655 * x & 65535) << 16) >>> 0;
-      buf[i & 3] ^= i + x >>> 0;
-    }
-    return () => {
-      let t = buf[0];
-      t ^= t << 15;
-      t ^= t >>> 18;
-      t ^= buf[3] << 11;
-      buf[0] = buf[1];
-      buf[1] = buf[2];
-      buf[2] = buf[3];
-      buf[3] = t;
-      return t + buf[2] >>> 0;
-    };
-  };
-
   // src/time/offline.ts
   var timeProviderOffline = (frameDelay = 250, referenceFPS = 60, frameOffset = 0) => {
     let frame = frameOffset;
@@ -763,7 +761,7 @@
       });
     }
     get version() {
-      return "0.22.0";
+      return "0.23.0";
     }
     get id() {
       return this._opts.id;

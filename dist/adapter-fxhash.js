@@ -18,7 +18,7 @@
     event: "sync"
   };
   var {
-    prng: { sfc32 },
+    prng: { defPRNG, sfc32 },
     utils: { equiv, isString, hashString }
   } = $genart;
   var FxhashAdapter = class {
@@ -31,7 +31,6 @@
     constructor() {
       this._searchParams = new URLSearchParams(location.search);
       this._screen = this.screen;
-      this.initPRNG();
       $genart.on("genart:state-change", ({ state }) => {
         if (state === "ready") $genart.start();
       });
@@ -90,7 +89,7 @@
       };
     }
     get prng() {
-      return this._prng;
+      return this._prng || (this._prng = defPRNG($fx.hash, hashString($fx.hash), sfc32));
     }
     configure(_) {
     }
@@ -239,15 +238,6 @@
         this._searchParams.toString()
       );
       location.search = this._searchParams.toString();
-    }
-    initPRNG() {
-      const seed = hashString($fx.hash);
-      const reset = () => sfc32(seed);
-      this._prng = {
-        seed: $fx.hash,
-        rnd: reset(),
-        reset
-      };
     }
     adaptVectorParam(id, idx) {
       return {

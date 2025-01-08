@@ -7,7 +7,7 @@
   var SUPPORTED_TYPES = ["choice", "range", "toggle", "weighted"];
   var {
     math: { clamp, round, fit, mix },
-    prng: { sfc32 },
+    prng: { defPRNG, sfc32 },
     utils: { isString, hashString }
   } = $genart;
   var EditArtAdapter = class {
@@ -164,17 +164,11 @@
       location.search = this._searchParams.toString();
     }
     initPRNG() {
-      let seedStr = randomSeedEditArt;
+      let seedStr = typeof randomSeedEditArt !== "undefined" ? randomSeedEditArt : $genart.id;
       for (let i = 0; i < MAX_PARAMS; i++) {
         seedStr += this._searchParams.get("m" + i) || "0.5";
       }
-      const seed = hashString(seedStr);
-      const reset = () => sfc32(seed);
-      this._prng = {
-        seed: seedStr,
-        rnd: reset(),
-        reset
-      };
+      this._prng = defPRNG(seedStr, hashString(seedStr), sfc32);
     }
     serializeParam(spec) {
       switch (spec.type) {

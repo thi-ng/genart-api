@@ -8,19 +8,42 @@ export interface Utils {
      */
     ensure<T>(x: T, msg: string): T;
     /**
-     * Checks given arguments for value-based equality. Supports the following
-     * types:
+     * Checks given arguments for value-based equality. Directly supports the
+     * following types (any others are compared via `===`):
      *
-     * - JS primitives (boolean, number, string)
+     * - JS primitives (bigint, boolean, number, string, symbol)
+     * - Plain JS objects (incl. nested)
      * - Arrays (incl. nested)
      * - TypedArrays
      * - Date
      * - RegExp
+     * - NaN
+     *
+     * @remarks
+     * Additional rules apply:
+     *
+     * - Arrays are recursively checked via {@link Utils.equivArrayLike}.
+     * - Plain JS objects are recursively checked via {@link Utils.equivObject}.
+     * - Numeric JS arrays will be considered equal to their TypedArray
+     *   counterpart iff both have the same length and contain the same values.
+     * - Other than the above array case, no type coercions are considered, i.e.
+     *   values will be NOT be considered equal if different types
+     * - `NaN` values will be considered equal (only iff both are `NaN`)
+     * - `null` is considered equal to `undefined`
      *
      * @param a
      * @param b
      */
     equiv(a: any, b: any): boolean;
+    /**
+     * Checks if the two given objects contain the same keys and then pairwise
+     * applies {@link Utils.equiv} to all values and returns true if it
+     * successful.
+     *
+     * @param a
+     * @param b
+     */
+    equivObject(a: Record<any, any>, b: Record<any, any>): boolean;
     /**
      * Pairwise applies {@link Utils.equiv} to all items of the two given
      * arraylike arguments and returns true if it successful.
@@ -72,6 +95,12 @@ export interface Utils {
      * @param x
      */
     isString(x: any): x is string;
+    /**
+     * Returns true if `x` is a bigint, boolean, number, string or symbol.
+     *
+     * @param x
+     */
+    isPrim(x: any): x is bigint | boolean | number | string | symbol;
     /**
      * Returns true, iff `x` is in closed `[min,max]` interval.
      *
@@ -143,6 +172,12 @@ export interface Utils {
      */
     parseBigInt(x: string): bigint;
     /**
+     * Converts a 128bit uint into an array of 4x 32bit uints.
+     *
+     * @param x
+     */
+    parseBigInt128(x: bigint): Uint32Array;
+    /**
      * Returns number of fractional digits for given `step` size. Helper for
      * {@link Utils.formatValuePrec}.
      *
@@ -159,7 +194,7 @@ export interface Utils {
      *
      * @remarks
      * Intended to used to compute a PRNG seed value (e.g. from a string) for
-     * functions in {@link PRNGBuiltins}.
+     * functions in {@link PRNGBuiltins}. Also see {@link Utils.parseBigInt128}.
      *
      * @example
      * ```ts

@@ -377,7 +377,7 @@ export interface TextParam extends Param<string> {
     /**
      * Maximum length
      *
-     * @defaultValue 1024
+     * @defaultValue 32
      */
     maxLength: number;
     /**

@@ -5,13 +5,12 @@
  * @remarks
  * See compatible PRNG implementations:
  *
- * - https://github.com/thi-ng/genart-api/blob/main/src/prng/sfc32.ts
- * - https://github.com/thi-ng/genart-api/blob/main/src/prng/xorshift128.ts
+ * - https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts
  */
 export type RandomFn = () => number;
 /**
- * Pseudo-random number generator, obtained from & provided by the currently
- * active {@link PlatformAdapter}.
+ * Seedable & resettable pseudo-random number generator, possibly obtained from
+ * & provided by the currently active {@link PlatformAdapter}.
  */
 export interface PRNG {
     /**
@@ -28,23 +27,36 @@ export interface PRNG {
      */
     rnd: RandomFn;
 }
+/**
+ * Built-in {@link PRNG}-related functions & utilities.
+ */
 export interface PRNGBuiltins {
     /**
-     * SFC32 PRNG. Seed: 4x 32bit int
+     * SFC32 implementation. Seed: 4x 32bit int
+     *
+     * @remarks
+     * Higher order function. Takes `seed` value and returns a {@link RandomFn}.
+     * Also see {@link PRNGBuiltins.defPRNG}.
      *
      * @param seed
      */
     sfc32(seed: ArrayLike<number>): RandomFn;
     /**
-     * XORShift128 PRNG. Seed: 4x 32bit int
+     * Helper function to construct a full {@link PRNG} instance from given
+     * `seed` string, its parsed version (e.g. via {@link Utils.hashString}) and
+     * generator `impl` (e.g. {@link PRNGBuiltins.sfc32}).
      *
      * @param seed
+     * @param parsedSeed
+     * @param impl
      */
-    xorshift128(seed: ArrayLike<number>): RandomFn;
+    defPRNG<T>(seed: string, parsedSeed: T, impl: (seed: T) => RandomFn): PRNG;
     /**
-     * XsAdd PRNG. Seed: 1x 32bit int
+     * Returns a random bigint in the `[0,max)` interval, using provided `rnd`
+     * generator (default: `Math.random()`).
      *
-     * @param seed
+     * @param max
+     * @param rnd
      */
-    xsadd(seed: number): RandomFn;
+    randomBigInt(max: bigint, rnd?: RandomFn): bigint;
 }
