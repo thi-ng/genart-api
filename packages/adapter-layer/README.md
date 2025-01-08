@@ -91,7 +91,7 @@ option is defined in the original param spec, it will be converted as follows:
 | **Regexp**          | **Layer Pattern ID** |
 | ------------------- | -------------------- |
 | `^[a-zA-Z ]+$`      | `"ALPHABETICAL"`     |
-| `^[a-zA-Z0-9-_ ]+$` | `"ALPHANUMERIC"`     |
+| `^[a-zA-Z0-9_ ]+$`  | `"ALPHANUMERIC"`     |
 | `^[a-zA-Z0-9-_=]+$` | `"BASE64"`           |
 | `^[0-9a-f]+$`       | `"HEX"`              |
 | `^[0-9a-fA-F]+$`    | `"HEX"`              |

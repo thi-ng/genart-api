@@ -222,7 +222,7 @@ class LayerAdapter implements PlatformAdapter {
 						case "^[a-zA-Z ]+$":
 							$dest.pattern = "ALPHABETICAL";
 							break;
-						case "^[a-zA-Z0-9-_ ]+$":
+						case "^[a-zA-Z0-9_ ]+$":
 							$dest.pattern = "ALPHANUMERIC";
 							break;
 						default:
