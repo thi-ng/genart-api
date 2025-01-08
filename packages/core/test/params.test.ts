@@ -377,7 +377,7 @@ test("text", () => {
 		desc: "TODO description",
 		randomize: false,
 		minLength: 0,
-		maxLength: 1024,
+		maxLength: 32,
 		multiline: false,
 		match: "^[a-z]{3,8}$",
 		default: "abc",
