@@ -30,7 +30,7 @@ export interface PRNG {
 }
 
 /**
- * Built-in {@link PRNG}-related functionality.
+ * Built-in {@link PRNG}-related functions & utilities.
  */
 export interface PRNGBuiltins {
 	/**
@@ -54,4 +54,13 @@ export interface PRNGBuiltins {
 	 * @param impl
 	 */
 	defPRNG<T>(seed: string, parsedSeed: T, impl: (seed: T) => RandomFn): PRNG;
+
+	/**
+	 * Returns a random bigint in the `[0,max)` interval, using provided `rnd`
+	 * generator (default: `Math.random()`).
+	 *
+	 * @param max
+	 * @param rnd
+	 */
+	randomBigInt(max: bigint, rnd?: RandomFn): bigint;
 }

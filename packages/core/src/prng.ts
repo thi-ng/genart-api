@@ -1,5 +1,7 @@
 import type { PRNG, RandomFn } from "./api/random.js";
 
+const MAX = 0x1_0000_0000;
+
 /**
  * SFC32 PRNG. Seed: 4x 32bit int
  *
@@ -18,8 +20,15 @@ export const sfc32 = (seed: ArrayLike<number>): RandomFn => {
 		buf[0] = buf[1] ^ (buf[1] >>> 9);
 		buf[1] = (buf[2] + (buf[2] << 3)) >>> 0;
 		buf[2] = (((buf[2] << 21) | (buf[2] >>> 11)) + t) >>> 0;
-		return t / 0x1_0000_0000;
+		return t / MAX;
 	};
+};
+
+export const randomBigInt = (max: bigint, rnd: RandomFn = Math.random) => {
+	let value = 0n;
+	for (let i = (Math.log2(Number(max)) + 31) >> 5; i-- > 0; )
+		value = (value << 32n) | BigInt((rnd() * MAX) >>> 0);
+	return value % max;
 };
 
 export const defPRNG = <T>(
