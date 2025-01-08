@@ -212,7 +212,7 @@ export const text = (
 ) =>
 	$<TextParam>(
 		"text",
-		{ minLength: 0, maxLength: 1024, multiline: false, ...spec },
+		{ minLength: 0, maxLength: 32, multiline: false, ...spec },
 		false
 	);
 
