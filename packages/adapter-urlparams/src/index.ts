@@ -17,8 +17,8 @@ import { compressBytes, decompressBytes } from "./compress.js";
 
 const {
 	math: { clamp01, parseNum },
-	prng: { sfc32 },
-	utils: { formatValuePrec, stringifyBigInt },
+	prng: { defPRNG, sfc32, randomBigInt },
+	utils: { formatValuePrec, parseBigInt128, stringifyBigInt },
 } = $genart;
 
 const AUTO = "__autostart";
@@ -26,6 +26,7 @@ const WIDTH = "__width";
 const HEIGHT = "__height";
 const DPR = "__dpr";
 const SEED = "__seed";
+const MAX_SEED = 1n << 128n;
 
 class URLParamsAdapter implements PlatformAdapter {
 	protected params: URLSearchParams;
@@ -107,16 +108,15 @@ class URLParamsAdapter implements PlatformAdapter {
 		const group = this.id;
 		return {
 			...params,
-			[SEED]: $genart.params.range({
+			[SEED]: $genart.params.bigint({
 				group,
 				order: 0,
 				name: "PRNG seed",
 				desc: "Manually defined seed value",
-				min: 0,
-				max: 1e13,
-				default: Number(BigInt(this._prng.seed)),
+				min: 0n,
+				max: MAX_SEED - 1n,
+				default: BigInt(this._prng.seed),
 				update: "reload",
-				widget: "precise",
 			}),
 			[WIDTH]: $genart.params.range({
 				group,
@@ -271,22 +271,12 @@ class URLParamsAdapter implements PlatformAdapter {
 
 	protected initPRNG() {
 		const seedParam = this.params.get(SEED);
-		const seed = BigInt(seedParam ?? Math.floor(Math.random() * 1e13));
-		const M = 0xffffffffn;
-		const reset = () => {
-			return (impl.rnd = sfc32([
-				Number((seed >> 96n) & M) >>> 0,
-				Number((seed >> 64n) & M) >>> 0,
-				Number((seed >> 32n) & M) >>> 0,
-				Number(seed & M) >>> 0,
-			]));
-		};
-		const impl = <PRNG>{
-			seed: "0x" + seed.toString(16),
-			reset,
-		};
-		reset();
-		this._prng = impl;
+		const seed = seedParam ? BigInt(seedParam) : randomBigInt(MAX_SEED);
+		this._prng = defPRNG(
+			stringifyBigInt(seed),
+			parseBigInt128(seed),
+			sfc32
+		);
 	}
 }
 
