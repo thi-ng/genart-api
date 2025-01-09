@@ -122,16 +122,28 @@ export interface GenArtAPI {
 	 * artworks or platform adapters.
 	 */
 	readonly version: string;
+
 	/**
 	 * Current deploy/run mode, proxy accessor for {@link PlatformAdapter.mode}.
 	 */
 	readonly mode: RunMode;
 
 	/**
+	 * Proxy accessor for {@link PlatformAdapter.collector}.
+	 */
+	readonly collector?: string;
+
+	/**
+	 * Proxy accessor for {@link PlatformAdapter.iteration}.
+	 */
+	readonly iteration?: number;
+
+	/**
 	 * Returns the platform's configured screen/canvas dimensions & pixel
 	 * density.
 	 *
-	 * TODO support & handle resizing, add message type
+	 * @remarks
+	 * Also see {@link ResizeMessage}.
 	 */
 	readonly screen: ScreenConfig;
 

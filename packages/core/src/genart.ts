@@ -148,6 +148,14 @@ class API implements GenArtAPI {
 		return this._adapter?.mode || "play";
 	}
 
+	get collector() {
+		return this._adapter?.collector;
+	}
+
+	get iteration() {
+		return this._adapter?.iteration;
+	}
+
 	get screen() {
 		return (
 			this._adapter?.screen || {
