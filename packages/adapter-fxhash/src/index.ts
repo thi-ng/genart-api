@@ -62,6 +62,8 @@ const {
 	utils: { equiv, isString, hashString },
 } = $genart;
 
+const BIGINT_MAX = 2n ** 63n;
+
 /**
  * Adapter configuration options. To be used with
  * {@link FxhashAdapter.configure}.
@@ -106,8 +108,9 @@ export class FxhashAdapter implements PlatformAdapter {
 		});
 		$fx.on(
 			"params:update",
-			(...args) => {
-				let [id, value] = Object.entries(args[0])[0];
+			() => true,
+			(_, rawParam) => {
+				let [id, value] = Object.entries(rawParam)[0];
 				const adaptedParam = this._adaptations[id];
 				if (adaptedParam) {
 					id = adaptedParam.id;
@@ -120,14 +123,16 @@ export class FxhashAdapter implements PlatformAdapter {
 				}
 				if (equiv(this._cache[id], value)) return false;
 				this._cache[id] = value;
+				// only update param if no reload required
+				// (note: this check might be obsolete since fxhash only seems to call
+				// this event handler for params which don't require reload...)
 				if (param.update !== "reload") {
-					// only update param if no reload required
 					$genart.setParamValue(id, value);
+				} else {
+					location.reload();
 				}
 				return true;
-			},
-			() => {}
-			// (...args) => console.log("update post", args)
+			}
 		);
 		window.addEventListener("resize", () => {
 			const { width, height, dpr } = this._screen;
@@ -228,6 +233,9 @@ export class FxhashAdapter implements PlatformAdapter {
 			switch (src.type) {
 				case "bigint": {
 					const { min, max } = <BigIntParam>src;
+					if (min < -BIGINT_MAX || max >= BIGINT_MAX) {
+						this.warn(`value range out of bounds for param: ${id}`);
+					}
 					dest.options = { min, max };
 					break;
 				}
