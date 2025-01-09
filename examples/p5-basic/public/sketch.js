@@ -5,7 +5,7 @@ let canvas;
 // setup function should be async!
 async function setup() {
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
-	$genart.configure({ id: "p5-basic" });
+	$genart.configure({ id: "p5-basic", allowExternalConfig: true });
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();

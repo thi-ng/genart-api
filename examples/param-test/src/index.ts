@@ -3,7 +3,7 @@
 	console.log("$genart version:", $genart.version);
 
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
-	$genart.configure({ id: "param-test" });
+	$genart.configure({ id: "param-test", allowExternalConfig: true });
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();
@@ -90,7 +90,6 @@
 				[0.75, 0],
 				[1, 0.5],
 			],
-			default: 0,
 		}),
 
 		date: $genart.params.date({
@@ -99,6 +98,8 @@
 			default: new Date("2026-01-01"),
 		}),
 	});
+
+	console.log($genart.utils.stringifyJSON($genart.paramSpecs));
 
 	const setTraits = () =>
 		$genart.setTraits({

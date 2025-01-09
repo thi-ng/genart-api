@@ -3,7 +3,7 @@ const TAU = 2 * Math.PI;
 
 (async () => {
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
-	$genart.configure({ id: "param-image" });
+	$genart.configure({ id: "param-image", allowExternalConfig: true });
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();
@@ -60,7 +60,7 @@ const TAU = 2 * Math.PI;
 		}),
 	});
 
-	console.log(JSON.stringify($genart.paramSpecs, null, 4));
+	console.log($genart.utils.stringifyJSON($genart.paramSpecs));
 
 	const { width: W, height: H } = $genart.screen;
 	const canvas = document.createElement("canvas");
