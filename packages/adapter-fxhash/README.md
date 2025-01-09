@@ -52,6 +52,13 @@ Once running, you can then test your example in the fx(hash) sandbox:
 
 https://www.fxhash.xyz/sandbox
 
+You can also run locally using the [`fxhash` command line
+tools](https://docs.fxhash.xyz/creating-on-fxhash/project-setup-and-development/cli-reference):
+
+```bash
+(cd myproject && npx fxhash dev)
+```
+
 ## Parameter handling
 
 ### Type adaptations & conversions
@@ -68,11 +75,37 @@ unsupported types will be skipped (i.e. not exposed to **fx(hash)**) and will
 only ever evaluate to their default values. When using such unsupported types,
 the platform adapter will log a warning message in the browser console.
 
+### Bigint
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#bigint-parameter)
+
+Will be represented as a **fx(hash)** `bigint` parameter.
+
+**Note**: fxhash only supports values in the `[-2^63, 2^63)` interval. A warning
+will be written to the console, if the param's original value range is larger
+than this (which it is by default)...
+
+### Binary
+
+[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#binary-parameter)
+
+Will be represented as a **fx(hash)** `bytes` parameter.
+
+**Note**: Binary parameters in fxhash are not editable via the _fxlens_ UI.
+Parameters of this type will be automatically adapted/redeclared with a
+[`code-driven` update
+behavior](https://docs.fxhash.xyz/creating-on-fxhash/fxhash-api/parameter-definition-specs#bytes)
+as required by the platform.
+
 ### Choice
 
 [Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
 
 Will be represented as a **fx(hash)** `select` parameter.
+
+**Note**: The _fxlens_ editor UI does not support value labels. The param will
+be adapted to any strip `options` labels originally provided and the UI will
+only display option values.
 
 ### Color
 
@@ -131,7 +164,15 @@ Similar to [vector params](#vector), XY params will also be represented as two
 
 ### Update behavior
 
-TODO write docs
+This adapter translates param update behavior configuration to the settings used
+by **fx(hash)**. Note that the **fx(hash)** default param update behavior is to
+reload the page, whereas GenArtAPI's default is to emit an event only...
+
+> [!IMPORTANT]
+> There's an issue in the _fxlens_ editor UI, which doesn't trigger param change
+> events when clicking the "randomize params" button. To not break user
+> experience, it's recommended to declare at least one parameter with `update:
+"reload"`...
 
 ## License
 
