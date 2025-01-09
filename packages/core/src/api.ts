@@ -63,7 +63,14 @@ export interface GenArtAPIOpts {
 	 * behavior to be reconfigured by external tooling.
 	 *
 	 * @remarks
-	 * For security reasons, this should only be enabled during development.
+	 * For security reasons, this option is disabled and should only be enabled
+	 * during development. Also see {@link GenArtAPI.configure}
+	 *
+	 * @example
+	 * ```ts
+	 * // enable re-configuration via IPC messages (e.g. sent from editors/tooling)
+	 * $genart.configure({ allowExternalConfig: true });
+	 * ```
 	 *
 	 * @defaultValue false
 	 */

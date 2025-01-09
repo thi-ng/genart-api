@@ -116,6 +116,7 @@ class API implements GenArtAPI {
 					this.start(true);
 					break;
 				case "genart:configure": {
+					if (!this._opts.allowExternalConfig) return;
 					const opts = data.opts;
 					delete opts.id;
 					delete opts.allowExternalConfig;
