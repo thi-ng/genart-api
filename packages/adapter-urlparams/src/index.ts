@@ -26,6 +26,9 @@ const WIDTH = "__width";
 const HEIGHT = "__height";
 const DPR = "__dpr";
 const SEED = "__seed";
+const MODE = "__mode";
+const COLLECTOR = "__collector";
+const ITER = "__iteration";
 const MAX_SEED = 1n << 128n;
 
 class URLParamsAdapter implements PlatformAdapter {
@@ -89,7 +92,16 @@ class URLParamsAdapter implements PlatformAdapter {
 	}
 
 	get mode() {
-		return <RunMode>this.params.get("__mode") || "play";
+		return <RunMode>this.params.get(MODE) || "play";
+	}
+
+	get collector() {
+		return this.params.get(COLLECTOR) ?? undefined;
+	}
+
+	get iteration() {
+		const id = this.params.get(ITER);
+		return id ? parseNum(id, 0) : undefined;
 	}
 
 	get screen() {
