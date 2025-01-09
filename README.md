@@ -280,9 +280,9 @@ TODO — for now please also see the following links for more messaging related 
 -   [.emit()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#emit)
 -   [.on()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#on)
 -   [.id](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#id)
--   [.setParams()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setParams)
--   [.setTraits()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setTraits)
--   [.setUpdate()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setUpdate)
+-   [.setParams()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setparams)
+-   [.setTraits()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#settraits)
+-   [.setUpdate()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setupdate)
 -   [.start()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#start)
 -   [.stop()](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#stop)
 
@@ -742,13 +742,13 @@ $genart.params.ramp({
 
 The system supports registering custom parameter types and their implementation
 via
-[`$genart.registerParamType()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#registerParamType).
+[`$genart.registerParamType()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#registerparamtype).
 These can be useful to provide additional app-specific or platform-specific
 parameters (e.g. values obtained from arbitrary hardware sensors to which an
 artwork might respond dynamically).
 
 -   [`ParamImpl` interface definition](https://docs.thi.ng/genart-api/core/interfaces/ParamImpl.html)
--   [`registerParamType()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#registerParamType)
+-   [`registerParamType()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#registerparamtype)
 
 The `registerParamType()` allows overriding of existing param type
 implementations, but doing so will print a warning. When an artwork or platform
@@ -893,7 +893,7 @@ platform.
 For cases where a platform does not provide its own PRNG, the API core package
 provides the widely used SFC32 PRNG implementation, which can be used by an
 adapter (or artwork) — also see the related [`defPRNG()` helper
-function](https://docs.thi.ng/genart-api/core/interfaces/PRNGBuiltins.html#defPRNG):
+function](https://docs.thi.ng/genart-api/core/interfaces/PRNGBuiltins.html#defprng):
 
 -   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
 
