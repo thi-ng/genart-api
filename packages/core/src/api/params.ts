@@ -820,7 +820,9 @@ export interface ParamFactories {
 	 * @param spec
 	 */
 	ramp(
-		spec: BaseParam<RampParam, "stops"> & { stops?: [number, number][] }
+		spec: BaseParam<RampParam, "stops" | "default"> & {
+			stops?: [number, number][];
+		}
 	): RampParam;
 
 	/**

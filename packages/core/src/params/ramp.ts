@@ -1,10 +1,9 @@
 import type { ParamImpl, RampParam } from "../api/params.js";
 import { easeInOut5, fit, mix, norm, smoothstep01 } from "../math.js";
-import { isNumber } from "../utils.js";
 import { choice, numlist } from "./factories.js";
 
 export const ramp: ParamImpl = {
-	validate: (_, value) => isNumber(value),
+	validate: () => false,
 	read: (spec, t) => {
 		const { stops, mode } = <RampParam>spec;
 		let n = stops.length;
