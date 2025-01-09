@@ -178,7 +178,7 @@ const createParamControls = (params: ParamSpecs) => {
 					}
 					break;
 
-				case "img": {
+				case "image": {
 					const $param = <ImageParam>param;
 					const fmt = {
 						gray: GRAY8,
