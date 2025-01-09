@@ -57,6 +57,9 @@ import * as utils from "./utils.js";
 
 const { ensure, isFunction } = utils;
 
+/** @internal */
+const hasWindow = typeof window !== "undefined";
+
 class API implements GenArtAPI {
 	protected _opts: GenArtAPIOpts = {
 		// auto-generated instance ID
@@ -102,38 +105,39 @@ class API implements GenArtAPI {
 	};
 
 	constructor() {
-		window.addEventListener("message", (e) => {
-			const data = e.data;
-			if (!this.isRecipient(e) || data?.__self) return;
-			switch (<MessageType>data.type) {
-				case "genart:get-info":
-					this.notifyInfo();
-					break;
-				case "genart:randomize-param":
-					this.randomizeParamValue(data.paramID, data.key);
-					break;
-				case "genart:resume":
-					this.start(true);
-					break;
-				case "genart:configure": {
-					if (!this._opts.allowExternalConfig) return;
-					const opts = data.opts;
-					delete opts.id;
-					delete opts.allowExternalConfig;
-					this.configure(opts);
-					break;
+		hasWindow &&
+			window.addEventListener("message", (e) => {
+				const data = e.data;
+				if (!this.isRecipient(e) || data?.__self) return;
+				switch (<MessageType>data.type) {
+					case "genart:get-info":
+						this.notifyInfo();
+						break;
+					case "genart:randomize-param":
+						this.randomizeParamValue(data.paramID, data.key);
+						break;
+					case "genart:resume":
+						this.start(true);
+						break;
+					case "genart:configure": {
+						if (!this._opts.allowExternalConfig) return;
+						const opts = data.opts;
+						delete opts.id;
+						delete opts.allowExternalConfig;
+						this.configure(opts);
+						break;
+					}
+					case "genart:set-param-value":
+						this.setParamValue(data.paramID, data.value, data.key);
+						break;
+					case "genart:start":
+						this.start();
+						break;
+					case "genart:stop":
+						this.stop();
+						break;
 				}
-				case "genart:set-param-value":
-					this.setParamValue(data.paramID, data.value, data.key);
-					break;
-				case "genart:start":
-					this.start();
-					break;
-				case "genart:stop":
-					this.stop();
-					break;
-			}
-		});
+			});
 	}
 
 	get version() {
@@ -159,11 +163,14 @@ class API implements GenArtAPI {
 
 	get screen() {
 		return (
-			this._adapter?.screen || {
-				width: window.innerWidth,
-				height: window.innerHeight,
-				dpr: window.devicePixelRatio,
-			}
+			this._adapter?.screen ||
+			(hasWindow
+				? {
+						width: window.innerWidth,
+						height: window.innerHeight,
+						dpr: window.devicePixelRatio || 1,
+				  }
+				: { width: 640, height: 640, dpr: 1 })
 		);
 	}
 
@@ -262,7 +269,7 @@ class API implements GenArtAPI {
 		this.emit<TraitsMessage>({ type: "genart:traits", traits });
 	}
 
-	async setAdapter(adapter: PlatformAdapter) {
+	setAdapter(adapter: PlatformAdapter) {
 		this._adapter = adapter;
 		this.notifyReady();
 	}
@@ -407,6 +414,7 @@ class API implements GenArtAPI {
 		type: T,
 		listener: (e: MessageTypeMap[T]) => void
 	) {
+		ensure(hasWindow, "current env has no messaging support");
 		window.addEventListener("message", (e) => {
 			if (this.isRecipient(e) && e.data?.type === type) listener(e.data);
 		});
@@ -416,7 +424,7 @@ class API implements GenArtAPI {
 		e: Omit<T, "apiID">,
 		notify: NotifyType = "all"
 	) {
-		if (notify === "none") return;
+		if (!hasWindow || notify === "none") return;
 		(<T>e).apiID = this.id;
 		const isAll = notify === "all";
 		if (isAll || notify === "self") window.postMessage(e, "*");
@@ -547,14 +555,14 @@ class API implements GenArtAPI {
 
 	protected notifyInfo() {
 		const [time, frame] = this._time.now();
-		const { collector, iteration } = this._adapter ?? {};
+		const { id, collector, iteration } = this._adapter ?? {};
 		this.emit<InfoMessage>({
 			type: "genart:info",
 			opts: this._opts,
 			state: this._state,
 			version: this.version,
-			adapter: this._adapter?.id,
 			seed: this.random.seed,
+			adapter: id,
 			collector,
 			iteration,
 			time,
