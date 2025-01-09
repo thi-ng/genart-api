@@ -188,6 +188,22 @@ export interface Utils {
 	 */
 	parseBigInt128(x: bigint): Uint32Array;
 	/**
+	 * Like `JSON.stringify(x, null, 4)`, but with direct support for bigint
+	 * values (serialized as strings) and typearrays (serialized as normal JS
+	 * arrays).
+	 *
+	 * @remarks
+	 * Intended for serializing/debugging param specs.
+	 *
+	 * @example
+	 * ```ts
+	 * console.log($genart.utils.stringifyJSON($genart.paramSpecs))
+	 * ```
+	 *
+	 * @param x
+	 */
+	stringifyJSON(x: any): string;
+	/**
 	 * Returns number of fractional digits for given `step` size. Helper for
 	 * {@link Utils.formatValuePrec}.
 	 *

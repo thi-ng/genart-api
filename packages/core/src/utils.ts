@@ -81,6 +81,13 @@ export const parseBigInt128 = (x: bigint) =>
 		Number(x & M),
 	]);
 
+export const stringifyJSON = (value: any) =>
+	JSON.stringify(
+		value,
+		(_, x) => (isBigInt(x) ? x.toString() : isTypedArray(x) ? [...x] : x),
+		4
+	);
+
 export const valuePrec = (step: number) => {
 	const str = step.toString();
 	const i = str.indexOf(".");
