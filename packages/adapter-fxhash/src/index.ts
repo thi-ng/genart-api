@@ -19,10 +19,11 @@ import type {
 } from "@genart-api/core";
 
 declare global {
-	var fxhash: string;
 	var $fx: {
 		readonly hash: string;
 		readonly context: "standalone" | "capture" | "minting";
+		readonly minter: string;
+		readonly iteration: number;
 		params(specs: any[]): void;
 		getParam(id: string): any;
 		features(features: Record<string, string | number | boolean>): void;
@@ -170,6 +171,14 @@ export class FxhashAdapter implements PlatformAdapter {
 			this._prng ||
 			(this._prng = defPRNG($fx.hash, hashString($fx.hash), sfc32))
 		);
+	}
+
+	get collector() {
+		return $fx.minter;
+	}
+
+	get iteration() {
+		return $fx.iteration;
 	}
 
 	configure(_: Partial<FxhashAdapterOpts>) {}
