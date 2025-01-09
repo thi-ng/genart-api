@@ -7,6 +7,7 @@ import type {
 	PRNG,
 	RangeParam,
 	ResizeMessage,
+	RunMode,
 	TextParam,
 	VectorParam,
 	WeightedChoiceParam,
@@ -60,8 +61,6 @@ interface AdaptedParam {
 }
 
 class LayerAdapter implements PlatformAdapter {
-	readonly mode = "play";
-
 	protected _prng!: PRNG;
 	protected _params: ParamSpecs | undefined;
 	protected _cache: Record<string, any> = {};
@@ -108,6 +107,10 @@ class LayerAdapter implements PlatformAdapter {
 
 	get id() {
 		return "@genart-api/adapter-layer";
+	}
+
+	get mode() {
+		return <RunMode>"play";
 	}
 
 	get screen() {
