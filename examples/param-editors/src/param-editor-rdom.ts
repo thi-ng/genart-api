@@ -15,7 +15,7 @@ import type {
 import { compareByKey, compareNumAsc } from "@thi.ng/compare";
 import { FMT_HHmm, FMT_yyyyMMdd } from "@thi.ng/date";
 import { equiv } from "@thi.ng/equiv";
-import { div } from "@thi.ng/hiccup-html";
+import { div, label, span } from "@thi.ng/hiccup-html";
 import { MIME_IMAGE_COMMON } from "@thi.ng/mime";
 import {
 	ARGB8888,
@@ -332,6 +332,23 @@ const createParamControls = (params: ParamSpecs) => {
 						);
 					}
 					break;
+				default:
+					groupItems.push(
+						custom(
+							div(
+								".control",
+								{},
+								label(
+									null,
+									param.name,
+									param.desc
+										? span(".desc", {}, param.desc)
+										: null
+								),
+								`TODO unsupported: ${param.type}`
+							)
+						)
+					);
 			}
 			if (param.randomize !== false) {
 				if (param.state === "random") {
