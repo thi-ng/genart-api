@@ -196,7 +196,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "datetime":
 				return { value: new Date(Date.parse(value)) };
 			case "binary":
-			case "img":
+			case "image":
 				return { value: await decompressBytes(base64Decode(value)) };
 			case "numlist":
 				return { value: value.split(",").map((x) => parseNum(x)) };
@@ -236,7 +236,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "bigint":
 				return stringifyBigInt(spec.value, 16);
 			case "binary":
-			case "img":
+			case "image":
 				return base64Encode(
 					await compressBytes((<ImageParam>spec).value!)
 				);
