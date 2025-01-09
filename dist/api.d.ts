@@ -48,7 +48,14 @@ export interface GenArtAPIOpts {
      * behavior to be reconfigured by external tooling.
      *
      * @remarks
-     * For security reasons, this should only be enabled during development.
+     * For security reasons, this option is disabled and should only be enabled
+     * during development. Also see {@link GenArtAPI.configure}
+     *
+     * @example
+     * ```ts
+     * // enable re-configuration via IPC messages (e.g. sent from editors/tooling)
+     * $genart.configure({ allowExternalConfig: true });
+     * ```
      *
      * @defaultValue false
      */
@@ -110,10 +117,19 @@ export interface GenArtAPI {
      */
     readonly mode: RunMode;
     /**
+     * Proxy accessor for {@link PlatformAdapter.collector}.
+     */
+    readonly collector?: string;
+    /**
+     * Proxy accessor for {@link PlatformAdapter.iteration}.
+     */
+    readonly iteration?: number;
+    /**
      * Returns the platform's configured screen/canvas dimensions & pixel
      * density.
      *
-     * TODO support & handle resizing, add message type
+     * @remarks
+     * Also see {@link ResizeMessage}.
      */
     readonly screen: ScreenConfig;
     /**
@@ -190,17 +206,21 @@ export interface GenArtAPI {
      *
      * This function first calls {@link PlatformAdapter.augmentParams} (if
      * available) to allow for any additional platform-specific params to be
-     * injected, then validates all params and defines random default values for
-     * those params with missing defaults. If available, it then calls and waits
-     * for {@link PlatformAdapter.initParams} to pre-initialize any
+     * injected, then validates all params, validates default values or defines
+     * random default values for those params with missing defaults (note:
+     * defaults are only used & checked for param types which have no
+     * {@link ParamImpl.read} method).
+     *
+     * If available, the function then calls and waits for
+     * {@link PlatformAdapter.initParams} to pre-initialize any
      * platform-specific param handling and then calls
      * {@link GenArtAPI.updateParams} to apply any param
      * customizations/overrides sourced via the adapter. Finally, once done, it
      * sends a {@link ParamsMessage} message to the current & parent window for
-     * other software components to be notified (e.g. param editors)
+     * other software components to be notified (e.g. param editors).
      *
-     * The function returns a promise of a typesafe getter function (based on
-     * the declared param specs) to obtain param values (wraps
+     * The function is async and returns a promise of a typesafe getter function
+     * (based on the declared param specs) to obtain param values (wraps
      * {@link GenArtAPI.getParamValue}). See that function's documentation for
      * optional uses like obtaining randomized or time-based values.
      *

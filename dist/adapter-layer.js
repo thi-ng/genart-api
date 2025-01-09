@@ -15,7 +15,6 @@
     utils: { equiv, isString, parseUUID }
   } = $genart;
   var LayerAdapter = class {
-    mode = "play";
     _prng;
     _params;
     _cache = {};
@@ -58,6 +57,9 @@
     }
     get id() {
       return "@genart-api/adapter-layer";
+    }
+    get mode() {
+      return "play";
     }
     get screen() {
       return {

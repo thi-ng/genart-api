@@ -35,6 +35,32 @@ export interface PlatformAdapter {
      */
     readonly id: string;
     /**
+     * Platform supplied ID of the person/agent collecting/creating/minting the
+     * current artwork. Undefined if the platform doesn't support this concept.
+     *
+     * @remarks
+     * This API is not intended to be tied up with crypto/NFT-based concepts,
+     * even though currently it's likely only NFT platforms will or can provide
+     * this kind of information.
+     *
+     * Currently, there're no guarantees or constraints for this value. Even the
+     * concrete meaning & stability of a "collector" value here is also left
+     * wide open on purpose. For a custom digital art online store this could be
+     * the name of the collector/customer, but on supporting NFT platforms it
+     * would likely be the address of the person/agent who minted the artwork.
+     *
+     * Also see {@link PlatformAdapter.iteration}.
+     */
+    readonly collector?: string;
+    /**
+     * Platform supplied iteration number of the artwork's edition.
+     * Undefined if platform doesn't support this concept.
+     *
+     * @remarks
+     * Also see {@link PlatformAdapter.collector}.
+     */
+    readonly iteration?: number;
+    /**
      * Called by {@link GenArtAPI.setParams} to receive parameter specs provided
      * by the artwork and to allow the adapter to inject additional platform
      * specific parameters into the given {@link ParamSpecs} object.

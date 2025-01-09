@@ -86,6 +86,7 @@
     parseBigInt128: () => parseBigInt128,
     parseUUID: () => parseUUID,
     stringifyBigInt: () => stringifyBigInt,
+    stringifyJSON: () => stringifyJSON,
     u16: () => u16,
     u24: () => u24,
     u32: () => u32,
@@ -126,6 +127,11 @@
     Number(x >> 32n & M),
     Number(x & M)
   ]);
+  var stringifyJSON = (value) => JSON.stringify(
+    value,
+    (_, x) => isBigInt(x) ? x.toString() : isTypedArray(x) ? [...x] : x,
+    4
+  );
   var valuePrec = (step) => {
     const str = step.toString();
     const i = str.indexOf(".");
@@ -334,7 +340,7 @@
     false
   );
   var image = (spec) => $(
-    "img",
+    "image",
     {
       default: spec.default || new (spec.format === "gray" ? Uint8Array : Uint32Array)(
         spec.width * spec.height
@@ -525,7 +531,7 @@
 
   // src/params/ramp.ts
   var ramp2 = {
-    validate: (_, value) => isNumber(value),
+    validate: () => false,
     read: (spec, t) => {
       const { stops, mode } = spec;
       let n = stops.length;
@@ -686,6 +692,7 @@
 
   // src/genart.ts
   var { ensure: ensure2, isFunction: isFunction2 } = utils_exports;
+  var hasWindow = typeof window !== "undefined";
   var API = class {
     _opts = {
       // auto-generated instance ID
@@ -728,7 +735,7 @@
       raf: timeProviderRAF
     };
     constructor() {
-      window.addEventListener("message", (e) => {
+      hasWindow && window.addEventListener("message", (e) => {
         const data = e.data;
         if (!this.isRecipient(e) || data?.__self) return;
         switch (data.type) {
@@ -742,6 +749,7 @@
             this.start(true);
             break;
           case "genart:configure": {
+            if (!this._opts.allowExternalConfig) return;
             const opts = data.opts;
             delete opts.id;
             delete opts.allowExternalConfig;
@@ -761,7 +769,7 @@
       });
     }
     get version() {
-      return "0.23.0";
+      return "0.24.0";
     }
     get id() {
       return this._opts.id;
@@ -769,12 +777,18 @@
     get mode() {
       return this._adapter?.mode || "play";
     }
+    get collector() {
+      return this._adapter?.collector;
+    }
+    get iteration() {
+      return this._adapter?.iteration;
+    }
     get screen() {
-      return this._adapter?.screen || {
+      return this._adapter?.screen || (hasWindow ? {
         width: window.innerWidth,
         height: window.innerHeight,
-        dpr: window.devicePixelRatio
-      };
+        dpr: window.devicePixelRatio || 1
+      } : { width: 640, height: 640, dpr: 1 });
     }
     get random() {
       if (this._prng) return this._prng;
@@ -831,7 +845,7 @@
               );
             }
           } else {
-            if (!impl.validate(param, param.default)) {
+            if (!(impl.read || impl.validate(param, param.default))) {
               throw new Error(
                 `invalid default value for param: ${id} (${param.default})`
               );
@@ -857,7 +871,7 @@
       this._traits = traits;
       this.emit({ type: "genart:traits", traits });
     }
-    async setAdapter(adapter) {
+    setAdapter(adapter) {
       this._adapter = adapter;
       this.notifyReady();
     }
@@ -968,12 +982,13 @@
       this.notifyInfo();
     }
     on(type, listener) {
+      ensure2(hasWindow, "current env has no messaging support");
       window.addEventListener("message", (e) => {
         if (this.isRecipient(e) && e.data?.type === type) listener(e.data);
       });
     }
     emit(e, notify = "all") {
-      if (notify === "none") return;
+      if (!hasWindow || notify === "none") return;
       e.apiID = this.id;
       const isAll = notify === "all";
       if (isAll || notify === "self") window.postMessage(e, "*");
@@ -1084,13 +1099,16 @@
     }
     notifyInfo() {
       const [time3, frame] = this._time.now();
+      const { id, collector, iteration } = this._adapter ?? {};
       this.emit({
         type: "genart:info",
         opts: this._opts,
         state: this._state,
         version: this.version,
-        adapter: this._adapter?.id,
         seed: this.random.seed,
+        adapter: id,
+        collector,
+        iteration,
         time: time3,
         frame
       });

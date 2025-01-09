@@ -252,7 +252,7 @@ export interface DateTimeParam extends Param<Date> {
  * Non-randomizable.
  */
 export interface ImageParam extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
-    type: "img";
+    type: "image";
     /** Image width */
     width: number;
     /** Height width */
@@ -759,7 +759,7 @@ export interface ParamFactories {
      *
      * @param spec
      */
-    ramp(spec: BaseParam<RampParam, "stops"> & {
+    ramp(spec: BaseParam<RampParam, "stops" | "default"> & {
         stops?: [number, number][];
     }): RampParam;
     /**

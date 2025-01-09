@@ -21,6 +21,7 @@
     prng: { defPRNG, sfc32 },
     utils: { equiv, isString, hashString }
   } = $genart;
+  var BIGINT_MAX = 2n ** 63n;
   var FxhashAdapter = class {
     _searchParams;
     _params;
@@ -36,8 +37,9 @@
       });
       $fx.on(
         "params:update",
-        (...args) => {
-          let [id, value] = Object.entries(args[0])[0];
+        () => true,
+        (_, rawParam) => {
+          let [id, value] = Object.entries(rawParam)[0];
           const adaptedParam = this._adaptations[id];
           if (adaptedParam) {
             id = adaptedParam.id;
@@ -52,12 +54,11 @@
           this._cache[id] = value;
           if (param.update !== "reload") {
             $genart.setParamValue(id, value);
+          } else {
+            location.reload();
           }
           return true;
-        },
-        () => {
         }
-        // (...args) => console.log("update post", args)
       );
       window.addEventListener("resize", () => {
         const { width, height, dpr } = this._screen;
@@ -90,6 +91,12 @@
     }
     get prng() {
       return this._prng || (this._prng = defPRNG($fx.hash, hashString($fx.hash), sfc32));
+    }
+    get collector() {
+      return $fx.minter;
+    }
+    get iteration() {
+      return $fx.iteration;
     }
     configure(_) {
     }
@@ -137,6 +144,9 @@
         switch (src.type) {
           case "bigint": {
             const { min, max } = src;
+            if (min < -BIGINT_MAX || max >= BIGINT_MAX) {
+              this.warn(`value range out of bounds for param: ${id}`);
+            }
             dest.options = { min, max };
             break;
           }

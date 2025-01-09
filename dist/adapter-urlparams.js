@@ -27,6 +27,9 @@
   var HEIGHT = "__height";
   var DPR = "__dpr";
   var SEED = "__seed";
+  var MODE = "__mode";
+  var COLLECTOR = "__collector";
+  var ITER = "__iteration";
   var MAX_SEED = 1n << 128n;
   var URLParamsAdapter = class {
     params;
@@ -80,7 +83,14 @@
       return "@genart-api/adapter-urlparams";
     }
     get mode() {
-      return this.params.get("__mode") || "play";
+      return this.params.get(MODE) || "play";
+    }
+    get collector() {
+      return this.params.get(COLLECTOR) ?? void 0;
+    }
+    get iteration() {
+      const id = this.params.get(ITER);
+      return id ? parseNum(id, 0) : void 0;
     }
     get screen() {
       return {
@@ -170,7 +180,7 @@
         case "datetime":
           return { value: new Date(Date.parse(value)) };
         case "binary":
-        case "img":
+        case "image":
           return { value: await decompressBytes(base64Decode(value)) };
         case "numlist":
           return { value: value.split(",").map((x) => parseNum(x)) };
@@ -207,7 +217,7 @@
         case "bigint":
           return stringifyBigInt(spec.value, 16);
         case "binary":
-        case "img":
+        case "image":
           return base64Encode(
             await compressBytes(spec.value)
           );
