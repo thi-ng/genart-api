@@ -212,6 +212,14 @@ export interface InfoMessage extends APIMessage {
 	 * Random seed used by this instance's {@link PRNG}.
 	 */
 	seed: string;
+	/**
+	 * Same as {@link PlatformAdapter.collector}.
+	 */
+	collector?: string;
+	/**
+	 * Same as {@link PlatformAdapter.iteration}.
+	 */
+	iteration?: number;
 }
 
 /**

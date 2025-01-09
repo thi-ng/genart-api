@@ -546,6 +546,7 @@ class API implements GenArtAPI {
 
 	protected notifyInfo() {
 		const [time, frame] = this._time.now();
+		const { collector, iteration } = this._adapter ?? {};
 		this.emit<InfoMessage>({
 			type: "genart:info",
 			opts: this._opts,
@@ -553,6 +554,8 @@ class API implements GenArtAPI {
 			version: this.version,
 			adapter: this._adapter?.id,
 			seed: this.random.seed,
+			collector,
+			iteration,
 			time,
 			frame,
 		});
