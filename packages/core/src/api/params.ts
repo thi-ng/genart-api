@@ -278,7 +278,7 @@ export interface DateTimeParam extends Param<Date> {
  */
 export interface ImageParam
 	extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
-	type: "img";
+	type: "image";
 	/** Image width */
 	width: number;
 	/** Height width */

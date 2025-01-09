@@ -217,7 +217,7 @@ test("image", () => {
 	});
 	expect(spec).toEqual(<ImageParam>{
 		...PARAM_DEFAULTS,
-		type: "img",
+		type: "image",
 		name: "test",
 		desc: "TODO description",
 		randomize: false,
@@ -228,7 +228,7 @@ test("image", () => {
 	});
 	expect(spec2).toEqual(<ImageParam>{
 		...PARAM_DEFAULTS,
-		type: "img",
+		type: "image",
 		name: "test",
 		desc: "TODO description",
 		randomize: false,

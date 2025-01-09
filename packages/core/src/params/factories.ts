@@ -131,7 +131,7 @@ export const datetime = (
 
 export const image = (spec: BaseParam<ImageParam, "randomize">) =>
 	$<ImageParam>(
-		"img",
+		"image",
 		{
 			default:
 				spec.default ||
