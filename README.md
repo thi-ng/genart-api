@@ -291,7 +291,12 @@ TODO — for now please also see the following links for more messaging related 
 In addition to the detailed API docs, this readme, the source code and the
 [example projects](#example-projects) are the best reference.
 
-[Generated API documentation](https://docs.thi.ng/genart-api/core/)
+-   [@genart-api/core](https://docs.thi.ng/genart-api/core/)
+-   [@genart-api/adapter-editart](https://docs.thi.ng/genart-api/adapter-editart/)
+-   [@genart-api/adapter-fxhash](https://docs.thi.ng/genart-api/adapter-fxhash/)
+-   [@genart-api/adapter-layer](https://docs.thi.ng/genart-api/adapter-layer/)
+-   [@genart-api/adapter-urlparams](https://docs.thi.ng/genart-api/adapter-urlparams/)
+-   [@genart-api/time-fps-overlay](https://docs.thi.ng/genart-api/time-fps-overlay/)
 
 ## Parameters
 
