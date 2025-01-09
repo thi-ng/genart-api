@@ -230,7 +230,7 @@ class API implements GenArtAPI {
 						);
 					}
 				} else {
-					if (!impl.validate(param, param.default)) {
+					if (!(impl.read || impl.validate(param, param.default))) {
 						throw new Error(
 							`invalid default value for param: ${id} (${param.default})`
 						);
