@@ -9,18 +9,12 @@ for (let pkg of [
 	"adapter-urlparams",
 	"time-fps-overlay",
 ]) {
-	console.log("deploying pkg docs:", pkg);
+	console.log("publishing pkg:", pkg);
 	try {
 		console.log(
-			execFileSync("bun", [
-				"../umbrella/tools/src/deploy-docs.ts",
-				"--no-toc",
-				"-b",
-				"packages",
-				"-d",
-				"genart-api",
-				pkg,
-			]).toString()
+			execFileSync("yarn", ["publish"], {
+				cwd: `packages/${pkg}`,
+			}).toString()
 		);
 	} catch (e) {
 		console.log(e);
