@@ -1,0 +1,6 @@
+{
+	"global": { "uppercaseEnums": false, "header": false },
+	"ts": {
+		"pre": ["import type { ParamOpts } from \"@genart-api/core\";"]
+	}
+}

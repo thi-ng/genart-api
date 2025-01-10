@@ -426,8 +426,8 @@ __metadata:
   resolution: "@example/zig-test@workspace:examples/zig-test"
   dependencies:
     "@genart-api/core": "workspace:^"
+    "@genart-api/wasm": "workspace:^"
     "@thi.ng/wasm-api": "npm:^2.3.0"
-    "@thi.ng/wasm-api-bindgen": "npm:^1.1.0"
     "@thi.ng/wasm-api-canvas": "npm:^1.0.18"
     typescript: "npm:^5.7.3"
     vite: "npm:^5.4.11"
@@ -495,6 +495,20 @@ __metadata:
   resolution: "@genart-api/time-fps-overlay@workspace:packages/time-fps-overlay"
   dependencies:
     "@genart-api/core": "workspace:^"
+    esbuild: "npm:^0.24.2"
+    typedoc: "npm:^0.27.6"
+    typescript: "npm:^5.7.3"
+  languageName: unknown
+  linkType: soft
+
+"@genart-api/wasm@workspace:^, @genart-api/wasm@workspace:packages/wasm":
+  version: 0.0.0-use.local
+  resolution: "@genart-api/wasm@workspace:packages/wasm"
+  dependencies:
+    "@genart-api/core": "workspace:^"
+    "@thi.ng/wasm-api": "npm:^2.3.0"
+    "@thi.ng/wasm-api-bindgen": "npm:^1.1.0"
+    bun-types: "npm:^1.1.43"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
     typescript: "npm:^5.7.3"

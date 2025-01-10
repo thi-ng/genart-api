@@ -1,0 +1,68 @@
+{
+	"name": "@genart-api/wasm",
+	"version": "0.25.0",
+	"description": "WASM/Zig bindings for GenArtAPI and the thi.ng/wasm-api toolchain",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thi-ng/genart-api.git"
+	},
+	"homepage": "https://thi.ng/genart-api",
+	"author": "Karsten Schmidt (https://thi.ng)",
+	"license": "MIT",
+	"type": "module",
+	"typings": "./index.d.ts",
+	"scripts": {
+		"build": "yarn build:esbuild && yarn build:decl",
+		"build:decl": "tsc --declaration --emitDeclarationOnly --noEmit false",
+		"build:esbuild": "esbuild --format=esm --platform=neutral --target=es2022 --tsconfig=tsconfig.json --outdir=. src/**/*.ts",
+		"build:bindings": "npx wasm-api-bindgen --config src/typedefs-config.json --lang ts -o src/generated/api.ts --lang zig -o zig/api.zig src/typedefs.json",
+		"clean": "bun ../../tools/clean-package.js generated",
+		"doc": "typedoc src/api.ts",
+		"publish": "yarn npm publish --access public",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"@genart-api/core": "workspace:^",
+		"@thi.ng/wasm-api": "^2.3.0"
+	},
+	"devDependencies": {
+		"@thi.ng/wasm-api-bindgen": "^1.1.0",
+		"bun-types": "^1.1.43",
+		"esbuild": "^0.24.2",
+		"typedoc": "^0.27.6",
+		"typescript": "^5.7.3"
+	},
+	"exports": {
+		".": {
+			"default": "./index.js"
+		},
+		"./api": {
+			"default": "./api.js"
+		},
+		"./genart": {
+			"default": "./genart.js"
+		}
+	},
+	"files": [
+		"generated",
+		"zig",
+		"./*.js",
+		"./*.d.ts"
+	],
+	"keywords": [
+		"art",
+		"bindings",
+		"genart",
+		"generative",
+		"interop",
+		"parameters",
+		"thi.ng",
+		"webassembly",
+		"wasm",
+		"wasm-api",
+		"zig"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}
