@@ -51,6 +51,7 @@
         -   [RAF](#raf)
         -   [Offline](#offline)
         -   [FPS overlay](#fps-overlay)
+-   [WebAssembly bindings](#webassembly-bindings)
 -   [Getting started](#getting-started)
     -   [Existing adapter implementations](#existing-adapter-implementations)
     -   [Examples projects](#example-projects)
@@ -997,6 +998,18 @@ max and average. The visualization can be configured via provided
 [options](https://docs.thi.ng/genart-api/time-fps-overlay/interfaces/FPSOverlayOpts.html).
 
 [Source](https://github.com/thi-ng/genart-api/blob/main/packages/time-fps-overlay/src/index.ts)
+
+## WebAssembly bindings
+
+Altough the main GenArtAPI project is a JavaScript-centric GenArt API
+workflow/setup, we also want to provide integrations for other languages, e.g.
+via WebAssembly.
+
+The [@genart-api/wasm
+package](https://github.com/thi-ng/genart-api/blob/main/packages/wasm/) provides
+WASM bindings for GenArtAPI and is designed as an API module/plugin for the
+[thi.ng/wasm-api](https://thi.ng/wasm-api) toolchain, and includes polyglot
+bindings code for both [Zig](https://ziglang.org) & TypeScript/JavaScript.
 
 ## Getting started
 
