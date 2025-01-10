@@ -15,7 +15,7 @@
 		"name": "ImageFormat",
 		"type": "enum",
 		"tag": "u8",
-		"values": ["gray", "argb"]
+		"values": ["gray", "rgba"]
 	},
 	{
 		"name": "RampMode",
@@ -118,10 +118,12 @@
 		"fields": [
 			{ "name": "choice", "type": "ChoiceParam", "setter": false },
 			{ "name": "color", "type": "ColorParam", "setter": false },
+			{ "name": "image", "type": "ImageParam", "setter": false },
 			{ "name": "ramp", "type": "RampParam", "setter": false },
 			{ "name": "range", "type": "RangeParam", "setter": false },
 			{ "name": "text", "type": "TextParam", "setter": false },
 			{ "name": "toggle", "type": "ToggleParam", "setter": false },
+			{ "name": "vector", "type": "VectorParam", "setter": false },
 			{ "name": "xy", "type": "XYParam", "setter": false }
 		]
 	},
@@ -398,6 +400,59 @@
 					"return $genart.params.toggle({",
 					"...parent.asParam(),",
 					"default: this.default === 255 ? undefined : this.default !== 0,",
+					"});",
+					"}"
+				]
+			}
+		}
+	},
+	{
+		"name": "VectorParam",
+		"type": "struct",
+		"fields": [
+			{
+				"name": "default",
+				"type": "f32",
+				"tag": "slice",
+				"const": true,
+				"setter": false
+			},
+			{
+				"name": "size",
+				"type": "u32",
+				"setter": false
+			},
+			{
+				"name": "min",
+				"type": "f32",
+				"default": 0,
+				"setter": false
+			},
+			{
+				"name": "max",
+				"type": "f32",
+				"default": 1,
+				"setter": false
+			},
+			{
+				"name": "step",
+				"type": "f32",
+				"default": 0.01,
+				"setter": false
+			}
+		],
+		"body": {
+			"ts": {
+				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.xy>;",
+				"impl": [
+					"asParam(parent: Param) {",
+					"return $genart.params.vector({",
+					"...parent.asParam(),",
+					"size: this.size,",
+					"default: [...this.default],",
+					"min: this.min,",
+					"max: this.max,",
+					"step: this.step,",
 					"});",
 					"}"
 				]

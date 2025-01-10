@@ -21,7 +21,7 @@ export enum EditPermission {
 
 export enum ImageFormat {
 	gray,
-	argb,
+	rgba,
 }
 
 export enum RampMode {
@@ -121,10 +121,12 @@ export const $Param = defType<Param>(8, 72, (mem, base) => {
 export interface ParamBody extends WasmTypeBase {
 	readonly choice: ChoiceParam;
 	readonly color: ColorParam;
+	readonly image: ImageParam;
 	readonly ramp: RampParam;
 	readonly range: RangeParam;
 	readonly text: TextParam;
 	readonly toggle: ToggleParam;
+	readonly vector: VectorParam;
 	readonly xy: XYParam;
 }
 
@@ -137,6 +139,9 @@ export const $ParamBody = defType<ParamBody>(8, 40, (mem, base) => {
 		get color(): ColorParam {
 			return $ColorParam(mem).instance(base);
 		},
+		get image(): ImageParam {
+			return $ImageParam(mem).instance(base);
+		},
 		get ramp(): RampParam {
 			return $RampParam(mem).instance(base);
 		},
@@ -148,6 +153,9 @@ export const $ParamBody = defType<ParamBody>(8, 40, (mem, base) => {
 		},
 		get toggle(): ToggleParam {
 			return $ToggleParam(mem).instance(base);
+		},
+		get vector(): VectorParam {
+			return $VectorParam(mem).instance(base);
 		},
 		get xy(): XYParam {
 			return $XYParam(mem).instance(base);
@@ -469,6 +477,65 @@ export const $ToggleParam = defType<ToggleParam>(1, 1, (mem, base) => {
 			return $genart.params.toggle({
 				...parent.asParam(),
 				default: this.default === 255 ? undefined : this.default !== 0,
+			});
+		}
+		
+	};
+});
+
+export interface VectorParam extends WasmTypeBase {
+	/**
+	 * Zig type: `ConstF32Slice`
+	 */
+	readonly default: Float32Array;
+	/**
+	 * Zig type: `u32`
+	 */
+	readonly size: number;
+	/**
+	 * Zig type: `f32`
+	 */
+	readonly min: number;
+	/**
+	 * Zig type: `f32`
+	 */
+	readonly max: number;
+	/**
+	 * Zig type: `f32`
+	 */
+	readonly step: number;
+	
+	asParam(parent: Param): ReturnType<typeof $genart.params.xy>;
+	
+}
+
+// @ts-ignore possibly unused args
+export const $VectorParam = defType<VectorParam>(4, 24, (mem, base) => {
+	return {
+		get default(): Float32Array {
+			return __primslice32(mem, mem.f32, base, 2);
+		},
+		get size(): number {
+			return mem.u32[(base + 8) >>> 2];
+		},
+		get min(): number {
+			return mem.f32[(base + 12) >>> 2];
+		},
+		get max(): number {
+			return mem.f32[(base + 16) >>> 2];
+		},
+		get step(): number {
+			return mem.f32[(base + 20) >>> 2];
+		},
+		
+		asParam(parent: Param) {
+			return $genart.params.vector({
+				...parent.asParam(),
+				size: this.size,
+				default: [...this.default],
+				min: this.min,
+				max: this.max,
+				step: this.step,
 			});
 		}
 		

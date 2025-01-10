@@ -13,6 +13,9 @@ pub const ConstU32Slice = bindgen.Slice([]const u32, [*]const u32);
 pub const F64Slice = bindgen.Slice([]f64, [*]f64);
 pub const ConstF64Slice = bindgen.Slice([]const f64, [*]const f64);
 
+pub const F32Slice = bindgen.Slice([]f32, [*]f32);
+pub const ConstF32Slice = bindgen.Slice([]const f32, [*]const f32);
+
 pub const UpdateBehavior = enum(u8) {
     event,
     reload,
@@ -26,7 +29,7 @@ pub const EditPermission = enum(u8) {
 
 pub const ImageFormat = enum(u8) {
     gray,
-    argb,
+    rgba,
 };
 
 pub const RampMode = enum(u8) {
@@ -59,10 +62,12 @@ pub const Param = extern struct {
 pub const ParamBody = extern union {
     choice: ChoiceParam,
     color: ColorParam,
+    image: ImageParam,
     ramp: RampParam,
     range: RangeParam,
     text: TextParam,
     toggle: ToggleParam,
+    vector: VectorParam,
     xy: XYParam,
 };
 
@@ -116,6 +121,14 @@ pub const TextParam = extern struct {
 pub const ToggleParam = extern struct {
     /// 0 = false, 1 = true, 255 = undefined
     default: u8 = 255,
+};
+
+pub const VectorParam = extern struct {
+    default: ConstF32Slice,
+    size: u32,
+    min: f32 = 0,
+    max: f32 = 1,
+    step: f32 = 0.01,
 };
 
 pub const XYParam = extern struct {

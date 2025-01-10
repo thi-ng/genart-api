@@ -30,7 +30,7 @@ pub extern "genart" fn rampParamValue(id: [*:0]const u8, t: f64) f64;
 
 pub extern "genart" fn toggleParamValue(id: [*:0]const u8) u8;
 
-pub extern "genart" fn _xyParamValue(id: [*:0]const u8, val: [*]f32) void;
+pub extern "genart" fn _vectorParamValue(id: [*:0]const u8, val: [*]f32) void;
 
 pub const SetParamsCallback = *const fn () void;
 
@@ -56,8 +56,12 @@ pub fn stringParamValue(name: [*:0]const u8, val: [:0]u8) []u8 {
     return val[0.._stringParamValue(name, val.ptr, val.len + 1)];
 }
 
+pub fn vecParamValue(name: [*:0]const u8, comptime size: usize, val: *[size]f32) void {
+    _vectorParamValue(name, val);
+}
+
 pub fn xyParamValue(name: [*:0]const u8, val: *[2]f32) void {
-    _xyParamValue(name, val);
+    _vectorParamValue(name, val);
 }
 
 inline fn defField(comptime T: type, param: *T, spec: anytype, name: []const u8) void {
@@ -90,11 +94,16 @@ pub inline fn color(spec: anytype) api.Param {
 }
 
 pub inline fn image(spec: anytype) api.Param {
+    if (spec.default.len != spec.width * spec.height) @compileError("wrong image data size");
     return defParam("image", spec, .{
         .image = api.ImageParam{
             .width = spec.width,
             .height = spec.height,
-            .default = spec.default,
+            .format = spec.format,
+            .default = if (spec.format == .gray)
+                api.ImageData{ .gray = api.ConstU8Slice.wrap(spec.default) }
+            else
+                api.ImageData{ .rgba = api.ConstU32Slice.wrap(spec.default) },
         },
     });
 }
@@ -125,6 +134,18 @@ pub inline fn toggle(spec: anytype) api.Param {
     var param = api.ToggleParam{};
     defField(api.ToggleParam, &param, spec, "default");
     return defParam("toggle", spec, .{ .toggle = param });
+}
+
+pub inline fn vector(spec: anytype) api.Param {
+    if (spec.default.len != spec.size) @compileError("wrong vector size");
+    var param = api.VectorParam{
+        .size = spec.size,
+        .default = api.ConstF32Slice.wrap(spec.default),
+    };
+    inline for (.{ "min", "max", "step" }) |id| {
+        defField(api.VectorParam, &param, spec, id);
+    }
+    return defParam("vector", spec, .{ .vector = param });
 }
 
 pub inline fn xy(spec: anytype) api.Param {
