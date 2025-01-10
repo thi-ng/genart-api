@@ -3,5 +3,14 @@
 	"excludePrivate": true,
 	"excludeInternal": true,
 	"out": "doc",
-	"entryPoints": ["src/index.ts"]
+	"entryPoints": ["src/index.ts"],
+	"highlightLanguages": [
+		"bash",
+		"c",
+		"html",
+		"javascript",
+		"json",
+		"typescript",
+		"zig"
+	]
 }

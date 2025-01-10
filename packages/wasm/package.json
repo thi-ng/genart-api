@@ -17,7 +17,7 @@
 		"build:esbuild": "esbuild --format=esm --platform=neutral --target=es2022 --tsconfig=tsconfig.json --outdir=. src/**/*.ts",
 		"build:bindings": "npx wasm-api-bindgen --config src/typedefs-config.json --lang ts -o src/generated/api.ts --lang zig -o zig/api.zig src/typedefs.json",
 		"clean": "bun ../../tools/clean-package.js generated",
-		"doc": "typedoc src/api.ts",
+		"doc": "typedoc",
 		"publish": "yarn npm publish --access public",
 		"test": "bun test"
 	},
