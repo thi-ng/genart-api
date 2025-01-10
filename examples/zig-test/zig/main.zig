@@ -74,14 +74,14 @@ export fn start() void {
                 .max = 100,
                 .step = 1,
             }),
-            genart.image(.{
-                .id = "img",
-                .name = "Test",
-                .width = 2,
-                .height = 2,
-                .format = .rgba,
-                .default = &[_]u32{ 0, 0, 0, 0 },
-            }),
+            // genart.image(.{
+            //     .id = "img",
+            //     .name = "Test",
+            //     .width = 2,
+            //     .height = 2,
+            //     .format = .rgba,
+            //     .default = &[_]u32{ 0, 0, 0, 0 },
+            // }),
         },
         // $genart.setParams() is an async function on the JS side.
         // to simplify mechanics, we pass the setup() function (below) as callback
