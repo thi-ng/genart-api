@@ -60,82 +60,75 @@ pub fn xyParamValue(name: [*:0]const u8, val: *[2]f32) void {
     _xyParamValue(name, val);
 }
 
+inline fn defField(comptime T: type, param: *T, spec: anytype, name: []const u8) void {
+    if (@hasField(@TypeOf(spec), name)) @field(param, name) = @field(spec, name);
+}
+
 inline fn defParam(typeID: [*:0]const u8, spec: anytype, body: anytype) api.Param {
-    return .{
+    var param = api.Param{
         .type = typeID,
         .id = spec.id,
         .name = spec.name,
-        .desc = spec.desc,
-        .doc = if (@hasField(@TypeOf(spec), "doc")) spec.doc else null,
-        .group = if (@hasField(@TypeOf(spec), "group")) spec.group else "main",
-        .update = if (@hasField(@TypeOf(spec), "update")) spec.update else .event,
-        .edit = if (@hasField(@TypeOf(spec), "edit")) spec.edit else .protected,
-        .widget = if (@hasField(@TypeOf(spec), "widget")) spec.widget else .default,
         .body = body,
     };
+    inline for (.{ "desc", "doc", "group", "update", "edit", "widget", "randomize", "order" }) |id| {
+        defField(api.Param, &param, spec, id);
+    }
+    return param;
 }
 
 pub inline fn choice(spec: anytype) api.Param {
-    return defParam("choice", spec, .{
-        .choice = .{
-            .options = api.ConstOptionSlice.wrap(spec.options),
-            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
-        },
-    });
+    var param = api.ChoiceParam{ .options = api.ConstOptionSlice.wrap(spec.options) };
+    defField(api.ChoiceParam, &param, spec, "default");
+    return defParam("choice", spec, .{ .choice = param });
 }
 
 pub inline fn color(spec: anytype) api.Param {
-    return defParam("color", spec, .{
-        .color = .{
-            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else null,
+    var param = api.ColorParam{};
+    defField(api.ColorParam, &param, spec, "default");
+    return defParam("color", spec, .{ .color = param });
+}
+
+pub inline fn image(spec: anytype) api.Param {
+    return defParam("image", spec, .{
+        .image = api.ImageParam{
+            .width = spec.width,
+            .height = spec.height,
+            .default = spec.default,
         },
     });
 }
 
 pub inline fn ramp(spec: anytype) api.Param {
-    return defParam("ramp", spec, .{
-        .ramp = .{
-            .stops = api.ConstF64Slice.wrap(spec.stops),
-            .mode = if (@hasField(@TypeOf(spec), "mode")) spec.mode else .linear,
-        },
-    });
+    var param = api.RampParam{ .stops = api.ConstF64Slice.wrap(spec.stops) };
+    defField(api.RampParam, &param, spec, "mode");
+    return defParam("ramp", spec, .{ .ramp = param });
 }
 
 pub inline fn range(spec: anytype) api.Param {
-    return defParam("range", spec, .{
-        .range = .{
-            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
-            .min = if (@hasField(@TypeOf(spec), "min")) spec.min else 0,
-            .max = if (@hasField(@TypeOf(spec), "max")) spec.max else 100,
-            .step = if (@hasField(@TypeOf(spec), "step")) spec.step else 1,
-            .exponent = if (@hasField(@TypeOf(spec), "exponent")) spec.exponent else 1,
-        },
-    });
+    var param = api.RangeParam{};
+    inline for (.{ "default", "min", "max", "step", "exponent" }) |id| {
+        defField(api.RangeParam, &param, spec, id);
+    }
+    return defParam("range", spec, .{ .range = param });
 }
 
 pub inline fn text(spec: anytype) api.Param {
-    return defParam("text", spec, .{
-        .text = .{
-            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else std.math.inf(f64),
-            .match = if (@hasField(@TypeOf(spec), "match")) spec.match else null,
-            .minLength = if (@hasField(@TypeOf(spec), "minLength")) spec.minLength else 0,
-            .maxLength = if (@hasField(@TypeOf(spec), "maxLength")) spec.maxLength else 0,
-        },
-    });
+    var param = api.TextParam{};
+    inline for (.{ "default", "match", "minLength", "maxLength", "multiline" }) |id| {
+        defField(api.TextParam, &param, spec, id);
+    }
+    return defParam("text", spec, .{ .text = param });
 }
 
 pub inline fn toggle(spec: anytype) api.Param {
-    return defParam("toggle", spec, .{
-        .toggle = .{
-            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else 255,
-        },
-    });
+    var param = api.ToggleParam{};
+    defField(api.ToggleParam, &param, spec, "default");
+    return defParam("toggle", spec, .{ .toggle = param });
 }
 
 pub inline fn xy(spec: anytype) api.Param {
-    return defParam("xy", spec, .{
-        .xy = .{
-            .default = if (@hasField(@TypeOf(spec), "default")) spec.default else [2]f32{ 0.5, 0.5 },
-        },
-    });
+    var param = api.XYParam{};
+    defField(api.XYParam, &param, spec, "default");
+    return defParam("xy", spec, .{ .xy = param });
 }

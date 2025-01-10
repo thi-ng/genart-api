@@ -7,6 +7,9 @@ pub const ConstOptionSlice = bindgen.Slice([]const Option, [*]const Option);
 pub const U8Slice = bindgen.Slice([]u8, [*]u8);
 pub const ConstU8Slice = bindgen.Slice([]const u8, [*]const u8);
 
+pub const U32Slice = bindgen.Slice([]u32, [*]u32);
+pub const ConstU32Slice = bindgen.Slice([]const u32, [*]const u32);
+
 pub const F64Slice = bindgen.Slice([]f64, [*]f64);
 pub const ConstF64Slice = bindgen.Slice([]const f64, [*]const f64);
 
@@ -21,10 +24,8 @@ pub const EditPermission = enum(u8) {
     public,
 };
 
-/// Currently unused
 pub const ImageFormat = enum(u8) {
     gray,
-    rgb,
     argb,
 };
 
@@ -44,7 +45,7 @@ pub const Param = extern struct {
     type: bindgen.ConstStringPtr,
     id: bindgen.ConstStringPtr,
     name: bindgen.ConstStringPtr,
-    desc: bindgen.ConstStringPtr,
+    desc: bindgen.ConstStringPtr = "TODO description",
     doc: ?bindgen.ConstStringPtr = null,
     group: bindgen.ConstStringPtr = "main",
     update: UpdateBehavior = .event,
@@ -79,11 +80,16 @@ pub const ColorParam = extern struct {
     default: ?bindgen.ConstStringPtr = null,
 };
 
-/// Currently only supports grayscale image data
 pub const ImageParam = extern struct {
-    default: ConstU8Slice,
+    default: ImageData,
     width: u16,
     height: u16,
+    format: ImageFormat,
+};
+
+pub const ImageData = extern union {
+    gray: ConstU8Slice,
+    rgba: ConstU32Slice,
 };
 
 pub const RampParam = extern struct {

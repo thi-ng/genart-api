@@ -13,10 +13,9 @@
 	},
 	{
 		"name": "ImageFormat",
-		"doc": "Currently unused",
 		"type": "enum",
 		"tag": "u8",
-		"values": ["gray", "rgb", "argb"]
+		"values": ["gray", "argb"]
 	},
 	{
 		"name": "RampMode",
@@ -41,7 +40,12 @@
 			},
 			{ "name": "id", "type": "string", "setter": false },
 			{ "name": "name", "type": "string", "setter": false },
-			{ "name": "desc", "type": "string", "setter": false },
+			{
+				"name": "desc",
+				"type": "string",
+				"setter": false,
+				"default": { "zig": "\"TODO description\"" }
+			},
 			{
 				"name": "doc",
 				"type": "string",
@@ -97,9 +101,9 @@
 					"desc: this.desc.deref(),",
 					"doc: this.doc.deref() || undefined,",
 					"group: this.group.deref(),",
-					"update: <any>UpdateBehavior[this.update],",
-					"edit: <any>EditPermission[this.edit],",
-					"widget: <any>ParamWidgetType[this.widget],",
+					"update: <keyof typeof UpdateBehavior>UpdateBehavior[this.update],",
+					"edit: <keyof typeof EditPermission>EditPermission[this.edit],",
+					"widget: <keyof typeof ParamWidgetType>ParamWidgetType[this.widget],",
 					"randomize: !!this.randomize,",
 					"order: this.order,",
 					"};",
@@ -197,13 +201,10 @@
 	{
 		"name": "ImageParam",
 		"type": "struct",
-		"doc": "Currently only supports grayscale image data",
 		"fields": [
 			{
 				"name": "default",
-				"type": "u8",
-				"tag": "slice",
-				"const": true,
+				"type": "ImageData",
 				"setter": false
 			},
 			{
@@ -215,6 +216,11 @@
 				"name": "height",
 				"type": "u16",
 				"setter": false
+			},
+			{
+				"name": "format",
+				"type": "ImageFormat",
+				"setter": false
 			}
 		],
 		"body": {
@@ -222,18 +228,38 @@
 				"decl": "asParam(parent: Param): ReturnType<typeof $genart.params.image>;",
 				"impl": [
 					"asParam(parent: Param) {",
+					"const format = <WasmTypeKeys<ImageData>>ImageFormat[this.format];",
 					"return $genart.params.image({",
 					"...parent.asParam(),",
-					"//format: <any>ImageFormat[this.format],",
-					"format: \"gray\",",
+					"format,",
 					"width: this.width,",
 					"height: this.height,",
-					"default: this.default,",
+					"default: this.default[format],",
 					"});",
 					"}"
 				]
 			}
 		}
+	},
+	{
+		"name": "ImageData",
+		"type": "union",
+		"fields": [
+			{
+				"name": "gray",
+				"type": "u8",
+				"tag": "slice",
+				"const": true,
+				"setter": false
+			},
+			{
+				"name": "rgba",
+				"type": "u32",
+				"tag": "slice",
+				"const": true,
+				"setter": false
+			}
+		]
 	},
 	{
 		"name": "RampParam",
@@ -263,7 +289,7 @@
 					"for(let i = 0; i < src.length; i += 2) stops.push([src[i], src[i+1]]);",
 					"return $genart.params.ramp({",
 					"...parent.asParam(),",
-					"mode: <any>RampMode[this.mode],",
+					"mode: <keyof typeof RampMode>RampMode[this.mode],",
 					"stops,",
 					"});",
 					"}"

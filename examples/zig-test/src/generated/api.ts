@@ -1,5 +1,5 @@
 // @ts-ignore possibly includes unused imports
-import { defType, Pointer, WasmStringPtr, type IWasmMemoryAccess, type MemorySlice, type MemoryView, type WasmTypeBase } from "@thi.ng/wasm-api";
+import { defType, Pointer, WasmStringPtr, type IWasmMemoryAccess, type MemorySlice, type MemoryView, type WasmTypeBase, type WasmTypeKeys } from "@thi.ng/wasm-api";
 // @ts-ignore
 import { __array, __instanceArray, __slice32, __primslice32 } from "@thi.ng/wasm-api/memory";
 
@@ -19,12 +19,8 @@ export enum EditPermission {
 	public,
 }
 
-/**
- * Currently unused
- */
 export enum ImageFormat {
 	gray,
-	rgb,
 	argb,
 }
 
@@ -111,9 +107,9 @@ export const $Param = defType<Param>(8, 72, (mem, base) => {
 				desc: this.desc.deref(),
 				doc: this.doc.deref() || undefined,
 				group: this.group.deref(),
-				update: <any>UpdateBehavior[this.update],
-				edit: <any>EditPermission[this.edit],
-				widget: <any>ParamWidgetType[this.widget],
+				update: <keyof typeof UpdateBehavior>UpdateBehavior[this.update],
+				edit: <keyof typeof EditPermission>EditPermission[this.edit],
+				widget: <keyof typeof ParamWidgetType>ParamWidgetType[this.widget],
 				randomize: !!this.randomize,
 				order: this.order,
 			};
@@ -232,14 +228,8 @@ export const $ColorParam = defType<ColorParam>(4, 4, (mem, base) => {
 	};
 });
 
-/**
- * Currently only supports grayscale image data
- */
 export interface ImageParam extends WasmTypeBase {
-	/**
-	 * Zig type: `ConstU8Slice`
-	 */
-	readonly default: Uint8Array;
+	readonly default: ImageData;
 	/**
 	 * Zig type: `u16`
 	 */
@@ -248,16 +238,17 @@ export interface ImageParam extends WasmTypeBase {
 	 * Zig type: `u16`
 	 */
 	readonly height: number;
+	readonly format: ImageFormat;
 	
 	asParam(parent: Param): ReturnType<typeof $genart.params.image>;
 	
 }
 
 // @ts-ignore possibly unused args
-export const $ImageParam = defType<ImageParam>(4, 12, (mem, base) => {
+export const $ImageParam = defType<ImageParam>(4, 16, (mem, base) => {
 	return {
-		get default(): Uint8Array {
-			return __primslice32(mem, mem.u8, base, 0);
+		get default(): ImageData {
+			return $ImageData(mem).instance(base);
 		},
 		get width(): number {
 			return mem.u16[(base + 8) >>> 1];
@@ -265,18 +256,44 @@ export const $ImageParam = defType<ImageParam>(4, 12, (mem, base) => {
 		get height(): number {
 			return mem.u16[(base + 10) >>> 1];
 		},
+		get format(): ImageFormat {
+			return mem.u8[(base + 12)];
+		},
 		
 		asParam(parent: Param) {
+			const format = <WasmTypeKeys<ImageData>>ImageFormat[this.format];
 			return $genart.params.image({
 				...parent.asParam(),
-				//format: <any>ImageFormat[this.format],
-				format: "gray",
+				format,
 				width: this.width,
 				height: this.height,
-				default: this.default,
+				default: this.default[format],
 			});
 		}
 		
+	};
+});
+
+export interface ImageData extends WasmTypeBase {
+	/**
+	 * Zig type: `ConstU8Slice`
+	 */
+	readonly gray: Uint8Array;
+	/**
+	 * Zig type: `ConstU32Slice`
+	 */
+	readonly rgba: Uint32Array;
+}
+
+// @ts-ignore possibly unused args
+export const $ImageData = defType<ImageData>(4, 8, (mem, base) => {
+	return {
+		get gray(): Uint8Array {
+			return __primslice32(mem, mem.u8, base, 0);
+		},
+		get rgba(): Uint32Array {
+			return __primslice32(mem, mem.u32, base, 2);
+		},
 	};
 });
 
@@ -307,7 +324,7 @@ export const $RampParam = defType<RampParam>(4, 12, (mem, base) => {
 			for(let i = 0; i < src.length; i += 2) stops.push([src[i], src[i+1]]);
 			return $genart.params.ramp({
 				...parent.asParam(),
-				mode: <any>RampMode[this.mode],
+				mode: <keyof typeof RampMode>RampMode[this.mode],
 				stops,
 			});
 		}
