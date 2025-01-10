@@ -3,7 +3,7 @@ const wasm = @import("wasm-api");
 const bindgen = @import("wasm-api-bindgen");
 const canvas = @import("wasm-api-canvas");
 const dom = @import("wasm-api-dom");
-const genart = @import("lib.zig");
+const genart = @import("genart-api");
 
 // only needed for debug builds
 pub fn log(
@@ -117,8 +117,9 @@ fn update(t: f64, frame: f64) bool {
     var color: [8:0]u8 = undefined;
     var choice: [8:0]u8 = undefined;
     // get current bg color param value
-    const bg = genart.stringParamValue("bgcol", &color);
-    canvas.setFill(@ptrCast(bg.ptr));
+    _ = genart.stringParamValue("bgcol", &color);
+    canvas.setFill(&color);
+    // canvas.setFill(@ptrCast(bg.ptr));
     canvas.fillRect(0, 0, w, h);
 
     // draw circle at ramp position

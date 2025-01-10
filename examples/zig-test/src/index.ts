@@ -1,3 +1,7 @@
+import {
+	GenArtWasmAPIModule,
+	type GenArtWasmAPIExports,
+} from "@genart-api/wasm";
 import type { Fn0 } from "@thi.ng/api";
 import { ConsoleLogger, ROOT } from "@thi.ng/logger";
 import { WasmBridge } from "@thi.ng/wasm-api";
@@ -5,10 +9,6 @@ import {
 	WasmCanvas2DModule,
 	type WasmCanvas2DExports,
 } from "@thi.ng/wasm-api-canvas";
-import {
-	GenArtWasmAPIModule,
-	type GenArtWasmAPIExports,
-} from "./genart-wasm.js";
 import WASM_URL from "./main.wasm?url";
 
 ROOT.set(new ConsoleLogger());
@@ -33,8 +33,8 @@ interface WasmApp extends GenArtWasmAPIExports, WasmCanvas2DExports {
 	// we pass an array of additional module declarations
 	// see: https://docs.thi.ng/umbrella/wasm-api/interfaces/WasmModuleSpec.html
 	const bridge = new WasmBridge<WasmApp>(
-		[GenArtWasmAPIModule, WasmCanvas2DModule],
-		new ConsoleLogger("wasm")
+		[GenArtWasmAPIModule, WasmCanvas2DModule]
+		// new ConsoleLogger("wasm")
 	);
 	// instantiate WASM module & bindings
 	await bridge.instantiate(fetch(WASM_URL));

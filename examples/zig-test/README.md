@@ -2,10 +2,11 @@
 
 [Live demo with editor](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/)
 
-This basic example is used as test bed to develop a Zig & WebAssembly API for
-the otherwise JavaScript-based GenArt API workflow/setup. This integration makes
-heavy use of the [thi.ng/wasm-api](https://thi.ng/wasm-api) toolchain, incl.
-polyglot bindings code generation for both Zig & TypeScript.
+This basic example is used as test bed for the work-in-progress [Zig &
+WebAssembly API bindings](../../packages/wasm/) of the otherwise
+JavaScript-based GenArt API workflow/setup. This integration is designed as a
+module for the [thi.ng/wasm-api](https://thi.ng/wasm-api) toolchain, and
+includes polyglot bindings code for both Zig & TypeScript.
 
 ## Launching & building
 
@@ -23,12 +24,11 @@ both of which are required for building this project.
 # install typescript etc.
 yarn install
 
-# build API files
+# build all packages
 yarn build
 
 # switch to this example & install dependencies
 cd examples/zig-test
-yarn install
 
 # run vite dev server
 yarn start
