@@ -356,7 +356,7 @@ __metadata:
   resolution: "@example/param-custom@workspace:examples/param-custom"
   dependencies:
     "@genart-api/core": "workspace:^"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
     vite: "npm:^5.4.11"
     vite-plugin-html: "npm:^3.2.2"
   languageName: unknown
@@ -378,7 +378,7 @@ __metadata:
     "@thi.ng/equiv": "npm:^2.1.72"
     "@thi.ng/hex": "npm:^2.3.60"
     "@thi.ng/hiccup-canvas": "npm:^3.1.30"
-    "@thi.ng/hiccup-html": "npm:^2.7.13"
+    "@thi.ng/hiccup-html": "npm:^2.7.14"
     "@thi.ng/imgui": "npm:^3.1.11"
     "@thi.ng/layout": "npm:^3.1.10"
     "@thi.ng/math": "npm:^5.11.16"
@@ -387,12 +387,12 @@ __metadata:
     "@thi.ng/pixel": "npm:^7.3.11"
     "@thi.ng/ramp": "npm:^3.3.15"
     "@thi.ng/rdom": "npm:^1.7.18"
-    "@thi.ng/rdom-forms": "npm:^1.0.1"
+    "@thi.ng/rdom-forms": "npm:^1.0.2"
     "@thi.ng/rstream": "npm:^9.2.3"
     "@thi.ng/strings": "npm:^3.9.0"
     "@thi.ng/transducers": "npm:^9.2.12"
     "@thi.ng/transducers-stats": "npm:^2.2.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
     vite: "npm:^5.4.11"
     vite-plugin-html: "npm:^3.2.2"
   languageName: unknown
@@ -403,7 +403,7 @@ __metadata:
   resolution: "@example/param-image@workspace:examples/param-image"
   dependencies:
     "@genart-api/core": "workspace:^"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
     vite: "npm:^5.4.11"
     vite-plugin-html: "npm:^3.2.2"
   languageName: unknown
@@ -415,7 +415,7 @@ __metadata:
   dependencies:
     "@genart-api/core": "workspace:^"
     "@genart-api/time-fps-overlay": "workspace:^"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
     vite: "npm:^5.4.11"
     vite-plugin-html: "npm:^3.2.2"
   languageName: unknown
@@ -426,10 +426,10 @@ __metadata:
   resolution: "@example/zig-test@workspace:examples/zig-test"
   dependencies:
     "@genart-api/core": "workspace:^"
-    "@thi.ng/wasm-api": "npm:^2.2.7"
-    "@thi.ng/wasm-api-bindgen": "npm:^1.0.1"
-    "@thi.ng/wasm-api-canvas": "npm:^1.0.17"
-    typescript: "npm:^5.7.2"
+    "@thi.ng/wasm-api": "npm:^2.3.0"
+    "@thi.ng/wasm-api-bindgen": "npm:^1.1.0"
+    "@thi.ng/wasm-api-canvas": "npm:^1.0.18"
+    typescript: "npm:^5.7.3"
     vite: "npm:^5.4.11"
     vite-plugin-html: "npm:^3.2.2"
   languageName: unknown
@@ -442,7 +442,7 @@ __metadata:
     "@genart-api/core": "workspace:^"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 
@@ -453,18 +453,18 @@ __metadata:
     "@genart-api/core": "workspace:^"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 
-"@genart-api/adapter-layer@workspace:packages/adapter-layer":
+"@genart-api/adapter-layer@workspace:^, @genart-api/adapter-layer@workspace:packages/adapter-layer":
   version: 0.0.0-use.local
   resolution: "@genart-api/adapter-layer@workspace:packages/adapter-layer"
   dependencies:
     "@genart-api/core": "workspace:^"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 
@@ -475,7 +475,7 @@ __metadata:
     "@genart-api/core": "workspace:^"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 
@@ -483,10 +483,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@genart-api/core@workspace:packages/core"
   dependencies:
-    bun-types: "npm:^1.1.42"
+    bun-types: "npm:^1.1.43"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 
@@ -497,7 +497,7 @@ __metadata:
     "@genart-api/core": "workspace:^"
     esbuild: "npm:^0.24.2"
     typedoc: "npm:^0.27.6"
-    typescript: "npm:^5.7.2"
+    typescript: "npm:^5.7.3"
   languageName: unknown
   linkType: soft
 
@@ -1292,12 +1292,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/hiccup-html@npm:^2.7.13":
-  version: 2.7.13
-  resolution: "@thi.ng/hiccup-html@npm:2.7.13"
+"@thi.ng/hiccup-html@npm:^2.7.14":
+  version: 2.7.14
+  resolution: "@thi.ng/hiccup-html@npm:2.7.14"
   dependencies:
     "@thi.ng/api": "npm:^8.11.16"
-  checksum: 10/0f3e42f41601dbd25cb8cdbe301f398c6ae10421416e134578fd33667da2828c8dff83f3fdc55bb8a278a9eaeee323353576ee02ce6cb4ab78d4f7bcab62e324
+  checksum: 10/424d37bb1526bc4316b32fba9db0ecf67c7cd1dbd70dab41c7081b0a56978ff76c352d855b570ce57647386603b8c179ab4e94cacd4b2ac459b5395c1b44ecc3
   languageName: node
   linkType: hard
 
@@ -1520,17 +1520,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/rdom-forms@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@thi.ng/rdom-forms@npm:1.0.1"
+"@thi.ng/rdom-forms@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@thi.ng/rdom-forms@npm:1.0.2"
   dependencies:
     "@thi.ng/api": "npm:^8.11.16"
     "@thi.ng/checks": "npm:^3.6.18"
     "@thi.ng/defmulti": "npm:^3.0.54"
-    "@thi.ng/hiccup-html": "npm:^2.7.13"
+    "@thi.ng/hiccup-html": "npm:^2.7.14"
     "@thi.ng/rdom": "npm:^1.7.18"
     "@thi.ng/rstream": "npm:^9.2.3"
-  checksum: 10/88ca91116fbdc0b8b53a86e8ca3c4901d3d71c4bd59bd574c5f4ff76261693f9d5116fa3728c8cce65ed6c78d682d4f951081da13d3740a8f3b5cc3b144f7ad9
+  checksum: 10/d911b67344f1556e4a66d33ae83448c318f7aff1cc4d5c27dd40581261fd297f55a62d2e9d1c0deb60b886e6d051f1c971d24ebf6c0a0ae8f9f7e1769c007633
   languageName: node
   linkType: hard
 
@@ -1655,9 +1655,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@thi.ng/wasm-api-bindgen@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@thi.ng/wasm-api-bindgen@npm:1.0.1"
+"@thi.ng/wasm-api-bindgen@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@thi.ng/wasm-api-bindgen@npm:1.1.0"
   dependencies:
     "@thi.ng/api": "npm:^8.11.16"
     "@thi.ng/args": "npm:^2.3.52"
@@ -1671,40 +1671,40 @@ __metadata:
     "@thi.ng/logger": "npm:^3.0.26"
     "@thi.ng/paths": "npm:^5.1.96"
     "@thi.ng/strings": "npm:^3.9.0"
-    "@thi.ng/wasm-api": "npm:^2.2.7"
+    "@thi.ng/wasm-api": "npm:^2.3.0"
   bin:
     wasm-api-bindgen: bin/wasm-api-bindgen
-  checksum: 10/52946ac5cce4ae9244df5134fb91593ef81f81a200769e8fa19ea399cd9ed75c0b3cc52b5b524fd7cb66205b590457183e84f55e2e7336c9f279645e91ff5cbd
+  checksum: 10/a5d5a8ce7abeffc4a2b374607d5975e42c4d96ee1475c162eede7d58edbf47ebc4c21586fe3582357683522d25e784ec149ab1ffc820a2d47e7d8ba0f9cfdc60
   languageName: node
   linkType: hard
 
-"@thi.ng/wasm-api-canvas@npm:^1.0.17":
-  version: 1.0.17
-  resolution: "@thi.ng/wasm-api-canvas@npm:1.0.17"
+"@thi.ng/wasm-api-canvas@npm:^1.0.18":
+  version: 1.0.18
+  resolution: "@thi.ng/wasm-api-canvas@npm:1.0.18"
   dependencies:
     "@thi.ng/binary": "npm:^3.4.39"
-    "@thi.ng/wasm-api": "npm:^2.2.7"
-    "@thi.ng/wasm-api-dom": "npm:^1.0.16"
-  checksum: 10/fac3b11581e45d91107c5998d6fae4d6bf052fa7bd62977658f66437ccffd26494a284deeccae680d45ac3d33708858dc806c9bb301fd123e5953227412b3e82
+    "@thi.ng/wasm-api": "npm:^2.3.0"
+    "@thi.ng/wasm-api-dom": "npm:^1.0.17"
+  checksum: 10/ad2c63f7e14fa36d6929c3382312fbb6ee50710d403099e7830f16104440e28547646ead0efae99a0c3a0785c7e93c1d93d916c95b378b346798c49348cb8e1c
   languageName: node
   linkType: hard
 
-"@thi.ng/wasm-api-dom@npm:^1.0.16":
-  version: 1.0.16
-  resolution: "@thi.ng/wasm-api-dom@npm:1.0.16"
+"@thi.ng/wasm-api-dom@npm:^1.0.17":
+  version: 1.0.17
+  resolution: "@thi.ng/wasm-api-dom@npm:1.0.17"
   dependencies:
     "@thi.ng/api": "npm:^8.11.16"
     "@thi.ng/canvas": "npm:^1.0.1"
     "@thi.ng/errors": "npm:^2.5.22"
     "@thi.ng/prefixes": "npm:^2.3.33"
-    "@thi.ng/wasm-api": "npm:^2.2.7"
-  checksum: 10/a0953a84f1542b14205fc24c02edf52571c686fca0aac3081c7afcec2f4d6c77f91df3091e8a027c73ef9958a61579a83d999cad2171c37c3aa1d8b861927c39
+    "@thi.ng/wasm-api": "npm:^2.3.0"
+  checksum: 10/3b897ae40b3bffe6dfeed9b58b01b8652c2dbd4eddeddb8c3277ee41133796d1f35a132602e18903a23258018197e967cb00de268eb259c9a1ba8b611b13828a
   languageName: node
   linkType: hard
 
-"@thi.ng/wasm-api@npm:^2.2.7":
-  version: 2.2.7
-  resolution: "@thi.ng/wasm-api@npm:2.2.7"
+"@thi.ng/wasm-api@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@thi.ng/wasm-api@npm:2.3.0"
   dependencies:
     "@thi.ng/api": "npm:^8.11.16"
     "@thi.ng/arrays": "npm:^2.10.9"
@@ -1713,7 +1713,7 @@ __metadata:
     "@thi.ng/hex": "npm:^2.3.60"
     "@thi.ng/idgen": "npm:^2.2.56"
     "@thi.ng/logger": "npm:^3.0.26"
-  checksum: 10/5ff1230b2979e21d2bb0075ac6215d2cc7612d856d2f2b961fa476a2a32d987ebb4cfdd6cfc892a78eac2e83abe26e04ff9ab8e0f815b458e8815115176c93eb
+  checksum: 10/d03f8d0505a61c22c487d01e4eb37bac1ccebcde5ed1f9d58642f27e986e2b5402b8db51e14f63364793636b08534fd4237bc47e53e30ec2cfe420ddfd20553a
   languageName: node
   linkType: hard
 
@@ -1885,13 +1885,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bun-types@npm:^1.1.42":
-  version: 1.1.42
-  resolution: "bun-types@npm:1.1.42"
+"bun-types@npm:^1.1.43":
+  version: 1.1.43
+  resolution: "bun-types@npm:1.1.43"
   dependencies:
     "@types/node": "npm:~20.12.8"
     "@types/ws": "npm:~8.5.10"
-  checksum: 10/fe5c18923a6e42e2b66445e235649f15a39409b920abf9e61b212e44e87edc5e1fe96caa1aaf279e226b9b06deb153effc7fa73719f719203345ed099c80e2cb
+  checksum: 10/1b7762e8b9b909d17b8b7e9b488d608480c6bd96ead089acfba43ae251249d43c4b3e8eebff045c1bf56f0a0a93a42f34d2d1df21c07666a008066595b5cd7d9
   languageName: node
   linkType: hard
 
@@ -3395,23 +3395,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.7.2":
-  version: 5.7.2
-  resolution: "typescript@npm:5.7.2"
+"typescript@npm:^5.7.3":
+  version: 5.7.3
+  resolution: "typescript@npm:5.7.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/4caa3904df69db9d4a8bedc31bafc1e19ffb7b24fbde2997a1633ae1398d0de5bdbf8daf602ccf3b23faddf1aeeb9b795223a2ed9c9a4fdcaf07bfde114a401a
+  checksum: 10/6a7e556de91db3d34dc51cd2600e8e91f4c312acd8e52792f243c7818dfadb27bae677175fad6947f9c81efb6c57eb6b2d0c736f196a6ee2f1f7d57b74fc92fa
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.7.2#optional!builtin<compat/typescript>":
-  version: 5.7.2
-  resolution: "typescript@patch:typescript@npm%3A5.7.2#optional!builtin<compat/typescript>::version=5.7.2&hash=5786d5"
+"typescript@patch:typescript@npm%3A^5.7.3#optional!builtin<compat/typescript>":
+  version: 5.7.3
+  resolution: "typescript@patch:typescript@npm%3A5.7.3#optional!builtin<compat/typescript>::version=5.7.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/d75ca10141afc64fd3474b41a8b082b640555bed388d237558aed64e5827ddadb48f90932c7f4205883f18f5bcab8b6a739a2cfac95855604b0dfeb34bc2f3eb
+  checksum: 10/dc58d777eb4c01973f7fbf1fd808aad49a0efdf545528dab9b07d94fdcb65b8751742804c3057e9619a4627f2d9cc85547fdd49d9f4326992ad0181b49e61d81
   languageName: node
   linkType: hard
 
