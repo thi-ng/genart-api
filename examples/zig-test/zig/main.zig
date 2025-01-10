@@ -65,6 +65,23 @@ export fn start() void {
                 .name = "Dot shape/radius",
                 .desc = "Demo only",
             }),
+            genart.vector(.{
+                .id = "vec",
+                .name = "Test vector",
+                .size = 3,
+                .default = &[_]f32{ 10, 20, 30 },
+                .min = 0,
+                .max = 100,
+                .step = 1,
+            }),
+            genart.image(.{
+                .id = "img",
+                .name = "Test",
+                .width = 2,
+                .height = 2,
+                .format = .rgba,
+                .default = &[_]u32{ 0, 0, 0, 0 },
+            }),
         },
         // $genart.setParams() is an async function on the JS side.
         // to simplify mechanics, we pass the setup() function (below) as callback
@@ -74,6 +91,7 @@ export fn start() void {
 }
 
 var canvasID: i32 = undefined;
+var overlayID: i32 = undefined;
 var info: dom.WindowInfo = undefined;
 
 /// main initialization AFTER parameters have been declared
@@ -81,11 +99,8 @@ fn setup() void {
     wasm.printStr("setup()");
     // create fullscreen canvas
     dom.getWindowInfo(&info);
-    canvasID = dom.createCanvas(&.{
-        .width = info.innerWidth,
-        .height = info.innerHeight,
-        .parent = dom.body,
-    });
+    canvasID = dom.createCanvas(&.{ .width = info.innerWidth, .height = info.innerHeight, .parent = dom.body });
+    overlayID = dom.createElement(&.{ .tag = "pre", .id = "info", .parent = dom.body });
     canvas.beginCtx(canvasID);
     canvas.setFont("32px sans-serif");
     canvas.setTextAlign(.right);
@@ -118,7 +133,10 @@ fn update(t: f64, frame: f64) bool {
     }
 
     var dotShape: [2]f32 = undefined;
+    var vec: [3]f32 = undefined;
     genart.xyParamValue("dotshape", &dotShape);
+    genart.vecParamValue("vec", 3, &vec);
+
     canvas.beginPath();
     canvas.ellipse(
         @floatCast(tnorm * w),
@@ -137,19 +155,28 @@ fn update(t: f64, frame: f64) bool {
     }
 
     // format & write timing info to canvas
-    var buf: [256:0]u8 = undefined;
-    var txt = std.fmt.bufPrintZ(&buf, "t={d:.2} frame={d}", .{ t, frame }) catch return false;
-    canvas.setFill("#fff");
-    canvas.fillText(@ptrCast(txt.ptr), w - 20, h - 36, 0);
-
-    // same for current values of other params...
-    txt = std.fmt.bufPrintZ(&buf, "choice: {s}, bg: {s}, shape: {d:.2} density: {d:.2}", .{
-        genart.stringParamValue("choice", &choice),
-        genart.stringParamValue("bgcol", &color),
-        dotShape,
-        genart.numberParamValue("density"),
-    }) catch return false;
-    canvas.fillText(@as([*:0]const u8, @ptrCast(txt.ptr)), w - 20, h - 2 * 36, 0);
+    var buf: [512:0]u8 = undefined;
+    const txt = std.fmt.bufPrintZ(
+        &buf,
+        \\choice: {s}
+        \\bg: {s}
+        \\shape: {d:.2}
+        \\density: {d:.2}
+        \\vector: {d:.0}
+        \\
+        \\t={d:.2} frame={d}
+    ,
+        .{
+            genart.stringParamValue("choice", &choice),
+            genart.stringParamValue("bgcol", &color),
+            dotShape,
+            genart.numberParamValue("density"),
+            vec,
+            t,
+            frame,
+        },
+    ) catch return false;
+    dom.setInnerText(overlayID, @as([*:0]const u8, @ptrCast(txt.ptr)));
 
     // MUST return true to indicate animation should continue...
     return true;
