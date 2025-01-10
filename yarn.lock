@@ -457,7 +457,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@genart-api/adapter-layer@workspace:^, @genart-api/adapter-layer@workspace:packages/adapter-layer":
+"@genart-api/adapter-layer@workspace:packages/adapter-layer":
   version: 0.0.0-use.local
   resolution: "@genart-api/adapter-layer@workspace:packages/adapter-layer"
   dependencies:
