@@ -68,7 +68,7 @@ inline fn defField(comptime T: type, param: *T, spec: anytype, name: []const u8)
     if (@hasField(@TypeOf(spec), name)) @field(param, name) = @field(spec, name);
 }
 
-inline fn defParam(typeID: [*:0]const u8, spec: anytype, body: anytype) api.Param {
+inline fn defParam(typeID: [*:0]const u8, spec: anytype, body: api.ParamBody) api.Param {
     var param = api.Param{
         .type = typeID,
         .id = spec.id,
@@ -81,18 +81,26 @@ inline fn defParam(typeID: [*:0]const u8, spec: anytype, body: anytype) api.Para
     return param;
 }
 
+/// Helper to wrap options for a `choice` param spec
+pub inline fn options(items: []const api.Option) api.ConstOptionSlice {
+    return api.ConstOptionSlice.wrap(items);
+}
+
+/// Defines a choice param spec. Use `options()` to wrap possible values
 pub inline fn choice(spec: anytype) api.Param {
-    var param = api.ChoiceParam{ .options = api.ConstOptionSlice.wrap(spec.options) };
+    var param = api.ChoiceParam{ .options = spec.options };
     defField(api.ChoiceParam, &param, spec, "default");
     return defParam("choice", spec, .{ .choice = param });
 }
 
+/// Defines a color param spec.
 pub inline fn color(spec: anytype) api.Param {
     var param = api.ColorParam{};
     defField(api.ColorParam, &param, spec, "default");
     return defParam("color", spec, .{ .color = param });
 }
 
+/// Defines an image param spec.
 pub inline fn image(spec: anytype) api.Param {
     if (spec.default.len != spec.width * spec.height) @compileError("wrong image data size");
     return defParam("image", spec, .{
@@ -108,12 +116,14 @@ pub inline fn image(spec: anytype) api.Param {
     });
 }
 
+/// Defines a ramp param spec.
 pub inline fn ramp(spec: anytype) api.Param {
     var param = api.RampParam{ .stops = api.ConstF64Slice.wrap(spec.stops) };
     defField(api.RampParam, &param, spec, "mode");
     return defParam("ramp", spec, .{ .ramp = param });
 }
 
+/// Defines a range param spec.
 pub inline fn range(spec: anytype) api.Param {
     var param = api.RangeParam{};
     inline for (.{ "default", "min", "max", "step", "exponent" }) |id| {
@@ -122,6 +132,7 @@ pub inline fn range(spec: anytype) api.Param {
     return defParam("range", spec, .{ .range = param });
 }
 
+/// Defines a text param spec.
 pub inline fn text(spec: anytype) api.Param {
     var param = api.TextParam{};
     inline for (.{ "default", "match", "minLength", "maxLength", "multiline" }) |id| {
@@ -130,12 +141,14 @@ pub inline fn text(spec: anytype) api.Param {
     return defParam("text", spec, .{ .text = param });
 }
 
+/// Defines a toggle/checkbox param spec.
 pub inline fn toggle(spec: anytype) api.Param {
     var param = api.ToggleParam{};
     defField(api.ToggleParam, &param, spec, "default");
     return defParam("toggle", spec, .{ .toggle = param });
 }
 
+/// Defines a n-dimensional vector param spec. Also see `xy()`.
 pub inline fn vector(spec: anytype) api.Param {
     if (spec.default.len != spec.size) @compileError("wrong vector size");
     var param = api.VectorParam{
@@ -148,6 +161,7 @@ pub inline fn vector(spec: anytype) api.Param {
     return defParam("vector", spec, .{ .vector = param });
 }
 
+/// Defines a XY (2D vector) param spec. Also see `vector()`.
 pub inline fn xy(spec: anytype) api.Param {
     var param = api.XYParam{};
     defField(api.XYParam, &param, spec, "default");
