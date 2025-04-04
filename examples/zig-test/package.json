@@ -10,18 +10,18 @@
 		"build:prepare": "node ../../tools/copy-lib.js && cp ../../node_modules/@thi.ng/wasm-api/zig/build.zig wasm-api-build.zig && yarn build:zig",
 		"start": "yarn build:prepare && vite --host --open",
 		"build": "yarn build:prepare && tsc && vite build --base='./'",
-		"build:zig": "zig build && wasm-opt zig-out/bin/main.wasm -o src/main.wasm -O3 && wasm-dis -o src/main.wast src/main.wasm",
+		"build:zig": "zig build && wasm-opt zig-out/bin/main.wasm -o src/main.wasm -O3 -all && wasm-dis -o src/main.wast src/main.wasm",
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
 		"typescript": "^5.8.2",
-		"vite": "^6.2.1",
+		"vite": "^6.2.5",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
 		"@genart-api/core": "workspace:^",
 		"@genart-api/wasm": "workspace:^",
-		"@thi.ng/wasm-api": "^2.3.11",
-		"@thi.ng/wasm-api-canvas": "^1.0.29"
+		"@thi.ng/wasm-api": "^2.3.15",
+		"@thi.ng/wasm-api-canvas": "^1.0.33"
 	}
 }
