@@ -29,12 +29,12 @@ export fn start() void {
                 .id = "choice",
                 .name = "Color mode",
                 .desc = "Demo only",
-                .options = &.{
+                .options = genart.options(&.{
                     .{ .value = "HSL" },
                     .{ .value = "LCH" },
                     .{ .value = "RGB" },
                     .{ .value = "XYZ" },
-                },
+                }),
             }),
             genart.color(.{
                 .id = "bgcol",
