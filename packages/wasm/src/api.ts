@@ -10,6 +10,7 @@ export interface GenArtWasmAPIImports extends WebAssembly.ModuleImports {
 	rampParamValue(id: number, t: number): number;
 	toggleParamValue(id: number): number;
 	_vectorParamValue(id: number, ptr: number): void;
+	_imageParamValueGray(id: number, ptr: number): void;
 }
 
 export interface GenArtWasmAPIExports extends WasmExports {

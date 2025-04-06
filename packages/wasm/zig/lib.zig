@@ -32,6 +32,8 @@ pub extern "genart" fn toggleParamValue(id: [*:0]const u8) u8;
 
 pub extern "genart" fn _vectorParamValue(id: [*:0]const u8, val: [*]f32) void;
 
+pub extern "genart" fn _imageParamValueGray(id: [*:0]const u8, val: [*]u8) void;
+
 pub const SetParamsCallback = *const fn () void;
 
 pub const UpdateCallback = *const fn (t: f64, frame: f64) bool;
@@ -64,6 +66,10 @@ pub fn xyParamValue(name: [*:0]const u8, val: *[2]f32) void {
     _vectorParamValue(name, val);
 }
 
+pub fn imageParamValueGray(name: [*:0]const u8, comptime size: usize, val: *[size]u8) void {
+    _imageParamValueGray(name, val);
+}
+
 inline fn defField(comptime T: type, param: *T, spec: anytype, name: []const u8) void {
     if (@hasField(@TypeOf(spec), name)) @field(param, name) = @field(spec, name);
 }
@@ -81,12 +87,23 @@ inline fn defParam(typeID: [*:0]const u8, spec: anytype, body: api.ParamBody) ap
     return param;
 }
 
-/// Helper to wrap options for a `choice` param spec
+/// Helper to wrap options for a `choice` param spec. See docs there for code example.
 pub inline fn options(items: []const api.Option) api.ConstOptionSlice {
     return api.ConstOptionSlice.wrap(items);
 }
 
-/// Defines a choice param spec. Use `options()` to wrap possible values
+/// Defines a choice param spec. Use `options()` to wrap possible values.
+/// ```
+/// genart.choice(.{
+///   .id = "test",
+///   .name = "Testing",
+///   .options = genart.options(&.{
+///     .{ .value = "hsl" },
+///     .{ .value = "rgb" },
+///   }),
+/// })
+/// ```
+///
 pub inline fn choice(spec: anytype) api.Param {
     var param = api.ChoiceParam{ .options = spec.options };
     defField(api.ChoiceParam, &param, spec, "default");

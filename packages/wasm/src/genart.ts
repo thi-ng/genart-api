@@ -65,6 +65,12 @@ export class GenArtWasmAPI implements IWasmAPI<GenArtWasmAPIExports> {
 					this.param(this.parent.getString(id))
 				),
 
+			_imageParamValueGray: (id, valAddr) =>
+				this.parent.setU8Array(
+					valAddr,
+					this.param(this.parent.getString(id))
+				),
+
 			_setUpdate: (addr) => {
 				$genart.setUpdate(
 					(t, frame) => !!this.parent.exports._update(addr, t, frame)
