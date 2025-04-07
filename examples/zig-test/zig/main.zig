@@ -74,14 +74,14 @@ export fn start() void {
                 .max = 100,
                 .step = 1,
             }),
-            // genart.image(.{
-            //     .id = "img",
-            //     .name = "Test",
-            //     .width = 2,
-            //     .height = 2,
-            //     .format = .rgba,
-            //     .default = &[_]u32{ 0, 0, 0, 0 },
-            // }),
+            genart.image(.{
+                .id = "img",
+                .name = "Test",
+                .width = 32,
+                .height = 32,
+                .format = .gray,
+                .default = &[_]u8{0} ** (32 * 32),
+            }),
         },
         // $genart.setParams() is an async function on the JS side.
         // to simplify mechanics, we pass the setup() function (below) as callback
@@ -137,6 +137,10 @@ fn update(t: f64, frame: f64) bool {
     var vec: [3]f32 = undefined;
     genart.xyParamValue("dotshape", &dotShape);
     genart.vecParamValue("vec", 3, &vec);
+
+    var img: [32 * 32]u8 = undefined;
+    genart.imageParamValueGray("img", 32 * 32, &img);
+    canvas.putPixelRegionGray(&img, info.innerWidth - 32, 0, 32, 32);
 
     canvas.beginPath();
     canvas.ellipse(
