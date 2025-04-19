@@ -18,7 +18,7 @@
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
-		"@genart-api/core": "^0.25.0",
-		"@genart-api/adpater-urlparams": "^0.25.0"
+		"@genart-api/core": "^0.26.0",
+		"@genart-api/adpater-urlparams": "^0.26.0"
 	}
 }

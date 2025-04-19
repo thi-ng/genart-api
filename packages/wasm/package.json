@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/wasm",
-	"version": "0.25.0",
+	"version": "0.26.0",
 	"description": "WASM/Zig bindings for GenArtAPI and the thi.ng/wasm-api toolchain",
 	"repository": {
 		"type": "git",
