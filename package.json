@@ -5,7 +5,7 @@
 		"packages/*",
 		"examples/*"
 	],
-	"packageManager": "yarn@4.5.3",
+	"packageManager": "yarn@4.9.1",
 	"scripts": {
 		"@genart-api": "yarn workspaces foreach -pv --all --include '@genart-api/*'",
 		"@example": "yarn workspaces foreach -pv --all --include '@example/*'",

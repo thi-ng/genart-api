@@ -16,7 +16,7 @@
 		"@genart-api/core": "workspace:^"
 	},
 	"devDependencies": {
-		"vite": "^6.2.5",
+		"vite": "^6.3.2",
 		"vite-plugin-html": "^3.2.2"
 	}
 }

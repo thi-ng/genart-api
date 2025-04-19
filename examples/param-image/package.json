@@ -16,8 +16,8 @@
 		"@genart-api/core": "workspace:^"
 	},
 	"devDependencies": {
-		"typescript": "^5.8.2",
-		"vite": "^6.2.5",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.2",
 		"vite-plugin-html": "^3.2.2"
 	}
 }
