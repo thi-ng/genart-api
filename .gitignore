@@ -8,7 +8,8 @@ public
 .zig-cache
 zig-out
 
-examples/layer-test
+examples/editart-test
+packages/core/README.md
 framework.json
 wasm-api-build.zig
 
@@ -18,3 +19,5 @@ wasm-api-build.zig
 *.map
 *.wasm
 *.wast
+
+!vite-env.d.ts
