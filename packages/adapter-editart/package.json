@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/adapter-editart",
-	"version": "0.26.0",
+	"version": "0.26.1",
 	"description": "GenArtAPI platform adapter for editart.xyz",
 	"repository": {
 		"type": "git",

@@ -769,7 +769,7 @@
       });
     }
     get version() {
-      return "0.26.0";
+      return "0.26.1";
     }
     get id() {
       return this._opts.id;
