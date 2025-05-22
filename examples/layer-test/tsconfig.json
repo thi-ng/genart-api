@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.json",
+	"include": ["src/**/*"],
+	"compilerOptions": {
+		"noUnusedLocals": false,
+		"types": [
+			"@genart-api/core",
+			"@genart-api/adapter-layer",
+			"@types/node"
+		]
+	}
+}

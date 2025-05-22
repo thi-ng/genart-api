@@ -1,0 +1,27 @@
+{
+	"name": "@example/layer-test",
+	"version": "0.0.1",
+	"description": "Example GenArt API w/ layer.com platform adapter",
+	"repository": "https://github.com/thi-ng/genart-api",
+	"author": "Karsten Schmidt <k+npm@thi.ng>",
+	"license": "Apache-2.0",
+	"type": "module",
+	"scripts": {
+		"start": "yarn build:prepare && vite --host --open",
+		"build:prepare": "node ../../tools/copy-lib.js layer",
+		"build": "yarn build:prepare && tsc && vite build --base='./'",
+		"bundle": "yarn build && (cd dist && zip layer-test-$(date +%s).zip assets/* lib/* index.html)",
+		"preview": "vite preview --host --open"
+	},
+	"devDependencies": {
+		"typescript": "^5.8.3",
+		"vite": "^6.3.5",
+		"vite-plugin-html": "^3.2.2"
+	},
+	"dependencies": {
+		"@genart-api/adapter-layer": "workspace:^",
+		"@genart-api/core": "workspace:^",
+		"@thi.ng/canvas": "^1.0.14",
+		"@thi.ng/color": "^5.7.37"
+	}
+}
