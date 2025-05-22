@@ -64,12 +64,15 @@ export interface GenArtAPIOpts {
 	 *
 	 * @remarks
 	 * For security reasons, this option is disabled and should only be enabled
-	 * during development. Also see {@link GenArtAPI.configure}
+	 * during development. Also see {@link GenArtAPI.configure} and {@link ConfigureMessage}.
 	 *
 	 * @example
 	 * ```ts
 	 * // enable re-configuration via IPC messages (e.g. sent from editors/tooling)
 	 * $genart.configure({ allowExternalConfig: true });
+	 *
+	 * // using Vite.js, this will enable the option only for dev mode:
+	 * $genart.configure({ allowExternalConfig: import.meta.env.DEV });
 	 * ```
 	 *
 	 * @defaultValue false
@@ -505,8 +508,8 @@ export interface GenArtAPI {
 	setTraits(traits: Traits): void;
 
 	/**
-	 * Configures optional behavior of the API. See {@link GenArtAPIOpts} for
-	 * details.
+	 * Configures optional behavior of the API. See {@link GenArtAPIOpts} and
+	 * {@link ConfigureMessage} for details.
 	 *
 	 * @param opts
 	 */
