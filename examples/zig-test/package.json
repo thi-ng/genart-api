@@ -15,13 +15,13 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.8.3",
-		"vite": "^6.3.2",
+		"vite": "^6.3.5",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
 		"@genart-api/core": "workspace:^",
 		"@genart-api/wasm": "workspace:^",
-		"@thi.ng/wasm-api": "^2.3.16",
-		"@thi.ng/wasm-api-canvas": "^1.0.35"
+		"@thi.ng/wasm-api": "^2.3.17",
+		"@thi.ng/wasm-api-canvas": "^1.0.36"
 	}
 }
