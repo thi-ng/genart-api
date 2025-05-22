@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 
 for (let ex of [
+	"layer-test",
 	"p5-basic",
 	"param-custom",
 	"param-editors",
