@@ -2,6 +2,8 @@
 
 [Live demo](https://demo.thi.ng/genart-api/layer-test/)
 
+You can test this example with the Layer artist sandbox @ https://sandbox.layer.com/
+
 ## Launching & building
 
 ```bash
