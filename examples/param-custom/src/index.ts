@@ -99,7 +99,10 @@ $genart.registerParamType("user:osc", {
 
 (async () => {
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
-	$genart.configure({ id: "param-custom", allowExternalConfig: true });
+	$genart.configure({
+		id: "param-custom",
+		allowExternalConfig: import.meta.env.DEV,
+	});
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();

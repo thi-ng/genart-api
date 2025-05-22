@@ -3,7 +3,10 @@ const TAU = 2 * Math.PI;
 
 (async () => {
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
-	$genart.configure({ id: "param-image", allowExternalConfig: true });
+	$genart.configure({
+		id: "param-image",
+		allowExternalConfig: import.meta.env.DEV,
+	});
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();

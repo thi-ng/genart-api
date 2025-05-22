@@ -3,7 +3,10 @@
 	console.log("$genart version:", $genart.version);
 
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
-	$genart.configure({ id: "param-test", allowExternalConfig: true });
+	$genart.configure({
+		id: "param-test",
+		allowExternalConfig: import.meta.env.DEV,
+	});
 
 	// ensure platform adapter is ready before starting artwork
 	await $genart.waitForAdapter();
