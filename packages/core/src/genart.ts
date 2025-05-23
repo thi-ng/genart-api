@@ -176,10 +176,11 @@ class API implements GenArtAPI {
 
 	get random() {
 		if (this._prng) return this._prng;
-		return (this._prng = ensure(
-			this._adapter,
-			"missing platform adapter"
-		).prng);
+		return (this._prng = ensureAdapter(this._adapter).prng);
+	}
+
+	get seed() {
+		return ensureAdapter(this._adapter).seed;
 	}
 
 	get state() {
@@ -561,7 +562,7 @@ class API implements GenArtAPI {
 			opts: this._opts,
 			state: this._state,
 			version: this.version,
-			seed: this.random.seed,
+			seed: this.seed,
 			adapter: id,
 			collector,
 			iteration,
@@ -614,6 +615,9 @@ const ensureValidID = (id: string, kind = "ID") =>
 
 /** @internal */
 const ensureValidType = (type: string) => ensureValidID(type, "type");
+
+const ensureAdapter = (adapter?: PlatformAdapter) =>
+	ensure(adapter, "missing platform adapter");
 
 // @ts-ignore
 globalThis.$genart = new API();

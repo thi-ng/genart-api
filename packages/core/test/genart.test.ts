@@ -1,13 +1,13 @@
 import { expect, test } from "bun:test";
 import "../src/genart.js";
-import { defPRNG } from "../src/prng.js";
+import { SFC32 } from "../src/prng.js";
 
 $genart.setAdapter({
 	id: "test",
 	mode: "play",
 	screen: { width: 100, height: 100, dpr: 1 },
-	prng: defPRNG("1234", $genart.utils.hashString("1234"), $genart.prng.sfc32),
-
+	prng: new SFC32($genart.utils.hashString("1234")),
+	seed: "1234",
 	async updateParam() {},
 
 	capture() {},
