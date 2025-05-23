@@ -25,7 +25,7 @@ const SUPPORTED_TYPES = ["choice", "range", "toggle", "weighted"];
 
 const {
 	math: { clamp, round, fit, mix },
-	prng: { defPRNG, sfc32 },
+	prng: { SFC32 },
 	utils: { isString, hashString },
 } = $genart;
 
@@ -48,6 +48,7 @@ export class EditArtAdapter implements PlatformAdapter {
 	protected _selectedParamIDs?: string[];
 	protected _cache: Record<string, string> = {};
 	protected _prng!: PRNG;
+	protected _seed!: string;
 	protected _screen: ScreenConfig;
 
 	constructor() {
@@ -110,6 +111,10 @@ export class EditArtAdapter implements PlatformAdapter {
 
 	get prng() {
 		return this._prng;
+	}
+
+	get seed() {
+		return this._seed;
 	}
 
 	configure(opts: Partial<EditArtAdapterOpts>) {
@@ -223,7 +228,8 @@ export class EditArtAdapter implements PlatformAdapter {
 		for (let i = 0; i < MAX_PARAMS; i++) {
 			seedStr += this._searchParams.get("m" + i) || "0.5";
 		}
-		this._prng = defPRNG(seedStr, hashString(seedStr), sfc32);
+		this._seed = seedStr;
+		this._prng = new SFC32(hashString(seedStr));
 	}
 
 	protected serializeParam(spec: Param<any>) {

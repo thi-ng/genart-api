@@ -43,7 +43,7 @@ const TYPE_MAP: Record<
 };
 
 const {
-	prng: { defPRNG, sfc32 },
+	prng: { SFC32 },
 	utils: { equiv, isString, parseUUID },
 } = $genart;
 
@@ -122,10 +122,11 @@ class LayerAdapter implements PlatformAdapter {
 	}
 
 	get prng() {
-		return (
-			this._prng ||
-			(this._prng = defPRNG($layer.uuid, parseUUID($layer.uuid), sfc32))
-		);
+		return this._prng || (this._prng = new SFC32(parseUUID($layer.uuid)));
+	}
+
+	get seed() {
+		return $layer.uuid;
 	}
 
 	async updateParam(id: string, _: Param<any>) {

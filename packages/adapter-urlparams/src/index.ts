@@ -17,7 +17,7 @@ import { compressBytes, decompressBytes } from "./compress.js";
 
 const {
 	math: { clamp01, parseNum },
-	prng: { defPRNG, sfc32, randomBigInt },
+	prng: { SFC32, randomBigInt },
 	utils: { formatValuePrec, parseBigInt128, stringifyBigInt },
 } = $genart;
 
@@ -35,6 +35,7 @@ class URLParamsAdapter implements PlatformAdapter {
 	protected params: URLSearchParams;
 	protected cache: Record<string, string> = {};
 	protected _prng!: PRNG;
+	protected _seed!: string;
 	protected _screen: ScreenConfig;
 
 	constructor() {
@@ -116,6 +117,10 @@ class URLParamsAdapter implements PlatformAdapter {
 		return this._prng;
 	}
 
+	get seed() {
+		return this._seed;
+	}
+
 	augmentParams(params: ParamSpecs) {
 		const group = this.id;
 		return {
@@ -127,7 +132,7 @@ class URLParamsAdapter implements PlatformAdapter {
 				desc: "Manually defined seed value",
 				min: 0n,
 				max: MAX_SEED - 1n,
-				default: BigInt(this._prng.seed),
+				default: BigInt(this._seed),
 				update: "reload",
 			}),
 			[WIDTH]: $genart.params.range({
@@ -284,11 +289,8 @@ class URLParamsAdapter implements PlatformAdapter {
 	protected initPRNG() {
 		const seedParam = this.params.get(SEED);
 		const seed = seedParam ? BigInt(seedParam) : randomBigInt(MAX_SEED);
-		this._prng = defPRNG(
-			stringifyBigInt(seed),
-			parseBigInt128(seed),
-			sfc32
-		);
+		this._seed = stringifyBigInt(seed);
+		this._prng = new SFC32(parseBigInt128(seed));
 	}
 }
 

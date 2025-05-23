@@ -58,7 +58,7 @@ const UPDATE_MAP: Record<ParamUpdateBehavior, FxParam["update"]> = {
 };
 
 const {
-	prng: { defPRNG, sfc32 },
+	prng: { SFC32 },
 	utils: { equiv, isString, hashString },
 } = $genart;
 
@@ -172,10 +172,11 @@ export class FxhashAdapter implements PlatformAdapter {
 	}
 
 	get prng() {
-		return (
-			this._prng ||
-			(this._prng = defPRNG($fx.hash, hashString($fx.hash), sfc32))
-		);
+		return this._prng || (this._prng = new SFC32(hashString($fx.hash)));
+	}
+
+	get seed() {
+		return $fx.hash;
 	}
 
 	get collector() {
