@@ -40,7 +40,7 @@
     -   [Composite parameter types](#composite-parameter-types)
 -   [Traits](#traits)
 -   [Platform adapters](#platform-adapters)
-    -   [Parameter sourcing](#parameter-sourcing)
+    -   [Parameter sourcing](#parameter-sourcing--initialization)
     -   [Parameter updates](#parameter-updates)
     -   [Determinism & PRNG provision](#determinism--prng-provision)
     -   [Screen configuration](#screen-configuration)
@@ -868,9 +868,38 @@ providing (deployment) platform-specific functionality and interop features.
 
 -   [`PlatformAdapter` interface documentation](https://docs.thi.ng/genart-api/core/interfaces/PlatformAdapter.html)
 
-### Parameter sourcing
+### Parameter sourcing & initialization
 
-TODO write docs
+Artwork parameters can be defined via the
+[`$genart.setParams()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setParams)
+async function. Each parameter spec _can_ define a default value which will be
+used if the platform doesn't provide a customized value for this param. For many
+types of params it makes sense to specify these, but there're also siturations
+where an artist might want to allow the system to choose randomized defaults,
+**unless** a param has been customized. Therefore, if no default is given (by
+the artist/artwork) as part of a parameter spec, then `GenArtAPI` will use the
+platform provided PRNG to choose a random valid default value within the param's
+configured ranges/constraints.
+
+The effects of this behavior are:
+
+-   Ensures each param has a valid value when
+    [`$genart.setParams()`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#setParams)
+    returns
+-   Removes boilerplate to require artist producing (valid) randomized default
+    values as part of the param specs (only constraints need to be given).
+-   [Determinism is still guaranteed](#determinism--prng-provision) and solely
+    dependent on the platform-provided seed. If the platform doesn't use (or
+    currently provide) a pre-configured seed (usually for development or in
+    sandboxes), then this can be used for rapid exploration of randomized
+    versions (in which case
+    [`$genart.seed`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#seed)
+    can be used for information)
+-   Make param preset storage more compact by only having to store manually
+    configured/customized params
+-   Each param has a
+    [`ParamState`](https://docs.thi.ng/genart-api/core/types/ParamState.html)
+    which can be queried by both the artwork and editor tooling
 
 ### Parameter updates
 
@@ -878,11 +907,7 @@ TODO write docs
 
 ### Determinism & PRNG provision
 
-Related issues/RFCs:
-
--   [#1: Provide single PRNG or allow platfom adapters to define implementation?](https://github.com/thi-ng/genart-api/issues/1)
-
-Platform adapters are responsible to provide a seedable and resettable,
+Platform adapters are responsible to provide a **seedable and resettable**,
 deterministic pseudo-random number generator which the artwork can access via
 [`$genart.random`](https://docs.thi.ng/genart-api/core/interfaces/GenArtAPI.html#random).
 Usually, the adapter just has to wrap the PRNG provided by the respective
@@ -891,10 +916,9 @@ platform.
 -   [PRNG interface definition](https://docs.thi.ng/genart-api/core/interfaces/PRNG.html)
 -   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/index.ts)
 
-For cases where a platform does not provide its own PRNG, the API core package
-provides the widely used SFC32 PRNG implementation, which can be used by an
-adapter (or artwork) — also see the related [`defPRNG()` helper
-function](https://docs.thi.ng/genart-api/core/interfaces/PRNGBuiltins.html#defprng):
+For cases where a platform does not provide its own PRNG or the adapter doesn't
+want to use it, the API core package provides the widely used SFC32 PRNG
+implementation, which can be used by an adapter (or artwork):
 
 -   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
 
@@ -1001,13 +1025,13 @@ max and average. The visualization can be configured via provided
 
 ## WebAssembly bindings
 
-Altough the main GenArtAPI project is a JavaScript-centric GenArt API
+Altough the main `GenArtAPI` project is a JavaScript-centric GenArt API
 workflow/setup, we also want to provide integrations for other languages, e.g.
 via WebAssembly.
 
 The [@genart-api/wasm
 package](https://github.com/thi-ng/genart-api/blob/main/packages/wasm/) provides
-WASM bindings for GenArtAPI and is designed as an API module/plugin for the
+WASM bindings for `GenArtAPI` and is designed as an API module/plugin for the
 [thi.ng/wasm-api](https://thi.ng/wasm-api) toolchain, and includes polyglot
 bindings code for both [Zig](https://ziglang.org) & TypeScript/JavaScript.
 
