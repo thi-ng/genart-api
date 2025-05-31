@@ -12,7 +12,7 @@ test("randomBigInt", () => {
 	);
 });
 
-test("defPRNG", () => {
+test("SFC32", () => {
 	const seed = "decafbad_ace0fba5e_cafed00d_f0cacc1a";
 	const parsedSeed = seed.split("_").map((x) => parseInt(x, 16));
 	const rnd = new SFC32(parsedSeed);
