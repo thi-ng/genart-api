@@ -16,20 +16,25 @@ const MAX = 0x1_0000_0000;
  */
 export class SFC32 implements PRNG {
 	buf: Uint32Array<ArrayBuffer>;
+	#rnd: RandomFn;
 
 	constructor(public readonly seed: ArrayLike<number>) {
 		this.buf = new Uint32Array(4);
 		this.buf.set(seed);
+		this.#rnd = () => {
+			const buf = this.buf;
+			const t = (((buf[0] + buf[1]) >>> 0) + buf[3]) >>> 0;
+			buf[3] = (buf[3] + 1) >>> 0;
+			buf[0] = buf[1] ^ (buf[1] >>> 9);
+			buf[1] = (buf[2] + (buf[2] << 3)) >>> 0;
+			buf[2] = (((buf[2] << 21) | (buf[2] >>> 11)) + t) >>> 0;
+			return t / MAX;
+		};
 	}
 
-	rnd() {
-		const buf = this.buf;
-		const t = (((buf[0] + buf[1]) >>> 0) + buf[3]) >>> 0;
-		buf[3] = (buf[3] + 1) >>> 0;
-		buf[0] = buf[1] ^ (buf[1] >>> 9);
-		buf[1] = (buf[2] + (buf[2] << 3)) >>> 0;
-		buf[2] = (((buf[2] << 21) | (buf[2] >>> 11)) + t) >>> 0;
-		return t / MAX;
+	// allow rnd() to be used as standalone function
+	get rnd() {
+		return this.#rnd;
 	}
 
 	reset() {
