@@ -1057,6 +1057,12 @@ build order must be used in some situations:
 | [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/) | [Demo](https://demo.thi.ng/genart-api/param-editors/)                                                  | Reference [editor implementations](#parameter-editors) |
 | [zig-test](https://github.com/thi-ng/genart-api/tree/main/examples/zig-test/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/)     | Zig/WebAssembly API wrapper example (WIP)              |
 
+Platform-specific example projects:
+
+| **Project**                                                                       | **Live demo**                                                                     | **Description**                            |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------ |
+| [layer-test](https://github.com/thi-ng/genart-api/tree/main/examples/layer-test/) | [Demo](https://sandbox.layer.com/?url=https://demo.thi.ng/genart-api/layer-test/) | Minimal example for the Layer art platform |
+
 ### Existing adapter implementations
 
 > [!NOTE]
