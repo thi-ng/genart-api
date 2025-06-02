@@ -11,7 +11,7 @@
     xy: "NUMBER"
   };
   var {
-    prng: { defPRNG, sfc32 },
+    prng: { SFC32 },
     utils: { equiv, isString, parseUUID }
   } = $genart;
   var LayerAdapter = class {
@@ -69,7 +69,10 @@
       };
     }
     get prng() {
-      return this._prng || (this._prng = defPRNG($layer.uuid, parseUUID($layer.uuid), sfc32));
+      return this._prng || (this._prng = new SFC32(parseUUID($layer.uuid)));
+    }
+    get seed() {
+      return $layer.uuid;
     }
     async updateParam(id, _) {
       let value;

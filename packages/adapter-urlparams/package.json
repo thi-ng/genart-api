@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/adapter-urlparams",
-	"version": "0.26.1",
+	"version": "0.27.0",
 	"description": "GenArtAPI reference platform adapter, using URL search params for artwork parameter configuration & serialization",
 	"repository": {
 		"type": "git",

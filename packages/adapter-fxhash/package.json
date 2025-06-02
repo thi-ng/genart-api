@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/adapter-fxhash",
-	"version": "0.26.1",
+	"version": "0.27.0",
 	"description": "GenArtAPI platform adapter for fxhash.xyz",
 	"repository": {
 		"type": "git",

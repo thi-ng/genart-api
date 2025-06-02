@@ -1,3 +1,4 @@
+import type { SFC32 } from "../prng.js";
 /**
  * No-arg function which returns a pseudo-random number in the semi-open [0,1)
  * interval (like `Math.random()`).
@@ -14,14 +15,27 @@ export type RandomFn = () => number;
  */
 export interface PRNG {
     /**
-     * The currently configured seed value (as string) used by the PRNG. For
-     * information purposes only.
-     */
-    readonly seed: string;
-    /**
      * Re-initializes the PRNG to the configured seed state.
      */
-    reset: () => RandomFn;
+    reset(): void;
+    /**
+     * Intended for artworks requiring multiple PRNG instances. Creates a copy
+     * of the PRNG with its state entirely separate, but seeded with the PRNG's
+     * current state.
+     *
+     * @remarks
+     * To create multiple PRNGs with identical seed states do something like:
+     *
+     * ```js
+     * // reset PRNG to seed state
+     * $genart.random.reset();
+     *
+     * // create multiple copies (all sharing same initial state)
+     * const rnd2 = $genart.random.copy();
+     * const rnd3 = $genart.random.copy();
+     * ```
+     */
+    copy(): PRNG;
     /**
      * Returns a pseudo-random number in the semi-open [0,1) interval.
      */
@@ -32,25 +46,9 @@ export interface PRNG {
  */
 export interface PRNGBuiltins {
     /**
-     * SFC32 implementation. Seed: 4x 32bit int
-     *
-     * @remarks
-     * Higher order function. Takes `seed` value and returns a {@link RandomFn}.
-     * Also see {@link PRNGBuiltins.defPRNG}.
-     *
-     * @param seed
+     * SFC32 PRNG implementation. Seed: 4x 32bit int.
      */
-    sfc32(seed: ArrayLike<number>): RandomFn;
-    /**
-     * Helper function to construct a full {@link PRNG} instance from given
-     * `seed` string, its parsed version (e.g. via {@link Utils.hashString}) and
-     * generator `impl` (e.g. {@link PRNGBuiltins.sfc32}).
-     *
-     * @param seed
-     * @param parsedSeed
-     * @param impl
-     */
-    defPRNG<T>(seed: string, parsedSeed: T, impl: (seed: T) => RandomFn): PRNG;
+    SFC32: typeof SFC32;
     /**
      * Returns a random bigint in the `[0,max)` interval, using provided `rnd`
      * generator (default: `Math.random()`).
@@ -58,5 +56,5 @@ export interface PRNGBuiltins {
      * @param max
      * @param rnd
      */
-    randomBigInt(max: bigint, rnd?: RandomFn): bigint;
+    randomBigInt(max: bigint, rnd?: PRNG | RandomFn): bigint;
 }

@@ -21,6 +21,7 @@ export interface PlatformAdapter {
     readonly mode: RunMode;
     readonly screen: ScreenConfig;
     readonly prng: PRNG;
+    readonly seed: string;
     /**
      * Human-readable but unique identifier for this platform adapter
      * implementation.

@@ -19,7 +19,7 @@
   // src/index.ts
   var {
     math: { clamp01, parseNum },
-    prng: { defPRNG, sfc32, randomBigInt },
+    prng: { SFC32, randomBigInt },
     utils: { formatValuePrec, parseBigInt128, stringifyBigInt }
   } = $genart;
   var AUTO = "__autostart";
@@ -35,6 +35,7 @@
     params;
     cache = {};
     _prng;
+    _seed;
     _screen;
     constructor() {
       this.params = new URLSearchParams(location.search);
@@ -102,6 +103,9 @@
     get prng() {
       return this._prng;
     }
+    get seed() {
+      return this._seed;
+    }
     augmentParams(params) {
       const group = this.id;
       return {
@@ -113,7 +117,7 @@
           desc: "Manually defined seed value",
           min: 0n,
           max: MAX_SEED - 1n,
-          default: BigInt(this._prng.seed),
+          default: BigInt(this._seed),
           update: "reload"
         }),
         [WIDTH]: $genart.params.range({
@@ -256,11 +260,8 @@
     initPRNG() {
       const seedParam = this.params.get(SEED);
       const seed = seedParam ? BigInt(seedParam) : randomBigInt(MAX_SEED);
-      this._prng = defPRNG(
-        stringifyBigInt(seed),
-        parseBigInt128(seed),
-        sfc32
-      );
+      this._seed = stringifyBigInt(seed);
+      this._prng = new SFC32(parseBigInt128(seed));
     }
   };
   $genart.setAdapter(new URLParamsAdapter());

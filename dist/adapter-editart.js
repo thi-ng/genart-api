@@ -7,7 +7,7 @@
   var SUPPORTED_TYPES = ["choice", "range", "toggle", "weighted"];
   var {
     math: { clamp, round, fit, mix },
-    prng: { defPRNG, sfc32 },
+    prng: { SFC32 },
     utils: { isString, hashString }
   } = $genart;
   var EditArtAdapter = class {
@@ -16,6 +16,7 @@
     _selectedParamIDs;
     _cache = {};
     _prng;
+    _seed;
     _screen;
     constructor() {
       this._searchParams = new URLSearchParams(location.search);
@@ -68,6 +69,9 @@
     }
     get prng() {
       return this._prng;
+    }
+    get seed() {
+      return this._seed;
     }
     configure(opts) {
       if (opts.params) {
@@ -168,7 +172,8 @@
       for (let i = 0; i < MAX_PARAMS; i++) {
         seedStr += this._searchParams.get("m" + i) || "0.5";
       }
-      this._prng = defPRNG(seedStr, hashString(seedStr), sfc32);
+      this._seed = seedStr;
+      this._prng = new SFC32(hashString(seedStr));
     }
     serializeParam(spec) {
       switch (spec.type) {

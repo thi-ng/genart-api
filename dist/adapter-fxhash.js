@@ -18,7 +18,7 @@
     event: "sync"
   };
   var {
-    prng: { defPRNG, sfc32 },
+    prng: { SFC32 },
     utils: { equiv, isString, hashString }
   } = $genart;
   var BIGINT_MAX = 2n ** 63n;
@@ -90,7 +90,10 @@
       };
     }
     get prng() {
-      return this._prng || (this._prng = defPRNG($fx.hash, hashString($fx.hash), sfc32));
+      return this._prng || (this._prng = new SFC32(hashString($fx.hash)));
+    }
+    get seed() {
+      return $fx.hash;
     }
     get collector() {
       return $fx.minter;

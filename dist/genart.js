@@ -435,32 +435,44 @@
   // src/prng.ts
   var prng_exports = {};
   __export(prng_exports, {
-    defPRNG: () => defPRNG,
-    randomBigInt: () => randomBigInt,
-    sfc32: () => sfc32
+    SFC32: () => SFC32,
+    randomBigInt: () => randomBigInt
   });
   var MAX = 4294967296;
-  var sfc32 = (seed) => {
-    const buf = new Uint32Array(4);
-    buf.set(seed);
-    return () => {
-      const t = (buf[0] + buf[1] >>> 0) + buf[3] >>> 0;
-      buf[3] = buf[3] + 1 >>> 0;
-      buf[0] = buf[1] ^ buf[1] >>> 9;
-      buf[1] = buf[2] + (buf[2] << 3) >>> 0;
-      buf[2] = (buf[2] << 21 | buf[2] >>> 11) + t >>> 0;
-      return t / MAX;
-    };
+  var SFC32 = class _SFC32 {
+    constructor(seed) {
+      this.seed = seed;
+      this.buf = new Uint32Array(4);
+      this.buf.set(seed);
+      this.#rnd = () => {
+        const buf = this.buf;
+        const t = (buf[0] + buf[1] >>> 0) + buf[3] >>> 0;
+        buf[3] = buf[3] + 1 >>> 0;
+        buf[0] = buf[1] ^ buf[1] >>> 9;
+        buf[1] = buf[2] + (buf[2] << 3) >>> 0;
+        buf[2] = (buf[2] << 21 | buf[2] >>> 11) + t >>> 0;
+        return t / MAX;
+      };
+    }
+    buf;
+    #rnd;
+    // allow rnd() to be used as standalone function
+    get rnd() {
+      return this.#rnd;
+    }
+    reset() {
+      this.buf.set(this.seed);
+    }
+    copy() {
+      return new _SFC32(this.buf.slice());
+    }
   };
   var randomBigInt = (max, rnd = Math.random) => {
+    if (!isFunction(rnd)) rnd = rnd.rnd.bind(rnd);
     let value = 0n;
     for (let i = Math.log2(Number(max)) + 31 >> 5; i-- > 0; )
       value = value << 32n | BigInt(rnd() * MAX >>> 0);
     return value % max;
-  };
-  var defPRNG = (seed, parsedSeed, impl) => {
-    const reset = () => impl(parsedSeed);
-    return { seed, reset, rnd: reset() };
   };
 
   // src/params/bigint.ts
@@ -769,7 +781,7 @@
       });
     }
     get version() {
-      return "0.26.1";
+      return "0.27.0";
     }
     get id() {
       return this._opts.id;
@@ -792,10 +804,10 @@
     }
     get random() {
       if (this._prng) return this._prng;
-      return this._prng = ensure2(
-        this._adapter,
-        "missing platform adapter"
-      ).prng;
+      return this._prng = ensureAdapter(this._adapter).prng;
+    }
+    get seed() {
+      return ensureAdapter(this._adapter).seed;
     }
     get state() {
       return this._state;
@@ -1105,7 +1117,7 @@
         opts: this._opts,
         state: this._state,
         version: this.version,
-        seed: this.random.seed,
+        seed: this.seed,
         adapter: id,
         collector,
         iteration,
@@ -1142,5 +1154,6 @@
     `illegal param ${kind}: ${id}`
   );
   var ensureValidType = (type) => ensureValidID(type, "type");
+  var ensureAdapter = (adapter) => ensure2(adapter, "missing platform adapter");
   globalThis.$genart = new API();
 })();

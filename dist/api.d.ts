@@ -136,13 +136,18 @@ export interface GenArtAPI {
      */
     readonly screen: ScreenConfig;
     /**
-     * Returns the platform's configured pseudo-random number generator, incl.
-     * currently used seed value.
+     * Returns the platform's configured pseudo-random number generator.
      *
      * @remarks
      * Please see related issue: https://github.com/thi-ng/genart-api/issues/1
      */
     readonly random: PRNG;
+    /**
+     * The currently configured stringified random seed value, as
+     * defined/determined by the platform provider and used by the
+     * {@link GenArtAPI.random} PRNG. For information purposes only.
+     */
+    readonly seed: string;
     /**
      * The API's current state.
      *
