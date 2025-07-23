@@ -7,7 +7,8 @@ async function setup() {
 	// Optional (see: https://docs.thi.ng/genart-api/core/interfaces/GenArtAPIOpts.html)
 	$genart.configure({
 		id: "p5-basic",
-		allowExternalConfig: import.meta.env.DEV,
+		// comment out next line for production build
+		allowExternalConfig: true,
 	});
 
 	// ensure platform adapter is ready before starting artwork
