@@ -69,9 +69,6 @@ const canvas = @import("wasm-api-canvas");
 const dom = @import("wasm-api-dom");
 const genart = @import("genart-api");
 
-// expose thi.ng/wasm-api core API (incl. panic handler & allocation fns)
-pub usingnamespace wasm;
-
 // (OPTIONAL) allocator, also exposed & used by JS-side WasmBridge & DOM module
 // https://github.com/thi-ng/umbrella/blob/develop/packages/wasm-api/zig/lib.zig
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -93,7 +90,7 @@ export fn start() void {
 }
 
 var canvasID: i32 = undefined;
-var info: dom.WindowInfo = undefined;
+var info: dom.types.WindowInfo = undefined;
 
 // main initialization, called AFTER parameters have been declared
 fn setup() void {

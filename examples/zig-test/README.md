@@ -10,7 +10,7 @@ includes polyglot bindings code for both Zig & TypeScript.
 
 ## Launching & building
 
-Please ensure you have Zig v0.13.x and the
+Please ensure you have Zig v0.15.1 and the
 [Binaryen](https://github.com/WebAssembly/binaryen) WASM toolchain installed,
 both of which are required for building this project.
 
