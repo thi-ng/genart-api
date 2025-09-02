@@ -21,9 +21,9 @@
 		"@genart-api/core": "workspace:^"
 	},
 	"devDependencies": {
-		"esbuild": "^0.25.4",
-		"typedoc": "^0.28.4",
-		"typescript": "^5.8.3"
+		"esbuild": "^0.25.9",
+		"typedoc": "^0.28.12",
+		"typescript": "^5.9.2"
 	},
 	"publishConfig": {
 		"access": "public"

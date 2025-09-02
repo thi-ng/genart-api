@@ -14,14 +14,14 @@
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"typescript": "^5.8.3",
-		"vite": "^6.3.5",
+		"typescript": "^5.9.2",
+		"vite": "^7.1.4",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
 		"@genart-api/adapter-layer": "workspace:^",
 		"@genart-api/core": "workspace:^",
-		"@thi.ng/canvas": "^1.0.14",
-		"@thi.ng/color": "^5.7.37"
+		"@thi.ng/canvas": "^1.0.23",
+		"@thi.ng/color": "^5.7.59"
 	}
 }

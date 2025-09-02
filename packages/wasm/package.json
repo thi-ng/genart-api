@@ -15,7 +15,7 @@
 		"build": "yarn build:esbuild && yarn build:decl",
 		"build:decl": "tsc --declaration --emitDeclarationOnly --noEmit false",
 		"build:esbuild": "esbuild --format=esm --platform=neutral --target=es2022 --tsconfig=tsconfig.json --outdir=. src/**/*.ts",
-		"build:bindings": "npx wasm-api-bindgen --config src/typedefs-config.json --lang ts -o src/generated/api.ts --lang zig -o zig/api.zig src/typedefs.json",
+		"build:bindings": "npx wasm-api-bindgen --config src/typedefs-config.json --lang ts -o src/generated/types.ts --lang zig -o zig/types.zig src/typedefs.json",
 		"clean": "bun ../../tools/clean-package.js generated",
 		"doc": "typedoc",
 		"publish": "yarn npm publish --access public",
@@ -23,14 +23,14 @@
 	},
 	"dependencies": {
 		"@genart-api/core": "workspace:^",
-		"@thi.ng/wasm-api": "^2.3.17"
+		"@thi.ng/wasm-api": "^2.4.1"
 	},
 	"devDependencies": {
-		"@thi.ng/wasm-api-bindgen": "^1.2.11",
-		"bun-types": "^1.2.14",
-		"esbuild": "^0.25.4",
-		"typedoc": "^0.28.4",
-		"typescript": "^5.8.3"
+		"@thi.ng/wasm-api-bindgen": "^1.2.40",
+		"bun-types": "^1.2.21",
+		"esbuild": "^0.25.9",
+		"typedoc": "^0.28.12",
+		"typescript": "^5.9.2"
 	},
 	"exports": {
 		".": {
