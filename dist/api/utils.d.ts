@@ -1,4 +1,4 @@
-export type TypedArray = Float32Array | Float64Array | Int8Array | Int16Array | Int32Array | Uint8Array | Uint8ClampedArray | Uint16Array | Uint32Array;
+export type TypedArray<T extends ArrayBufferLike = ArrayBuffer> = Float32Array<T> | Float64Array<T> | Int8Array<T> | Int16Array<T> | Int32Array<T> | Uint8Array<T> | Uint8ClampedArray<T> | Uint16Array<T> | Uint32Array<T>;
 export interface Utils {
     /**
      * Throws an error if `x` is non-truthy, otherwise returns `x`.

@@ -223,7 +223,7 @@
         case "binary":
         case "image":
           return base64Encode(
-            await compressBytes(spec.value)
+            await compressBytes(spec.value.slice())
           );
         case "color":
           return spec.value.substring(1);
