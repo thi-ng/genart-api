@@ -13,9 +13,6 @@ pub fn log(
     _: anytype,
 ) void {}
 
-// expose thi.ng/wasm-api core API (incl. panic handler & allocation fns)
-pub usingnamespace wasm;
-
 // allocator, also exposed & used by JS-side WasmBridge & DOM module
 // https://github.com/thi-ng/umbrella/blob/develop/packages/wasm-api/zig/lib.zig
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -92,7 +89,7 @@ export fn start() void {
 
 var canvasID: i32 = undefined;
 var overlayID: i32 = undefined;
-var info: dom.WindowInfo = undefined;
+var info: dom.types.WindowInfo = undefined;
 
 /// main initialization AFTER parameters have been declared
 fn setup() void {
@@ -165,18 +162,21 @@ fn update(t: f64, frame: f64) bool {
         &buf,
         \\choice: {s}
         \\bg: {s}
-        \\shape: {d:.2}
+        \\shape: [{d:.2}, {d:.2}]
         \\density: {d:.2}
-        \\vector: {d:.0}
+        \\vector: [{d:.0}, {d:.0}, {d:.0}]
         \\
         \\t={d:.2} frame={d}
     ,
         .{
             genart.stringParamValue("choice", &choice),
             genart.stringParamValue("bgcol", &color),
-            dotShape,
+            dotShape[0],
+            dotShape[1],
             genart.numberParamValue("density"),
-            vec,
+            vec[0],
+            vec[1],
+            vec[2],
             t,
             frame,
         },
