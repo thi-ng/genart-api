@@ -1,6 +1,6 @@
 import type { WasmExports } from "@thi.ng/wasm-api";
 
-export * from "./generated/api.js";
+export * from "./generated/types.js";
 
 export interface GenArtWasmAPIImports extends WebAssembly.ModuleImports {
 	_setParams(specs: number, num: number, callback: number): void;
