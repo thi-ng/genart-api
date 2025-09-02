@@ -243,7 +243,7 @@ class URLParamsAdapter implements PlatformAdapter {
 			case "binary":
 			case "image":
 				return base64Encode(
-					await compressBytes((<ImageParam>spec).value!)
+					await compressBytes((<ImageParam>spec).value!.slice())
 				);
 			case "color":
 				return spec.value.substring(1);

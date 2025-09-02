@@ -1,8 +1,6 @@
-import type { TypedArray } from "@genart-api/core";
-
 const pipe = async (
-	buf: TypedArray,
-	stream: ReadableWritablePair<any, Uint8Array>
+	buf: BlobPart,
+	stream: ReadableWritablePair<any, Uint8Array<ArrayBuffer>>
 ) =>
 	new Uint8Array(
 		await new Response(
@@ -10,12 +8,10 @@ const pipe = async (
 		).arrayBuffer()
 	);
 
-export const compressBytes = (
-	buf: TypedArray,
-	fmt: CompressionFormat = "gzip"
-) => pipe(buf, new CompressionStream(fmt));
+export const compressBytes = (buf: BlobPart, fmt: CompressionFormat = "gzip") =>
+	pipe(buf, new CompressionStream(fmt));
 
 export const decompressBytes = (
-	buf: Uint8Array,
+	buf: BlobPart,
 	fmt: CompressionFormat = "gzip"
 ) => pipe(buf, new DecompressionStream(fmt));
