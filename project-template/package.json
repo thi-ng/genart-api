@@ -19,6 +19,6 @@
 	},
 	"dependencies": {
 		"@genart-api/core": "^0.28.0",
-		"@genart-api/adpater-urlparams": "^0.28.0"
+		"@genart-api/adapter-urlparams": "^0.28.0"
 	}
 }
