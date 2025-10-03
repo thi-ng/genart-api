@@ -8,12 +8,17 @@ export const timeProviderRAF = (
 	let frame = frameOffset;
 	let now = timeOffset;
 	let isStart = true;
+	let isActive = false;
 	return {
 		start() {
-			isStart = true;
+			isActive = isStart = true;
+		},
+		stop() {
+			isActive = false;
 		},
 		next(fn) {
 			requestAnimationFrame((t) => {
+				if (!isActive) return;
 				if (isStart) {
 					t0 = t;
 					frame = frameOffset;

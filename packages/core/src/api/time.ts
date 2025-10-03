@@ -8,6 +8,11 @@ export interface TimeProvider {
 	 */
 	start(): void;
 	/**
+	 * Handle internals to cancel any update already scheduled via
+	 * {@link TimeProvider.next}.
+	 */
+	stop(): void;
+	/**
 	 * Schedules given frame update function to be executed in the future. The
 	 * given function will be wrapped and called with updated timestamp & frame
 	 * number ({@link TimeProvider.now} will then return the same values, as

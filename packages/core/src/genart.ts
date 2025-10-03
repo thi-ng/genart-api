@@ -280,8 +280,13 @@ class API implements GenArtAPI {
 	}
 
 	setTimeProvider(time: TimeProvider) {
+		this._time.stop();
 		this._time = time;
-		this.notifyReady();
+		if (["play", "stop"].includes(this._state)) {
+			time.start();
+		} else {
+			this.notifyReady();
+		}
 	}
 
 	waitForTimeProvider() {

@@ -7,14 +7,19 @@ export const timeProviderOffline = (
 ): TimeProvider => {
 	let frame = frameOffset;
 	const frameTime = 1000 / referenceFPS;
+	let isActive = false;
 	return {
 		start() {
 			frame = frameOffset - 1;
+			isActive = true;
+		},
+		stop() {
+			isActive = false;
 		},
 		next(fn) {
 			setTimeout(() => {
 				frame++;
-				fn(frame * frameTime, frame);
+				isActive && fn(frame * frameTime, frame);
 			}, frameDelay);
 		},
 		now: () => [frame * frameTime, frame],
