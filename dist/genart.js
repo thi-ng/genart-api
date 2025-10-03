@@ -661,14 +661,19 @@
   var timeProviderOffline = (frameDelay = 250, referenceFPS = 60, frameOffset = 0) => {
     let frame = frameOffset;
     const frameTime = 1e3 / referenceFPS;
+    let isActive = false;
     return {
       start() {
         frame = frameOffset - 1;
+        isActive = true;
+      },
+      stop() {
+        isActive = false;
       },
       next(fn) {
         setTimeout(() => {
           frame++;
-          fn(frame * frameTime, frame);
+          isActive && fn(frame * frameTime, frame);
         }, frameDelay);
       },
       now: () => [frame * frameTime, frame]
@@ -681,12 +686,17 @@
     let frame = frameOffset;
     let now = timeOffset;
     let isStart = true;
+    let isActive = false;
     return {
       start() {
-        isStart = true;
+        isActive = isStart = true;
+      },
+      stop() {
+        isActive = false;
       },
       next(fn) {
         requestAnimationFrame((t) => {
+          if (!isActive) return;
           if (isStart) {
             t0 = t;
             frame = frameOffset;
@@ -781,7 +791,7 @@
       });
     }
     get version() {
-      return "0.28.0";
+      return "0.29.0";
     }
     get id() {
       return this._opts.id;
@@ -891,8 +901,13 @@
       return this.waitFor("_adapter");
     }
     setTimeProvider(time3) {
+      this._time.stop();
       this._time = time3;
-      this.notifyReady();
+      if (["play", "stop"].includes(this._state)) {
+        time3.start();
+      } else {
+        this.notifyReady();
+      }
     }
     waitForTimeProvider() {
       return this.waitFor("_time");

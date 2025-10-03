@@ -105,6 +105,7 @@
       }
       return res;
     };
+    let isActive = false;
     return {
       start() {
         samples = [];
@@ -125,9 +126,18 @@
           ctx.strokeStyle = text;
           ctx.setLineDash([1, 1]);
         }
+        isActive = true;
+      },
+      stop() {
+        isActive = false;
+        if (canvas) {
+          document.body.removeChild(canvas);
+          canvas = void 0;
+        }
       },
       next(fn) {
         requestAnimationFrame((t) => {
+          if (!isActive) return;
           if (isStart) {
             t0 = t;
             frame = 0;
