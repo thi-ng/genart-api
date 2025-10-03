@@ -6,7 +6,7 @@ const tplPkg = JSON.parse(readFileSync(TPL_PKG_PATH));
 
 tplPkg.dependencies = {
 	"@genart-api/core": `^${pkg.version}`,
-	"@genart-api/adpater-urlparams": `^${pkg.version}`,
+	"@genart-api/adapter-urlparams": `^${pkg.version}`,
 };
 
 writeFileSync(TPL_PKG_PATH, JSON.stringify(tplPkg, null, "\t"));
