@@ -104,7 +104,7 @@ export const timeProvider = ({
 	fps = ["#0f0", "#ff0", "#f00", "#306"],
 	fill = false,
 }: Partial<FPSOverlayOpts> = {}): TimeProvider => {
-	let canvas: HTMLCanvasElement;
+	let canvas: HTMLCanvasElement | undefined;
 	let ctx: CanvasRenderingContext2D;
 	const scaleX = width / period;
 	const showTickLabels = width >= 120;
@@ -138,7 +138,7 @@ export const timeProvider = ({
 		const { clamp01, round } = $genart.math;
 		peak += (max.head() * 1.1 - peak) * 0.1;
 
-		const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+		const grad = ctx.createLinearGradient(0, 0, 0, canvas!.height);
 		grad.addColorStop(clamp01(1 - targetFPS / peak), fps[0]);
 		grad.addColorStop(clamp01(1 - (targetFPS - 1) / peak), fps[1]);
 		grad.addColorStop(clamp01(1 - targetFPS / 2 / peak), fps[2]);
@@ -195,6 +195,7 @@ export const timeProvider = ({
 		}
 		return res;
 	};
+	let isActive = false;
 	return {
 		start() {
 			samples = [];
@@ -215,9 +216,18 @@ export const timeProvider = ({
 				ctx.strokeStyle = text;
 				ctx.setLineDash([1, 1]);
 			}
+			isActive = true;
+		},
+		stop() {
+			isActive = false;
+			if (canvas) {
+				document.body.removeChild(canvas);
+				canvas = undefined;
+			}
 		},
 		next(fn) {
 			requestAnimationFrame((t) => {
+				if (!isActive) return;
 				if (isStart) {
 					t0 = t;
 					frame = 0;
