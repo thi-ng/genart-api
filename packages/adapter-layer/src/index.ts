@@ -47,6 +47,20 @@ const {
 	utils: { equiv, isString, parseUUID },
 } = $genart;
 
+export interface LayerAdapterOpts {
+	/**
+	 * If true (default if uploaded/hosted on Layer, i.e. layerstatic.com),
+	 * param changes to params with `reload` update behavior will automatically
+	 * trigger a reload of the current URL (after 100ms).
+	 *
+	 * @remarks
+	 * When running on localhost (e.g. via the Layer sandbox), auto reload is
+	 * NOT enabled by default, since the sandbox handles param updates
+	 * differently (via updating URL params) than Layer's GenStudio editor does.
+	 */
+	autoReload: boolean;
+}
+
 interface AdaptedParam {
 	/**
 	 * Original param ID
@@ -61,6 +75,10 @@ interface AdaptedParam {
 }
 
 class LayerAdapter implements PlatformAdapter {
+	opts: LayerAdapterOpts = {
+		autoReload: /layer(static)?\.(com|art)$/.test(location.host),
+	};
+
 	protected _prng!: PRNG;
 	protected _params: ParamSpecs | undefined;
 	protected _cache: Record<string, any> = {};
@@ -93,6 +111,7 @@ class LayerAdapter implements PlatformAdapter {
 			if (equiv(this._cache[id], value)) return;
 			this._cache[id] = value;
 			$genart.setParamValue(id, value);
+			if (this.opts.autoReload) setTimeout(() => location.reload(), 100);
 		});
 		window.addEventListener("layer:dimensionschange", (e) => {
 			$genart.emit<ResizeMessage>({
@@ -100,6 +119,10 @@ class LayerAdapter implements PlatformAdapter {
 				screen: { ...(<CustomEvent>e).detail, dpr: 1 },
 			});
 		});
+	}
+
+	configure(opts: Partial<LayerAdapterOpts>) {
+		Object.assign(this.opts, opts);
 	}
 
 	get id() {
