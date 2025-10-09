@@ -92,10 +92,7 @@ class LayerAdapter implements PlatformAdapter {
 			}
 			if (equiv(this._cache[id], value)) return;
 			this._cache[id] = value;
-			if (param.update !== "reload") {
-				// only update param if no reload required
-				$genart.setParamValue(id, value);
-			}
+			$genart.setParamValue(id, value);
 		});
 		window.addEventListener("layer:dimensionschange", (e) => {
 			$genart.emit<ResizeMessage>({
