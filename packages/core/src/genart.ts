@@ -521,18 +521,13 @@ class API implements GenArtAPI {
 		return { spec, impl: this.ensureParamImpl(spec.type) };
 	}
 
-	protected waitFor(type: "_adapter" | "_time") {
-		return this[type]
-			? Promise.resolve()
-			: new Promise<void>((resolve) => {
-					const check = () => {
-						if (this[type]) resolve();
-						else {
-							setTimeout(check, 0);
-						}
-					};
-					check();
-			  });
+	protected waitFor(type: "_adapter"): Promise<PlatformAdapter>;
+	protected waitFor(type: "_time"): Promise<TimeProvider>;
+	protected async waitFor(type: "_adapter" | "_time") {
+		while (!this[type]) {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		}
+		return this[type];
 	}
 
 	/**
