@@ -48,6 +48,23 @@ See [related
 section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
 in main project README for more details...
 
+## Parameter update behavior
+
+The adapter will automatically trigger a reload after 100ms when a parameter
+with [`reload` update
+behavior](https://docs.thi.ng/genart-api/core/types/ParamUpdateBehavior.html) is
+changed and the [`autoReload`
+option](https://docs.thi.ng/genart-api/adapter-layer/interfaces/LayerAdapterOpts.html#autoreload)
+for this platform adapater is enabled. The `autoReload` option is only enabled
+by default if the artwork is hosted on Layer's servers and can be manually
+configured via:
+
+```js
+$genart.adapter.configure({ autoReload: true });
+```
+
+(See above doc links for more details...)
+
 ## Parameter type adaptations & conversions
 
 > [!IMPORTANT]
