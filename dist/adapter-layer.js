@@ -44,9 +44,7 @@
         }
         if (equiv(this._cache[id], value)) return;
         this._cache[id] = value;
-        if (param.update !== "reload") {
-          $genart.setParamValue(id, value);
-        }
+        $genart.setParamValue(id, value);
       });
       window.addEventListener("layer:dimensionschange", (e) => {
         $genart.emit({

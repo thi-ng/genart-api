@@ -791,7 +791,7 @@
       });
     }
     get version() {
-      return "0.29.0";
+      return "0.30.0";
     }
     get id() {
       return this._opts.id;
@@ -1096,16 +1096,11 @@
       );
       return { spec, impl: this.ensureParamImpl(spec.type) };
     }
-    waitFor(type) {
-      return this[type] ? Promise.resolve() : new Promise((resolve) => {
-        const check = () => {
-          if (this[type]) resolve();
-          else {
-            setTimeout(check, 0);
-          }
-        };
-        check();
-      });
+    async waitFor(type) {
+      while (!this[type]) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+      return this[type];
     }
     /**
      * Emits {@link ParamsMessage} message (only iff the params specs aren't

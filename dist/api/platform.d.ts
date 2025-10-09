@@ -148,4 +148,14 @@ export interface PlatformAdapter {
      * @param el
      */
     capture(el?: HTMLCanvasElement | SVGElement): void;
+    /**
+     * Optional method to configure platform-specific adapter behaviors.
+     *
+     * @remarks
+     * Reminder: Artworks relying on platform-specific features potentially
+     * makes them non-portable. Use with caution!
+     *
+     * @param opts
+     */
+    configure?(opts: Record<string, any>): void;
 }

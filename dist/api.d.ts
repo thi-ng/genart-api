@@ -291,7 +291,7 @@ export interface GenArtAPI {
      * await $genart.waitForAdapter();
      * ```
      */
-    waitForAdapter(): Promise<void>;
+    waitForAdapter(): Promise<PlatformAdapter>;
     /**
      * Sets the {@link TimeProvider} instance to use.
      *
@@ -307,7 +307,7 @@ export interface GenArtAPI {
      * of default {@link TimeProviders}, so this call is not required here (but
      * defined as option for other implementations)...
      */
-    waitForTimeProvider(): Promise<void>;
+    waitForTimeProvider(): Promise<TimeProvider>;
     /**
      * Iterates over all registered parameters and calls
      * {@link PlatformAdapter.updateParam} and {@link GenArtAPI.setParamValue}
