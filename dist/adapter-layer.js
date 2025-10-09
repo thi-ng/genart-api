@@ -15,6 +15,9 @@
     utils: { equiv, isString, parseUUID }
   } = $genart;
   var LayerAdapter = class {
+    opts = {
+      autoReload: /layer(static)?\.(com|art)$/.test(location.host)
+    };
     _prng;
     _params;
     _cache = {};
@@ -45,6 +48,7 @@
         if (equiv(this._cache[id], value)) return;
         this._cache[id] = value;
         $genart.setParamValue(id, value);
+        if (this.opts.autoReload) setTimeout(() => location.reload(), 100);
       });
       window.addEventListener("layer:dimensionschange", (e) => {
         $genart.emit({
@@ -52,6 +56,9 @@
           screen: { ...e.detail, dpr: 1 }
         });
       });
+    }
+    configure(opts) {
+      Object.assign(this.opts, opts);
     }
     get id() {
       return "@genart-api/adapter-layer";
