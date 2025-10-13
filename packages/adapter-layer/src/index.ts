@@ -59,6 +59,14 @@ export interface LayerAdapterOpts {
 	 * differently (via updating URL params) than Layer's GenStudio editor does.
 	 */
 	autoReload: boolean;
+	/**
+	 * If true (default if uploaded/hosted on Layer, i.e. layerstatic.com),
+	 * params declared with `private` (aka artist-only) edit permission will not
+	 * be exposed to the Layer SDK and therefore will be hidden in Layer's
+	 * GenStudio variation editor (which doesn't (yet?) consider `private` vs.
+	 * `protected` aka artist vs. curator edit permissions).
+	 */
+	hidePrivate: boolean;
 }
 
 interface AdaptedParam {
@@ -74,9 +82,12 @@ interface AdaptedParam {
 	adapt(value: any): any;
 }
 
+const IS_LAYER_HOSTED = /layer(static)?\.(com|art)$/.test(location.host);
+
 class LayerAdapter implements PlatformAdapter {
 	opts: LayerAdapterOpts = {
-		autoReload: /layer(static)?\.(com|art)$/.test(location.host),
+		autoReload: IS_LAYER_HOSTED,
+		hidePrivate: IS_LAYER_HOSTED,
 	};
 
 	protected _prng!: PRNG;
@@ -176,6 +187,7 @@ class LayerAdapter implements PlatformAdapter {
 		const layerParams: Parameter[] = [];
 		for (let id in params) {
 			const src = params[id];
+			if (src.edit === "private" && this.opts.hidePrivate) continue;
 			const kind = TYPE_MAP[src.type];
 			if (!kind) {
 				this.warn(
@@ -189,7 +201,11 @@ class LayerAdapter implements PlatformAdapter {
 				name: src.name || id,
 				description:
 					src.desc +
-					(src.update === "reload" ? " (requires reload)" : ""),
+					(src.update === "reload"
+						? ` (${
+								this.opts.autoReload ? "triggers" : "requires"
+						  } reload)`
+						: ""),
 				default: src.default,
 				customization_level:
 					src.edit === "private"
