@@ -791,7 +791,7 @@
       });
     }
     get version() {
-      return "0.31.0";
+      return "0.32.0";
     }
     get id() {
       return this._opts.id;

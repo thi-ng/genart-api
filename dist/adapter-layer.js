@@ -14,9 +14,11 @@
     prng: { SFC32 },
     utils: { equiv, isString, parseUUID }
   } = $genart;
+  var IS_LAYER_HOSTED = /layer(static)?\.(com|art)$/.test(location.host);
   var LayerAdapter = class {
     opts = {
-      autoReload: /layer(static)?\.(com|art)$/.test(location.host)
+      autoReload: IS_LAYER_HOSTED,
+      hidePrivate: IS_LAYER_HOSTED
     };
     _prng;
     _params;
@@ -48,7 +50,9 @@
         if (equiv(this._cache[id], value)) return;
         this._cache[id] = value;
         $genart.setParamValue(id, value);
-        if (this.opts.autoReload) setTimeout(() => location.reload(), 100);
+        if (param.update === "reload" && this.opts.autoReload) {
+          setTimeout(() => location.reload(), 100);
+        }
       });
       window.addEventListener("layer:dimensionschange", (e) => {
         $genart.emit({
@@ -96,6 +100,7 @@
       const layerParams = [];
       for (let id in params) {
         const src = params[id];
+        if (src.edit === "private" && this.opts.hidePrivate) continue;
         const kind = TYPE_MAP[src.type];
         if (!kind) {
           this.warn(
@@ -107,7 +112,7 @@
           id,
           kind,
           name: src.name || id,
-          description: src.desc + (src.update === "reload" ? " (requires reload)" : ""),
+          description: src.desc + (src.update === "reload" ? ` (${this.opts.autoReload ? "triggers" : "requires"} reload)` : ""),
           default: src.default,
           customization_level: src.edit === "private" ? "ARTIST" : src.edit === "public" ? "VIEWER" : "CURATOR"
         };
