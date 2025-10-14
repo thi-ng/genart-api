@@ -108,11 +108,20 @@
           );
           continue;
         }
+        const descExtra = [];
+        if (src.edit === "private") {
+          descExtra.push("private");
+        }
+        if (src.update === "reload") {
+          descExtra.push(
+            `${this.opts.autoReload ? "triggers" : "requires"} reload`
+          );
+        }
         const dest = {
           id,
           kind,
           name: src.name || id,
-          description: src.desc + (src.update === "reload" ? ` (${this.opts.autoReload ? "triggers" : "requires"} reload)` : ""),
+          description: src.desc + (descExtra.length ? `(${descExtra.join(", ")})` : ""),
           default: src.default,
           customization_level: src.edit === "private" ? "ARTIST" : src.edit === "public" ? "VIEWER" : "CURATOR"
         };
