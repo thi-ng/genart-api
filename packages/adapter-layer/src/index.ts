@@ -197,17 +197,22 @@ class LayerAdapter implements PlatformAdapter {
 				);
 				continue;
 			}
+			const descExtra = [];
+			if (src.edit === "private") {
+				descExtra.push("private");
+			}
+			if (src.update === "reload") {
+				descExtra.push(
+					`${this.opts.autoReload ? "triggers" : "requires"} reload`
+				);
+			}
 			const dest = <Parameter>{
 				id,
 				kind,
 				name: src.name || id,
 				description:
 					src.desc +
-					(src.update === "reload"
-						? ` (${
-								this.opts.autoReload ? "triggers" : "requires"
-						  } reload)`
-						: ""),
+					(descExtra.length ? ` (${descExtra.join(", ")})` : ""),
 				default: src.default,
 				customization_level:
 					src.edit === "private"
