@@ -86,10 +86,10 @@ tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
 
 ### Versioning
 
-For ease of use and to avoid guess work, currently all packages in this repo are
-published using a shared version identifier. Once v1.0.0 will be released, this
-will switch to independent versioning, with support package versions aligned to
-that of the main API.
+For ease of use and to avoid guess work about compatibility, currently all
+packages in this repo are published using a shared version identifier. With the
+release of v1.0.0, this will switch to independent semantic versioning, with
+support package versions aligned to the major versions of the main API.
 
 ## About
 
