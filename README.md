@@ -5,6 +5,7 @@
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
 -   [Status](#status)
+    -   [Versioning](#versioning)
 -   [About](#about)
     -   [Goals](#goals)
     -   [Non-goals](#non-goals)
@@ -68,7 +69,7 @@
 
 ## Status
 
-**ALPHA** — Work in progress... **Welcoming feedback!** 🙏
+**BETA** — Work in progress... **Welcoming feedback!** 🙏
 
 [Projects updates on Mastodon](https://mastodon.thi.ng/@toxi/tagged/GenArtAPI)
 
@@ -82,6 +83,13 @@ tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
 > based generative art** projects and related tooling.
 >
 > tl;dr Jump to the [Getting started section](#getting-started).
+
+### Versioning
+
+For ease of use and to avoid guess work, currently all packages in this repo are
+published using a shared version identifier. Once v1.0.0 will be released, this
+will switch to independent versioning, with support package versions aligned to
+that of the main API.
 
 ## About
 
