@@ -2,6 +2,7 @@
 	"extends": "../../tsconfig.json",
 	"include": ["src/**/*"],
 	"compilerOptions": {
-		"noUnusedLocals": false
+		"noUnusedLocals": false,
+		"types": ["node"]
 	}
 }
