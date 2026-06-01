@@ -276,8 +276,9 @@ export interface DateTimeParam extends Param<Date> {
  * intended for obtaining spatially varied parameters (e.g. gradient maps).
  * Non-randomizable.
  */
-export interface ImageParam
-	extends Param<Uint8Array | Uint8ClampedArray | Uint32Array> {
+export interface ImageParam extends Param<
+	Uint8Array | Uint8ClampedArray | Uint32Array
+> {
 	type: "image";
 	/** Image width */
 	width: number;

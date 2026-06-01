@@ -10,7 +10,7 @@ export const toggle: ParamImpl = {
 		value === "true" || value === "1"
 			? true
 			: value === "false" || value === "0"
-			? false
-			: !!value,
+				? false
+				: !!value,
 	randomize: (_, rnd) => rnd() < 0.5,
 };

@@ -19,12 +19,13 @@ export const ramp: ParamImpl = {
 		return i < 0
 			? stops[1]
 			: i >= n
-			? stops[n + 1]
-			: {
-					exp: () => mix(av, bv, easeInOut5(norm(t, at, bt))),
-					linear: () => fit(t, at, bt, av, bv),
-					smooth: () => mix(av, bv, smoothstep01(norm(t, at, bt))),
-			  }[mode || "linear"]();
+				? stops[n + 1]
+				: {
+						exp: () => mix(av, bv, easeInOut5(norm(t, at, bt))),
+						linear: () => fit(t, at, bt, av, bv),
+						smooth: () =>
+							mix(av, bv, smoothstep01(norm(t, at, bt))),
+					}[mode || "linear"]();
 	},
 	params: {
 		stops: numlist({

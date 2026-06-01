@@ -54,7 +54,8 @@ export const isInRange = (x: number, min: number, max: number) =>
 	x >= min && x <= max;
 
 export const u8 = (x: number) => (
-	(x &= 0xff), (x < 16 ? "0" : "") + x.toString(16)
+	(x &= 0xff),
+	(x < 16 ? "0" : "") + x.toString(16)
 );
 
 export const u16 = (x: number) => u8(x >>> 8) + u8(x);

@@ -110,8 +110,8 @@
 				param("fade") < 0.1
 					? "weak"
 					: param("fade") < 0.2
-					? "medium"
-					: "strong",
+						? "medium"
+						: "strong",
 			curve: {
 				cyan: "cool cyan",
 				magenta: "hot pink",

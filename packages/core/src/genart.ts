@@ -169,7 +169,7 @@ class API implements GenArtAPI {
 						width: window.innerWidth,
 						height: window.innerHeight,
 						dpr: window.devicePixelRatio || 1,
-				  }
+					}
 				: { width: 640, height: 640, dpr: 1 })
 		);
 	}
@@ -403,7 +403,7 @@ class API implements GenArtAPI {
 				if (randomize) return randomize(spec, t);
 				t = 0;
 			}
-			return read ? read(spec, t) : spec.value ?? spec.default;
+			return read ? read(spec, t) : (spec.value ?? spec.default);
 		};
 	}
 

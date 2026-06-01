@@ -141,8 +141,8 @@ const createParamControls = (params: ParamSpecs) => {
 						width >= 1024
 							? (width * 0.4 - 48) >> 1
 							: width >= 768
-							? width * 0.4 - 32
-							: width - 32;
+								? width * 0.4 - 32
+								: width - 32;
 					groupItems.push(
 						canvasColorPicker({
 							...base,
@@ -267,7 +267,7 @@ const createParamControls = (params: ParamSpecs) => {
 										...base,
 										min: $param.minLength,
 										max: $param.maxLength,
-								  })
+									})
 						);
 					}
 					break;
@@ -287,8 +287,8 @@ const createParamControls = (params: ParamSpecs) => {
 									max: [1, 1],
 									step: [0.001, 0.001],
 									labels: ["X", "Y"],
-							  };
-					const tuple = fromTuple<number[]>(paramCache[id]);
+								};
+					const tuple = fromTuple<number>(paramCache[id]);
 					value.subscribe(tuple);
 					const widget =
 						param.widget && param.widget !== "default"

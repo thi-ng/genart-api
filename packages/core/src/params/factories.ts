@@ -57,7 +57,7 @@ const $default = (impl: ParamImpl, value: any) =>
 		? ensure(
 				impl.validate(<any>null, value),
 				`invalid default value: ${value}`
-		  ) && impl.coerce!(<any>null, value)
+			) && impl.coerce!(<any>null, value)
 		: value;
 
 /** @internal */
@@ -226,7 +226,7 @@ export const time = (
 		default:
 			spec.default != null
 				? ensure(timeImpl.validate(<any>null, spec.default), ``) &&
-				  timeImpl.coerce!(<any>null, spec.default)
+					timeImpl.coerce!(<any>null, spec.default)
 				: spec.default,
 	});
 };
@@ -267,7 +267,7 @@ export const vector = (
 			? ensure(
 					spec.default.length == spec.size,
 					`wrong vector size, expected ${spec.size} values`
-			  ) && vecImpl.coerce!(<any>limits, spec.default)
+				) && vecImpl.coerce!(<any>limits, spec.default)
 			: spec.default,
 		labels: spec.labels || ["X", "Y", "Z", "W"].slice(0, spec.size),
 	});

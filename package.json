@@ -18,5 +18,8 @@
 		"doc": "yarn @genart-api run doc",
 		"test": "(cd packages && bun test)",
 		"tool:update-tpl": "node tools/update-tpl.js"
+	},
+	"devDependencies": {
+		"prettier": "^3.8.3"
 	}
 }

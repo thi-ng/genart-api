@@ -74,7 +74,7 @@ const colorPickerFormItem: Fn2<FormItem, Partial<FormOpts>, ComponentLike> = (
 							? span(
 									{ ...opts.descAttribs, ...val.descAttribs },
 									val.desc
-							  )
+								)
 							: null
 					),
 					canvas(val.attribs)

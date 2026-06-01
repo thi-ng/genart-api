@@ -13,6 +13,6 @@ export const datetime: ParamImpl = {
 		isNumber(value)
 			? new Date(value)
 			: isString(value)
-			? new Date(Date.parse(value))
-			: value,
+				? new Date(Date.parse(value))
+				: value,
 };

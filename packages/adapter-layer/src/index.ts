@@ -218,8 +218,8 @@ class LayerAdapter implements PlatformAdapter {
 					src.edit === "private"
 						? "ARTIST"
 						: src.edit === "public"
-						? "VIEWER"
-						: "CURATOR",
+							? "VIEWER"
+							: "CURATOR",
 			};
 			layerParams.push(dest);
 			this._cache[id] = src.default;

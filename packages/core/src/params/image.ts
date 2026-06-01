@@ -9,7 +9,7 @@ export const image: ParamImpl = {
 			value.length == width * height &&
 			(format === "gray"
 				? value instanceof Uint8Array ||
-				  value instanceof Uint8ClampedArray
+					value instanceof Uint8ClampedArray
 				: value instanceof Uint32Array)
 		);
 	},

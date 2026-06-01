@@ -352,7 +352,7 @@ const createWidgets = (params: NestedParamSpecs, ctx: WidgetContext) => {
 		ctx.label = param.name || id;
 		ctx.value = ctx.root
 			? (<any>ctx.root.param)[id]
-			: param.value ?? param.default;
+			: (param.value ?? param.default);
 		const root = ctx.root;
 		textLabel(gui!, ctx.layout.next([COLS, 1]), param.desc ?? "");
 		const res = paramWidget(ctx, param, id);
@@ -360,8 +360,8 @@ const createWidgets = (params: NestedParamSpecs, ctx: WidgetContext) => {
 			res != null && ctx.changedKey
 				? ctx.changedKey
 				: ctx.root
-				? id
-				: undefined;
+					? id
+					: undefined;
 		const paramID = ctx.root?.id || id;
 		if (param.randomize !== false) {
 			const rnd = buttonH({
