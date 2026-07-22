@@ -20,7 +20,7 @@
 		"tool:update-tpl": "node tools/update-tpl.js"
 	},
 	"devDependencies": {
-		"prettier": "^3.8.3"
+		"prettier": "^3.9.6"
 	},
 	"resolutions": {
 		"minimatch": "^10.2.5",

@@ -23,8 +23,8 @@
 		"@genart-api/core": "workspace:^"
 	},
 	"devDependencies": {
-		"esbuild": "^0.28.0",
-		"typedoc": "^0.28.19",
+		"esbuild": "^0.28.1",
+		"typedoc": "^0.28.20",
 		"typescript": "^6.0.3"
 	},
 	"publishConfig": {

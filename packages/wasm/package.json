@@ -23,13 +23,13 @@
 	},
 	"dependencies": {
 		"@genart-api/core": "workspace:^",
-		"@thi.ng/wasm-api": "^2.4.31"
+		"@thi.ng/wasm-api": "^2.5.1"
 	},
 	"devDependencies": {
-		"@thi.ng/wasm-api-bindgen": "^1.2.79",
+		"@thi.ng/wasm-api-bindgen": "^1.2.83",
 		"bun-types": "^1.3.14",
-		"esbuild": "^0.28.0",
-		"typedoc": "^0.28.19",
+		"esbuild": "^0.28.1",
+		"typedoc": "^0.28.20",
 		"typescript": "^6.0.3"
 	},
 	"exports": {
