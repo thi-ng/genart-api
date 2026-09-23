@@ -4,6 +4,8 @@
 ![npm downloads](https://img.shields.io/npm/dm/@genart-api/core.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
+## Project migrated to [Codeberg](https://codeberg.org/thi.ng/genart-api). The original Github repo is now just a mirror and will be deleted later this year.
+
 -   [Status](#status)
     -   [Versioning](#versioning)
 -   [About](#about)
