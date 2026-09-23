@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/core",
-	"version": "0.33.1",
+	"version": "0.33.2",
 	"description": "Platform-independent extensible API for browser-based generative art",
 	"repository": {
 		"type": "git",
@@ -17,7 +17,7 @@
 		"build:dist": "node ../../tools/build-dist.js --decl && cp ../../README.md .",
 		"clean": "bun ../../tools/clean-package.js api params time",
 		"doc": "typedoc src/api.ts",
-		"publish": "yarn npm publish --access public",
+		"publish": "yarn npm publish --staged --access public",
 		"test": "bun test"
 	},
 	"devDependencies": {

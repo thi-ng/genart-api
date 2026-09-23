@@ -17,6 +17,6 @@ for (let pkg of [
 			}).toString()
 		);
 	} catch (e) {
-		console.log(e);
+		console.log(e.output.toString());
 	}
 }

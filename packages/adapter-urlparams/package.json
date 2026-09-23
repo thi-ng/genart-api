@@ -1,6 +1,6 @@
 {
 	"name": "@genart-api/adapter-urlparams",
-	"version": "0.33.1",
+	"version": "0.33.2",
 	"description": "GenArtAPI reference platform adapter, using URL search params for artwork parameter configuration & serialization",
 	"repository": {
 		"type": "git",
@@ -15,7 +15,7 @@
 		"build:dist": "node ../../tools/build-dist.js",
 		"clean": "bun ../../tools/clean-package.js",
 		"doc": "typedoc",
-		"publish": "yarn npm publish --access public"
+		"publish": "yarn npm publish --staged --access public"
 	},
 	"dependencies": {
 		"@genart-api/core": "workspace:^"
