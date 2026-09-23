@@ -274,7 +274,7 @@ export interface GenArtAPI {
      *
      * @param params
      */
-    setParams<P extends ParamSpecs>(params: P): Promise<(<K extends keyof P>(id: K, timeOrRnd?: number | RandomFn) => ParamValue<P[K]>)>;
+    setParams<P extends ParamSpecs>(params: P): Promise<<K extends keyof P>(id: K, timeOrRnd?: number | RandomFn) => ParamValue<P[K]>>;
     /**
      * Sets the {@link PlatformAdapter} instance to use.
      *

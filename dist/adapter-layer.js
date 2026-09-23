@@ -121,7 +121,7 @@
           id,
           kind,
           name: src.name || id,
-          description: src.desc + (descExtra.length ? `(${descExtra.join(", ")})` : ""),
+          description: src.desc + (descExtra.length ? ` (${descExtra.join(", ")})` : ""),
           default: src.default,
           customization_level: src.edit === "private" ? "ARTIST" : src.edit === "public" ? "VIEWER" : "CURATOR"
         };

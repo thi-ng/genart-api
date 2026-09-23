@@ -454,6 +454,7 @@
         return t / MAX;
       };
     }
+    seed;
     buf;
     #rnd;
     // allow rnd() to be used as standalone function
@@ -791,7 +792,7 @@
       });
     }
     get version() {
-      return "0.33.0";
+      return "0.33.1";
     }
     get id() {
       return this._opts.id;
