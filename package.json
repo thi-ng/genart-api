@@ -5,7 +5,7 @@
 		"packages/*",
 		"examples/*"
 	],
-	"packageManager": "yarn@4.9.1",
+	"packageManager": "yarn@4.18.0",
 	"scripts": {
 		"@genart-api": "yarn workspaces foreach -pv --all --include '@genart-api/*'",
 		"@example": "yarn workspaces foreach -pv --all --include '@example/*'",
@@ -20,7 +20,7 @@
 		"tool:update-tpl": "node tools/update-tpl.js"
 	},
 	"devDependencies": {
-		"prettier": "^3.9.6"
+		"prettier": "^3.9.8"
 	},
 	"resolutions": {
 		"minimatch": "^10.2.5",

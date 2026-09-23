@@ -15,14 +15,14 @@
 		"preview": "vite preview --host --open"
 	},
 	"devDependencies": {
-		"typescript": "^6.0.3",
-		"vite": "^8.1.5",
+		"typescript": "^7.0.2",
+		"vite": "^8.3.0",
 		"vite-plugin-html": "^3.2.2"
 	},
 	"dependencies": {
 		"@genart-api/core": "workspace:^",
 		"@genart-api/wasm": "workspace:^",
-		"@thi.ng/wasm-api": "^2.5.1",
-		"@thi.ng/wasm-api-canvas": "^1.0.91"
+		"@thi.ng/wasm-api": "^2.5.2",
+		"@thi.ng/wasm-api-canvas": "^1.0.92"
 	}
 }
