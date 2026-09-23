@@ -2,7 +2,7 @@
 	"name": "@example/param-image",
 	"version": "0.0.1",
 	"description": "GenArtAPI image param test example",
-	"repository": "https://github.com/thi-ng/genart-api",
+	"repository": "https://codeberg.org/thi.ng/genart-api",
 	"author": "Karsten Schmidt (https://thi.ng)",
 	"license": "MIT",
 	"type": "module",

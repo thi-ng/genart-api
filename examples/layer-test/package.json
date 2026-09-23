@@ -2,7 +2,7 @@
 	"name": "@example/layer-test",
 	"version": "0.0.1",
 	"description": "Example GenArt API w/ layer.com platform adapter",
-	"repository": "https://github.com/thi-ng/genart-api",
+	"repository": "https://codeberg.org/thi.ng/genart-api",
 	"author": "Karsten Schmidt <k+npm@thi.ng>",
 	"license": "Apache-2.0",
 	"type": "module",

@@ -2,7 +2,7 @@
 	"name": "@example/param-editors",
 	"version": "0.0.1",
 	"description": "Example GenArt API param editor GUIs",
-	"repository": "https://github.com/thi-ng/genart-api",
+	"repository": "https://codeberg.org/thi.ng/genart-api",
 	"author": "Karsten Schmidt (https://thi.ng)",
 	"license": "MIT",
 	"type": "module",

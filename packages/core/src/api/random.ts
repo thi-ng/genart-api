@@ -7,7 +7,7 @@ import type { SFC32 } from "../prng.js";
  * @remarks
  * See compatible PRNG implementations:
  *
- * - https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts
+ * - https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/core/src/prng.ts
  */
 export type RandomFn = () => number;
 

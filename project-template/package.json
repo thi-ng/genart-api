@@ -2,7 +2,7 @@
 	"name": "TODO",
 	"version": "0.0.1",
 	"description": "Basic GenArtAPI project template",
-	"repository": "https://github.com/thi-ng/genart-api",
+	"repository": "https://codeberg.org/thi.ng/genart-api",
 	"author": "TODO",
 	"license": "MIT",
 	"type": "module",

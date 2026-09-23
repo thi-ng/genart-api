@@ -1,10 +1,10 @@
 {
 	"name": "@genart-api/adapter-layer",
-	"version": "0.33.0",
+	"version": "0.33.1",
 	"description": "GenArtAPI platform adapter for layer.com",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/thi-ng/genart-api.git"
+		"url": "https://codeberg.org/thi.ng/genart-api.git"
 	},
 	"homepage": "https://thi.ng/genart-api",
 	"author": "Karsten Schmidt (https://thi.ng)",

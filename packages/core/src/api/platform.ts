@@ -123,7 +123,7 @@ export interface PlatformAdapter {
 	 *    key-value pair. The keys to be updated MUST correspond to nested param
 	 *    specs defined by the main param type's {@link ParamImpl.params},
 	 *    otherwise an error will be thrown (see [Composite
-	 *    parameters](https://github.com/thi-ng/genart-api/blob/main/README.md#composite-parameters)
+	 *    parameters](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#composite-parameters)
 	 *    for reference).
 	 * 3. If the function returns `{ value: any }` and if that `value` is
 	 *    non-nullish, the param spec will be updated via

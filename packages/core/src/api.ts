@@ -161,7 +161,7 @@ export interface GenArtAPI {
 	 * Returns the platform's configured pseudo-random number generator.
 	 *
 	 * @remarks
-	 * Please see related issue: https://github.com/thi-ng/genart-api/issues/1
+	 * Please see related issue: https://codeberg.org/thi.ng/genart-api/issues/1
 	 */
 	readonly random: PRNG;
 	/**
