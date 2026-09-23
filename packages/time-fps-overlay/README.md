@@ -4,14 +4,14 @@
 ![npm downloads](https://img.shields.io/npm/dm/@genart-api/time-fps-overlay.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
-[GenArtAPI](https://github.com/thi-ng/genart-api/) time provider for development
+[GenArtAPI](https://codeberg.org/thi.ng/genart-api/) time provider for development
 purposes, which collects FPS samples and injects a canvas overlay to visualize
 recent frame rates and compute moving averages. The visualization can be
 configured via [provided
 options](https://docs.thi.ng/genart-api/time-fps-overlay/interfaces/FPSOverlayOpts.html).
 
 See main project README for [further info about GenArtAPI time
-providers](https://github.com/thi-ng/genart-api/blob/main/README.md#time-providers).
+providers](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#time-providers).
 
 ## Usage
 

@@ -4,10 +4,10 @@
 ![npm downloads](https://img.shields.io/npm/dm/@genart-api/adapter-fxhash.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
-[GenArtAPI](https://github.com/thi-ng/genart-api/) platform adapter for the
+[GenArtAPI](https://codeberg.org/thi.ng/genart-api/) platform adapter for the
 [**fx(hash)**](https://fxhash.xyz) art platform.
 
-See main [README](https://github.com/thi-ng/genart-api/blob/main/README.md) for
+See main [README](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md) for
 details.
 
 ## Usage
@@ -45,7 +45,7 @@ core `GenArtAPI` and the **EditArt** platform adapter:
 ```
 
 See [related
-section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
+section](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#use-in-your-own-projects-an-artists-hello-world)
 in main project README for more details...
 
 Once running, you can then test your example in the fx(hash) sandbox:
@@ -77,7 +77,7 @@ the platform adapter will log a warning message in the browser console.
 
 ### Bigint
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#bigint-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#bigint-parameter)
 
 Will be represented as a **fx(hash)** `bigint` parameter.
 
@@ -87,7 +87,7 @@ than this (which it is by default)...
 
 ### Binary
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#binary-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#binary-parameter)
 
 Will be represented as a **fx(hash)** `bytes` parameter.
 
@@ -99,7 +99,7 @@ as required by the platform.
 
 ### Choice
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#choice-parameter)
 
 Will be represented as a **fx(hash)** `select` parameter.
 
@@ -109,31 +109,31 @@ only display option values.
 
 ### Color
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#color-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#color-parameter)
 
 Will be represented as a **fx(hash)** `color` parameter.
 
 ### Range
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#range-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#range-parameter)
 
 Will be represented as a **fx(hash)** `number` parameter.
 
 ### Text
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#text-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#text-parameter)
 
 Will be represented as a **fx(hash)** `string` parameter.
 
 ### Toggle
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#toggle-parameter)
 
 Will be represented as a **fx(hash)** `boolean` parameter.
 
 ### Vector
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#vector-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#vector-parameter)
 
 Will be represented as multiple **fx(hash)** `number` parameters, one per vector
 component.
@@ -150,14 +150,14 @@ propagate the changed vector value via the main `GenArtAPI` system.
 
 ### Weighted choice
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#weighted-choice-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#weighted-choice-parameter)
 
 Will be represented as a **fx(hash)** `select` parameter. Weights will be
 ignored when randomizing the param in the **fx(hash)** UI.
 
 ### XY
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#xy-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#xy-parameter)
 
 Similar to [vector params](#vector), XY params will also be represented as two
 **fx(hash)** `number`s.

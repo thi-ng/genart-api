@@ -76,7 +76,7 @@
 [Projects updates on Mastodon](https://mastodon.thi.ng/@toxi/tagged/GenArtAPI)
 
 Please also see RFCs and open questions in the [issue
-tracker](https://github.com/thi-ng/genart-api/issues). Thanks!
+tracker](https://codeberg.org/thi.ng/genart-api/issues). Thanks!
 
 > [!NOTE]
 > In the future this repo might be moved to a standalone GitHub org to emphasize
@@ -119,7 +119,7 @@ aforementioned aspects of media production (for example helping to deal with
 realtime/non-realtime rendering when recording image sequences for video
 production, and do so in an unintrusive & externally controlled manner).
 
-![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/overview.svg)
+![Overview](https://codeberg.org/thi.ng/genart-api/media/branch/main/diagrams/overview.svg)
 
 Schematic overview of the proposed architecture
 
@@ -215,9 +215,9 @@ implementation to be provided when running elsewhere.
 
 #### Lifecycle
 
-![Overview](https://raw.githubusercontent.com/thi-ng/genart-api/main/diagrams/lifecycle.svg?20241008)
+![Overview](https://codeberg.org/thi.ng/genart-api/media/branch/main/diagrams/lifecycle.svg?20241008)
 
-[Diagram source code](https://github.com/thi-ng/genart-api/blob/main/diagrams/lifecycle.puml)
+[Diagram source code](https://codeberg.org/thi.ng/genart-api/src/branch/main/diagrams/lifecycle.puml)
 
 #### State machine
 
@@ -237,7 +237,7 @@ The API implements a finite state machine with the following possible states:
 > [!IMPORTANT]
 > Message names have been updated in recent versions and are partially
 > incompatible with older versions. Please see [commit
-> details](https://github.com/thi-ng/genart-api/commit/35b627d7380bad75d280cc1e051ec7ed23aa8995)
+> details](https://codeberg.org/thi.ng/genart-api/commit/35b627d7380bad75d280cc1e051ec7ed23aa8995)
 > for what has changed and why, and what (might) need to be changed in your
 > projects.
 >
@@ -481,7 +481,7 @@ bytes per pixel. Likewise a param editor allowing image uploads/customizations
 is responsible to resize an image to the expected dimensions and provide its
 data in the expected format.
 
-[Related example](https://github.com/thi-ng/genart-api/tree/main/examples/param-image)
+[Related example](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-image)
 
 > [!IMPORTANT]
 > Note to artists: Ensure to keep your image size requirements as low as
@@ -771,7 +771,7 @@ registers its own types, it SHOULD consider namespacing the type name, e.g.
 The following example shows how to implement, register and then use a sine wave
 oscillator parameter type, providing time-based values. A more advanced version
 is shown in the [param-custom
-example](https://github.com/thi-ng/genart-api/blob/main/examples/param-custom).
+example](https://codeberg.org/thi.ng/genart-api/src/branch/main/examples/param-custom).
 
 ```ts
 // define a new param type with given name and implementation.
@@ -832,7 +832,7 @@ section](#example-oscillator-parameter-type).
 TODO
 
 Please see the [param-custom
-example](https://github.com/thi-ng/genart-api/blob/main/examples/param-custom)
+example](https://codeberg.org/thi.ng/genart-api/src/branch/main/examples/param-custom)
 for reference...
 
 ## Traits
@@ -924,13 +924,13 @@ Usually, the adapter just has to wrap the PRNG provided by the respective
 platform.
 
 -   [PRNG interface definition](https://docs.thi.ng/genart-api/core/interfaces/PRNG.html)
--   [Example implementation in a platform adapter](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/index.ts)
+-   [Example implementation in a platform adapter](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/adapter-urlparams/index.ts)
 
 For cases where a platform does not provide its own PRNG or the adapter doesn't
 want to use it, the API core package provides the widely used SFC32 PRNG
 implementation, which can be used by an adapter (or artwork):
 
--   [SFC32](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/prng.ts)
+-   [SFC32](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/core/src/prng.ts)
 
 ### Screen configuration
 
@@ -982,7 +982,7 @@ providers which are merely responsible to schedule the next animation frame and
 provide a related timestamp and frame number.
 
 The API defaults to using a [`requestAnimationFrame()`-based
-provider](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/time/raf.ts),
+provider](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/core/src/time/raf.ts),
 but this one can be replaced by loading an alternative implementation via
 another `<script>` tag, like so:
 
@@ -1010,7 +1010,7 @@ in the API reference implementation:
 Default TimeProvider, requestAnimationFrame()-based. Start time & frame offsets
 can be provided (both defaulting to zero).
 
-[Source](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/time/raf.ts)
+[Source](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/core/src/time/raf.ts)
 
 #### Offline
 
@@ -1018,20 +1018,20 @@ A time provider for fixed frame rates, offline (aka non-realtime) animation use
 cases, e.g. recording image sequences. Supports arbitrary delays between frames
 (default: 250ms) and reference frame rates (default: 60fps).
 
-[Source](https://github.com/thi-ng/genart-api/blob/main/packages/core/src/time/offline.ts)
+[Source](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/core/src/time/offline.ts)
 
 #### FPS overlay
 
 > [!IMPORTANT]
 > Since v0.22.0 this time provider is distributed as separate package
-> [`@genart-api/time-fps-overlay`](https://github.com/thi-ng/genart-api/blob/main/packages/time-fps-overlay)
+> [`@genart-api/time-fps-overlay`](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/time-fps-overlay)
 
 Similar to the [RAF time provider](#raf), but also collects FPS samples and
 injects a canvas overlay to visualize recent frame rates and compute moving min,
 max and average. The visualization can be configured via provided
 [options](https://docs.thi.ng/genart-api/time-fps-overlay/interfaces/FPSOverlayOpts.html).
 
-[Source](https://github.com/thi-ng/genart-api/blob/main/packages/time-fps-overlay/src/index.ts)
+[Source](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/time-fps-overlay/src/index.ts)
 
 ## WebAssembly bindings
 
@@ -1040,7 +1040,7 @@ workflow/setup, we also want to provide integrations for other languages, e.g.
 via WebAssembly.
 
 The [@genart-api/wasm
-package](https://github.com/thi-ng/genart-api/blob/main/packages/wasm/) provides
+package](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/wasm/) provides
 WASM bindings for `GenArtAPI` and is designed as an API module/plugin for the
 [thi.ng/wasm-api](https://thi.ng/wasm-api) toolchain, and includes polyglot
 bindings code for both [Zig](https://ziglang.org) & TypeScript/JavaScript.
@@ -1054,30 +1054,30 @@ bindings code for both [Zig](https://ziglang.org) & TypeScript/JavaScript.
 
 This repo contains several examples used for testing and evaluating the
 reference API implementation. These are all separate projects/packages located
-in the [/examples](https://github.com/thi-ng/genart-api/tree/main/examples)
+in the [/examples](https://codeberg.org/thi.ng/genart-api/tree/main/examples)
 directory. Please ensure you read their README instructions, since a certain
 build order must be used in some situations:
 
 | **Project**                                                                            | **Live demo w/ editor**                                                                                | **Description**                                        |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ |
-| [p5-basic](https://github.com/thi-ng/genart-api/tree/main/examples/p5-basic/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/p5-basic/)     | Basic p5.js example                                    |
-| [param-test](https://github.com/thi-ng/genart-api/tree/main/examples/param-test/)      | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-test/)   | Minimal "art" example using various parameter types    |
-| [param-image](https://github.com/thi-ng/genart-api/tree/main/examples/param-image/)    | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)  | Example using an image map parameter                   |
-| [param-custom](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/)  | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/) | Custom & composite parameter type example              |
-| [param-editors](https://github.com/thi-ng/genart-api/tree/main/examples/param-custom/) | [Demo](https://demo.thi.ng/genart-api/param-editors/)                                                  | Reference [editor implementations](#parameter-editors) |
-| [zig-test](https://github.com/thi-ng/genart-api/tree/main/examples/zig-test/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/)     | Zig/WebAssembly API wrapper example (WIP)              |
+| [p5-basic](https://codeberg.org/thi.ng/genart-api/tree/main/examples/p5-basic/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/p5-basic/)     | Basic p5.js example                                    |
+| [param-test](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-test/)      | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-test/)   | Minimal "art" example using various parameter types    |
+| [param-image](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-image/)    | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-image/)  | Example using an image map parameter                   |
+| [param-custom](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-custom/)  | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/param-custom/) | Custom & composite parameter type example              |
+| [param-editors](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-custom/) | [Demo](https://demo.thi.ng/genart-api/param-editors/)                                                  | Reference [editor implementations](#parameter-editors) |
+| [zig-test](https://codeberg.org/thi.ng/genart-api/tree/main/examples/zig-test/)          | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/)     | Zig/WebAssembly API wrapper example (WIP)              |
 
 Platform-specific example projects:
 
 | **Project**                                                                       | **Live demo**                                                                     | **Description**                            |
 | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------ |
-| [layer-test](https://github.com/thi-ng/genart-api/tree/main/examples/layer-test/) | [Demo](https://sandbox.layer.com/?url=https://demo.thi.ng/genart-api/layer-test/) | Minimal example for the Layer art platform |
+| [layer-test](https://codeberg.org/thi.ng/genart-api/tree/main/examples/layer-test/) | [Demo](https://sandbox.layer.com/?url=https://demo.thi.ng/genart-api/layer-test/) | Minimal example for the Layer art platform |
 
 ### Existing adapter implementations
 
 > [!NOTE]
 > Please refer or contribute to issue [#2: List of art platforms we should
-> provide adapters for](https://github.com/thi-ng/genart-api/issues/2)
+> provide adapters for](https://codeberg.org/thi.ng/genart-api/issues/2)
 
 The following art platforms are already supported and projects can be easily
 adapted by merely installing and switching to a different platform adapter.
@@ -1087,10 +1087,10 @@ details about handling any platform specifics:
 
 | **Package**                                                                                                          | **Art platform**               | **Description**                                                                                  |
 | -------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------ |
-| [@genart-api/adapter-editart](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-editart/README.md)     | [EditArt](https://editart.xyz) | Adapter for the EditArt platform                                                                 |
-| [@genart-api/adapter-fxhash](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-fxhash/README.md)       | [fx(hash)](https://fxhash.xyz) | Adapter for the fx(hash) art platform                                                            |
-| [@genart-api/adapter-layer](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-layer/README.md)         | Layer.com                      | Adapter for the Layer art platform                                                               |
-| [@genart-api/adapter-urlparams](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/README.md) |                                | Reference implementation (used for the [param editors](#parameter-editors) bundled in this repo) |
+| [@genart-api/adapter-editart](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/adapter-editart/README.md)     | [EditArt](https://editart.xyz) | Adapter for the EditArt platform                                                                 |
+| [@genart-api/adapter-fxhash](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/adapter-fxhash/README.md)       | [fx(hash)](https://fxhash.xyz) | Adapter for the fx(hash) art platform                                                            |
+| [@genart-api/adapter-layer](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/adapter-layer/README.md)         | Layer.com                      | Adapter for the Layer art platform                                                               |
+| [@genart-api/adapter-urlparams](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/adapter-urlparams/README.md) |                                | Reference implementation (used for the [param editors](#parameter-editors) bundled in this repo) |
 
 ### Project template
 
@@ -1102,7 +1102,7 @@ renaming the source file).
 -   TODO move template to own repo for easier use
 
 ```bash
-git clone https://github.com/thi-ng/genart-api.git
+git clone https://codeberg.org/thi.ng/genart-api.git
 
 # copy template to new directory
 cp -R genart-api/project-template my-new-art-project
@@ -1164,7 +1164,7 @@ step](#use-in-your-own-projects-an-artists-hello-world)...
 ### Manual installation
 
 If you don't want to use a package manager, the
-[/dist](https://github.com/thi-ng/genart-api/tree/main/dist) directory contains
+[/dist](https://codeberg.org/thi.ng/genart-api/tree/main/dist) directory contains
 all pre-built release files and type declarations which you should copy to your
 project directory (e.g. in a `/lib` dir or similar).
 
@@ -1199,7 +1199,7 @@ use cases:
 <script src="./lib/adapter-urlparams.min.js"></script>
 ```
 
--   [TypeScript source code](https://github.com/thi-ng/genart-api/blob/main/packages/adapter-urlparams/src/index.ts)
+-   [TypeScript source code](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/adapter-urlparams/src/index.ts)
 
 #### Example files
 
@@ -1346,7 +1346,7 @@ These editors can be used to customize parameters of the other [bundled
 examples](#bundled-examples) (or any other project using GenArt API and the
 supplied [reference platform adapter](#reference-platform-adapter)). See the
 [param-editors
-readme](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors/)
+readme](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-editors/)
 for details.
 
 The following table provides an overview of the **current (WIP)** support of

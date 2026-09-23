@@ -4,10 +4,10 @@
 ![npm downloads](https://img.shields.io/npm/dm/@genart-api/adapter-layer.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
-[GenArtAPI](https://github.com/thi-ng/genart-api/) platform adapter for the
+[GenArtAPI](https://codeberg.org/thi.ng/genart-api/) platform adapter for the
 [Layer](https://layer.com) art platform.
 
-See main [README](https://github.com/thi-ng/genart-api/blob/main/README.md) for
+See main [README](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md) for
 details.
 
 ## Usage
@@ -45,7 +45,7 @@ core `GenArtAPI` and the **Layer** platform adapter:
 ```
 
 See [related
-section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
+section](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#use-in-your-own-projects-an-artists-hello-world)
 in main project README for more details...
 
 ## Parameter update behavior
@@ -81,25 +81,25 @@ a warning message in the browser console.
 
 ### Choice
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#choice-parameter)
 
 Will be represented as a **Layer** `ListParameter`.
 
 ### Color
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#color-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#color-parameter)
 
 Will be represented as a **Layer** `ColorParameter`.
 
 ### Range
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#range-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#range-parameter)
 
 Will be represented as a **Layer** `NumberParameter`.
 
 ### Text
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#text-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#text-parameter)
 
 Will be represented as a **Layer** `HashParameter`. If a
 [`.match`](https://docs.thi.ng/genart-api/core/interfaces/TextParam.html#match)
@@ -118,13 +118,13 @@ Any other patterns (or if unspecified) will default to the **Layer** target
 
 ### Toggle
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#toggle-parameter)
 
 Will be represented as a **Layer** `BooleanParameter`.
 
 ### Vector
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#vector-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#vector-parameter)
 
 Will be represented as multiple **Layer** `NumberParameter`s, one per vector
 component.
@@ -141,14 +141,14 @@ propagate the changed vector via the main `GenArtAPI` system.
 
 ### Weighted choice
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#weighted-choice-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#weighted-choice-parameter)
 
 Will be represented as a **Layer** `ListParameter`. Weights will be ignored when
 randomizing the param in the **Layer** GenStudio UI.
 
 ### XY
 
-[Reference](https://github.com/thi-ng/genart-api/blob/main/README.md#xy-parameter)
+[Reference](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#xy-parameter)
 
 Similar to [vector params](#vector), XY params will also be represented as two
 **Layer** `NumberParameter`s.

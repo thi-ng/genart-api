@@ -4,10 +4,10 @@
 ![npm downloads](https://img.shields.io/npm/dm/@genart-api/adapter-editart.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
-[GenArtAPI](https://github.com/thi-ng/genart-api/) platform adapter for the
+[GenArtAPI](https://codeberg.org/thi.ng/genart-api/) platform adapter for the
 [editart.xyz](https://editart.xyz) art platform.
 
-See main [README](https://github.com/thi-ng/genart-api/blob/main/README.md) for
+See main [README](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md) for
 details.
 
 ## Usage
@@ -45,7 +45,7 @@ core `GenArtAPI` and the **EditArt** platform adapter:
 ```
 
 See [related
-section](https://github.com/thi-ng/genart-api/blob/main/README.md#use-in-your-own-projects-an-artists-hello-world)
+section](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#use-in-your-own-projects-an-artists-hello-world)
 in main project README for more details...
 
 Once running, you can then test your example in the EditArt sandbox:
@@ -67,12 +67,12 @@ intended for this platform. Where possible, types will be adapted, and even
 though the **EditArt** param UI controls will only ever be sliders, your artwork
 remain independent from these platform constraints and can still use the
 original param type intended (e.g. a [choice
-param](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)).
+param](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#choice-parameter)).
 
--   [Choice](https://github.com/thi-ng/genart-api/blob/main/README.md#choice-parameter)
--   [Range](https://github.com/thi-ng/genart-api/blob/main/README.md#range-parameter)
--   [Toggle](https://github.com/thi-ng/genart-api/blob/main/README.md#toggle-parameter)
--   [Weighted choice](https://github.com/thi-ng/genart-api/blob/main/README.md#weighted-choice-parameter)
+-   [Choice](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#choice-parameter)
+-   [Range](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#range-parameter)
+-   [Toggle](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#toggle-parameter)
+-   [Weighted choice](https://codeberg.org/thi.ng/genart-api/src/branch/main/README.md#weighted-choice-parameter)
 
 Params using other types will be ignored and will only ever evaluate to their
 assigned (or randomized) default values. When using such unsupported types, the

@@ -4,7 +4,7 @@
 ![npm downloads](https://img.shields.io/npm/dm/@genart-api/wasm.svg)
 [![Mastodon Follow](https://img.shields.io/mastodon/follow/109331703950160316?domain=https%3A%2F%2Fmastodon.thi.ng&style=social)](https://mastodon.thi.ng/@toxi)
 
-WebAssembly bindings for [GenArtAPI](https://github.com/thi-ng/genart-api/) and
+WebAssembly bindings for [GenArtAPI](https://codeberg.org/thi.ng/genart-api/) and
 the [thi.ng/wasm-api](https://thi.ng/wasm-api) toolchain.
 
 This integration is designed as an API module for the
@@ -15,7 +15,7 @@ bindings code for both [Zig](https://ziglang.org) & TypeScript.
 
 | **Project**                                                                   | **Live demo w/ editor**                                                                            | **Description**                           |
 | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| [zig-test](https://github.com/thi-ng/genart-api/tree/main/examples/zig-test/) | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/) | Zig/WebAssembly API wrapper example (WIP) |
+| [zig-test](https://codeberg.org/thi.ng/genart-api/tree/main/examples/zig-test/) | [Demo](https://demo.thi.ng/genart-api/param-editors/?url=https://demo.thi.ng/genart-api/zig-test/) | Zig/WebAssembly API wrapper example (WIP) |
 
 ## Project integration
 
@@ -158,7 +158,7 @@ The WASM module will be written to `zig-out/bin/main.wasm`.
 
 The following command generates both Zig & TypeScript bindings code for the
 included [type
-definitions](https://github.com/thi-ng/genart-api/blob/main/packages/wasm/src/typedefs.json).
+definitions](https://codeberg.org/thi.ng/genart-api/src/branch/main/packages/wasm/src/typedefs.json).
 
 ```bash
 yarn build:bindings

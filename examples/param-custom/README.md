@@ -4,7 +4,7 @@
 
 This example defines a custom parameter type (a configurable oscillator) and
 should be used in combination with the [parameter editor
-example](https://github.com/thi-ng/genart-api/tree/main/examples/param-editors)
+example](https://codeberg.org/thi.ng/genart-api/tree/main/examples/param-editors)
 to enable interactive configuration of all the parameters used.
 
 ## Launching & building
